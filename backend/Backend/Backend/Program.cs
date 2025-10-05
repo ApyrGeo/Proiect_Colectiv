@@ -7,6 +7,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    // Register your mappings here
+    // Example: cfg.CreateMap<Source, Destination>();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,5 +29,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-//test
