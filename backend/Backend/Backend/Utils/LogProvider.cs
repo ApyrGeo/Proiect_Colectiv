@@ -4,10 +4,8 @@ namespace Backend.Utils;
 
 public static class LogProvider
 {
-    private static readonly ILog _log = LogManager.GetLogger(typeof(LogProvider));
-
-    public static ILog GetLogger()
+    public static ILog CreateLogger<T>()
     {
-        return _log;
+        return LogManager.GetLogger(typeof(T));
     }
 }
