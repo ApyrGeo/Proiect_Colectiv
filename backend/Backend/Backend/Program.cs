@@ -14,6 +14,8 @@ builder.Logging.AddLog4Net("log4net.config");
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -26,8 +28,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-//use middleware
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.Run();

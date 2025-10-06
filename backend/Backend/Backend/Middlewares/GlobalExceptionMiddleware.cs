@@ -1,15 +1,16 @@
-﻿using System.Net;
-using Backend.Exceptions;
-using log4net;
+﻿using Backend.Exceptions;
+using Backend.Exceptions.Custom;
+using System.Net;
 
 namespace Backend.Middlewares;
 
-public class ExceptionHandlingMiddleware
+
+public class GlobalExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILog _logger;
+    private readonly ILogger<GlobalExceptionMiddleware> _logger;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILog logger)
+    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -29,13 +30,11 @@ public class ExceptionHandlingMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        _logger.Error("An unexpected error occurred.");
-
-        //More log stuff        
+        _logger.LogError(exception, "An unexpected error occurred.");
 
         ExceptionResponse response = exception switch
         {
-            NotFoundException _ => new ExceptionResponse(HttpStatusCode.NotFound, "The request key not found."),
+            CustomException e => new ExceptionResponse(e.StatusCode, e.Message),
             _ => new ExceptionResponse(HttpStatusCode.InternalServerError, "Internal server error. Please retry later.")
         };
 

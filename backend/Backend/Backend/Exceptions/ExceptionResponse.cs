@@ -2,8 +2,8 @@
 
 namespace Backend.Exceptions;
 
-public class ExceptionResponse(HttpStatusCode StatusCode, string Description) : Exception
+public class ExceptionResponse(HttpStatusCode statusCode, string description)
 {
-    public HttpStatusCode StatusCode { get; } = StatusCode;
-    public string Description { get; } = Description;
+    public HttpStatusCode StatusCode { get; } = statusCode;
+    public string Description { get; } = description;
 }
