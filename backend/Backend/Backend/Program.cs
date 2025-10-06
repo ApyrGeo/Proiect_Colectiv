@@ -1,3 +1,5 @@
+using Backend.Middlewares;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,6 +24,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+//use middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-//test
+app.Run();
