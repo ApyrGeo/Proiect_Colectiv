@@ -1,5 +1,3 @@
-using Backend.Utils;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,6 +7,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    // Register your mappings here
+    // Example: cfg.CreateMap<Source, Destination>();
+});
 builder.Logging.ClearProviders();
 builder.Logging.AddLog4Net("log4net.config");
 
