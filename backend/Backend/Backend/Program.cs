@@ -12,6 +12,8 @@ builder.Services.AddAutoMapper(cfg =>
     // Register your mappings here
     // Example: cfg.CreateMap<Source, Destination>();
 });
+builder.Logging.ClearProviders();
+builder.Logging.AddLog4Net("log4net.config");
 
 var app = builder.Build();
 
