@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\" />
     <Folder Include="Logs\" />
     <Folder Include="Utils\" />
   </ItemGroup>
