@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api/[controller]")]
 public class UserController(IUserService service, ILogger<UserController> logger) : ControllerBase
 {
     private readonly IUserService _service = service;

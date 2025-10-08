@@ -6,20 +6,14 @@ namespace Backend.Service.Validators;
 
 public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroupPostDTO>
 {
-    private readonly IStudentGroupRepository _studentGroupRepository;
-    private readonly IStudentSubGroupRepository _studentSubGroupRepository;
-
-    public StudentSubGroupPostDTOValidator(IStudentGroupRepository studentGroupRepository, IStudentSubGroupRepository studentSubGroupRepository)
+    public StudentSubGroupPostDTOValidator(IAcademicRepository academicRepository)
     {
-        _studentGroupRepository = studentGroupRepository;
-        _studentSubGroupRepository = studentSubGroupRepository;
-
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Student sub-group name is required.")
             .MaximumLength(50).WithMessage("Student sub-group name must not exceed 50 characters.")
             .MustAsync(async (dto, name, cancellation) =>
             {
-                var existingSubGroup = await _studentSubGroupRepository.GetByNameAsync(name);
+                var existingSubGroup = await academicRepository.GetSubGroupByNameAsync(name);
                 return existingSubGroup == null;
             }).WithMessage("A student sub-group with the same name already exists in the specified student group.");
 
@@ -27,7 +21,7 @@ public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroup
             .GreaterThan(0).WithMessage("StudentGroupId must be a positive integer.")
             .MustAsync(async (studentGroupId, cancellation) =>
             {
-                var studentGroup = await _studentGroupRepository.GetByIdAsync(studentGroupId);
+                var studentGroup = await academicRepository.GetGroupByIdAsync(studentGroupId);
                 return studentGroup != null;
             }).WithMessage("The specified StudentGroupId does not exist.");
     }

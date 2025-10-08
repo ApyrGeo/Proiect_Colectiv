@@ -15,14 +15,14 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
             .NotNull()
             .NotEmpty()
             .WithMessage("First name is required.")
-            .Matches("^[A-Z][a-zA-Z-]+( [A-Z][a-zA-Z-]+)*$")
+            .Matches("^\\p{L}+( \\p{L}+)*$")
             .WithMessage("Invalid first name format.");
 
         RuleFor(user => user.LastName)
             .NotNull()
             .NotEmpty()
             .WithMessage("Last name is required.")
-            .Matches("^[A-Z][a-zA-Z-]+( [A-Z][a-zA-Z-]+)*$")
+            .Matches("^\\p{L}+( \\p{L}+)*$")
             .WithMessage("Invalid last name format.");
 
         RuleFor(user => user.PhoneNumber)
@@ -50,10 +50,8 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
             .NotEmpty()
             .WithMessage("Password is required.")
             .MinimumLength(8)
-            .WithMessage("Password must be at least 8 characters long.")
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
-            .WithMessage("Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character");
-
+            .WithMessage("Password must be at least 8 characters long.");
+            
         RuleFor(user => user.Role)
             .NotNull()
             .NotEmpty()

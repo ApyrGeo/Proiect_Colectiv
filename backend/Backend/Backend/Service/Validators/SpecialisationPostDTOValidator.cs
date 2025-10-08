@@ -6,20 +6,14 @@ namespace Backend.Service.Validators;
 
 public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPostDTO>
 {
-    private readonly IFacultyRepository _facultyRepository;
-    private readonly ISpecialisationRepository _specialisationRepository;
-
-    public SpecialisationPostDTOValidator(IFacultyRepository facultyRepository, ISpecialisationRepository specialisationRepository)
+    public SpecialisationPostDTOValidator(IAcademicRepository academicRepository)
     {
-        _facultyRepository = facultyRepository;
-        _specialisationRepository = specialisationRepository;
-
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Specialisation name is required.")
             .MaximumLength(100).WithMessage("Specialisation name must not exceed 100 characters.")
             .MustAsync(async (name, cancellation) =>
             {
-                var existingSpecialisation = await _specialisationRepository.GetByNameAsync(name);
+                var existingSpecialisation = await academicRepository.GetSpecialisationByNameAsync(name);
                 return existingSpecialisation == null;
             }).WithMessage("A specialisation with the same name already exists.");
 
@@ -27,7 +21,7 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
             .GreaterThan(0).WithMessage("Faculty ID must be a positive integer.")
             .MustAsync(async (facultyId, cancellation) =>
             {
-                var faculty = await _facultyRepository.GetByIdAsync(facultyId);
+                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId);
                 return faculty != null;
             }).WithMessage("Faculty with the given ID does not exist.");
     }

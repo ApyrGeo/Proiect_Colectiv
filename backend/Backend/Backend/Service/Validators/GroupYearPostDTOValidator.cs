@@ -6,20 +6,15 @@ namespace Backend.Service.Validators;
 
 public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
 {
-    private readonly ISpecialisationRepository _specialisationRepository;
-    private readonly IGroupYearRepository _groupYearRepository;
-    public GroupYearPostDTOValidator(ISpecialisationRepository specialisationRepository, IGroupYearRepository groupYearRepository)
+    public GroupYearPostDTOValidator(IAcademicRepository academicRepository)
     {
-        _specialisationRepository = specialisationRepository;
-        _groupYearRepository = groupYearRepository;
-
         RuleFor(g => g.Year)
             .NotNull()
             .NotEmpty()
             .WithMessage("Year is required.")
             .MustAsync(async (year, cancellation) =>
             {
-                var existingGroupYear = await _groupYearRepository.GetByYearAsync(year);
+                var existingGroupYear = await academicRepository.GetGroupYearByYearAsync(year);
                 return existingGroupYear == null;
             })
             .WithMessage("GroupYear name already exists");
@@ -30,7 +25,7 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
             .GreaterThan(0)
             .WithMessage("SpecialisationId must be a positive integer.")
             .MustAsync(async (id, cancellation) => { 
-                var specialisation = await _specialisationRepository.GetByIdAsync(id);
+                var specialisation = await academicRepository.GetSpecialisationByIdAsync(id);
                 return specialisation != null;
             })
             .WithMessage("Specialisation with the given ID does not exist.");

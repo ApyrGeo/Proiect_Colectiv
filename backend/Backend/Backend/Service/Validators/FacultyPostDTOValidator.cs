@@ -6,16 +6,14 @@ namespace Backend.Service.Validators;
 
 public class FacultyPostDTOValidator : AbstractValidator<FacultyPostDTO>
 {
-    private readonly IFacultyRepository _repo;
-
-    public FacultyPostDTOValidator(IFacultyRepository repo)
+    public FacultyPostDTOValidator(IAcademicRepository repo)
     {
         RuleFor(f => f.Name)
             .NotEmpty().WithMessage("Faculty name is required.")
             .MaximumLength(100).WithMessage("Faculty name must not exceed 100 characters.")
             .MustAsync(async (name, cancellation) =>
             {
-                var existingFaculty = await repo.GetByNameAsync(name); 
+                var existingFaculty = await repo.GetFacultyByNameAsync(name); 
                 return existingFaculty == null;
             }).WithMessage("A faculty with the same name already exists.");
     }

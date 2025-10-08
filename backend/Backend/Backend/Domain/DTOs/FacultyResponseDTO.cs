@@ -2,7 +2,6 @@
 
 namespace Backend.Domain.DTOs;
 
-[JsonObject(IsReference = true)]
 public class FacultyResponseDTO
 {
     public required int Id { get; set; }

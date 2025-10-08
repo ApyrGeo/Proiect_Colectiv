@@ -1,4 +1,6 @@
-﻿namespace Backend.Domain.DTOs;
+﻿using Backend.Domain.Enums;
+
+namespace Backend.Domain.DTOs;
 
 public class UserPostDTO
 {

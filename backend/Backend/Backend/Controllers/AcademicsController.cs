@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("api/academics")]
+[Route("api/[controller]")]
 public class AcademicsController(ILogger<AcademicsController> logger, IAcademicsService service) : ControllerBase
 {
     private readonly ILogger<AcademicsController> _logger = logger;

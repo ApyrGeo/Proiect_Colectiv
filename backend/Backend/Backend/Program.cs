@@ -1,13 +1,13 @@
 using Backend.Context;
 using Backend.Domain;
 using Backend.Domain.DTOs;
-using Backend.Helpers;
 using Backend.Interfaces;
 using Backend.Middlewares;
 using Backend.Repository;
 using Backend.Service;
 using Backend.Service.Validators;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory; 
@@ -15,11 +15,7 @@ using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-    });
+builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -70,15 +66,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentPostDTOValidator>
 
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
-builder.Services.AddScoped<IFacultyRepository, FacultyRepository>();
-builder.Services.AddScoped<ISpecialisationRepository, SpecialisationRepository>();
-builder.Services.AddScoped<IGroupYearRepository, GroupYearRepository>();
-builder.Services.AddScoped<IStudentGroupRepository, StudentGroupRepository>();
-builder.Services.AddScoped<IStudentSubGroupRepository, StudentSubGroupRepository>();
+builder.Services.AddScoped<IAcademicRepository, AcademicRepository>();
 
 //helpers
-builder.Services.AddScoped<IPasswordHashHelper, PasswordHashHelper>();
+builder.Services.Configure<PasswordHasherOptions>(
+    options => options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3
+    );
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 //services
 builder.Services.AddScoped<IUserService, UserService>();
