@@ -1,0 +1,33 @@
+﻿using Backend.Domain.DTOs;
+using Backend.Interfaces;
+using FluentValidation;
+
+namespace Backend.Service.Validators;
+
+public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IStudentSubGroupRepository _studentSubGroupRepository;
+
+    public EnrollmentPostDTOValidator(IUserRepository userRepository, IStudentSubGroupRepository studentSubGroupRepository)
+    {
+        _userRepository = userRepository;
+        _studentSubGroupRepository = studentSubGroupRepository;
+
+        RuleFor(e => e.UserId)
+            .GreaterThan(0).WithMessage("UserId must be a positive integer.")
+            .MustAsync(async (userId, cancellation) =>
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+                return user != null;
+            }).WithMessage("User with the specified UserId does not exist.");
+
+        RuleFor(e => e.SubGroupId)
+            .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
+            .MustAsync(async (subGroupId, cancellation) =>
+            {
+                var subGroup = await _studentSubGroupRepository.GetByIdAsync(subGroupId);
+                return subGroup != null;
+            }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");
+    }
+}
