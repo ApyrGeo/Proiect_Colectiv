@@ -1,0 +1,214 @@
+﻿using AutoMapper;
+using log4net;
+using Backend.Domain;
+using Backend.Domain.DTOs;
+using Backend.Exceptions.Custom;
+using Backend.Interfaces;
+using FluentValidation;
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using System.Text.Json;
+
+namespace Backend.Service;
+
+public class AcademicsService(IAcademicRepository academicRepository, IMapper mapper, IValidatorFactory validatorFactory) : IAcademicsService
+{
+    private readonly IAcademicRepository _academicRepository = academicRepository;
+
+    private readonly IMapper _mapper = mapper;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
+    private readonly IValidatorFactory _validatorFactory = validatorFactory;
+
+    public async Task<FacultyResponseDTO> CreateFaculty(FacultyPostDTO facultyPostDto)
+    {
+        _logger.InfoFormat("Validating FacultyPostDTO: {0}", JsonSerializer.Serialize(facultyPostDto));
+        var validator = _validatorFactory.Get<FacultyPostDTO>();
+        var validationResult = await validator.ValidateAsync(facultyPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var faculty = _mapper.Map<Faculty>(facultyPostDto);
+
+        _logger.InfoFormat("Adding new faculty to repository: {0}", JsonSerializer.Serialize(faculty));
+        faculty = await _academicRepository.AddFacultyAsync(faculty);
+        await _academicRepository.SaveChangesAsync();
+
+        var facultyDto = _mapper.Map<FacultyResponseDTO>(faculty);
+        return facultyDto;
+    }
+
+    public async Task<GroupYearResponseDTO> CreateGroupYear(GroupYearPostDTO groupYearPostDto)
+    {
+        _logger.InfoFormat("Validating GroupYearPostDTO: {0}", JsonSerializer.Serialize(groupYearPostDto));
+        var validator = _validatorFactory.Get<GroupYearPostDTO>();
+        var validationResult = await validator.ValidateAsync(groupYearPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var groupYear = _mapper.Map<GroupYear>(groupYearPostDto);
+
+        _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(groupYear));
+        groupYear = await _academicRepository.AddGroupYearAsync(groupYear);
+        await _academicRepository.SaveChangesAsync();
+
+        var groupYearDto = _mapper.Map<GroupYearResponseDTO>(groupYear);
+        return groupYearDto;
+    }
+
+    public async Task<SpecialisationResponseDTO> CreateSpecialisation(SpecialisationPostDTO specialisationPostDto)
+    {
+        _logger.InfoFormat("Validating SpecialisationPostDTO: {0}", JsonSerializer.Serialize(specialisationPostDto));
+        var validator = _validatorFactory.Get<SpecialisationPostDTO>();
+        var validationResult = await validator.ValidateAsync(specialisationPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var specialisation = _mapper.Map<Specialisation>(specialisationPostDto);
+
+        _logger.InfoFormat("Adding new specialisation to repository: {0}", JsonSerializer.Serialize(specialisation));
+        specialisation = await _academicRepository.AddSpecialisationAsync(specialisation);
+        await _academicRepository.SaveChangesAsync();
+
+        var specialisationDto = _mapper.Map<SpecialisationResponseDTO>(specialisation);
+        return specialisationDto;
+    }
+
+    public async Task<StudentGroupResponseDTO> CreateStudentGroup(StudentGroupPostDTO studentGroupPostDto)
+    {
+        _logger.InfoFormat("Validating StudentGroupPostDTO: {0}", JsonSerializer.Serialize(studentGroupPostDto));
+        var validator = _validatorFactory.Get<StudentGroupPostDTO>();
+        var validationResult = await validator.ValidateAsync(studentGroupPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var studentGroup = _mapper.Map<StudentGroup>(studentGroupPostDto);
+
+        _logger.InfoFormat("Adding new student group to repository: {0}", JsonSerializer.Serialize(studentGroup));
+        studentGroup = await _academicRepository.AddGroupAsync(studentGroup);
+        await _academicRepository.SaveChangesAsync();
+
+        var studentGroupDto = _mapper.Map<StudentGroupResponseDTO>(studentGroup);
+        return studentGroupDto;
+    }
+
+    public async Task<StudentSubGroupResponseDTO> CreateStudentSubGroup(StudentSubGroupPostDTO studentSubGroupPostDto)
+    {
+        _logger.InfoFormat("Validating StudentSubGroupPostDTO: {0}", JsonSerializer.Serialize(studentSubGroupPostDto));
+        var validator = _validatorFactory.Get<StudentSubGroupPostDTO>();
+        var validationResult = await validator.ValidateAsync(studentSubGroupPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var studentSubGroup = _mapper.Map<StudentSubGroup>(studentSubGroupPostDto);
+
+        _logger.InfoFormat("Adding new student sub-group to repository: {0}", JsonSerializer.Serialize(studentSubGroup));
+        studentSubGroup = await _academicRepository.AddSubGroupAsync(studentSubGroup);
+        await _academicRepository.SaveChangesAsync();
+
+        var studentSubGroupDto = _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
+        return studentSubGroupDto;
+    }
+
+    public async Task<EnrollmentResponseDTO> CreateUserEnrollment(EnrollmentPostDTO enrollmentPostDto)
+    {
+        _logger.InfoFormat("Validating EnrollmentPostDTO: {0}", JsonSerializer.Serialize(enrollmentPostDto));
+        var validator = _validatorFactory.Get<EnrollmentPostDTO>();
+        var validationResult = await validator.ValidateAsync(enrollmentPostDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var enrollment = _mapper.Map<Enrollment>(enrollmentPostDto);
+
+        _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollment));
+        enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
+        await _academicRepository.SaveChangesAsync();
+
+        _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);
+        var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
+
+        return enrollmentDto;
+    }
+
+    public async Task<FacultyResponseDTO> GetFacultyById(int facultyId)
+    {
+        _logger.InfoFormat("Trying to retrieve faculty with id {0}", JsonSerializer.Serialize(facultyId));
+        var faculty = await _academicRepository.GetFacultyByIdAsync(facultyId)
+            ?? throw new NotFoundException($"Faculty with ID {facultyId} not found.");
+
+        _logger.InfoFormat("Mapping faculty entity to DTO for ID {0}", JsonSerializer.Serialize(facultyId));
+        var facultyDto = _mapper.Map<FacultyResponseDTO>(faculty);
+
+        return facultyDto;
+    }
+
+    public async Task<GroupYearResponseDTO> GetGroupYearById(int groupYearId)
+    {
+        _logger.InfoFormat("Trying to retrieve group year with id {0}", JsonSerializer.Serialize(groupYearId));
+        var groupYear = await _academicRepository.GetGroupYearByIdAsync(groupYearId)
+            ?? throw new NotFoundException($"GroupYear with ID {groupYearId} not found.");
+
+        _logger.InfoFormat("Mapping group year entity to DTO for ID {0}", JsonSerializer.Serialize(groupYearId));
+        var groupYearDto = _mapper.Map<GroupYearResponseDTO>(groupYear);
+
+        return groupYearDto;
+    }
+
+    public async Task<SpecialisationResponseDTO> GetSpecialisationById(int specialisationId)
+    {
+        _logger.InfoFormat("Trying to retrieve specialisation with id {0}", JsonSerializer.Serialize(specialisationId));
+        var specialisation = await _academicRepository.GetSpecialisationByIdAsync(specialisationId)
+            ?? throw new NotFoundException($"Specialisation with ID {specialisationId} not found.");
+
+        _logger.InfoFormat("Mapping specialisation entity to DTO for ID {0}", JsonSerializer.Serialize(specialisationId));
+        var specialisationDto = _mapper.Map<SpecialisationResponseDTO>(specialisation);
+
+        return specialisationDto;
+    }
+
+    public async Task<StudentGroupResponseDTO> GetStudentGroupById(int studentGroupId)
+    {
+        _logger.InfoFormat("Trying to retrieve student group with id {0}", JsonSerializer.Serialize(studentGroupId));
+        var studentGroup = await _academicRepository.GetGroupByIdAsync(studentGroupId)
+            ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
+
+        _logger.InfoFormat("Mapping student group entity to DTO for ID {0}", JsonSerializer.Serialize(studentGroupId));
+        var studentGroupDto = _mapper.Map<StudentGroupResponseDTO>(studentGroup);
+
+        return studentGroupDto;
+    }
+
+    public async Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId)
+    {
+        _logger.InfoFormat("Trying to retrieve student sub-group with id {0}", JsonSerializer.Serialize(studentSubGroupId));
+        var studentSubGroup = await _academicRepository.GetSubGroupByIdAsync(studentSubGroupId)
+           ?? throw new NotFoundException($"StudentSubGroup with ID {studentSubGroupId} not found.");
+
+        _logger.InfoFormat("Mapping student sub-group entity to DTO for ID {0}", JsonSerializer.Serialize(studentSubGroupId));
+        var studentSubGroupDto = _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
+
+        return studentSubGroupDto;
+    }
+
+    public async Task<EnrollmentResponseDTO> GetUserEnrollment(int userId)
+    {
+        _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", JsonSerializer.Serialize(userId));
+        var enrollment = await _academicRepository.GetEnrollmentByUserId(userId)
+            ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
+
+        _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", JsonSerializer.Serialize(userId));
+        var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
+
+        return enrollmentDto;
+    }
+}

@@ -30,7 +30,7 @@ public class GlobalExceptionMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        _logger.LogError(exception, "An unexpected error occurred.");
+        _logger.LogError(exception, "An error occurred.");
 
         ExceptionResponse response = exception switch
         {

@@ -1,25 +1,78 @@
+using Backend.Context;
+using Backend.Domain;
+using Backend.Domain.DTOs;
+using Backend.Interfaces;
 using Backend.Middlewares;
+using Backend.Repository;
+using Backend.Service;
+using Backend.Service.Validators;
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory; 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//database
+builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
+{
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        );
+});
 
 builder.Services.AddAutoMapper(cfg =>
 {
     // Register your mappings here
     // Example: cfg.CreateMap<Source, Destination>();
+
+    cfg.CreateMap<User, UserResponseDTO>().ReverseMap();
+    cfg.CreateMap<UserPostDTO, User>();
+    cfg.CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
+    cfg.CreateMap<EnrollmentPostDTO, Enrollment>();
+    cfg.CreateMap<Faculty, FacultyResponseDTO>().ReverseMap();
+    cfg.CreateMap<FacultyPostDTO, Faculty>();
+    cfg.CreateMap<Specialisation, SpecialisationResponseDTO>().ReverseMap();
+    cfg.CreateMap<SpecialisationPostDTO, Specialisation>();
+    cfg.CreateMap<GroupYear, GroupYearResponseDTO>().ReverseMap();
+    cfg.CreateMap<GroupYearPostDTO, GroupYear>();
+    cfg.CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
+    cfg.CreateMap<StudentGroupPostDTO, StudentGroup>();
+    cfg.CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
+    cfg.CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
 });
+
+//logging
 builder.Logging.ClearProviders();
 builder.Logging.AddLog4Net("log4net.config");
 
-var app = builder.Build();
+//validators
+builder.Services.AddScoped<IValidatorFactory, ValidatorFactory>();
+builder.Services.AddValidatorsFromAssemblyContaining<UserPostDTOValidator>();
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
+//repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAcademicRepository, AcademicRepository>();
+
+//helpers
+builder.Services.Configure<PasswordHasherOptions>(
+    options => options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3
+    );
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+
+//services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAcademicsService, AcademicsService>();
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -27,6 +80,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
