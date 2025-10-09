@@ -57,12 +57,6 @@ builder.Logging.AddLog4Net("log4net.config");
 //validators
 builder.Services.AddScoped<IValidatorFactory, ValidatorFactory>();
 builder.Services.AddValidatorsFromAssemblyContaining<UserPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<FacultyPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<SpecialisationPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<GroupYearPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<StudentGroupPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<StudentSubGroupPostDTOValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<EnrollmentPostDTOValidator>();
 
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();

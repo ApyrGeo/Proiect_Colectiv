@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
+using log4net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,20 +8,20 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AcademicsController(ILogger<AcademicsController> logger, IAcademicsService service) : ControllerBase
+public class AcademicsController(IAcademicsService service) : ControllerBase
 {
-    private readonly ILogger<AcademicsController> _logger = logger;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsController));
     private readonly IAcademicsService _service = service;
 
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
     public async Task<ActionResult<EnrollmentResponseDTO>> GetUserEnrollment([FromQuery] int userId)
     {
-        _logger.LogInformation("Fetching enrollment for user with ID {UserId}", userId);
+        _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
 
         EnrollmentResponseDTO enrollment = await _service.GetUserEnrollment(userId);
 
-        return enrollment;
+        return Ok(enrollment);
     }
 
     [HttpPost("enrollments")]
@@ -28,7 +29,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<EnrollmentResponseDTO>> CreateUserEnrollment([FromBody] EnrollmentPostDTO enrollmentPostDto)
     {
-        _logger.LogInformation("Creating enrollment for user with ID {UserId}", enrollmentPostDto.UserId);
+        _logger.InfoFormat("Creating enrollment for user with ID {0}", enrollmentPostDto.UserId);
 
         EnrollmentResponseDTO createdEnrollment = await _service.CreateUserEnrollment(enrollmentPostDto);
 
@@ -39,7 +40,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(200)]
     public async Task<ActionResult<FacultyResponseDTO>> GetFacultyById([FromRoute] int facultyId)
     {
-        _logger.LogInformation("Fetching faculty with id {FacultyId}", facultyId);
+        _logger.InfoFormat("Fetching faculty with id {0}", facultyId);
 
         FacultyResponseDTO faculties = await _service.GetFacultyById(facultyId);
 
@@ -51,7 +52,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<FacultyResponseDTO>> CreateFaculty([FromBody] FacultyPostDTO facultyPostDto)
     {
-        _logger.LogInformation("Creating new faculty with name {FacultyName}", facultyPostDto.Name);
+        _logger.InfoFormat("Creating new faculty with name {0}", facultyPostDto.Name);
 
         FacultyResponseDTO createdFaculty = await _service.CreateFaculty(facultyPostDto);
 
@@ -62,7 +63,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(200)]
     public async Task<ActionResult<SpecialisationResponseDTO>> GetSpecialisationById([FromRoute] int specialisationId)
     {
-        _logger.LogInformation("Fetching specialisation with id {SpecialisationId}", specialisationId);
+        _logger.InfoFormat("Fetching specialisation with id {0}", specialisationId);
 
         SpecialisationResponseDTO specialisations = await _service.GetSpecialisationById(specialisationId);
 
@@ -74,7 +75,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<SpecialisationResponseDTO>> CreateSpecialisation([FromBody] SpecialisationPostDTO specialisationPostDto)
     {
-        _logger.LogInformation("Creating new specialisation with name {SpecialisationName}", specialisationPostDto.Name);
+        _logger.InfoFormat("Creating new specialisation with name {0}", specialisationPostDto.Name);
 
         SpecialisationResponseDTO createdSpecialisation = await _service.CreateSpecialisation(specialisationPostDto);
 
@@ -85,7 +86,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(200)]
     public async Task<ActionResult<GroupYearResponseDTO>> GetGroupYearById([FromRoute] int groupYearId)
     {
-        _logger.LogInformation("Fetching group year with id {GroupYearId}", groupYearId);
+        _logger.InfoFormat("Fetching group year with id {0}", groupYearId);
 
         GroupYearResponseDTO groupYear = await _service.GetGroupYearById(groupYearId);
 
@@ -97,7 +98,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<GroupYearResponseDTO>> CreateGroupYear([FromBody] GroupYearPostDTO groupYearPostDto)
     {
-        _logger.LogInformation("Creating new group year for specialisation ID {SpecialisationId} and year {Year}", groupYearPostDto.SpecialisationId, groupYearPostDto.Year);
+        _logger.InfoFormat("Creating new group year for specialisation ID {0} and year {1}", groupYearPostDto.SpecialisationId, groupYearPostDto.Year);
         
         GroupYearResponseDTO createdGroupYear = await _service.CreateGroupYear(groupYearPostDto);
         
@@ -108,7 +109,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(200)]
     public async Task<ActionResult<StudentGroupResponseDTO>> GetStudentGroupById([FromRoute] int studentGroupId)
     {
-        _logger.LogInformation("Fetching student group with id {StudentGroupId}", studentGroupId);
+        _logger.InfoFormat("Fetching student group with id {0}", studentGroupId);
 
         StudentGroupResponseDTO studentGroup = await _service.GetStudentGroupById(studentGroupId);
 
@@ -120,7 +121,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<StudentGroupResponseDTO>> CreateStudentGroup([FromBody] StudentGroupPostDTO studentGroupPostDto)
     {
-        _logger.LogInformation("Creating new student group with name {GroupName} for group year ID {GroupYearId}", studentGroupPostDto.Name, studentGroupPostDto.GroupYearId);
+        _logger.InfoFormat("Creating new student group with name {0} for group year ID {1}", studentGroupPostDto.Name, studentGroupPostDto.GroupYearId);
         
         StudentGroupResponseDTO createdStudentGroup = await _service.CreateStudentGroup(studentGroupPostDto);
         
@@ -131,7 +132,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(200)]
     public async Task<ActionResult<StudentSubGroupResponseDTO>> GetStudentSubGroupById([FromRoute] int studentSubGroupId)
     {
-        _logger.LogInformation("Fetching student sub-group with id {StudentSubGroupId}", studentSubGroupId);
+        _logger.InfoFormat("Fetching student sub-group with id {0}", studentSubGroupId);
 
         StudentSubGroupResponseDTO studentSubGroup = await _service.GetStudentSubGroupById(studentSubGroupId);
 
@@ -143,7 +144,7 @@ public class AcademicsController(ILogger<AcademicsController> logger, IAcademics
     [ProducesResponseType(422)]
     public async Task<ActionResult<StudentSubGroupResponseDTO>> CreateStudentSubGroup([FromBody] StudentSubGroupPostDTO studentSubGroupPostDto)
     {
-        _logger.LogInformation("Creating new student sub-group with name {SubGroupName} for student group ID {StudentGroupId}", studentSubGroupPostDto.Name, studentSubGroupPostDto.StudentGroupId);
+        _logger.InfoFormat("Creating new student sub-group with name {0} for student group ID {1}", studentSubGroupPostDto.Name, studentSubGroupPostDto.StudentGroupId);
         
         StudentSubGroupResponseDTO createdStudentSubGroup = await _service.CreateStudentSubGroup(studentSubGroupPostDto);
         

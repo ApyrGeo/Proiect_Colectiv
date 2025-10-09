@@ -124,7 +124,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
 
     public async Task<StudentSubGroup?> GetSubGroupByNameAsync(string name)
     {
-        return await _context.SubGroups.SingleOrDefaultAsync    (sg => sg.Name == name);
+        return await _context.SubGroups.SingleOrDefaultAsync(sg => sg.Name == name);
     }
 
     public async Task SaveChangesAsync()
