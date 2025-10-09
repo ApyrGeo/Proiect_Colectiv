@@ -15,14 +15,14 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
             .NotNull()
             .NotEmpty()
             .WithMessage("First name is required.")
-            .Matches("^\\p{L}+( -'\\p{L}+)*$")
+            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$")
             .WithMessage("Invalid first name format.");
 
         RuleFor(user => user.LastName)
             .NotNull()
             .NotEmpty()
             .WithMessage("Last name is required.")
-            .Matches("^\\p{L}+( -'\\p{L}+)*$")
+            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$")
             .WithMessage("Invalid last name format.");
 
         RuleFor(user => user.PhoneNumber)
