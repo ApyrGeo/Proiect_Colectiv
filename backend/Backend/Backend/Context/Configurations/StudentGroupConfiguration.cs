@@ -12,7 +12,7 @@ public class StudentGroupConfiguration : IEntityTypeConfiguration<StudentGroup>
         
         builder.HasIndex(sg => sg.Name)
             .IsUnique();
-        builder.Property(ssg => ssg.Name)
+        builder.Property(sg => sg.Name)
             .IsRequired()
             .HasMaxLength(100);
 

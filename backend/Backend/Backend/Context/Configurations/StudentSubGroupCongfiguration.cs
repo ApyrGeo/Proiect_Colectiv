@@ -8,20 +8,20 @@ public class StudentSubGroupCongfiguration : IEntityTypeConfiguration<StudentSub
 {
     public void Configure(EntityTypeBuilder<StudentSubGroup> builder)
     {
-        builder.HasKey(ssg => ssg.Id);
+        builder.HasKey(sg => sg.Id);
 
-        builder.HasIndex(ssg => ssg.Name)
+        builder.HasIndex(sg => sg.Name)
             .IsUnique();
-        builder.Property(ssg => ssg.Name)
+        builder.Property(sg => sg.Name)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.HasMany(ssg => ssg.Enrollments)
+        builder.HasMany(sg => sg.Enrollments)
             .WithOne(e => e.SubGroup)
             .HasForeignKey(e => e.SubGroupId);
 
-        builder.HasOne(ssg => ssg.StudentGroup)
-            .WithMany(sg => sg.StudentSubGroups)
-            .HasForeignKey(ssg => ssg.StudentGroupId);
+        builder.HasOne(sg => sg.StudentGroup)
+            .WithMany(g => g.StudentSubGroups)
+            .HasForeignKey(sg => sg.StudentGroupId);
     }
 }
