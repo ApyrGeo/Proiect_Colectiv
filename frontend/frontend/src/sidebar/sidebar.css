@@ -33,11 +33,6 @@
     width: var(--app-sidebar-minified-width);
 }
 
-.app-sidebar-content {
-    flex: 1;
-    position: relative;
-}
-
 /* -----------------------------------------------------------------
 /* Menu Items (Expanded State)
 /* ----------------------------------------------------------------- */
@@ -211,7 +206,6 @@
 }
 
 .app-sidebar-minify-btn {
-    user-select: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -236,7 +230,6 @@
 }
 
 .app-sidebar-minify-btn > * {
-    display: block;
     transform: none;
     margin: 0;
     padding: 0;
@@ -244,10 +237,7 @@
 
 .app-sidebar-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 900;
     opacity: 0;
@@ -291,7 +281,6 @@
 .hover-submenu-link {
     display: block;
     color: #b5bdc9;
-    text-decoration: none;
     padding: 4px 0;
     font-size: 13px;
 }
