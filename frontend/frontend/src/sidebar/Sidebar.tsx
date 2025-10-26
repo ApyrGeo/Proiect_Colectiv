@@ -10,28 +10,30 @@ const LS_KEY = "app_sidebar_minified";
 const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const location = useLocation();
 
-  const [menus] = useState<MenuItem[]>(getAppMenus);
+  const [menus] = useState<MenuItem[]>(() => getAppMenus());
 
-  const readInitialMinified = () => {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw === "true") return true;
-    if (raw === "false") return false;
-    return appSidebarMinified;
+  const readInitialMinified = (): boolean => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw === "true") return true;
+      if (raw === "false") return false;
+    } catch {}
+    return Boolean(appSidebarMinified);
   };
 
   const mountedRef = useRef(false);
 
   const [isMinified, setIsMinified] = useState<boolean>(() => readInitialMinified());
 
-  const getInitialExpanded = () => {
+  const getInitialExpanded = (): string | null => {
     const activeParent = getAppMenus()
       .flatMap((section) => section.submenu ?? [])
       .find((item) => item.submenu?.some((sub) => location.pathname.startsWith(sub.url ?? "")));
 
-    return activeParent?.title ?? null;
+    return activeParent ? activeParent.title : null;
   };
 
-  const [expanded, setExpanded] = useState<string | null>(getInitialExpanded);
+  const [expanded, setExpanded] = useState<string | null>(() => getInitialExpanded());
 
   const [hoveredMenu, setHoveredMenu] = useState<MenuItem | null>(null);
   const [hoverPosition, setHoverPosition] = useState<number>(0);
@@ -42,7 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
       mountedRef.current = true;
       return;
     }
-    localStorage.setItem(LS_KEY, isMinified ? "true" : "false");
+    try {
+      localStorage.setItem(LS_KEY, isMinified ? "true" : "false");
+    } catch {}
   }, [isMinified]);
 
   const toggleSubmenu = (title: string) => {
@@ -80,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setHoveredMenu(null);
   };
 
-  const isChildActive = (item: MenuItem) => {
+  const isChildActive = (item: MenuItem): boolean => {
     if (!item.submenu) return false;
     return item.submenu.some((sub) => isActiveUrl(sub.url));
   };
@@ -135,7 +139,8 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                     onMouseLeave={handleMouseLeave}
                   >
                     {item.submenu ? (
-                      <button
+                      <a
+                        href="#!"
                         className={`menu-link ${isChildActive(item) ? "active-link" : ""}`}
                         onClick={(e) => {
                           e.preventDefault();
@@ -147,7 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                         {!isMinified && item.submenu && (
                           <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
                         )}
-                      </button>
+                      </a>
                     ) : (
                       <NavLink
                         to={item.url ?? "#"}
