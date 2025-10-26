@@ -10,30 +10,30 @@ const LS_KEY = "app_sidebar_minified";
 const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const location = useLocation();
 
-  const [menus] = useState<MenuItem[]>(() => getAppMenus());
+  const [menus] = useState<MenuItem[]>(getAppMenus);
 
-  const readInitialMinified = (): boolean => {
+  const readInitialMinified = () => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw === "true") return true;
       if (raw === "false") return false;
     } catch {}
-    return Boolean(appSidebarMinified);
+    return appSidebarMinified;
   };
 
   const mountedRef = useRef(false);
 
   const [isMinified, setIsMinified] = useState<boolean>(() => readInitialMinified());
 
-  const getInitialExpanded = (): string | null => {
+  const getInitialExpanded = () => {
     const activeParent = getAppMenus()
       .flatMap((section) => section.submenu ?? [])
       .find((item) => item.submenu?.some((sub) => location.pathname.startsWith(sub.url ?? "")));
 
-    return activeParent ? activeParent.title : null;
+    return activeParent?.title;
   };
 
-  const [expanded, setExpanded] = useState<string | null>(() => getInitialExpanded());
+  const [expanded, setExpanded] = useState<string | undefined>(getInitialExpanded);
 
   const [hoveredMenu, setHoveredMenu] = useState<MenuItem | null>(null);
   const [hoverPosition, setHoverPosition] = useState<number>(0);
@@ -44,14 +44,12 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
       mountedRef.current = true;
       return;
     }
-    try {
-      localStorage.setItem(LS_KEY, isMinified ? "true" : "false");
-    } catch {}
+    localStorage.setItem(LS_KEY, isMinified ? "true" : "false");
   }, [isMinified]);
 
   const toggleSubmenu = (title: string) => {
     if (isMinified) return;
-    setExpanded((prev) => (prev === title ? null : title));
+    setExpanded(prev => prev === title ? undefined : title);
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>, item: MenuItem) => {
@@ -106,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
       .flatMap((section) => section.submenu ?? [])
       .find((item) => item.submenu?.some((sub) => isActiveUrl(sub.url)));
 
-    setExpanded((prev) => activeParent?.title ?? prev ?? null);
+    setExpanded(prev => activeParent?.title ?? prev);
     setHoveredMenu(null);
   }, [location.pathname]);
 

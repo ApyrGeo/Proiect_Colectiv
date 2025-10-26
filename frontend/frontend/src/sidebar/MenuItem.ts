@@ -9,7 +9,7 @@ export interface MenuItem {
   caret?: boolean | string;
   highlight?: boolean;
   hide?: boolean;
-  state?: "expand" | "collapse" | "closed";
+  state?: "expanded" | "collapsed" | "closed";
   submenu?: MenuItem[];
   expanded?: boolean;
 }
