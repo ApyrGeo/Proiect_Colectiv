@@ -200,15 +200,15 @@ public class AcademicsService(IAcademicRepository academicRepository, IMapper ma
         return studentSubGroupDto;
     }
 
-    public async Task<EnrollmentResponseDTO> GetUserEnrollment(int userId)
+    public async Task<List<EnrollmentResponseDTO>> GetUserEnrollments(int userId)
     {
         _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", JsonSerializer.Serialize(userId));
-        var enrollment = await _academicRepository.GetEnrollmentByUserId(userId)
+        var enrollments = await _academicRepository.GetEnrollmentsByUserId(userId)
             ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", JsonSerializer.Serialize(userId));
-        var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
+        var enrollmentsDto = _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
 
-        return enrollmentDto;
+        return enrollmentsDto;
     }
 }
