@@ -10,8 +10,6 @@ public class GroupYearConfiguration : IEntityTypeConfiguration<GroupYear>
     {
         builder.HasKey(gy => gy.Id);
 
-        builder.HasIndex(gy => gy.Year)
-            .IsUnique();
         builder.Property(ssg => ssg.Year)
             .IsRequired()
             .HasMaxLength(100);

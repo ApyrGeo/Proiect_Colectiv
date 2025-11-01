@@ -1,4 +1,5 @@
 using Backend.Context;
+using Backend.DataSeeder;
 using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Interfaces;
@@ -72,6 +73,12 @@ builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAcademicsService, AcademicsService>();
 
+//data seeders
+builder.Services.AddScoped<UniversityDataSeeder>();
+builder.Services.AddScoped<UserDataSeeder>();
+builder.Services.AddScoped<GlobalDataSeeder>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -88,5 +95,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//try seed DB
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<GlobalDataSeeder>();
+    await seeder.SeedAsync();
+}
 
 app.Run();
