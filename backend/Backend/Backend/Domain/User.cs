@@ -1,5 +1,4 @@
 ﻿using Backend.Domain.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Domain;
 
@@ -14,4 +13,5 @@ public class User
     public required UserRole Role { get; set; }
 
     public List<Enrollment> Enrollments { get; set; } = [];
+    public List<Teacher> Teachers { get; set; } = [];
 }
