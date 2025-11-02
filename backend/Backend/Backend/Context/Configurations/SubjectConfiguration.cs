@@ -15,5 +15,9 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         builder.Property(f => f.Name)
             .IsRequired()
             .HasMaxLength(100);
+        builder.Property(f => f.NrCredits)
+            .IsRequired();
+        builder.Property(f => f.ForScholarship)
+            .IsRequired();
     }
 }

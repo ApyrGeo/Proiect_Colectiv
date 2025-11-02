@@ -26,9 +26,9 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("subjects")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<FacultyResponseDTO>> CreateSubject([FromBody] SubjectPostDTO subjectPostDto)
+    public async Task<ActionResult<SubjectResponseDTO>> CreateSubject([FromBody] SubjectPostDTO subjectPostDto)
     {
-        _logger.InfoFormat("Creating new faculty with name {0}", subjectPostDto.Name);
+        _logger.InfoFormat("Creating new subject with name {0}", subjectPostDto.Name);
 
         SubjectResponseDTO createdSubject = await _service.CreateSubject(subjectPostDto);
 

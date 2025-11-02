@@ -16,5 +16,13 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
                 var existingSubject = await repo.GetSubjectByNameAsync(name); 
                 return existingSubject == null;
             }).WithMessage("A subject with the same name already exists.");
+        
+        RuleFor(f => f.NrCredits)
+            .NotNull().WithMessage("Nr credits is required.")
+            .InclusiveBetween(1, 6).WithMessage("Nr credits must be between 1 and 6.");
+        
+        RuleFor(f => f.ForScholarship)
+            .NotNull().WithMessage("You must specify if the subject counts for scholarship.");
+          
     }
 }

@@ -44,6 +44,33 @@ namespace Backend.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Enums.Subject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ForScholarship")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("NrCredits")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Subjects");
+                });
+
             modelBuilder.Entity("Backend.Domain.Faculty", b =>
                 {
                     b.Property<int>("Id")
