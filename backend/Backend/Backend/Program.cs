@@ -7,10 +7,12 @@ using Backend.Middlewares;
 using Backend.Repository;
 using Backend.Service;
 using Backend.Service.Validators;
+using EmailService.Configuration;
 using EmailService.Providers;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
@@ -70,6 +72,12 @@ builder.Services.Configure<PasswordHasherOptions>(
     );
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
+//email
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<EmailSettings>>().Value);
+builder.Services.AddScoped<EmailProvider>();
+
 //services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAcademicsService, AcademicsService>();
@@ -78,10 +86,6 @@ builder.Services.AddScoped<IAcademicsService, AcademicsService>();
 builder.Services.AddScoped<UniversityDataSeeder>();
 builder.Services.AddScoped<UserDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
-
-
-//email
-builder.Services.AddScoped<EmailProvider>();
 
 var app = builder.Build();
 

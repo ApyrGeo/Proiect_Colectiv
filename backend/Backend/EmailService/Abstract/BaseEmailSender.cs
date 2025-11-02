@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using EmailService.Models;
+using EmailService.Configuration;
 
 namespace EmailService.Abstract;
 
@@ -19,19 +20,19 @@ public abstract class BaseEmailSender<T>
     protected readonly string BasePath;
 
     //configure shared info between different email types
-    protected BaseEmailSender(IConfiguration config)
+    protected BaseEmailSender(EmailSettings config)
     {
-        _fromAddress = config["Email:From"]!;
-        _smtpClient = new(config["Email:Smtp:Host"]!)
+        _fromAddress = config.From;
+        _smtpClient = new(config.Smtp.Host)
         {
-            Port = int.Parse(config["Email:Smtp:Port"]!),
+            Port = config.Smtp.Port,
             Credentials = new NetworkCredential(
-                config["Email:Smtp:Username"],
-                config["Email:Smtp:Password"]
+                config.Smtp.Username,
+                config.Smtp.Password
                 ),
             EnableSsl = true
         };
-        _baseUrl = config["Email:BaseUrl"]!;
+        _baseUrl = config.BaseUrl;
 
         BasePath = Path.Combine(AppContext.BaseDirectory, "Emails");
     }

@@ -137,7 +137,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IMapper ma
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
 
-        await SendEmail(enrollment);
+        await SendAddedEnrollementEmail(enrollment);
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);
         var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
@@ -145,7 +145,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IMapper ma
         return enrollmentDto;
     }
 
-    private async Task SendEmail(Enrollment enrollment)
+    private async Task SendAddedEnrollementEmail(Enrollment enrollment)
     {
         var enrollmentModel = new CreatedEnrollmentModel
         {
@@ -154,7 +154,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IMapper ma
             GroupName = enrollment.SubGroup.Name
         };
 
-        await _emailProvider.SendAsync(EmailService.Enums.EmailType.CreatedEnrollment, enrollment.User.Email, enrollmentModel);
+        await _emailProvider.SendCreateEnrollmentEmailAsync(enrollment.User.Email, enrollmentModel);
     }
 
     public async Task<FacultyResponseDTO> GetFacultyById(int facultyId)

@@ -1,40 +1,23 @@
-﻿using EmailService.Emails.CreatedAccount;
+﻿using EmailService.Configuration;
+using EmailService.Emails.CreatedAccount;
 using EmailService.Emails.CreatedEnrollment;
-using EmailService.Enums;
 using EmailService.Models;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EmailService.Providers;
 
-public class EmailProvider(IConfiguration config)
+public class EmailProvider(EmailSettings config)
 {
-    private readonly IConfiguration _config = config;
+    private readonly EmailSettings _config = config;
 
-    public async Task SendAsync<T>(EmailType type, string to, T model)
+    public async Task SendCreateAccountEmailAsync(string to, CreatedUserModel model)
     {
-        switch (type)
-        {
-            case EmailType.CreatedAccount:
-                var createdAccount = new CreatedAccountEmailSender(_config);
-                var wantedUModel = model as CreatedUserModel;
-                await createdAccount.SendEmailAsync(to, wantedUModel!);
-                break;
+        var createdAccount = new CreatedAccountEmailSender(_config);
+        await createdAccount.SendEmailAsync(to, model);
+    }
 
-            case EmailType.CreatedEnrollment:
-                var createdEnrollment = new CreatedEnrollmentEmailSender(_config);
-                var wantedEModel = model as CreatedEnrollmentModel;
-                await createdEnrollment.SendEmailAsync(to, wantedEModel!);
-                break;
-            
-            //other cases
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type));
-        }
+    public async Task SendCreateEnrollmentEmailAsync(string to, CreatedEnrollmentModel model)
+    {
+        var createdEnrollment = new CreatedEnrollmentEmailSender(_config);
+        await createdEnrollment.SendEmailAsync(to, model);
     }
 }
