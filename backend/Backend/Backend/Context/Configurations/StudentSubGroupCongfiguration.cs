@@ -11,9 +11,6 @@ public class StudentSubGroupCongfiguration : IEntityTypeConfiguration<StudentSub
     {
         builder.HasKey(sg => sg.Id);
 
-        builder.HasIndex(sg => sg.Name)
-            .IsUnique();
-
         builder.Property(sg => sg.Name)
             .IsRequired()
             .HasMaxLength(Constants.DefaultStringMaxLenght);

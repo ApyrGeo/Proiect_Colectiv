@@ -11,9 +11,6 @@ public class SpecialisationConfiguration : IEntityTypeConfiguration<Specialisati
     { 
         builder.HasKey(s => s.Id);
 
-        builder.HasIndex(s => s.Name)
-            .IsUnique();
-
         builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(Constants.DefaultStringMaxLenght);

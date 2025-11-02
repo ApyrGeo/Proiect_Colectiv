@@ -15,13 +15,13 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<EnrollmentResponseDTO>> GetUserEnrollment([FromQuery] int userId)
+    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollment([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
 
-        EnrollmentResponseDTO enrollment = await _service.GetUserEnrollment(userId);
+        List<EnrollmentResponseDTO> enrollments = await _service.GetUserEnrollments(userId);
 
-        return Ok(enrollment);
+        return Ok(enrollments);
     }
 
     [HttpPost("enrollments")]
