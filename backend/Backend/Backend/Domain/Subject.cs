@@ -1,9 +1,10 @@
-﻿namespace Backend.Domain.Enums;
+﻿namespace Backend.Domain;
 
 public class Subject
 {       
     public int Id { get; set; }
     public required string Name { get; set; }
-    public required int NrCredits { get; set; }
-    public required bool ForScholarship { get; set; }
+    public required int NumberOfCredits { get; set; }
+    public required int GroupYearId { get; set; }
+    public required GroupYear GroupYear { get; set; }
 }

@@ -13,7 +13,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
 {
     private readonly ITimetableRepository _timetableRepository = timetableRepository;
     private readonly IMapper _mapper = mapper;
-    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
+    private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
 
     public async Task<SubjectResponseDTO> CreateSubject(SubjectPostDTO subjectPostDto)

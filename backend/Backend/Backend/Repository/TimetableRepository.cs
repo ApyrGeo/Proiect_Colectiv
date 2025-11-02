@@ -1,6 +1,5 @@
 ﻿using Backend.Context;
 using Backend.Domain;
-using Backend.Domain.Enums;
 using Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,12 +17,12 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
     
     public async Task<Subject?> GetSubjectByIdAsync(int id)
     {
-        return await _context.Subjects.SingleOrDefaultAsync(f => f.Id == id);
+        return await _context.Subjects.FirstOrDefaultAsync(f => f.Id == id);
     }
     
     public async Task<Subject?> GetSubjectByNameAsync(string name)
     {
-        return await _context.Subjects.SingleOrDefaultAsync(f => f.Name == name);
+        return await _context.Subjects.FirstOrDefaultAsync(f => f.Name == name);
     }
     
     public async Task SaveChangesAsync()

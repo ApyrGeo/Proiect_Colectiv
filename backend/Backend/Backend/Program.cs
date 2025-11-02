@@ -49,7 +49,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<StudentGroupPostDTO, StudentGroup>();
     cfg.CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
     cfg.CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
-    cfg.CreateMap<Subject,SubjectResponseDTO>().ReverseMap();
+    cfg.CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
     cfg.CreateMap<SubjectPostDTO, Subject>();
 });
 

@@ -7,4 +7,5 @@ public class GroupYear
     public required List<StudentGroup> StudentGroups { get; set; }
     public required int SpecialisationId { get; set; }
     public required Specialisation Specialisation { get; set; }
+    public required List<Subject> Subjects { get; set; }
 }

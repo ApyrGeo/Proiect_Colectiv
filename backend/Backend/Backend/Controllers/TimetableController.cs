@@ -9,18 +9,19 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class TimetableController(ITimetableService service) : ControllerBase
 {
-    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsController));
+    private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableController));
     private readonly ITimetableService _service = service;
     
     [HttpGet("subjects/{subjectId}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<SubjectResponseDTO>> GetSubjectById([FromRoute] int subjectId)
     {
         _logger.InfoFormat("Fetching subject with id {0}", subjectId);
 
-        SubjectResponseDTO subjects = await _service.GetSubjectById(subjectId);
+        var subject = await _service.GetSubjectById(subjectId);
 
-        return Ok(subjects);
+        return Ok(subject);
     }
 
     [HttpPost("subjects")]
@@ -34,7 +35,4 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetSubjectById), new { subjectId = createdSubject.Id }, createdSubject);
     }
-    
-    
-    
 }
