@@ -3,6 +3,8 @@ using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
+using EmailService.Models;
+using EmailService.Providers;
 using FluentValidation;
 using FluentValidation.Results;
 using log4net;
@@ -12,13 +14,14 @@ using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 namespace Backend.Service;
 
-public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IPasswordHasher<User> passwordHasher) : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IPasswordHasher<User> passwordHasher, EmailProvider emailProvider) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IValidatorFactory _validator = validator;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
+    private readonly EmailProvider _emailProvider = emailProvider;
 
     public async Task<UserResponseDTO> CreateUser(UserPostDTO userDTO)
     {
@@ -41,8 +44,16 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
         var addedUser = await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
 
+        await SendWelcomeEmail(userDTO);
+
         var addedUserDTO = _mapper.Map<UserResponseDTO>(addedUser);
         return addedUserDTO;
+    }
+
+    private async Task SendWelcomeEmail(UserPostDTO user)
+    {
+        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName, LastName = user.LastName, Password = user.Password};
+        await _emailProvider.SendAsync(EmailService.Enums.EmailType.CreatedAccount, user.Email, userEmailModel);
     }
 
     public async Task<List<UserResponseDTO>> GetAllUser()

@@ -7,11 +7,12 @@ using Backend.Middlewares;
 using Backend.Repository;
 using Backend.Service;
 using Backend.Service.Validators;
+using EmailService.Providers;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory; 
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,9 @@ builder.Services.AddScoped<UniversityDataSeeder>();
 builder.Services.AddScoped<UserDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
 
+
+//email
+builder.Services.AddScoped<EmailProvider>();
 
 var app = builder.Build();
 
