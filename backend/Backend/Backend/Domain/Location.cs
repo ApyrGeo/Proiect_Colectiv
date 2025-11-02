@@ -5,6 +5,6 @@
         public int Id { get; set; }
         public required string Name { get; set; }
         public required string Address { get; set; }
-        public required List<Classroom> Classrooms { get; set; } = [];
+        public List<Classroom> Classrooms { get; set; } = [];
     }
 }

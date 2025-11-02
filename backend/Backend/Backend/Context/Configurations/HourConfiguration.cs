@@ -14,10 +14,6 @@ namespace Backend.Context.Configurations
             builder.Property(x => x.Day)
                 .IsRequired();
 
-            builder.Property(x => x.Format)
-                .IsRequired()
-                .HasMaxLength(Constants.DefaultStringMaxLenght);
-
             builder.Property(x => x.Frequency)
                 .IsRequired();
 
@@ -33,6 +29,26 @@ namespace Backend.Context.Configurations
                 .WithMany(x => x.Hours)
                 .HasForeignKey(x => x.TeacherId)
                 .IsRequired();
+
+            builder.HasOne(x => x.Classroom)
+                .WithMany(x => x.Hours)
+                .HasForeignKey(x => x.ClassroomId)
+                .IsRequired();
+
+            builder.HasOne(x => x.GroupYear)
+                .WithMany()
+                .HasForeignKey(x => x.GroupYearId)
+                .IsRequired(false);
+
+            builder.HasOne(x => x.StudentGroup)
+                .WithMany()
+                .HasForeignKey(x => x.StudentGroupId)
+                .IsRequired(false);
+
+            builder.HasOne(x => x.StudentSubGroup)
+                .WithMany()
+                .HasForeignKey(x => x.StudentSubGroupId)
+                .IsRequired(false);
         }
     }
 }

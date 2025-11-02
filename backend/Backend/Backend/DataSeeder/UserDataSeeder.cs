@@ -24,7 +24,11 @@ public class UserDataSeeder
         if (await _context.Users.AnyAsync())
             return;
 
-        var subGroups = await _context.SubGroups.ToListAsync();
+        var subGroups = await _context.SubGroups
+            .Include(sg => sg.StudentGroup)
+            .ThenInclude(g => g.GroupYear)
+            .ThenInclude(gy => gy.Specialisation)
+            .ToListAsync();
         var subGroupsCounts = subGroups.ToDictionary(sg => sg.Id, sg => 0);
 
         var faker = new Faker<User>("ro").UseSeed(6767);
@@ -43,7 +47,7 @@ public class UserDataSeeder
 
         var users = userFaker.Generate(totalUsers - 1);
 
-        users.Add(new User
+        var admin = new User
         {
             FirstName = "Admin",
             LastName = "User",
@@ -52,7 +56,11 @@ public class UserDataSeeder
             Password = "AdminPassword123!",
             Role = UserRole.Admin,
             Enrollments = []
-        });
+        };
+
+        admin.Password = _passwordHasher.HashPassword(admin, admin.Password);
+
+        users.Add(admin);
 
         var students = users.Where(u => u.Role == UserRole.Student).ToList();
         var random = new Random();
