@@ -7,10 +7,12 @@ using Backend.Interfaces;
 using FluentValidation;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 using System.Text.Json;
+using EmailService.Models;
+using EmailService.Providers;
 
 namespace Backend.Service;
 
-public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory) : IAcademicsService
+public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory, EmailProvider emailProvider) : IAcademicsService
 {
     private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IUserRepository _userRepository = userRepository;
@@ -18,6 +20,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
+    private readonly EmailProvider _emailProvider = emailProvider;
 
     public async Task<FacultyResponseDTO> CreateFaculty(FacultyPostDTO facultyPostDto)
     {
@@ -135,10 +138,24 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
 
+        await SendAddedEnrollementEmail(enrollment);
+
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);
         var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
 
         return enrollmentDto;
+    }
+
+    private async Task SendAddedEnrollementEmail(Enrollment enrollment)
+    {
+        var enrollmentModel = new CreatedEnrollmentModel
+        {
+            UserFirstName = enrollment.User.FirstName,
+            UserLastName = enrollment.User.LastName,
+            GroupName = enrollment.SubGroup.Name
+        };
+
+        await _emailProvider.SendCreateEnrollmentEmailAsync(enrollment.User.Email, enrollmentModel);
     }
 
     public async Task<FacultyResponseDTO> GetFacultyById(int facultyId)
