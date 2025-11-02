@@ -45,7 +45,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
         return studentSubGroup;
     }
 
-    public async Task<List<Enrollment>?> GetEnrollmentsByUserId(int userId)
+    public async Task<List<Enrollment>> GetEnrollmentsByUserId(int userId)
     {
         return await _context.Enrollments
             .Include(e => e.SubGroup)

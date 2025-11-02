@@ -10,9 +10,10 @@ using System.Text.Json;
 
 namespace Backend.Service;
 
-public class AcademicsService(IAcademicRepository academicRepository, IMapper mapper, IValidatorFactory validatorFactory) : IAcademicsService
+public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory) : IAcademicsService
 {
     private readonly IAcademicRepository _academicRepository = academicRepository;
+    private readonly IUserRepository _userRepository = userRepository;
 
     private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
@@ -203,6 +204,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IMapper ma
     public async Task<List<EnrollmentResponseDTO>> GetUserEnrollments(int userId)
     {
         _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", JsonSerializer.Serialize(userId));
+
+        var _ = await _userRepository.GetByIdAsync(userId)
+            ?? throw new NotFoundException($"Student with ID {userId} not found.");
+
         var enrollments = await _academicRepository.GetEnrollmentsByUserId(userId)
             ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
 
