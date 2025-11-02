@@ -2,6 +2,7 @@
 using Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
-    partial class AcademicAppContextModelSnapshot : ModelSnapshot
+    [Migration("20251030141955_ChangedConstraints")]
+    partial class ChangedConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,32 +160,6 @@ namespace Backend.Migrations
                     b.ToTable("SubGroups");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Subject", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GroupYearId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("NumberOfCredits")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupYearId");
-
-                    b.ToTable("Subjects");
-                });
-
             modelBuilder.Entity("Backend.Domain.User", b =>
                 {
                     b.Property<int>("Id")
@@ -289,17 +266,6 @@ namespace Backend.Migrations
                     b.Navigation("StudentGroup");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Subject", b =>
-                {
-                    b.HasOne("Backend.Domain.GroupYear", "GroupYear")
-                        .WithMany("Subjects")
-                        .HasForeignKey("GroupYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupYear");
-                });
-
             modelBuilder.Entity("Backend.Domain.Faculty", b =>
                 {
                     b.Navigation("Specialisations");
@@ -308,8 +274,6 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Domain.GroupYear", b =>
                 {
                     b.Navigation("StudentGroups");
-
-                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("Backend.Domain.Specialisation", b =>

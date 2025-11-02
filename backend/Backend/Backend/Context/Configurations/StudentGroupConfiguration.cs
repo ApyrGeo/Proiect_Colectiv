@@ -10,8 +10,6 @@ public class StudentGroupConfiguration : IEntityTypeConfiguration<StudentGroup>
     {
         builder.HasKey(sg => sg.Id);
         
-        builder.HasIndex(sg => sg.Name)
-            .IsUnique();
         builder.Property(sg => sg.Name)
             .IsRequired()
             .HasMaxLength(100);

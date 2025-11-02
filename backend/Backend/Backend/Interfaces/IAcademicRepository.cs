@@ -5,7 +5,7 @@ namespace Backend.Interfaces;
 public interface IAcademicRepository
 {
     Task<Enrollment> AddEnrollmentAsync(Enrollment enrollment);
-    Task<Enrollment?> GetEnrollmentByUserId(int userId);
+    Task<List<Enrollment>?> GetEnrollmentsByUserId(int userId);
     Task<Faculty> AddFacultyAsync(Faculty faculty);
     Task<Faculty?> GetFacultyByIdAsync(int id);
     Task<Faculty?> GetFacultyByNameAsync(string name);
