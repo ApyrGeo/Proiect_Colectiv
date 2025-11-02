@@ -2,6 +2,7 @@
 using Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
-    partial class AcademicAppContextModelSnapshot : ModelSnapshot
+    [Migration("20251102182905_FullSubjectAgain")]
+    partial class FullSubjectAgain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,6 +88,9 @@ namespace Backend.Migrations
 
                     b.HasIndex("SpecialisationId");
 
+                    b.HasIndex("Year")
+                        .IsUnique();
+
                     b.ToTable("GroupYears");
                 });
 
@@ -107,6 +113,9 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FacultyId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Specialisations");
                 });
@@ -131,6 +140,9 @@ namespace Backend.Migrations
 
                     b.HasIndex("GroupYearId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Groups");
                 });
 
@@ -151,6 +163,9 @@ namespace Backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("StudentGroupId");
 

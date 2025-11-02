@@ -1,6 +1,7 @@
 ﻿using Backend.Domain;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Backend.Domain.Enums;
 
 namespace Backend.Context;
 
@@ -13,6 +14,7 @@ public class AcademicAppContext(DbContextOptions<AcademicAppContext> options) : 
     public DbSet<GroupYear> GroupYears { get; set; }
     public DbSet<Specialisation> Specialisations { get; set; }
     public DbSet<Faculty> Faculties { get; set; }
+    public DbSet<Subject> Subjects { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
