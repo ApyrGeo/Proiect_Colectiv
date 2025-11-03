@@ -22,6 +22,11 @@ export function getAppMenus() {
           ],
         },
         {
+          title: "Orar",
+          icon: "📆",
+          url: "/timetable",
+        },
+        {
           title: "WebHosting",
           icon: "🏠",
           submenu: [

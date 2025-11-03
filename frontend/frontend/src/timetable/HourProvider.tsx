@@ -57,5 +57,5 @@ export const HourProvider: React.FC<HourProviderProps> = ({ children }: HourProv
     }
   }
 
-  return <HourContext value={value}>{children}</HourContext>;
+  return <HourContext.Provider value={value}>{children}</HourContext.Provider>;
 };

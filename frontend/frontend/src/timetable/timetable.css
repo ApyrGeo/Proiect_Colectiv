@@ -1,11 +1,13 @@
 :root{
-    --timetable-border-color: #9e9e9e;
-    --timetable-table-color: #161b30;
-    --timetable-page-color: #17243c;
-    --timetable-highlight-color: #37587c;
+    --timetable-border-color: #737373;
+    --timetable-table-color: #1f233c;
+    --timetable-highlight-color: #436393;
     --timetable-text-color: #FFFFFF;
+    --timetable-text-highlight-color: #2e2e2e;
     --timetable-header-color: #333333;
-    --timetable-border-radius: 10px;
+    --timetable-border-radius: 7px;
+    --timetable-button-color: #2c3440;
+    --timetable-transition-time: 0.2s;
 }
 
 .timetable-page {
@@ -20,16 +22,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /*width: 1000px;*/
-    /*height: 500px;*/
-
-    background-color: var(--timetable-page-color);
     border-radius: var(--timetable-border-radius);
 }
 
 .timetable table {
     display: inline-table;
-    border: var(--timetable-border-color) solid 3px;
+    border: var(--timetable-border-color) solid 2px;
     background-color: var(--timetable-table-color);
     border-radius: var(--timetable-border-radius);
     border-spacing: 0;
@@ -55,6 +53,7 @@ th, td {
 
 .timetable-row:hover{
     background-color: var(--timetable-highlight-color);
+    transition: background-color var(--timetable-transition-time);
 }
 
 .timetable-filter {
@@ -62,31 +61,62 @@ th, td {
     flex-direction: row;
     justify-items: center;
     align-items: center;
-    margin: 10px;
+    align-self: flex-start;
+    margin-bottom: 5px;
 }
 
 .timetable-filter label {
-    padding: 2px;
-    width: 100px;
-    margin: 4px;
-    border: solid 1px var(--timetable-border-color);
+    margin-right: 10px;
+    margin-bottom: 7px;
+    padding: 5px 20px;
+    font-size: large;
+    border: solid 2px var(--timetable-button-color);
     border-radius: var(--timetable-border-radius);
+    background: var(--timetable-button-color);
 }
-/* Target labels that have a radio input as child. */
-.timetable-filter label:has(input[type=radio]) {
-    background: var(--timetable-table-color);
-}
-/* Change label background when the child element is checked. */
+
 .timetable-filter label:has(input[type=radio]:checked) {
     background: var(--timetable-highlight-color);
+    border-color: var(--timetable-highlight-color);
 }
-/* Apply focus outline when the child element has focus. */
-.timetable-filter label:has(input[type=radio]:focus-visible) {
-    outline: 1px solid blue;
+
+.timetable-filter label:has(input[type=radio]:hover) {
+    border-color: var(--timetable-border-color);
+    transition: border-color var(--timetable-transition-time);
 }
-/* Hide the actual radio input and place it on top of the label. */
+
 .timetable-filter input[type=radio] {
     position:absolute;
     opacity: 0;
 }
 
+.timetable-button {
+    border: none;
+    background-color: inherit;
+    color: var(--timetable-text-color);
+}
+
+.timetable-button:hover {
+    color: var(--timetable-text-highlight-color);
+    transition: color var(--timetable-transition-time);
+}
+
+.timetable-title {
+    color: var(--timetable-text-color);
+    margin: 20px;
+    font-size: xx-large;
+}
+
+.timetable-back-button {
+    margin-right: 10px;
+    margin-top: 20px;
+    font-size: medium;
+    border: solid 2px var(--timetable-button-color);
+    border-radius: var(--timetable-border-radius);
+    background: var(--timetable-button-color);
+}
+
+.timetable-back-button:hover {
+    border-color: var(--timetable-border-color);
+
+}
