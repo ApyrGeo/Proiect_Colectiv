@@ -1,5 +1,4 @@
-﻿using Backend.Domain;
-using Backend.Domain.DTOs;
+﻿using Backend.Domain.DTOs;
 
 namespace Backend.Interfaces;
 

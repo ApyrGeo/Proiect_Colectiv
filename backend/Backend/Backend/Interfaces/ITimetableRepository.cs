@@ -1,5 +1,4 @@
 ﻿using Backend.Domain;
-using Backend.Domain.Enums;
 
 namespace Backend.Interfaces;
 

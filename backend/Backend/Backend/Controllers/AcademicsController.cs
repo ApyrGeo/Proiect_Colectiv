@@ -1,7 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
 using log4net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;

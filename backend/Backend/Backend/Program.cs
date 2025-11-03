@@ -2,7 +2,6 @@ using Backend.Context;
 using Backend.DataSeeder;
 using Backend.Domain;
 using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
 using Backend.Interfaces;
 using Backend.Middlewares;
 using Backend.Repository;
@@ -14,7 +13,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 var builder = WebApplication.CreateBuilder(args);
