@@ -3,17 +3,33 @@ using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
+using Backend.Utils;
 using log4net;
 using System.Text.Json;
 
 namespace Backend.Service;
 
-public class TimetableService(ITimetableRepository timetableRepository, IMapper mapper, IValidatorFactory validatorFactory)  : ITimetableService
+public class TimetableService(ITimetableRepository timetableRepository, IMapper mapper, IValidatorFactory validatorFactory) : ITimetableService
 {
     private readonly ITimetableRepository _timetableRepository = timetableRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
+
+    public Task<ClassroomResponseDTO> CreateClassroom(ClassroomPostDTO classroomPostDTO)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<HourResponseDTO> CreateHour(HourPostDTO hourPostDTO)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<LocationResponseDTO> CreateLocation(LocationPostDTO locationPostDTO)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<SubjectResponseDTO> CreateSubject(SubjectPostDTO subjectPostDto)
     {
@@ -34,7 +50,27 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
         var subjectDto = _mapper.Map<SubjectResponseDTO>(subject);
         return subjectDto;
     }
-    
+
+    public Task<ClassroomResponseDTO> GetClassroomById(int classroomId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<HourResponseDTO>> GetHourByFilter(HourFilter filter)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<HourResponseDTO> GetHourById(int hourId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<LocationResponseDTO> GetLocationById(int locationId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<SubjectResponseDTO> GetSubjectById(int subjectId)
     {
         _logger.InfoFormat("Trying to retrieve subject with id {0}", JsonSerializer.Serialize(subjectId));

@@ -232,4 +232,14 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         return enrollmentsDto;
     }
+
+    public Task<TeacherResponseDTO> CreateTeacher(TeacherPostDTO teacherPostDTO)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<TeacherResponseDTO>> GetTeachers(int userId)
+    {
+        throw new NotImplementedException();
+    }
 }

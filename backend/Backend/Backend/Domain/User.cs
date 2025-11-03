@@ -13,5 +13,4 @@ public class User
     public required UserRole Role { get; set; }
 
     public List<Enrollment> Enrollments { get; set; } = [];
-    public List<Teacher> Teachers { get; set; } = [];
 }
