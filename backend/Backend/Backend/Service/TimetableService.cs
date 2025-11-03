@@ -5,7 +5,6 @@ using Backend.Exceptions.Custom;
 using Backend.Interfaces;
 using log4net;
 using System.Text.Json;
-using Backend.Domain.Enums;
 
 namespace Backend.Service;
 

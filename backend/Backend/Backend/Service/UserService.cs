@@ -5,8 +5,6 @@ using Backend.Exceptions.Custom;
 using Backend.Interfaces;
 using EmailService.Models;
 using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
 using log4net;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json;

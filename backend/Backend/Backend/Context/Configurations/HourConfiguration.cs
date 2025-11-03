@@ -17,13 +17,14 @@ namespace Backend.Context.Configurations
             builder.Property(x => x.Frequency)
                 .IsRequired();
 
-            builder.Property(x => x.Subject)
-                .IsRequired()
-                .HasMaxLength(Constants.DefaultStringMaxLenght);
-
             builder.Property(x => x.HourInterval)
                 .IsRequired()
                 .HasMaxLength(Constants.DefaultStringMaxLenght);
+
+            builder.HasOne(x => x.Subject)
+                .WithMany(x => x.Hours)
+                .HasForeignKey(x => x.SubjectId)
+                .IsRequired();
 
             builder.HasOne(x => x.Teacher)
                 .WithMany(x => x.Hours)

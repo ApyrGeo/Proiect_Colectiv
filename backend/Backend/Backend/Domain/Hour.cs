@@ -8,7 +8,9 @@ namespace Backend.Domain
         public required HourDay Day { get; set; }
         public required string HourInterval { get; set; }
         public required HourFrequency Frequency { get; set; }
-        public required string Subject { get; set; }
+
+        public int SubjectId { get; set; }
+        public required Subject Subject { get; set; }
 
         public int ClassroomId { get; set; }
         public required Classroom Classroom { get; set; }

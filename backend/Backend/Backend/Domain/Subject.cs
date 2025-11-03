@@ -7,4 +7,5 @@ public class Subject
     public required int NumberOfCredits { get; set; }
     public required int GroupYearId { get; set; }
     public required GroupYear GroupYear { get; set; }
+    public List<Hour> Hours { get; set; } = [];
 }

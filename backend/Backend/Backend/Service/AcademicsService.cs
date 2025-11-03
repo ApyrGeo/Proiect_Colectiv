@@ -4,7 +4,6 @@ using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
-using FluentValidation;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 using System.Text.Json;
 using EmailService.Models;
