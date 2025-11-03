@@ -2,6 +2,7 @@
 using Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,39 +11,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
-    partial class AcademicAppContextModelSnapshot : ModelSnapshot
+    [Migration("20251102115828_InitialSync")]
+    partial class InitialSync
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Backend.Domain.Classroom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("LocationId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("Classrooms");
-                });
 
             modelBuilder.Entity("Backend.Domain.Enrollment", b =>
                 {
@@ -65,6 +45,27 @@ namespace Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Enums.Subject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("Backend.Domain.Faculty", b =>
@@ -108,84 +109,10 @@ namespace Backend.Migrations
 
                     b.HasIndex("SpecialisationId");
 
+                    b.HasIndex("Year")
+                        .IsUnique();
+
                     b.ToTable("GroupYears");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Hour", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClassroomId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Day")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Frequency")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("GroupYearId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("HourInterval")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int?>("StudentGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("StudentSubGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassroomId");
-
-                    b.HasIndex("GroupYearId");
-
-                    b.HasIndex("StudentGroupId");
-
-                    b.HasIndex("StudentSubGroupId");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("Hours");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Location", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("Backend.Domain.Specialisation", b =>
@@ -207,6 +134,9 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FacultyId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Specialisations");
                 });
@@ -231,6 +161,9 @@ namespace Backend.Migrations
 
                     b.HasIndex("GroupYearId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Groups");
                 });
 
@@ -252,53 +185,12 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.HasIndex("StudentGroupId");
 
                     b.ToTable("SubGroups");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Teacher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Teachers");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Subject", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GroupYearId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("NumberOfCredits")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupYearId");
-
-                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("Backend.Domain.User", b =>
@@ -344,17 +236,6 @@ namespace Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Classroom", b =>
-                {
-                    b.HasOne("Backend.Domain.Location", "Location")
-                        .WithMany("Classrooms")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-                });
-
             modelBuilder.Entity("Backend.Domain.Enrollment", b =>
                 {
                     b.HasOne("Backend.Domain.StudentSubGroup", "SubGroup")
@@ -383,43 +264,6 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Specialisation");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Hour", b =>
-                {
-                    b.HasOne("Backend.Domain.Classroom", "Classroom")
-                        .WithMany("Hours")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Domain.GroupYear", "GroupYear")
-                        .WithMany()
-                        .HasForeignKey("GroupYearId");
-
-                    b.HasOne("Backend.Domain.StudentGroup", "StudentGroup")
-                        .WithMany()
-                        .HasForeignKey("StudentGroupId");
-
-                    b.HasOne("Backend.Domain.StudentSubGroup", "StudentSubGroup")
-                        .WithMany()
-                        .HasForeignKey("StudentSubGroupId");
-
-                    b.HasOne("Backend.Domain.Teacher", "Teacher")
-                        .WithMany("Hours")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Classroom");
-
-                    b.Navigation("GroupYear");
-
-                    b.Navigation("StudentGroup");
-
-                    b.Navigation("StudentSubGroup");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Backend.Domain.Specialisation", b =>
@@ -455,33 +299,6 @@ namespace Backend.Migrations
                     b.Navigation("StudentGroup");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Teacher", b =>
-                {
-                    b.HasOne("Backend.Domain.User", "User")
-                        .WithMany("Teachers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Classroom", b =>
-                {
-                    b.Navigation("Hours");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Subject", b =>
-                {
-                    b.HasOne("Backend.Domain.GroupYear", "GroupYear")
-                        .WithMany("Subjects")
-                        .HasForeignKey("GroupYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupYear");
-                });
-
             modelBuilder.Entity("Backend.Domain.Faculty", b =>
                 {
                     b.Navigation("Specialisations");
@@ -490,13 +307,6 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Domain.GroupYear", b =>
                 {
                     b.Navigation("StudentGroups");
-
-                    b.Navigation("Subjects");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Location", b =>
-                {
-                    b.Navigation("Classrooms");
                 });
 
             modelBuilder.Entity("Backend.Domain.Specialisation", b =>
@@ -514,16 +324,9 @@ namespace Backend.Migrations
                     b.Navigation("Enrollments");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Teacher", b =>
-                {
-                    b.Navigation("Hours");
-                });
-
             modelBuilder.Entity("Backend.Domain.User", b =>
                 {
                     b.Navigation("Enrollments");
-
-                    b.Navigation("Teachers");
                 });
 #pragma warning restore 612, 618
         }

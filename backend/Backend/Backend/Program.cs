@@ -2,16 +2,20 @@ using Backend.Context;
 using Backend.DataSeeder;
 using Backend.Domain;
 using Backend.Domain.DTOs;
+using Backend.Domain.Enums;
 using Backend.Interfaces;
 using Backend.Middlewares;
 using Backend.Repository;
 using Backend.Service;
 using Backend.Service.Validators;
+using EmailService.Configuration;
+using EmailService.Providers;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory; 
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +53,8 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<StudentGroupPostDTO, StudentGroup>();
     cfg.CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
     cfg.CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
+    cfg.CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
+    cfg.CreateMap<SubjectPostDTO, Subject>();
 });
 
 //logging
@@ -62,6 +68,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserPostDTOValidator>();
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAcademicRepository, AcademicRepository>();
+builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 
 //helpers
 builder.Services.Configure<PasswordHasherOptions>(
@@ -69,15 +76,21 @@ builder.Services.Configure<PasswordHasherOptions>(
     );
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
+//email
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<EmailSettings>>().Value);
+builder.Services.AddScoped<EmailProvider>();
+
 //services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAcademicsService, AcademicsService>();
+builder.Services.AddScoped<ITimetableService, TimetableService>();
 
 //data seeders
 builder.Services.AddScoped<UniversityDataSeeder>();
 builder.Services.AddScoped<UserDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
-
 
 var app = builder.Build();
 

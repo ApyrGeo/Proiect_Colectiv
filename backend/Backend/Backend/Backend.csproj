@@ -32,4 +32,8 @@
     <Folder Include="Logs\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EmailService\EmailService.csproj" />
+  </ItemGroup>
+
 </Project>

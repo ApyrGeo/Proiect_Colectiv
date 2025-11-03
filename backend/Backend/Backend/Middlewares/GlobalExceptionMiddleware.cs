@@ -35,7 +35,7 @@ public class GlobalExceptionMiddleware
         ExceptionResponse response = exception switch
         {
             CustomException e => new ExceptionResponse(e.StatusCode, e.Message),
-            _ => new ExceptionResponse(HttpStatusCode.InternalServerError, "Internal server error. Please retry later.")
+            _ => new ExceptionResponse(HttpStatusCode.InternalServerError, "Internal server error. Please retry later. " + exception.Message)
         };
 
         context.Response.ContentType = "application/json";

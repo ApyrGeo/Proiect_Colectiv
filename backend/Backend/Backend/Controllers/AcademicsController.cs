@@ -15,6 +15,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollment([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);

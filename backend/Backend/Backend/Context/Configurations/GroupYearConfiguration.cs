@@ -18,5 +18,9 @@ public class GroupYearConfiguration : IEntityTypeConfiguration<GroupYear>
         builder.HasOne(gy => gy.Specialisation)
             .WithMany(s => s.GroupYears)
             .HasForeignKey(gy => gy.SpecialisationId);
+        
+        builder.HasMany(gy => gy.Subjects)
+            .WithOne(sg => sg.GroupYear)
+            .HasForeignKey(sg => sg.GroupYearId);
     }
 }
