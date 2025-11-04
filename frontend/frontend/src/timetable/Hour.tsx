@@ -1,48 +1,67 @@
-import type { HourProps } from "./HourProps.ts";
+import type { HourProps } from "./props.ts";
 import "./timetable.css";
 import { useNavigate } from "react-router-dom";
-import { useSearchParams } from "react-router";
+import type { TimetableProps } from "./Timetable.tsx";
 
-const Hour: React.FC<HourProps> = ({ day, period, freq, location, room, format, category, subject, teacher }) => {
+export interface HourPropsExtended extends HourProps {
+  timetableProps: TimetableProps;
+}
+
+const Hour: React.FC<HourPropsExtended> = ({
+  day,
+  hourInterval,
+  frequency,
+  location,
+  classroom,
+  format,
+  category,
+  subject,
+  teacher,
+  timetableProps,
+}) => {
   const navigate = useNavigate();
 
-  const [searchParam] = useSearchParams();
-
-  const openRoomTable = (room: string) => {
-    if (searchParam.get("room") != room) navigate("?room=" + room);
+  const openRoomTable = (classroomId: number) => {
+    navigate("/classroom/" + classroomId);
   };
 
-  const openTeacherTable = (teacher: string) => {
-    if (searchParam.get("teacher") != teacher) navigate("?teacher=" + teacher);
+  const openTeacherTable = (teacherId: number) => {
+    navigate("/teacher/" + teacherId);
   };
 
-  const openSubjectTable = (subject: string) => {
-    if (searchParam.get("subject") != subject) navigate("?subject=" + subject);
+  const openSubjectTable = (subjectId: number) => {
+    navigate("/subject/" + subjectId);
   };
 
   return (
     <tr className={"timetable-row"}>
       <td>{day}</td>
-      <td>{period}</td>
-      <td>{freq}</td>
-      <td>{location}</td>
-      <td>
-        <button className={"timetable-button"} onClick={() => openRoomTable(room)}>
-          {room}
-        </button>
-      </td>
+      <td>{hourInterval}</td>
+      <td>{frequency}</td>
+      <td>{location.name}</td>
+      {!timetableProps.classroomId && (
+        <td>
+          <button className={"timetable-button"} onClick={() => openRoomTable(classroom.id)}>
+            {classroom.name}
+          </button>
+        </td>
+      )}
       <td>{format}</td>
       <td>{category}</td>
-      <td>
-        <button className={"timetable-button"} onClick={() => openSubjectTable(subject)}>
-          {subject}
-        </button>
-      </td>
-      <td>
-        <button className={"timetable-button"} onClick={() => openTeacherTable(teacher)}>
-          {teacher}
-        </button>
-      </td>
+      {!timetableProps.subjectId && (
+        <td>
+          <button className={"timetable-button"} onClick={() => openSubjectTable(subject.id)}>
+            {subject.name}
+          </button>
+        </td>
+      )}
+      {!timetableProps.teacherId && (
+        <td>
+          <button className={"timetable-button"} onClick={() => openTeacherTable(teacher.id)}>
+            {teacher.user.lastName + " " + teacher.user.firstName}
+          </button>
+        </td>
+      )}
       {/*<td>{specialisation}</td>*/}
     </tr>
   );
