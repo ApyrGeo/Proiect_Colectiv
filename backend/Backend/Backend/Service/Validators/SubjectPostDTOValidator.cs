@@ -21,7 +21,8 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
             .MustAsync(async (groupYearId, cancellation) =>
             {
                 if (!groupYearId.HasValue)
-                    return true;
+                    return false;
+
                 var groupYear = await academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
                 return groupYear != null;
             }).WithMessage("The specified GroupYearId does not exist.");

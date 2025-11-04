@@ -17,7 +17,8 @@ public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroup
             .MustAsync(async (studentGroupId, cancellation) =>
             {
                 if (!studentGroupId.HasValue)
-                    return true;
+                    return false;
+
                 var studentGroup = await academicRepository.GetGroupByIdAsync(studentGroupId.Value);
                 return studentGroup != null;
             }).WithMessage("The specified StudentGroupId does not exist.");

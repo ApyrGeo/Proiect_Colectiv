@@ -17,7 +17,8 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
             .MustAsync(async (facultyId, cancellation) =>
             {
                 if(!facultyId.HasValue)
-                    return true;
+                    return false;
+
                 var faculty = await academicRepository.GetFacultyByIdAsync(facultyId.Value);
                 return faculty != null;
             }).WithMessage("Faculty with the given ID does not exist.");

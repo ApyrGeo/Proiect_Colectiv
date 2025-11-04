@@ -22,7 +22,10 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             }).WithMessage("User with the specified UserId does not exist.")
             .MustAsync(async (userId, cancelation) =>
             {
-                var user = await userRepository.GetByIdAsync(userId);
+                if (!userId.HasValue)
+                    return false;
+
+                var user = await userRepository.GetByIdAsync(userId.Value);
                 return user!.Role == Domain.Enums.UserRole.Student;
             })
             .WithMessage("User must be a student in order to be enrolled");
