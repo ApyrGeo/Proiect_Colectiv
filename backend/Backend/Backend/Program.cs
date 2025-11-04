@@ -119,6 +119,10 @@ builder.Services.AddScoped<ITimetableService, TimetableService>();
 //data seeders
 builder.Services.AddScoped<UniversityDataSeeder>();
 builder.Services.AddScoped<UserDataSeeder>();
+builder.Services.AddScoped<LocationDataSeeder>();
+builder.Services.AddScoped<TeacherDataSeeder>();
+builder.Services.AddScoped<SubjectDataSeeder>();
+builder.Services.AddScoped<HourDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
 
 var app = builder.Build();

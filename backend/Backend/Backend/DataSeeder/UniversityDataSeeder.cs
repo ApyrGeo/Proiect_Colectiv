@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.DataSeeder;
 
-public class UniversityDataSeeder
+public class UniversityDataSeeder(AcademicAppContext context)
 {
-    private readonly AcademicAppContext _context;
-
-    public UniversityDataSeeder(AcademicAppContext context)
-    {
-        _context = context;
-    }
+    private readonly AcademicAppContext _context = context;
 
     public async Task SeedAsync()
     {
