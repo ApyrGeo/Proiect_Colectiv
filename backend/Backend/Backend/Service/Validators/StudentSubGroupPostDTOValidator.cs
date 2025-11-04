@@ -11,19 +11,14 @@ public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroup
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Student sub-group name is required.")
-            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Student sub-group name must not exceed {Constants.DefaultStringMaxLenght} characters.")
-            .MustAsync(async (dto, name, cancellation) =>
-            {
-                var existingSubGroup = await academicRepository.GetSubGroupByNameAsync(name);
-                return existingSubGroup == null;
-            }).WithMessage("A student sub-group with the same name already exists in the specified student group.");
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Student sub-group name must not exceed {Constants.DefaultStringMaxLenght} characters.");
 
         RuleFor(x => x.StudentGroupId)
             .GreaterThan(0).WithMessage("StudentGroupId must be a positive integer.")
             .MustAsync(async (studentGroupId, cancellation) =>
             {
-                if (!studentGroupId.HasValue)
-                    return true;
+                if (!studentGroupId.HasValue) return true;
+
                 var studentGroup = await academicRepository.GetGroupByIdAsync(studentGroupId.Value);
                 return studentGroup != null;
             }).WithMessage("The specified StudentGroupId does not exist.");

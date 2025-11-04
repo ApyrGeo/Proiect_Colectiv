@@ -1,6 +1,5 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
-using Backend.Repository;
 using Backend.Utils;
 using FluentValidation;
 
@@ -18,7 +17,9 @@ namespace Backend.Service.Validators
             RuleFor(x => x.LocationId)
                 .MustAsync(async (locationId, cancellation) =>
                 {
-                    var location = await repo.GetLocationByIdAsync(locationId);
+                    if (!locationId.HasValue) return false;
+
+                    var location = await repo.GetLocationByIdAsync(locationId.Value);
                     return location != null;
                 }).WithMessage("The specified Location does not exist.");
         }

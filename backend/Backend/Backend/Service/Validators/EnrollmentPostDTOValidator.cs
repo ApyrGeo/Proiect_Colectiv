@@ -14,8 +14,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
             {   
-                if (!userId.HasValue)
-                    return true;
+                if (!userId.HasValue) return false;
                 
                 var user = await userRepository.GetByIdAsync(userId.Value);
                 return user != null;
@@ -26,8 +25,8 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
             .MustAsync(async (subGroupId, cancellation) =>
             {   
-                if (!subGroupId.HasValue)
-                    return true;
+                if (!subGroupId.HasValue) return false;
+
                 var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId.Value);
                 return subGroup != null;
             }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");

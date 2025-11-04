@@ -28,21 +28,27 @@ namespace Backend.Service.Validators
             RuleFor(x => x.ClassroomId)
                 .MustAsync(async (classroomId, cancellation) =>
                 {
-                    var classroom = await timetableRepository.GetClassroomByIdAsync(classroomId);
+                    if (!classroomId.HasValue) return false;
+
+                    var classroom = await timetableRepository.GetClassroomByIdAsync(classroomId.Value);
                     return classroom != null;
                 }).WithMessage("The specified Classroom does not exist.");
             
             RuleFor(x => x.SubjectId)
                 .MustAsync(async (subjectId, cancellation) =>
                 {
-                    var subject = await timetableRepository.GetSubjectByIdAsync(subjectId);
+                    if (!subjectId.HasValue) return false;
+
+                    var subject = await timetableRepository.GetSubjectByIdAsync(subjectId.Value);
                     return subject != null;
                 }).WithMessage("The specified Subject does not exist.");
 
             RuleFor(x => x.TeacherId)
                 .MustAsync(async (teacherId, cancellation) =>
                 {
-                    var teacher = await academicRepository.GetTeacherById(teacherId);
+                    if (!teacherId.HasValue) return false;
+
+                    var teacher = await academicRepository.GetTeacherById(teacherId.Value);
                     return teacher != null;
                 }).WithMessage("The specified Teacher does not exist.");
 

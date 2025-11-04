@@ -13,7 +13,9 @@ namespace Backend.Service.Validators
                 .GreaterThan(0).WithMessage("UserId must be a positive integer.")
                 .MustAsync(async (userId, cancellation) =>
                 {
-                    var user = await userRepository.GetByIdAsync(userId);
+                    if (!userId.HasValue) return false;
+
+                    var user = await userRepository.GetByIdAsync(userId.Value);
                     return user != null && user.Role == UserRole.Teacher;
                 }).WithMessage("User with the specified UserId does not exist.");
 
@@ -21,7 +23,9 @@ namespace Backend.Service.Validators
                 .GreaterThan(0).WithMessage("FacultyId must be a positive integer.")
                 .MustAsync(async (facultyId, cancellation) =>
                 {
-                    var faculty = await academicRepository.GetFacultyByIdAsync(facultyId);
+                    if (!facultyId.HasValue) return false;
+
+                    var faculty = await academicRepository.GetFacultyByIdAsync(facultyId.Value);
                     return faculty != null;
                 }).WithMessage("Faculty with the specified FacultyId does not exist.");
         }

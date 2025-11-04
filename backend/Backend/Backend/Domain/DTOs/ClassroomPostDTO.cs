@@ -2,7 +2,7 @@
 {
     public class ClassroomPostDTO
     {
-        public required string Name { get; set; }
-        public required int LocationId { get; set; }
+        public string? Name { get; set; }
+        public int? LocationId { get; set; }
     }
 }
