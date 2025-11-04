@@ -2,6 +2,7 @@
 using Backend.Domain.DTOs;
 using Backend.Interfaces;
 using FluentValidation;
+using Backend.Domain.Enums;
 
 namespace Backend.Service.Validators;
 
@@ -18,7 +19,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
                     return true;
 
                 var user = await userRepository.GetByIdAsync(userId.Value);
-                return user != null && user!.Role == Domain.Enums.UserRole.Student;
+                return user != null && user!.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)
