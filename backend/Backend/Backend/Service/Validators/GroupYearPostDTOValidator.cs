@@ -14,6 +14,8 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
             .WithMessage("Year is required.")
             .MustAsync(async (year, cancellation) =>
             {
+                if(string.IsNullOrWhiteSpace(year))
+                    return true;
                 var existingGroupYear = await academicRepository.GetGroupYearByYearAsync(year);
                 return existingGroupYear == null;
             })
@@ -25,7 +27,9 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
             .GreaterThan(0)
             .WithMessage("SpecialisationId must be a positive integer.")
             .MustAsync(async (id, cancellation) => { 
-                var specialisation = await academicRepository.GetSpecialisationByIdAsync(id);
+                if(!id.HasValue)
+                    return true;
+                var specialisation = await academicRepository.GetSpecialisationByIdAsync(id.Value);
                 return specialisation != null;
             })
             .WithMessage("Specialisation with the given ID does not exist.");
