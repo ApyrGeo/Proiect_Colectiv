@@ -1,9 +1,8 @@
-﻿namespace Backend.Domain.Enums
+﻿namespace Backend.Domain.Enums;
+
+public enum HourCategory
 {
-    public enum HourCategory
-    {
-        Lecture = 1,
-        Seminar = 2,
-        Laboratory = 3
-    }
+    Lecture = 1,
+    Seminar = 2,
+    Laboratory = 3
 }

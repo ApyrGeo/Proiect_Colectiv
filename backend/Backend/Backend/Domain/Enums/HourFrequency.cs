@@ -1,9 +1,8 @@
-﻿namespace Backend.Domain.Enums
+﻿namespace Backend.Domain.Enums;
+
+public enum HourFrequency
 {
-    public enum HourFrequency
-    {
-        Weekly = 1,
-        FirstWeek = 2,
-        SecondWeek = 3
-    }
+    Weekly = 1,
+    FirstWeek = 2,
+    SecondWeek = 3
 }
