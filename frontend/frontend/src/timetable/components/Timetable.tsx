@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import type { HourProps } from "./props.ts";
+import type { HourProps } from "../props.ts";
 import Hour from "./Hour.tsx";
-import "./timetable.css";
+import "../timetable.css";
 import {
   getClassroomHours,
   getFacultyHours,
@@ -10,8 +10,9 @@ import {
   getSpecialisationHours,
   getSubjectHours,
   getTeacherHours,
+  getUserCurrentWeekHours,
   getUserHours,
-} from "./TimetableApi.ts";
+} from "../TimetableApi.ts";
 
 export type TimetableProps = {
   userId?: number;
@@ -23,14 +24,16 @@ export type TimetableProps = {
   subjectId?: number;
 
   filterFn?: (hour: HourProps) => boolean;
+  currentWeekOnly?: boolean;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
   const [hours, setHours] = useState<HourProps[]>([]);
-  const [getError, setGetError] = useState<Error | null>(null);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
   const getFetchFunc = () => {
-    if (props.userId) return getUserHours(props.userId);
+    if (props.userId && !props.currentWeekOnly) return getUserHours(props.userId);
+    if (props.userId && props.currentWeekOnly) return getUserCurrentWeekHours(props.userId);
     if (props.groupYearId) return getGroupYearHours(props.groupYearId);
     if (props.facultyId) return getFacultyHours(props.facultyId);
     if (props.teacherId) return getTeacherHours(props.teacherId);
@@ -42,16 +45,16 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   useEffect(() => {
+    if (fetchError) return;
+
     getFetchFunc()
       .then((res) => {
-        setHours(res);
+        setHours(res.hours);
       })
       .catch((err) => {
-        setGetError(err as Error);
+        setFetchError(err as Error);
       });
-  });
-
-  const sortOrder = ["Luni", "Marti", "Miercuri", "Joi", "Vineri"];
+  }, []);
 
   return (
     <div className={"timetable"}>
@@ -63,19 +66,21 @@ const Timetable: React.FC<TimetableProps> = (props) => {
               <th>Interval</th>
               <th>Frecv.</th>
               <th>Locație</th>
-              <th>Sală</th>
+              {!props.classroomId && <th>Sală</th>}
               <th>Format</th>
               <th>Tip</th>
-              <th>Materie</th>
-              <th>Profesor</th>
+              {!props.subjectId && <th>Materie</th>}
+              {!props.teacherId && <th>Profesor</th>}
               {/*<th>Specializare</th>*/}
             </tr>
           </thead>
           <tbody>
             {hours
-              .sort((a, b) => a.frequency.localeCompare(b.frequency))
-              .sort((a, b) => a.hourInterval.localeCompare(b.hourInterval))
-              .sort((a, b) => sortOrder.indexOf(a.day) - sortOrder.indexOf(b.day))
+              .filter((a) => !props.filterFn || props.filterFn(a))
+              .map((a) => {
+                if (a.hourInterval.length == 4) a.hourInterval = "0" + a.hourInterval;
+                return a;
+              })
               .map(
                 ({
                   id,
@@ -110,7 +115,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
         </table>
       )}
 
-      {getError && <div>{getError.message || "Failed to fetch meshes"}</div>}
+      {fetchError && <div>{fetchError.message || "Failed to fetch meshes"}</div>}
     </div>
   );
 };

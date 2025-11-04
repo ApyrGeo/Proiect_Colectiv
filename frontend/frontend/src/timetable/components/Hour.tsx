@@ -1,5 +1,5 @@
-import type { HourProps } from "./props.ts";
-import "./timetable.css";
+import type { HourProps } from "../props.ts";
+import "../timetable.css";
 import { useNavigate } from "react-router-dom";
 import type { TimetableProps } from "./Timetable.tsx";
 
@@ -18,23 +18,36 @@ const Hour: React.FC<HourPropsExtended> = ({
   subject,
   teacher,
   timetableProps,
+  isNext,
+  isCurrent,
 }) => {
   const navigate = useNavigate();
 
-  const openRoomTable = (classroomId: number) => {
-    navigate("/classroom/" + classroomId);
+  const openRoomTable = (classroomId: number | undefined | null) => {
+    if (!classroomId) return;
+    navigate("/timetable/classroom/" + classroomId);
   };
 
-  const openTeacherTable = (teacherId: number) => {
-    navigate("/teacher/" + teacherId);
+  const openTeacherTable = (teacherId: number | undefined | null) => {
+    if (!teacherId) return;
+
+    navigate("/timetable/teacher/" + teacherId);
   };
 
-  const openSubjectTable = (subjectId: number) => {
-    navigate("/subject/" + subjectId);
+  const openSubjectTable = (subjectId: number | undefined | null) => {
+    if (!subjectId) return;
+    navigate("/timetable/subject/" + subjectId);
   };
+
+  const isMainTimetable: boolean =
+    !timetableProps.subjectId && !timetableProps.teacherId && !timetableProps.classroomId;
 
   return (
-    <tr className={"timetable-row"}>
+    <tr
+      className={`timetable-row 
+      ${isNext && isMainTimetable ? "timetable-row-next" : ""}
+      ${isCurrent && isMainTimetable ? "timetable-row-current" : ""}`}
+    >
       <td>{day}</td>
       <td>{hourInterval}</td>
       <td>{frequency}</td>
@@ -62,7 +75,6 @@ const Hour: React.FC<HourPropsExtended> = ({
           </button>
         </td>
       )}
-      {/*<td>{specialisation}</td>*/}
     </tr>
   );
 };

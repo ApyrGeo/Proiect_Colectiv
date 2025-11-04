@@ -1,4 +1,4 @@
-import Timetable from "../Timetable.tsx";
+import Timetable from "../components/Timetable.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import type { SubjectProps } from "../props.ts";
 import { useEffect, useState } from "react";
@@ -12,11 +12,11 @@ const TimetableSubjectPage: React.FC = () => {
   const params = useParams();
 
   const handleBack = () => {
-    navigate("");
+    navigate("/timetable");
   };
 
   useEffect(() => {
-    if (!params.id || !Number(params.id)) return;
+    if (!params.id || !Number(params.id) || fetchError) return;
 
     getSubject(Number(params.id))
       .then((res) => {
@@ -28,18 +28,18 @@ const TimetableSubjectPage: React.FC = () => {
   }, [params]);
 
   return (
-    <>
+    <div className={"timetable-page"}>
       {subject && (
         <>
           <div className={"timetable-title"}>Materie: {subject.name}</div>
-          <Timetable subjectId={subject.id}></Timetable>
           <button className={"timetable-back-button"} onClick={handleBack}>
             Înapoi
           </button>
+          <Timetable subjectId={subject.id}></Timetable>
         </>
       )}
       {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
-    </>
+    </div>
   );
 };
 

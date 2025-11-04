@@ -16,6 +16,8 @@ export interface HourProps {
   teacher: TeacherProps;
   teacherUrl?: string | null;
   specialisation: string;
+  isNext?: boolean;
+  isCurrent?: boolean;
 }
 
 export interface LocationProps {
@@ -38,4 +40,9 @@ export interface TeacherProps {
   id: number;
   userId?: number | null;
   user: UserProps;
+}
+
+export interface HourPropsDto {
+  hours: HourProps[];
+  calendarStartISODate: string;
 }

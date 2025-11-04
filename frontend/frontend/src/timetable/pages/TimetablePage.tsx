@@ -1,21 +1,25 @@
 import { useState, type SetStateAction } from "react";
-import Timetable from "../Timetable.tsx";
+import Timetable from "../components/Timetable.tsx";
 import type { HourProps } from "../props.ts";
 
 const TimetablePage: React.FC = () => {
-  // temporary user info, to be loaded from auth context
+  //TODO temporary user info, to be loaded from auth context
+  //groupYear, spec, faculty invalid example id's
   const userInfo = {
-    id: 123,
-    group: 1,
+    id: 11111,
+    groupYear: 47,
     spec: 2,
     faculty: 3,
   };
 
   const [selectedFilter, setSelectedFilter] = useState("personal");
   const [selectedFreq, setSelectedFreq] = useState("all");
+  const [activeHours, setActiveHours] = useState(true);
 
-  const filterFreq1: (hour: HourProps) => boolean = (hour) => hour.frequency == "sapt. 1" || hour.frequency == "";
-  const filterFreq2: (hour: HourProps) => boolean = (hour) => hour.frequency == "sapt. 2" || hour.frequency == "";
+  const filterFreq1: (hour: HourProps) => boolean = (hour) =>
+    hour.frequency == "FirstWeek" || hour.frequency == "Weekly";
+  const filterFreq2: (hour: HourProps) => boolean = (hour) =>
+    hour.frequency == "SecondWeek" || hour.frequency == "Weekly";
 
   const getFreqFilter = () => {
     switch (selectedFreq) {
@@ -83,21 +87,55 @@ const TimetablePage: React.FC = () => {
           </label>
         </div>
         <div className={"timetable-filter"}>
+          <label hidden={selectedFilter != "personal"}>
+            <input
+              type="checkbox"
+              name="active"
+              value="active"
+              checked={activeHours}
+              onChange={() => setActiveHours(!activeHours)}
+            />
+            Săptămâna curentă
+          </label>
+        </div>
+        <div className={"timetable-filter"}>
           <label>
-            <input type="radio" name="freq" value="all" checked={selectedFreq === "all"} onChange={handleChangeFreq} />
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="all"
+              checked={selectedFreq === "all"}
+              onChange={handleChangeFreq}
+            />
             Oricând
           </label>
           <label>
-            <input type="radio" name="freq" value="1" checked={selectedFreq === "1"} onChange={handleChangeFreq} />
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="1"
+              checked={selectedFreq === "1"}
+              onChange={handleChangeFreq}
+            />
             Săpt. 1
           </label>
           <label>
-            <input type="radio" name="freq" value="2" checked={selectedFreq === "2"} onChange={handleChangeFreq} />
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="2"
+              checked={selectedFreq === "2"}
+              onChange={handleChangeFreq}
+            />
             Săpt. 2
           </label>
         </div>
-        {selectedFilter == "personal" && <Timetable userId={userInfo.id} filterFn={getFreqFilter()} />}
-        {selectedFilter == "group" && <Timetable groupYearId={userInfo.group} filterFn={getFreqFilter()} />}
+        {selectedFilter == "personal" && !activeHours && <Timetable userId={userInfo.id} filterFn={getFreqFilter()} />}
+        {selectedFilter == "personal" && activeHours && <Timetable userId={userInfo.id} currentWeekOnly={true} />}
+        {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
         {selectedFilter == "specialisation" && (
           <Timetable specialisationId={userInfo.spec} filterFn={getFreqFilter()} />
         )}
