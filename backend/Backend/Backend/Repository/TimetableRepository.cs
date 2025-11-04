@@ -45,20 +45,20 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
         return subject;
     }
 
-    public Task<Classroom?> GetClassroomByIdAsync(int id)
+    public async Task<Classroom?> GetClassroomByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching classroom by ID: {0}", id);
 
-        return _context.Classrooms
+        return await _context.Classrooms
             .Include(x => x.Location)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<Hour?> GetHourByIdAsync(int id)
+    public async Task<Hour?> GetHourByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching hours by ID: {0}", id);
 
-        return _context.Hours
+        return await _context.Hours
             .Include(x => x.Classroom)
                 .ThenInclude(x => x.Location)
             .Include(x => x.Teacher)
@@ -70,7 +70,7 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<List<Hour>> GetHoursAsync(HourFilter filter)
+    public async Task<List<Hour>> GetHoursAsync(HourFilter filter)
     {
         _logger.InfoFormat("Fetching hours by hour filter: {0}", JsonSerializer.Serialize(filter));
 
@@ -82,12 +82,36 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
                 _context.Enrollments.Any(e =>
                     e.UserId == filter.UserId &&
                     (
-                        (h.StudentSubGroupId != null && e.SubGroupId == h.StudentSubGroupId)
-                        || (h.StudentGroupId != null && e.SubGroup.StudentGroupId == h.StudentGroupId)
-                        || (h.GroupYearId != null && e.SubGroup.StudentGroup.GroupYearId == h.GroupYearId)
+                        e.SubGroupId == h.StudentSubGroupId
+                        || e.SubGroup.StudentGroupId == h.StudentGroupId
+                        || e.SubGroup.StudentGroup.GroupYearId == h.GroupYearId
                     )
                 )
             );
+        }
+
+        if (filter.FacultyId != null)
+        {
+            query = query.Where(h =>
+                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.Specialisation.FacultyId == filter.FacultyId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYear.Specialisation.FacultyId == filter.FacultyId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYear.Specialisation.FacultyId == filter.FacultyId));
+        }
+
+        if (filter.SpecialisationId != null)
+        {
+            query = query.Where(h =>
+                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.SpecialisationId == filter.SpecialisationId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYear.SpecialisationId == filter.SpecialisationId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYear.SpecialisationId == filter.SpecialisationId));
+        }
+
+        if (filter.GroupYearId != null)
+        {
+            query = query.Where(h =>
+                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.Id == filter.GroupYearId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYearId == filter.GroupYearId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYearId == filter.GroupYearId));
         }
 
         if (filter.TeacherId != null)
@@ -105,7 +129,7 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             query = query.Where(x => x.ClassroomId == filter.ClassroomId);
         }
 
-        return query
+        return await query
             .Include(x => x.Classroom)
                 .ThenInclude(x => x.Location)
             .Include(x => x.Teacher)
@@ -117,11 +141,11 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             .ToListAsync();
     }
 
-    public Task<Location?> GetLocationByIdAsync(int id)
+    public async Task<Location?> GetLocationByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching location by ID: {0}", id);
 
-        return _context.Locations
+        return await _context.Locations
             .Include(x => x.Classrooms)
             .FirstOrDefaultAsync(x => x.Id == id);
     }

@@ -14,6 +14,11 @@ namespace Backend.Context.Configurations
                 .WithOne()
                 .HasForeignKey<Teacher>(x => x.UserId)
                 .IsRequired();
+
+            builder.HasOne(x => x.Faculty)
+                .WithMany(x => x.Teachers)
+                .HasForeignKey(x => x.FacultyId)
+                .IsRequired();
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using log4net;
 using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
-using System.Text.Json;
 using EmailService.Models;
 using EmailService.Providers;
+using log4net;
+using System.Text.Json;
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 namespace Backend.Service;
 
@@ -233,13 +233,40 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return enrollmentsDto;
     }
 
-    public Task<TeacherResponseDTO> CreateTeacher(TeacherPostDTO teacherPostDTO)
+    public async Task<TeacherResponseDTO> CreateTeacher(TeacherPostDTO teacherPostDTO)
     {
-        throw new NotImplementedException();
+        _logger.InfoFormat("Validating TeacherPostDTO: {0}", JsonSerializer.Serialize(teacherPostDTO));
+
+        var validator = _validatorFactory.Get<TeacherPostDTO>();
+        var validationResult = await validator.ValidateAsync(teacherPostDTO);
+
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var teacher = _mapper.Map<Teacher>(teacherPostDTO);
+
+        _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacher));
+
+        teacher = await _academicRepository.AddTeacherAsync(teacher);
+        await _academicRepository.SaveChangesAsync();
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
     }
 
-    public Task<List<TeacherResponseDTO>> GetTeachers(int userId)
+    public async Task<TeacherResponseDTO> GetTeacherByUserId(int userId)
     {
-        throw new NotImplementedException();
+        _logger.InfoFormat("Trying to retrieve teacher for user with ID {0}", userId);
+
+        var _ = await _userRepository.GetByIdAsync(userId)
+            ?? throw new NotFoundException($"Teacher with ID {userId} not found.");
+
+        var teacher = await _academicRepository.GetTeacherByUserId(userId)
+            ?? throw new NotFoundException($"Teacher for user with ID {userId} not found.");
+
+        _logger.InfoFormat("Mapping teacher entity to DTO for user with ID {0}", userId);
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
     }
 }
