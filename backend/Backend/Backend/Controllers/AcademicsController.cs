@@ -15,7 +15,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollment([FromQuery] int userId)
+    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollments([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
 
@@ -33,7 +33,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         EnrollmentResponseDTO createdEnrollment = await _service.CreateUserEnrollment(enrollmentPostDto);
 
-        return CreatedAtAction(nameof(GetUserEnrollment), createdEnrollment);
+        return CreatedAtAction(nameof(GetUserEnrollments), new { enrollmentId = createdEnrollment.Id }, createdEnrollment);
     }
 
     [HttpGet("teachers/{teacherId}")]
@@ -57,7 +57,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         var createdTeacher = await _service.CreateTeacher(dto);
 
-        return CreatedAtAction(nameof(CreateTeacher), new { teacherId = createdTeacher.Id }, createdTeacher);
+        return CreatedAtAction(nameof(GetTeacherById), new { teacherId = createdTeacher.Id }, createdTeacher);
     }
 
     [HttpGet("faculties/{facultyId}")]

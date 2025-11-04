@@ -74,6 +74,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<Hour, HourResponseDTO>()
         .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
         .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
+        .ForMember(x => x.Category, o => o.MapFrom(s => s.Category.ToString()))
         .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom.Location))
         .ForMember(x => x.Format, o => o.MapFrom(s =>
             s.StudentSubGroup != null ? s.StudentSubGroup.Name
@@ -82,8 +83,9 @@ builder.Services.AddAutoMapper(cfg =>
             : "Unknown"
         ));
     cfg.CreateMap<HourPostDTO, Hour>()
-        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day)))
-        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency)));
+        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))
+        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency!)))
+        .ForMember(x => x.Category, o => o.MapFrom(s => Enum.Parse<HourCategory>(s.Category!)));
 });
 
 //logging

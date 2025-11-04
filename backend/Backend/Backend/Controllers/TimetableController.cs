@@ -59,7 +59,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         var createdLocation = await _service.CreateLocation(dto);
 
-        return CreatedAtAction(nameof(CreateLocation), new { locationId = createdLocation.Id }, createdLocation);
+        return CreatedAtAction(nameof(GetLocationById), new { locationId = createdLocation.Id }, createdLocation);
     }
 
     [HttpGet("classrooms/{classroomId}")]
@@ -83,7 +83,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         var createdClassroom = await _service.CreateClassroom(dto);
 
-        return CreatedAtAction(nameof(CreateClassroom), new { classroomId = createdClassroom.Id }, createdClassroom);
+        return CreatedAtAction(nameof(GetClassroomById), new { classroomId = createdClassroom.Id }, createdClassroom);
     }
 
     [HttpGet("hours")]
@@ -130,6 +130,6 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         var createdHour = await _service.CreateHour(dto);
 
-        return CreatedAtAction(nameof(CreateHour), new { hourId = createdHour.Id }, createdHour);
+        return CreatedAtAction(nameof(GetHourById), new { hourId = createdHour.Id }, createdHour);
     }
 }

@@ -42,6 +42,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
         var addedUser = await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
 
+        _logger.InfoFormat($"Sending email to user: {user.Email}");
         await SendWelcomeEmail(userDTO);
 
         var addedUserDTO = _mapper.Map<UserResponseDTO>(addedUser);
@@ -50,8 +51,8 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
 
     private async Task SendWelcomeEmail(UserPostDTO user)
     {
-        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName, LastName = user.LastName, Password = user.Password};
-        await _emailProvider.SendCreateAccountEmailAsync(user.Email, userEmailModel);
+        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = user.Password!};
+        await _emailProvider.SendCreateAccountEmailAsync(user.Email!, userEmailModel);
     }
 
     public async Task<List<UserResponseDTO>> GetAllUser()

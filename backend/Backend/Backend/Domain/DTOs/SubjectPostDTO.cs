@@ -3,6 +3,6 @@
 public class SubjectPostDTO
 {
     public string? Name { get; set; }
-    public int? NumberOfCredits { get; set; }
-    public int? GroupYearId { get; set; }
+    public required int NumberOfCredits { get; set; }
+    public required int GroupYearId { get; set; }
 }

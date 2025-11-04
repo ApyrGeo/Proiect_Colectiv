@@ -11,20 +11,13 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Specialisation name is required.")
-            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Specialisation name must not exceed {Constants.DefaultStringMaxLenght} characters.")
-            .MustAsync(async (name, cancellation) =>
-            {
-                var existingSpecialisation = await academicRepository.GetSpecialisationByNameAsync(name);
-                return existingSpecialisation == null;
-            }).WithMessage("A specialisation with the same name already exists.");
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Specialisation name must not exceed {Constants.DefaultStringMaxLenght} characters.");
 
         RuleFor(x => x.FacultyId)
             .GreaterThan(0).WithMessage("Faculty ID must be a positive integer.")
             .MustAsync(async (facultyId, cancellation) =>
             {
-                if(!facultyId.HasValue)
-                    return true;
-                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId.Value);
+                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId);
                 return faculty != null;
             }).WithMessage("Faculty with the given ID does not exist.");
     }

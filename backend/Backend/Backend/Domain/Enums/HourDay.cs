@@ -1,12 +1,10 @@
-﻿namespace Backend.Domain.Enums
+﻿namespace Backend.Domain.Enums;
+
+public enum HourDay
 {
-    public enum HourDay
-    {
-        Unknown = 0,
-        Monday = 1,
-        Tuesday = 2,
-        Wednesday = 3,
-        Thursday = 4,
-        Friday = 5,
-    }
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5
 }

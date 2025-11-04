@@ -82,7 +82,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
 
     public async Task<Faculty?> GetFacultyByNameAsync(string name)
     {
-        return await _context.Faculties.SingleOrDefaultAsync(f => f.Name == name);
+        return await _context.Faculties.FirstOrDefaultAsync(f => f.Name == name);
     }
 
     public async Task<StudentGroup?> GetGroupByIdAsync(int id)
@@ -92,12 +92,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
             .Include(g => g.GroupYear)
                 .ThenInclude(gy => gy.Specialisation)   
                     .ThenInclude(s => s.Faculty)
-            .SingleOrDefaultAsync(g => g.Id == id);
-    }
-
-    public async Task<StudentGroup?> GetGroupByNameAsync(string name)
-    {
-        return await _context.Groups.SingleOrDefaultAsync(g => g.Name == name);
+            .FirstOrDefaultAsync(g => g.Id == id);
     }
 
     public async Task<GroupYear?> GetGroupYearByIdAsync(int id)
@@ -106,12 +101,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
             .Include(gy => gy.StudentGroups)
             .Include(gy => gy.Specialisation)
                 .ThenInclude(s => s.Faculty)
-            .SingleOrDefaultAsync(gy => gy.Id == id);
-    }
-
-    public async Task<GroupYear?> GetGroupYearByYearAsync(string year)
-    {
-        return await _context.GroupYears.SingleOrDefaultAsync(gy => gy.Year == year);
+            .FirstOrDefaultAsync(gy => gy.Id == id);
     }
 
     public async Task<Specialisation?> GetSpecialisationByIdAsync(int id)
@@ -119,12 +109,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
         return await _context.Specialisations
              .Include(s => s.Faculty)
              .Include(s => s.GroupYears)
-             .SingleOrDefaultAsync(s => s.Id == id);
-    }
-
-    public async Task<Specialisation?> GetSpecialisationByNameAsync(string name)
-    {
-        return await _context.Specialisations.SingleOrDefaultAsync(s => s.Name == name);
+             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
     public async Task<StudentSubGroup?> GetSubGroupByIdAsync(int id)
@@ -135,12 +120,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
                     .ThenInclude(gy => gy.Specialisation)
                         .ThenInclude(s => s.Faculty)
             .Include(sg => sg.Enrollments)
-            .SingleOrDefaultAsync(sg => sg.Id == id);
-    }
-
-    public async Task<StudentSubGroup?> GetSubGroupByNameAsync(string name)
-    {
-        return await _context.SubGroups.SingleOrDefaultAsync(sg => sg.Name == name);
+            .FirstOrDefaultAsync(sg => sg.Id == id);
     }
 
     public async Task SaveChangesAsync()

@@ -2,6 +2,7 @@
 using Backend.Domain.DTOs;
 using Backend.Interfaces;
 using FluentValidation;
+using Backend.Domain.Enums;
 
 namespace Backend.Service.Validators;
 
@@ -14,11 +15,8 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
             {   
-                if (!userId.HasValue)
-                    return true;
-                
-                var user = await userRepository.GetByIdAsync(userId.Value);
-                return user != null;
+                var user = await userRepository.GetByIdAsync(userId);
+                return user?.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)
@@ -26,9 +24,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
             .MustAsync(async (subGroupId, cancellation) =>
             {   
-                if (!subGroupId.HasValue)
-                    return true;
-                var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId.Value);
+                var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId);
                 return subGroup != null;
             }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");
     }
