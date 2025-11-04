@@ -7,7 +7,7 @@ public interface IAcademicRepository
     Task<Enrollment> AddEnrollmentAsync(Enrollment enrollment);
     Task<List<Enrollment>> GetEnrollmentsByUserId(int userId);
     Task<Teacher> AddTeacherAsync(Teacher teacher);
-    Task<Teacher?> GetTeacherByUserId(int userId);
+    Task<Teacher?> GetTeacherById(int id);
     Task<Faculty> AddFacultyAsync(Faculty faculty);
     Task<Faculty?> GetFacultyByIdAsync(int id);
     Task<Faculty?> GetFacultyByNameAsync(string name);

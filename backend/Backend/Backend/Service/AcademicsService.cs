@@ -255,17 +255,17 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return _mapper.Map<TeacherResponseDTO>(teacher);
     }
 
-    public async Task<TeacherResponseDTO> GetTeacherByUserId(int userId)
+    public async Task<TeacherResponseDTO> GetTeacherById(int id)
     {
-        _logger.InfoFormat("Trying to retrieve teacher for user with ID {0}", userId);
+        _logger.InfoFormat("Trying to retrieve teacher with ID {0}", id);
 
-        var _ = await _userRepository.GetByIdAsync(userId)
-            ?? throw new NotFoundException($"Teacher with ID {userId} not found.");
+        var _ = await _userRepository.GetByIdAsync(id)
+            ?? throw new NotFoundException($"Teacher with ID {id} not found.");
 
-        var teacher = await _academicRepository.GetTeacherByUserId(userId)
-            ?? throw new NotFoundException($"Teacher for user with ID {userId} not found.");
+        var teacher = await _academicRepository.GetTeacherById(id)
+            ?? throw new NotFoundException($"Teacher with ID {id} not found.");
 
-        _logger.InfoFormat("Mapping teacher entity to DTO for user with ID {0}", userId);
+        _logger.InfoFormat("Mapping teacher entity to DTO with ID {0}", id);
 
         return _mapper.Map<TeacherResponseDTO>(teacher);
     }

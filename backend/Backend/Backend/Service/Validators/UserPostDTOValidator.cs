@@ -1,5 +1,7 @@
 ﻿using Backend.Domain.DTOs;
+using Backend.Domain.Enums;
 using Backend.Interfaces;
+using Backend.Utils;
 using FluentValidation;
 
 namespace Backend.Service.Validators;
@@ -13,50 +15,42 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
 
         RuleFor(user => user.FirstName)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("First name is required.")
-            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$")
-            .WithMessage("Invalid first name format.");
+            .NotEmpty().WithMessage("First name is required.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User first name must not exceed {Constants.DefaultStringMaxLenght} characters.")
+            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$").WithMessage("Invalid first name format.");
 
         RuleFor(user => user.LastName)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Last name is required.")
-            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$")
-            .WithMessage("Invalid last name format.");
+            .NotEmpty().WithMessage("Last name is required.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User last name must not exceed {Constants.DefaultStringMaxLenght} characters.")
+            .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$").WithMessage("Invalid last name format.");
 
         RuleFor(user => user.PhoneNumber)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Phone number is required.")
-            .Matches(@"^\+?[1-9]\d{1,14}$")
-            .WithMessage("Invalid phone number format.");
+            .NotEmpty().WithMessage("Phone number is required.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User phone number must not exceed {Constants.DefaultStringMaxLenght} characters.")
+            .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
 
         RuleFor(user => user.Email)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Email is required.")
-            .EmailAddress()
-            .WithMessage("Invalid email format.")
+            .NotEmpty().WithMessage("Email is required.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User email must not exceed {Constants.DefaultStringMaxLenght} characters.")
+            .EmailAddress().WithMessage("Invalid email format.")
             .MustAsync(async (email, cancellation) =>
             {
                 var existingUser = await _repository.GetByEmailAsync(email);
                 return existingUser == null;
-            })
-            .WithMessage("Email already exists.");
+            }).WithMessage("Email already exists.");
 
         RuleFor(user => user.Password)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Password is required.")
-            .MinimumLength(8)
-            .WithMessage("Password must be at least 8 characters long.");
+            .NotEmpty().WithMessage("Password is required.")
+            .MaximumLength(Constants.ExtendedStringMaxLenght).WithMessage($"User password must not exceed {Constants.ExtendedStringMaxLenght} characters.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters long.");
             
         RuleFor(user => user.Role)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Role is required.")
-            .Must(role => role == "Admin" || role == "Teacher" || role == "Student")
-            .WithMessage("Role must be either 'Admin', 'Student' or 'Teacher'.");
+            .NotEmpty().WithMessage("Role is required.")
+            .IsEnumName(typeof(UserRole)).WithMessage($"User role string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(UserRole)))}.");
     }
 }

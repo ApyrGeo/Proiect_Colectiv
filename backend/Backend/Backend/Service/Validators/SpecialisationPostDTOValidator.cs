@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
+using Backend.Utils;
 using FluentValidation;
 
 namespace Backend.Service.Validators;
@@ -10,7 +11,7 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Specialisation name is required.")
-            .MaximumLength(100).WithMessage("Specialisation name must not exceed 100 characters.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Specialisation name must not exceed {Constants.DefaultStringMaxLenght} characters.")
             .MustAsync(async (name, cancellation) =>
             {
                 var existingSpecialisation = await academicRepository.GetSpecialisationByNameAsync(name);

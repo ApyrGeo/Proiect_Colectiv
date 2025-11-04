@@ -51,12 +51,12 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
         return teacher;
     }
 
-    public async Task<Teacher?> GetTeacherByUserId(int userId)
+    public async Task<Teacher?> GetTeacherById(int id)
     {
         return await _context.Teachers
             .Include(t => t.User)
             .Include(t => t.Faculty)
-            .Where(t => t.UserId == userId)
+            .Where(t => t.Id == id)
             .FirstOrDefaultAsync();
     }
 

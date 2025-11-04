@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
+using Backend.Utils;
 using FluentValidation;
 
 namespace Backend.Service.Validators;
@@ -10,7 +11,7 @@ public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroup
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Student sub-group name is required.")
-            .MaximumLength(50).WithMessage("Student sub-group name must not exceed 50 characters.")
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Student sub-group name must not exceed {Constants.DefaultStringMaxLenght} characters.")
             .MustAsync(async (dto, name, cancellation) =>
             {
                 var existingSubGroup = await academicRepository.GetSubGroupByNameAsync(name);
