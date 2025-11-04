@@ -40,6 +40,6 @@ public class UserController(IUserService service) : ControllerBase
     {
         _logger.InfoFormat("Received request to create user: {0}", user);
         UserResponseDTO createdUser = await _service.CreateUser(user);
-        return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(CreateUser), new { id = createdUser.Id }, createdUser);
     }
 }

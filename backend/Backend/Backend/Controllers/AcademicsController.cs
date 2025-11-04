@@ -15,7 +15,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollment([FromQuery] int userId)
+    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollments([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
 
@@ -33,7 +33,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         EnrollmentResponseDTO createdEnrollment = await _service.CreateUserEnrollment(enrollmentPostDto);
 
-        return CreatedAtAction(nameof(GetUserEnrollment), createdEnrollment);
+        return CreatedAtAction(nameof(CreateUserEnrollment), new { enrollmentId = createdEnrollment.Id }, createdEnrollment);
     }
 
     [HttpGet("teachers/{teacherId}")]
@@ -80,7 +80,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         FacultyResponseDTO createdFaculty = await _service.CreateFaculty(facultyPostDto);
 
-        return CreatedAtAction(nameof(GetFacultyById), new { facultyId = createdFaculty.Id }, createdFaculty);
+        return CreatedAtAction(nameof(CreateFaculty), new { facultyId = createdFaculty.Id }, createdFaculty);
     }
 
     [HttpGet("specialisations/{specialisationId}")]
@@ -103,7 +103,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         SpecialisationResponseDTO createdSpecialisation = await _service.CreateSpecialisation(specialisationPostDto);
 
-        return CreatedAtAction(nameof(GetSpecialisationById), new { specialisationId = createdSpecialisation.Id }, createdSpecialisation);
+        return CreatedAtAction(nameof(CreateSpecialisation), new { specialisationId = createdSpecialisation.Id }, createdSpecialisation);
     }
 
     [HttpGet("group-years/{groupYearId}")]
@@ -126,7 +126,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         
         GroupYearResponseDTO createdGroupYear = await _service.CreateGroupYear(groupYearPostDto);
         
-        return CreatedAtAction(nameof(GetGroupYearById), new { groupYearId = createdGroupYear.Id }, createdGroupYear);
+        return CreatedAtAction(nameof(CreateGroupYear), new { groupYearId = createdGroupYear.Id }, createdGroupYear);
     }
 
     [HttpGet("student-groups/{studentGroupId}")]
@@ -149,7 +149,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         
         StudentGroupResponseDTO createdStudentGroup = await _service.CreateStudentGroup(studentGroupPostDto);
         
-        return CreatedAtAction(nameof(GetStudentGroupById), new { studentGroupId = createdStudentGroup.Id }, createdStudentGroup);
+        return CreatedAtAction(nameof(CreateStudentGroup), new { studentGroupId = createdStudentGroup.Id }, createdStudentGroup);
     }
 
     [HttpGet("student-subgroups/{studentSubGroupId}")]
@@ -172,6 +172,6 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         
         StudentSubGroupResponseDTO createdStudentSubGroup = await _service.CreateStudentSubGroup(studentSubGroupPostDto);
         
-        return CreatedAtAction(nameof(GetStudentSubGroupById), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
+        return CreatedAtAction(nameof(CreateStudentSubGroup), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
     }
 }

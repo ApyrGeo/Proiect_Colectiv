@@ -25,9 +25,9 @@ public class UserDataSeeder
             return;
 
         var subGroups = await _context.SubGroups
-            .Include(sg => sg.StudentGroup)
-            .ThenInclude(g => g.GroupYear)
-            .ThenInclude(gy => gy.Specialisation)
+            .Include(s => s.StudentGroup)
+                .ThenInclude(sg => sg.GroupYear)
+                    .ThenInclude(gy => gy.Specialisation)
             .ToListAsync();
         var subGroupsCounts = subGroups.ToDictionary(sg => sg.Id, sg => 0);
 
@@ -39,7 +39,7 @@ public class UserDataSeeder
         var userFaker = faker
             .RuleFor(u => u.FirstName, f => f.Name.FirstName())
             .RuleFor(u => u.LastName, f => f.Name.LastName())
-            .RuleFor(u => u.PhoneNumber, (f, u) => $"+40 {f.Random.Number(700, 799)} {f.UniqueIndex:D3} {f.Random.Number(100, 999)}")
+            .RuleFor(u => u.PhoneNumber, (f, u) => $"+40 {f.Random.Number(700, 799)} {f.UniqueIndex:D2} {f.Random.Number(100, 999)}")
             .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FirstName, u.LastName, "gmoil.com", f.UniqueIndex.ToString())) 
             .RuleFor(u => u.Password, (f,u) => _passwordHasher.HashPassword(u, "Password123!"))
             .RuleFor(u => u.Role, f => f.Random.Double() < 0.10 ? UserRole.Teacher : UserRole.Student)
@@ -59,12 +59,10 @@ public class UserDataSeeder
         };
 
         admin.Password = _passwordHasher.HashPassword(admin, admin.Password);
-
         users.Add(admin);
 
         var students = users.Where(u => u.Role == UserRole.Student).ToList();
         var random = new Random();
-
 
         foreach (var student in students)
         {

@@ -35,7 +35,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         SubjectResponseDTO createdSubject = await _service.CreateSubject(subjectPostDto);
 
-        return CreatedAtAction(nameof(GetSubjectById), new { subjectId = createdSubject.Id }, createdSubject);
+        return CreatedAtAction(nameof(CreateSubject), new { subjectId = createdSubject.Id }, createdSubject);
     }
 
     [HttpGet("locations/{locationId}")]

@@ -21,7 +21,7 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
             .GreaterThan(0).WithMessage("GroupYearId must be a positive integer.")
             .MustAsync(async (groupYearId, cancellation) =>
             {
-                if (!groupYearId.HasValue) return true;
+                if (!groupYearId.HasValue) return false;
 
                 var groupYear = await academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
                 return groupYear != null;

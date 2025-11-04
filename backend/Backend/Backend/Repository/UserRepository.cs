@@ -9,7 +9,7 @@ namespace Backend.Repository;
 public class UserRepository(AcademicAppContext context) : IUserRepository
 {
     private readonly AcademicAppContext _context = context;
-    private readonly ILog  _logger = LogManager.GetLogger(typeof(UserRepository));
+    private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
 
     public async Task<User?> GetByEmailAsync(string email)
     {

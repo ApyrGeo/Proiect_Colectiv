@@ -42,6 +42,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
         var addedUser = await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
 
+        _logger.InfoFormat($"Sending email to user: {user.Email}");
         await SendWelcomeEmail(userDTO);
 
         var addedUserDTO = _mapper.Map<UserResponseDTO>(addedUser);
