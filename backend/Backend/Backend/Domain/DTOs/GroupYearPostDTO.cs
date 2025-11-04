@@ -2,6 +2,6 @@
 
 public class GroupYearPostDTO
 {
-    public required string Year { get; set; } 
-    public required int SpecialisationId { get; set; }
+    public string? Year { get; set; } 
+    public int? SpecialisationId { get; set; }
 }

@@ -1,0 +1,320 @@
+:root {
+    --app-sidebar-width: 200px;
+    --app-sidebar-minified-width: 60px;
+    --app-sidebar-bg: #2c3440;
+    --app-sidebar-hover: #3a4352;
+    --app-sidebar-color: #cfd8e3;
+    --app-sidebar-active: #1e90ff;
+    --app-sidebar-minify-btn-bg: #242a33;
+    --app-sidebar-zindex: 1000;
+    --submenu-bullet-color: #cfd8e3;
+}
+
+/* -----------------------------------------------------------------
+/* Sidebar Structure and Transition
+/* ----------------------------------------------------------------- */
+.app-sidebar {
+    width: var(--app-sidebar-width);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--app-sidebar-bg);
+    color: var(--app-sidebar-color);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    z-index: var(--app-sidebar-zindex);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.app-sidebar.minified {
+    width: var(--app-sidebar-minified-width);
+}
+
+.app-sidebar-content {
+    flex: 1;
+    position: relative;
+}
+
+/* -----------------------------------------------------------------
+/* Menu Items (Expanded State)
+/* ----------------------------------------------------------------- */
+.menu-header {
+    padding: 15px 20px 5px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+.menu-item {
+    position: relative;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--app-sidebar-color);
+    padding: 10px 20px;
+    transition: background 0.2s, padding 0.3s ease;
+    white-space: nowrap;
+}
+
+.menu-link:hover {
+    background: var(--app-sidebar-hover);
+    color: #fff;
+}
+
+.menu-link.active-link {
+    background-color: #242a33;
+}
+
+.menu-icon {
+    width: 24px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.menu-text {
+    flex: 1;
+}
+
+.menu-caret {
+    margin-left: auto;
+    opacity: 0.6;
+    transition: transform 0.2s;
+}
+
+/* -----------------------------------------------------------------
+/* Minified State Styles
+/* ----------------------------------------------------------------- */
+.app-sidebar.minified .menu-text,
+.app-sidebar.minified .menu-caret,
+.app-sidebar.minified .menu-header {
+    display: none !important;
+}
+
+.app-sidebar.minified .menu-link {
+    justify-content: center;
+    padding: 10px 18px;
+}
+
+.app-sidebar.minified .menu-icon {
+    margin-right: 0;
+    width: 24px;
+    text-align: center;
+}
+
+/* -----------------------------------------------------------------
+/* Submenu (Animated Expand/Collapse)
+/* ----------------------------------------------------------------- */
+.menu-submenu {
+    padding: 0px 0 5px 20px;
+    position: relative;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform-origin: top;
+    transition: max-height 260ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease;
+    will-change: max-height, opacity;
+}
+
+.menu-item.expand .menu-submenu {
+    max-height: 420px;
+    opacity: 1;
+}
+
+.app-sidebar.minified .menu-submenu {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* -----------------------------------------------------------------
+/* Submenu Links and Lines (Staggered Animation)
+/* ----------------------------------------------------------------- */
+.submenu-link {
+    display: block;
+    color: #b5bdc9;
+    text-decoration: none;
+
+    padding: 6px 10px 6px 20px;
+    position: relative;
+    margin-left: 10px;
+    background-image: linear-gradient(#242a33, #242a33);
+    background-repeat: no-repeat;
+    background-size: 30px 2px;
+    background-position: 1px 50%;
+
+    transform: translateY(-6px);
+    opacity: 0;
+    transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.submenu-link:hover {
+    color: #fff;
+}
+
+.menu-item.expand .submenu-link {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+
+.menu-item.expand .submenu-link:nth-child(1) { transition-delay: 0ms; }
+.menu-item.expand .submenu-link:nth-child(2) { transition-delay: 30ms; }
+.menu-item.expand .submenu-link:nth-child(3) { transition-delay: 50ms; }
+.menu-item.expand .submenu-link:nth-child(4) { transition-delay: 70ms; }
+.menu-item.expand .submenu-link:nth-child(5) { transition-delay: 90ms; }
+
+.submenu-link.active-link::after {
+    color: var(--app-sidebar-active);
+}
+
+/* Vertical Line (The branch) */
+.submenu-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background-color: #242a33;
+    z-index: 5;
+}
+
+.submenu-link:last-child::before {
+    bottom: 50%;
+}
+
+/* Bullet Point */
+.submenu-link::after {
+    content: '•';
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--submenu-bullet-color);
+    z-index: 10;
+}
+
+/* -----------------------------------------------------------------
+/* Minify Button and Backdrop
+/* ----------------------------------------------------------------- */
+.app-sidebar-minify-btn-container {
+    display: flex;
+    justify-content: end;
+}
+
+.app-sidebar-minify-btn {
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 10px 0;
+    border-radius: 50% 0 0 50%;
+    font-size: 16px;
+    line-height: 1;
+    background: var(--app-sidebar-minify-btn-bg);
+    color: var(--app-sidebar-color);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    box-sizing: border-box;
+}
+
+.app-sidebar-minify-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.app-sidebar-minify-btn > * {
+    display: block;
+    transform: none;
+    margin: 0;
+    padding: 0;
+}
+
+.app-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.app-sidebar-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (min-width: 769px) {
+    .app-sidebar-backdrop {
+        display: none;
+    }
+}
+
+/* -----------------------------------------------------------------
+/* Hover Preview (Minified Only) & Accessibility
+/* ----------------------------------------------------------------- */
+.sidebar-hover-preview {
+    position: fixed;
+    left: calc(var(--app-sidebar-minified-width) + 8px);
+    background: #1e2530;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    min-width: 180px;
+    animation: fadeIn 0.2s ease;
+    z-index: 2000;
+    pointer-events: auto;
+}
+
+.sidebar-hover-preview .hover-title {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.hover-submenu-link {
+    display: block;
+    color: #b5bdc9;
+    text-decoration: none;
+    padding: 4px 0;
+    font-size: 13px;
+}
+
+.hover-submenu-link:hover {
+    color: #fff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-submenu,
+    .submenu-link {
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        max-height: none !important;
+        pointer-events: auto !important;
+    }
+}

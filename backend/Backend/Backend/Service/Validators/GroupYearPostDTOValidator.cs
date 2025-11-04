@@ -23,7 +23,7 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
             .GreaterThan(0).WithMessage("SpecialisationId must be a positive integer.")
             .MustAsync(async (id, cancellation) => 
             { 
-                var specialisation = await academicRepository.GetSpecialisationByIdAsync(id);
+                var specialisation = await academicRepository.GetSpecialisationByIdAsync(id.Value);
                 return specialisation != null;
             }).WithMessage("Specialisation with the given ID does not exist.");
     }
