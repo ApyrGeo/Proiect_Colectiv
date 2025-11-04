@@ -2,9 +2,6 @@
 using Backend.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Backend.Controllers;
 
@@ -43,6 +40,6 @@ public class UserController(IUserService service) : ControllerBase
     {
         _logger.InfoFormat("Received request to create user: {0}", user);
         UserResponseDTO createdUser = await _service.CreateUser(user);
-        return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(CreateUser), new { id = createdUser.Id }, createdUser);
     }
 }

@@ -138,6 +138,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
 
+        _logger.InfoFormat($"Sending email to: {enrollment.User.Email}");
         await SendAddedEnrollementEmail(enrollment);
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);
@@ -160,11 +161,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<FacultyResponseDTO> GetFacultyById(int facultyId)
     {
-        _logger.InfoFormat("Trying to retrieve faculty with id {0}", JsonSerializer.Serialize(facultyId));
+        _logger.InfoFormat("Trying to retrieve faculty with id {0}", facultyId);
         var faculty = await _academicRepository.GetFacultyByIdAsync(facultyId)
             ?? throw new NotFoundException($"Faculty with ID {facultyId} not found.");
 
-        _logger.InfoFormat("Mapping faculty entity to DTO for ID {0}", JsonSerializer.Serialize(facultyId));
+        _logger.InfoFormat("Mapping faculty entity to DTO for ID {0}", facultyId);
         var facultyDto = _mapper.Map<FacultyResponseDTO>(faculty);
 
         return facultyDto;
@@ -172,11 +173,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<GroupYearResponseDTO> GetGroupYearById(int groupYearId)
     {
-        _logger.InfoFormat("Trying to retrieve group year with id {0}", JsonSerializer.Serialize(groupYearId));
+        _logger.InfoFormat("Trying to retrieve group year with id {0}", groupYearId);
         var groupYear = await _academicRepository.GetGroupYearByIdAsync(groupYearId)
             ?? throw new NotFoundException($"GroupYear with ID {groupYearId} not found.");
 
-        _logger.InfoFormat("Mapping group year entity to DTO for ID {0}", JsonSerializer.Serialize(groupYearId));
+        _logger.InfoFormat("Mapping group year entity to DTO for ID {0}", groupYearId);
         var groupYearDto = _mapper.Map<GroupYearResponseDTO>(groupYear);
 
         return groupYearDto;
@@ -184,11 +185,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<SpecialisationResponseDTO> GetSpecialisationById(int specialisationId)
     {
-        _logger.InfoFormat("Trying to retrieve specialisation with id {0}", JsonSerializer.Serialize(specialisationId));
+        _logger.InfoFormat("Trying to retrieve specialisation with id {0}", specialisationId);
         var specialisation = await _academicRepository.GetSpecialisationByIdAsync(specialisationId)
             ?? throw new NotFoundException($"Specialisation with ID {specialisationId} not found.");
 
-        _logger.InfoFormat("Mapping specialisation entity to DTO for ID {0}", JsonSerializer.Serialize(specialisationId));
+        _logger.InfoFormat("Mapping specialisation entity to DTO for ID {0}", specialisationId);
         var specialisationDto = _mapper.Map<SpecialisationResponseDTO>(specialisation);
 
         return specialisationDto;
@@ -196,11 +197,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<StudentGroupResponseDTO> GetStudentGroupById(int studentGroupId)
     {
-        _logger.InfoFormat("Trying to retrieve student group with id {0}", JsonSerializer.Serialize(studentGroupId));
+        _logger.InfoFormat("Trying to retrieve student group with id {0}", studentGroupId);
         var studentGroup = await _academicRepository.GetGroupByIdAsync(studentGroupId)
             ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
 
-        _logger.InfoFormat("Mapping student group entity to DTO for ID {0}", JsonSerializer.Serialize(studentGroupId));
+        _logger.InfoFormat("Mapping student group entity to DTO for ID {0}", studentGroupId);
         var studentGroupDto = _mapper.Map<StudentGroupResponseDTO>(studentGroup);
 
         return studentGroupDto;
@@ -208,11 +209,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId)
     {
-        _logger.InfoFormat("Trying to retrieve student sub-group with id {0}", JsonSerializer.Serialize(studentSubGroupId));
+        _logger.InfoFormat("Trying to retrieve student sub-group with id {0}", studentSubGroupId);
         var studentSubGroup = await _academicRepository.GetSubGroupByIdAsync(studentSubGroupId)
            ?? throw new NotFoundException($"StudentSubGroup with ID {studentSubGroupId} not found.");
 
-        _logger.InfoFormat("Mapping student sub-group entity to DTO for ID {0}", JsonSerializer.Serialize(studentSubGroupId));
+        _logger.InfoFormat("Mapping student sub-group entity to DTO for ID {0}", studentSubGroupId);
         var studentSubGroupDto = _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
 
         return studentSubGroupDto;
@@ -220,7 +221,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
     public async Task<List<EnrollmentResponseDTO>> GetUserEnrollments(int userId)
     {
-        _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", JsonSerializer.Serialize(userId));
+        _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", userId);
 
         var _ = await _userRepository.GetByIdAsync(userId)
             ?? throw new NotFoundException($"Student with ID {userId} not found.");
@@ -228,7 +229,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var enrollments = await _academicRepository.GetEnrollmentsByUserId(userId)
             ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
 
-        _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", JsonSerializer.Serialize(userId));
+        _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", userId);
         var enrollmentsDto = _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
 
         return enrollmentsDto;

@@ -2,6 +2,7 @@
 using Backend.Domain.DTOs;
 using Backend.Interfaces;
 using FluentValidation;
+using Backend.Domain.Enums;
 
 namespace Backend.Service.Validators;
 
@@ -13,12 +14,12 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .NotNull().WithMessage("UserId cannot be null.")
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
-            {   
+            {
                 if (!userId.HasValue)
                     return true;
-                
+
                 var user = await userRepository.GetByIdAsync(userId.Value);
-                return user != null;
+                return user?.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)
