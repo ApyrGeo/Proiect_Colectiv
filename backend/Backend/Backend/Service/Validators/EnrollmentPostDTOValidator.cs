@@ -19,7 +19,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
                     return true;
 
                 var user = await userRepository.GetByIdAsync(userId.Value);
-                return user != null && user!.Role == UserRole.Student;
+                return user?.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)
