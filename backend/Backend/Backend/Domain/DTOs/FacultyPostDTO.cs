@@ -2,5 +2,5 @@
 
 public class FacultyPostDTO
 {
-    public required string Name { get; set; }
+    public string? Name { get; set; }
 }

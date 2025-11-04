@@ -16,7 +16,9 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
             .GreaterThan(0).WithMessage("Faculty ID must be a positive integer.")
             .MustAsync(async (facultyId, cancellation) =>
             {
-                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId);
+                if(!facultyId.HasValue)
+                    return true;
+                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId.Value);
                 return faculty != null;
             }).WithMessage("Faculty with the given ID does not exist.");
     }
