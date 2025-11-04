@@ -259,9 +259,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve teacher with ID {0}", id);
 
-        var _ = await _userRepository.GetByIdAsync(id)
-            ?? throw new NotFoundException($"Teacher with ID {id} not found.");
-
         var teacher = await _academicRepository.GetTeacherById(id)
             ?? throw new NotFoundException($"Teacher with ID {id} not found.");
 
