@@ -5,8 +5,6 @@ using Backend.Exceptions.Custom;
 using Backend.Interfaces;
 using EmailService.Models;
 using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
 using log4net;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json;
@@ -53,8 +51,8 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
 
     private async Task SendWelcomeEmail(UserPostDTO user)
     {
-        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName, LastName = user.LastName, Password = user.Password};
-        await _emailProvider.SendCreateAccountEmailAsync(user.Email, userEmailModel);
+        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = user.Password!};
+        await _emailProvider.SendCreateAccountEmailAsync(user.Email!, userEmailModel);
     }
 
     public async Task<List<UserResponseDTO>> GetAllUser()

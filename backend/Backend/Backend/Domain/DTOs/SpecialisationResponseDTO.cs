@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Backend.Domain.DTOs;
+﻿namespace Backend.Domain.DTOs;
 
 public class SpecialisationResponseDTO
 {

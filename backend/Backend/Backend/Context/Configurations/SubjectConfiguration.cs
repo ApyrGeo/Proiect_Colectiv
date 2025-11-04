@@ -1,5 +1,6 @@
 ﻿using Backend.Domain;
 using Backend.Domain.Enums;
+using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,9 +11,11 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
     public void Configure(EntityTypeBuilder<Subject> builder)
     {
         builder.HasKey(f => f.Id);
+
         builder.Property(f => f.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
+
         builder.Property(f => f.NumberOfCredits)
             .IsRequired();
         

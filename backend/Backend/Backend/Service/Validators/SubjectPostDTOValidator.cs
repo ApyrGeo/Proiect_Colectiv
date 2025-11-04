@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
+using Backend.Utils;
 using FluentValidation;
 
 namespace Backend.Service.Validators;
@@ -10,7 +11,7 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
     {
         RuleFor(f => f.Name)
             .NotEmpty().WithMessage("Subject name is required.")
-            .MaximumLength(100).WithMessage("Subject name must not exceed 100 characters.");
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Subject name must not exceed {Constants.DefaultStringMaxLenght} characters.");
         
         RuleFor(f => f.NumberOfCredits)
             .NotNull().WithMessage("Nr credits is required.")
@@ -20,12 +21,8 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
             .GreaterThan(0).WithMessage("GroupYearId must be a positive integer.")
             .MustAsync(async (groupYearId, cancellation) =>
             {
-                if (!groupYearId.HasValue)
-                    return false;
-
-                var groupYear = await academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
+                var groupYear = await academicRepository.GetGroupYearByIdAsync(groupYearId);
                 return groupYear != null;
             }).WithMessage("The specified GroupYearId does not exist.");
     }
-    
 }

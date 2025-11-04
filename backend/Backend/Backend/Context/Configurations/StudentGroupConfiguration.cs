@@ -1,4 +1,5 @@
 ﻿using Backend.Domain;
+using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,11 +13,7 @@ public class StudentGroupConfiguration : IEntityTypeConfiguration<StudentGroup>
         
         builder.Property(sg => sg.Name)
             .IsRequired()
-            .HasMaxLength(100);
-
-        builder.HasMany(sg => sg.StudentSubGroups)
-            .WithOne(s => s.StudentGroup)
-            .HasForeignKey(s => s.StudentGroupId);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
 
         builder.HasOne(sg => sg.GroupYear)
             .WithMany(gy => gy.StudentGroups)

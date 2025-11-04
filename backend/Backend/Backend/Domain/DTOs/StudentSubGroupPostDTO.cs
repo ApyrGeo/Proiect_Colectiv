@@ -3,5 +3,5 @@
 public class StudentSubGroupPostDTO
 {
     public string? Name { get; set; }
-    public int? StudentGroupId { get; set; }
+    public required int StudentGroupId { get; set; }
 }

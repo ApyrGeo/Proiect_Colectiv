@@ -1,4 +1,5 @@
 ﻿using Backend.Domain;
+using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,14 +13,10 @@ public class SpecialisationConfiguration : IEntityTypeConfiguration<Specialisati
 
         builder.Property(s => s.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
 
         builder.HasOne(s => s.Faculty)
             .WithMany(f => f.Specialisations)
             .HasForeignKey(s => s.FacultyId);
-
-        builder.HasMany(s => s.GroupYears)
-            .WithOne(gy => gy.Specialisation)
-            .HasForeignKey(gy => gy.SpecialisationId);
     }
 }

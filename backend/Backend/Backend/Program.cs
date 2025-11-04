@@ -14,7 +14,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,20 +40,52 @@ builder.Services.AddAutoMapper(cfg =>
 
     cfg.CreateMap<User, UserResponseDTO>().ReverseMap();
     cfg.CreateMap<UserPostDTO, User>();
+
     cfg.CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
     cfg.CreateMap<EnrollmentPostDTO, Enrollment>();
+
     cfg.CreateMap<Faculty, FacultyResponseDTO>().ReverseMap();
     cfg.CreateMap<FacultyPostDTO, Faculty>();
+
     cfg.CreateMap<Specialisation, SpecialisationResponseDTO>().ReverseMap();
     cfg.CreateMap<SpecialisationPostDTO, Specialisation>();
+
     cfg.CreateMap<GroupYear, GroupYearResponseDTO>().ReverseMap();
     cfg.CreateMap<GroupYearPostDTO, GroupYear>();
+
     cfg.CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
     cfg.CreateMap<StudentGroupPostDTO, StudentGroup>();
+
     cfg.CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
     cfg.CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
+
     cfg.CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
     cfg.CreateMap<SubjectPostDTO, Subject>();
+
+    cfg.CreateMap<Teacher, TeacherResponseDTO>().ReverseMap();
+    cfg.CreateMap<TeacherPostDTO, Teacher>();
+
+    cfg.CreateMap<Classroom, ClassroomResponseDTO>().ReverseMap();
+    cfg.CreateMap<ClassroomPostDTO, Classroom>();
+
+    cfg.CreateMap<Location, LocationResponseDTO>().ReverseMap();
+    cfg.CreateMap<LocationPostDTO, Location>();
+
+    cfg.CreateMap<Hour, HourResponseDTO>()
+        .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
+        .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
+        .ForMember(x => x.Category, o => o.MapFrom(s => s.Category.ToString()))
+        .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom.Location))
+        .ForMember(x => x.Format, o => o.MapFrom(s =>
+            s.StudentSubGroup != null ? s.StudentSubGroup.Name
+            : s.StudentGroup != null ? s.StudentGroup.Name
+            : s.GroupYear != null ? s.GroupYear.Year
+            : "Unknown"
+        ));
+    cfg.CreateMap<HourPostDTO, Hour>()
+        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))
+        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency!)))
+        .ForMember(x => x.Category, o => o.MapFrom(s => Enum.Parse<HourCategory>(s.Category!)));
 });
 
 //logging

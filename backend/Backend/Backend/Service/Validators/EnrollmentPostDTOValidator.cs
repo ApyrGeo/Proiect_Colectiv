@@ -14,11 +14,8 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .NotNull().WithMessage("UserId cannot be null.")
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
-            {
-                if (!userId.HasValue)
-                    return true;
-
-                var user = await userRepository.GetByIdAsync(userId.Value);
+            {   
+                var user = await userRepository.GetByIdAsync(userId);
                 return user?.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
 
@@ -27,9 +24,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
             .MustAsync(async (subGroupId, cancellation) =>
             {   
-                if (!subGroupId.HasValue)
-                    return true;
-                var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId.Value);
+                var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId);
                 return subGroup != null;
             }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");
     }

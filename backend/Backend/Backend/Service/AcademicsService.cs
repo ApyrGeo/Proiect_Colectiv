@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
-using log4net;
 using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
-using FluentValidation;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
-using System.Text.Json;
 using EmailService.Models;
 using EmailService.Providers;
+using log4net;
+using System.Text.Json;
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 namespace Backend.Service;
 
@@ -233,5 +232,39 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var enrollmentsDto = _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
 
         return enrollmentsDto;
+    }
+
+    public async Task<TeacherResponseDTO> CreateTeacher(TeacherPostDTO teacherPostDTO)
+    {
+        _logger.InfoFormat("Validating TeacherPostDTO: {0}", JsonSerializer.Serialize(teacherPostDTO));
+
+        var validator = _validatorFactory.Get<TeacherPostDTO>();
+        var validationResult = await validator.ValidateAsync(teacherPostDTO);
+
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
+
+        var teacher = _mapper.Map<Teacher>(teacherPostDTO);
+
+        _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacher));
+
+        teacher = await _academicRepository.AddTeacherAsync(teacher);
+        await _academicRepository.SaveChangesAsync();
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
+    }
+
+    public async Task<TeacherResponseDTO> GetTeacherById(int id)
+    {
+        _logger.InfoFormat("Trying to retrieve teacher with ID {0}", id);
+
+        var teacher = await _academicRepository.GetTeacherById(id)
+            ?? throw new NotFoundException($"Teacher with ID {id} not found.");
+
+        _logger.InfoFormat("Mapping teacher entity to DTO with ID {0}", id);
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
     }
 }

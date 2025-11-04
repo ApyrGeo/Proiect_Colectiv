@@ -1,4 +1,5 @@
 ﻿using Backend.Domain;
+using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,18 +13,10 @@ public class GroupYearConfiguration : IEntityTypeConfiguration<GroupYear>
 
         builder.Property(ssg => ssg.Year)
             .IsRequired()
-            .HasMaxLength(100);
-
-        builder.HasMany(gy => gy.StudentGroups)
-            .WithOne(sg => sg.GroupYear)
-            .HasForeignKey(sg => sg.GroupYearId);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
 
         builder.HasOne(gy => gy.Specialisation)
             .WithMany(s => s.GroupYears)
             .HasForeignKey(gy => gy.SpecialisationId);
-        
-        builder.HasMany(gy => gy.Subjects)
-            .WithOne(sg => sg.GroupYear)
-            .HasForeignKey(sg => sg.GroupYearId);
     }
 }

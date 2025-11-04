@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
+using Backend.Utils;
 using FluentValidation;
 
 namespace Backend.Service.Validators;
@@ -10,16 +11,13 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Specialisation name is required.")
-            .MaximumLength(100).WithMessage("Specialisation name must not exceed 100 characters.");
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Specialisation name must not exceed {Constants.DefaultStringMaxLenght} characters.");
 
         RuleFor(x => x.FacultyId)
             .GreaterThan(0).WithMessage("Faculty ID must be a positive integer.")
             .MustAsync(async (facultyId, cancellation) =>
             {
-                if(!facultyId.HasValue)
-                    return false;
-
-                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId.Value);
+                var faculty = await academicRepository.GetFacultyByIdAsync(facultyId);
                 return faculty != null;
             }).WithMessage("Faculty with the given ID does not exist.");
     }

@@ -45,6 +45,21 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
         return studentSubGroup;
     }
 
+    public async Task<Teacher> AddTeacherAsync(Teacher teacher)
+    {
+        await _context.Teachers.AddAsync(teacher);
+        return teacher;
+    }
+
+    public async Task<Teacher?> GetTeacherById(int id)
+    {
+        return await _context.Teachers
+            .Include(t => t.User)
+            .Include(t => t.Faculty)
+            .Where(t => t.Id == id)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<List<Enrollment>> GetEnrollmentsByUserId(int userId)
     {
         return await _context.Enrollments

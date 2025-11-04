@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Repository;
 
-public class UserRepository(AcademicAppContext context) 
-    : IUserRepository
+public class UserRepository(AcademicAppContext context) : IUserRepository
 {
     private readonly AcademicAppContext _context = context;
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));

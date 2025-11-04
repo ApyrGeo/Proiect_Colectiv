@@ -1,4 +1,5 @@
 ﻿using Backend.Domain;
+using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,26 +13,24 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.FirstName)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
 
         builder.Property(user => user.LastName)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
 
         builder.Property(user => user.Email)
             .IsRequired()
-            .HasMaxLength(100);
-        builder.HasIndex(user => user.Email).IsUnique();
+            .HasMaxLength(Constants.DefaultStringMaxLenght);
+
+        builder.HasIndex(user => user.Email)
+            .IsUnique();
 
         builder.Property(user => user.Password)
             .IsRequired()
-            .HasMaxLength(255);
+            .HasMaxLength(Constants.ExtendedStringMaxLenght);
 
         builder.Property(user => user.Role)
             .IsRequired();
-
-        builder.HasMany(user => user.Enrollments)
-            .WithOne(enrollment => enrollment.User)
-            .HasForeignKey(enrollment => enrollment.UserId);
     }
 }

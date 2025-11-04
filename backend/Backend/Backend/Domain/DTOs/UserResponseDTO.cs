@@ -1,6 +1,4 @@
-﻿using Backend.Domain.Enums;
-
-namespace Backend.Domain.DTOs;
+﻿namespace Backend.Domain.DTOs;
 
 public class UserResponseDTO
 {
