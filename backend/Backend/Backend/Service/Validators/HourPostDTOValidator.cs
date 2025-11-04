@@ -25,6 +25,11 @@ namespace Backend.Service.Validators
                 .NotEmpty().WithMessage("Frequency is required.")
                 .IsEnumName(typeof(HourFrequency)).WithMessage($"Frequency string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(HourFrequency)))}.");
 
+            RuleFor(x => x.Category)
+                .NotNull()
+                .NotEmpty().WithMessage("Category is required.")
+                .IsEnumName(typeof(HourCategory)).WithMessage($"Category string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(HourCategory)))}.");
+
             RuleFor(x => x.ClassroomId)
                 .MustAsync(async (classroomId, cancellation) =>
                 {

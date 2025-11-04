@@ -5,6 +5,7 @@
         public string? Day { get; set; }
         public string? HourInterval { get; set; }
         public string? Frequency { get; set; }
+        public string? Category { get; set; }
         public int? ClassroomId { get; set; }
         public int? SubjectId { get; set; }
         public int? TeacherId { get; set; }

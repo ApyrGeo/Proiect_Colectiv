@@ -21,6 +21,9 @@ namespace Backend.Context.Configurations
                 .IsRequired()
                 .HasMaxLength(Constants.DefaultStringMaxLenght);
 
+            builder.Property(x => x.Category)
+                .IsRequired();
+
             builder.HasOne(x => x.Subject)
                 .WithMany(x => x.Hours)
                 .HasForeignKey(x => x.SubjectId)

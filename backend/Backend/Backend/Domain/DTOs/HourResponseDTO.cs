@@ -6,6 +6,7 @@
         public required string Day { get; set; }
         public required string HourInterval { get; set; }
         public required string Frequency { get; set; }
+        public required string Category { get; set; }
         public required string Format { get; set; }
         public required LocationResponseDTO Location { get; set; }
         public string LocationUrl => $"url/{Location.Id}";
