@@ -7,15 +7,10 @@ namespace Backend.Service.Validators;
 public class StudentGroupPostDTOValidator : AbstractValidator<StudentGroupPostDTO>
 {
     public StudentGroupPostDTOValidator(IAcademicRepository academicRepository) 
-    { 
+    {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Student group name is required.")
-            .MaximumLength(50).WithMessage("Student group name must not exceed 50 characters.")
-            .MustAsync(async (name, cancellation) =>
-            {
-                var existingGroup = await academicRepository.GetGroupByNameAsync(name);
-                return existingGroup == null;
-            }).WithMessage("A student group with the same name already exists.");
+            .MaximumLength(50).WithMessage("Student group name must not exceed 50 characters.");
 
         RuleFor(x => x.GroupYearId)
             .GreaterThan(0).WithMessage("GroupYearId must be a positive integer.")

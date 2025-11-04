@@ -1,7 +1,6 @@
 ﻿using Backend.Domain.DTOs;
 using Backend.Interfaces;
 using log4net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -16,7 +15,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollment([FromQuery] int userId)
+    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollments([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
 
@@ -34,7 +33,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         EnrollmentResponseDTO createdEnrollment = await _service.CreateUserEnrollment(enrollmentPostDto);
 
-        return CreatedAtAction(nameof(GetUserEnrollment), createdEnrollment);
+        return CreatedAtAction(nameof(CreateUserEnrollment), createdEnrollment);
     }
 
     [HttpGet("faculties/{facultyId}")]

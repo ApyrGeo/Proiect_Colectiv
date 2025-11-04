@@ -11,14 +11,7 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
         RuleFor(g => g.Year)
             .NotNull()
             .NotEmpty()
-            .WithMessage("Year is required.")
-            .MustAsync(async (year, cancellation) =>
-            {
-                var existingGroupYear = await academicRepository.GetGroupYearByYearAsync(year);
-                return existingGroupYear == null;
-            })
-            .WithMessage("GroupYear name already exists");
-
+            .WithMessage("Year is required.");
 
         RuleFor(g => g.SpecialisationId)
             .NotNull()

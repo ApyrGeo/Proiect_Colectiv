@@ -10,12 +10,7 @@ public class SpecialisationPostDTOValidator : AbstractValidator<SpecialisationPo
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Specialisation name is required.")
-            .MaximumLength(100).WithMessage("Specialisation name must not exceed 100 characters.")
-            .MustAsync(async (name, cancellation) =>
-            {
-                var existingSpecialisation = await academicRepository.GetSpecialisationByNameAsync(name);
-                return existingSpecialisation == null;
-            }).WithMessage("A specialisation with the same name already exists.");
+            .MaximumLength(100).WithMessage("Specialisation name must not exceed 100 characters.");
 
         RuleFor(x => x.FacultyId)
             .GreaterThan(0).WithMessage("Faculty ID must be a positive integer.")
