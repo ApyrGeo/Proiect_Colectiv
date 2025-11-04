@@ -2,6 +2,6 @@
 
 public class EnrollmentPostDTO
 {
-    public int? SubGroupId { get; set; }
-    public int? UserId { get; set; }
+    public required int SubGroupId { get; set; }
+    public required int UserId { get; set; }
 }

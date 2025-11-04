@@ -118,7 +118,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         return _mapper.Map<ClassroomResponseDTO>(classroom);
     }
 
-    public async Task<List<HourResponseDTO>> GetHourByFilter(HourFilter filter)
+    public async Task<TimetableResponseDTO> GetHourByFilter(HourFilter filter)
     {
         _logger.InfoFormat("Trying to retrive hours with filter {0}", JsonSerializer.Serialize(filter));
 
@@ -168,7 +168,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         _logger.InfoFormat("Mapping hour entities to DTOs for filter {0}", JsonSerializer.Serialize(filter));
 
-        return _mapper.Map<List<HourResponseDTO>>(hours);
+        return new TimetableResponseDTO { Hours = _mapper.Map<List<HourResponseDTO>>(hours) };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)

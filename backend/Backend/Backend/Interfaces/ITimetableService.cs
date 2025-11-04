@@ -13,5 +13,5 @@ public interface ITimetableService
     Task<LocationResponseDTO> GetLocationById(int locationId);
     Task<ClassroomResponseDTO> GetClassroomById(int classroomId);
     Task<HourResponseDTO> GetHourById(int hourId);
-    Task<List<HourResponseDTO>> GetHourByFilter(HourFilter filter);
+    Task<TimetableResponseDTO> GetHourByFilter(HourFilter filter);
 }

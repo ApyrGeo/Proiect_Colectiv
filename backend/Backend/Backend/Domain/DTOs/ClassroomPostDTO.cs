@@ -3,6 +3,6 @@
     public class ClassroomPostDTO
     {
         public string? Name { get; set; }
-        public int? LocationId { get; set; }
+        public required int LocationId { get; set; }
     }
 }

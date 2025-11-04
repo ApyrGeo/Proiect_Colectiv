@@ -17,9 +17,7 @@ namespace Backend.Service.Validators
             RuleFor(x => x.LocationId)
                 .MustAsync(async (locationId, cancellation) =>
                 {
-                    if (!locationId.HasValue) return false;
-
-                    var location = await repo.GetLocationByIdAsync(locationId.Value);
+                    var location = await repo.GetLocationByIdAsync(locationId);
                     return location != null;
                 }).WithMessage("The specified Location does not exist.");
         }

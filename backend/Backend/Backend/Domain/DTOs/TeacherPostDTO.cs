@@ -2,7 +2,7 @@
 {
     public class TeacherPostDTO
     {
-        public int? UserId { get; set; }
-        public int? FacultyId { get; set; }
+        public required int UserId { get; set; }
+        public required int FacultyId { get; set; }
     }
 }
