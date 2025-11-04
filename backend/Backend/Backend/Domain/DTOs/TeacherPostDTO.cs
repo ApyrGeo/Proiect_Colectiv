@@ -1,8 +1,7 @@
-﻿namespace Backend.Domain.DTOs
+﻿namespace Backend.Domain.DTOs;
+
+public class TeacherPostDTO
 {
-    public class TeacherPostDTO
-    {
-        public required int UserId { get; set; }
-        public required int FacultyId { get; set; }
-    }
+    public required int UserId { get; set; }
+    public required int FacultyId { get; set; }
 }
