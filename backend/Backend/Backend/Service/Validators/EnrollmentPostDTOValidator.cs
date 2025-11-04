@@ -13,22 +13,13 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .NotNull().WithMessage("UserId cannot be null.")
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
-            {   
-                if (!userId.HasValue)
-                    return true;
-                
-                var user = await userRepository.GetByIdAsync(userId.Value);
-                return user != null;
-            }).WithMessage("User with the specified UserId does not exist.")
-            .MustAsync(async (userId, cancelation) =>
             {
                 if (!userId.HasValue)
-                    return false;
+                    return true;
 
                 var user = await userRepository.GetByIdAsync(userId.Value);
-                return user!.Role == Domain.Enums.UserRole.Student;
-            })
-            .WithMessage("User must be a student in order to be enrolled");
+                return user != null && user!.Role == Domain.Enums.UserRole.Student;
+            }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)
             .NotNull().WithMessage("SubGroupId cannot be null.")
