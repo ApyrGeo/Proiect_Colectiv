@@ -82,8 +82,8 @@ builder.Services.AddAutoMapper(cfg =>
             : "Unknown"
         ));
     cfg.CreateMap<HourPostDTO, Hour>()
-        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day)))
-        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency)));
+        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))
+        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency!)));
 });
 
 //logging

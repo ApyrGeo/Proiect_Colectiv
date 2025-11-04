@@ -16,7 +16,7 @@ namespace Backend.Service.Validators
                     if (!userId.HasValue) return false;
 
                     var user = await userRepository.GetByIdAsync(userId.Value);
-                    return user != null && user.Role == UserRole.Teacher;
+                    return user?.Role == UserRole.Teacher;
                 }).WithMessage("User with the specified UserId does not exist.");
 
             RuleFor(e => e.FacultyId)
