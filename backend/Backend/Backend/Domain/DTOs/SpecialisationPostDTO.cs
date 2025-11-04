@@ -2,6 +2,6 @@
 
 public class SpecialisationPostDTO
 {
-    public required string Name { get; set; }
-    public required int FacultyId { get; set; }
+    public string? Name { get; set; }
+    public int? FacultyId { get; set; }
 }

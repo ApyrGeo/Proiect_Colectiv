@@ -21,7 +21,9 @@ public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroup
             .GreaterThan(0).WithMessage("StudentGroupId must be a positive integer.")
             .MustAsync(async (studentGroupId, cancellation) =>
             {
-                var studentGroup = await academicRepository.GetGroupByIdAsync(studentGroupId);
+                if (!studentGroupId.HasValue)
+                    return true;
+                var studentGroup = await academicRepository.GetGroupByIdAsync(studentGroupId.Value);
                 return studentGroup != null;
             }).WithMessage("The specified StudentGroupId does not exist.");
     }
