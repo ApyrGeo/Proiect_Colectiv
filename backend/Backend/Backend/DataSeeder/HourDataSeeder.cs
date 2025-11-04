@@ -33,7 +33,7 @@ public class HourDataSeeder(AcademicAppContext context)
             return;
 
         var rnd = new Random();
-        var dayValues = Enum.GetValues<HourDay>().Cast<HourDay>().Where(d => d != HourDay.Unknown).ToArray();
+        var dayValues = Enum.GetValues<HourDay>().Cast<HourDay>().ToArray();
         var intervals = new[] { "8-10", "10-12", "12-14", "14-16", "16-18", "18-20" };
 
         // Track occupancy and counts
@@ -147,7 +147,8 @@ public class HourDataSeeder(AcademicAppContext context)
                         Teacher = teacher,
                         TeacherId = teacher.Id,
                         GroupYear = gy,
-                        GroupYearId = gy.Id
+                        GroupYearId = gy.Id,
+                        Category = HourCategory.Lecture
                     };
 
                     hoursToAdd.Add(h);
@@ -185,7 +186,8 @@ public class HourDataSeeder(AcademicAppContext context)
                             Teacher = teacher,
                             TeacherId = teacher.Id,
                             StudentGroup = group,
-                            StudentGroupId = group.Id
+                            StudentGroupId = group.Id,
+                            Category = HourCategory.Seminar
                         };
 
                         hoursToAdd.Add(h);
@@ -224,7 +226,8 @@ public class HourDataSeeder(AcademicAppContext context)
                                 Teacher = teacher,
                                 TeacherId = teacher.Id,
                                 StudentSubGroup = sub,
-                                StudentSubGroupId = sub.Id
+                                StudentSubGroupId = sub.Id,
+                                Category = HourCategory.Laboratory
                             };
 
                             hoursToAdd.Add(h);
