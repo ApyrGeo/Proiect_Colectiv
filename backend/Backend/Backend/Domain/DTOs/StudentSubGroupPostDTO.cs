@@ -2,6 +2,6 @@
 
 public class StudentSubGroupPostDTO
 {
-    public required string Name { get; set; }
-    public required int StudentGroupId { get; set; }
+    public string? Name { get; set; }
+    public int? StudentGroupId { get; set; }
 }
