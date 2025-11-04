@@ -41,7 +41,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Classrooms");
+                    b.ToTable("Classrooms", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Enrollment", b =>
@@ -64,7 +64,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Faculty", b =>
@@ -85,7 +85,7 @@ namespace Backend.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Faculties");
+                    b.ToTable("Faculties", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.GroupYear", b =>
@@ -108,7 +108,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SpecialisationId");
 
-                    b.ToTable("GroupYears");
+                    b.ToTable("GroupYears", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Hour", b =>
@@ -162,7 +162,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Hours");
+                    b.ToTable("Hours", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Location", b =>
@@ -185,7 +185,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Specialisation", b =>
@@ -208,7 +208,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Specialisations");
+                    b.ToTable("Specialisations", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.StudentGroup", b =>
@@ -231,7 +231,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("GroupYearId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.StudentSubGroup", b =>
@@ -254,7 +254,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("StudentGroupId");
 
-                    b.ToTable("SubGroups");
+                    b.ToTable("SubGroups", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Subject", b =>
@@ -280,7 +280,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("GroupYearId");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Teacher", b =>
@@ -304,7 +304,7 @@ namespace Backend.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.User", b =>
@@ -347,7 +347,7 @@ namespace Backend.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Classroom", b =>

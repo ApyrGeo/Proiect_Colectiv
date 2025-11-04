@@ -36,6 +36,30 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return CreatedAtAction(nameof(GetUserEnrollment), createdEnrollment);
     }
 
+    [HttpGet("teachers/{teacherId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<TeacherResponseDTO>> GetTeacherById([FromRoute] int teacherId)
+    {
+        _logger.InfoFormat("Fetching teacher with ID {0}", teacherId);
+
+        var teacher = await _service.GetTeacherById(teacherId);
+
+        return Ok(teacher);
+    }
+
+    [HttpPost("teachers")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(422)]
+    public async Task<ActionResult<EnrollmentResponseDTO>> CreateTeacher([FromBody] TeacherPostDTO dto)
+    {
+        _logger.InfoFormat("Creating teacher for user with ID {0}", dto.UserId);
+
+        var createdTeacher = await _service.CreateTeacher(dto);
+
+        return CreatedAtAction(nameof(CreateTeacher), new { teacherId = createdTeacher.Id }, createdTeacher);
+    }
+
     [HttpGet("faculties/{facultyId}")]
     [ProducesResponseType(200)]
     public async Task<ActionResult<FacultyResponseDTO>> GetFacultyById([FromRoute] int facultyId)
