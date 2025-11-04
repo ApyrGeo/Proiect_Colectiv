@@ -64,7 +64,6 @@ public class UserDataSeeder
         var students = users.Where(u => u.Role == UserRole.Student).ToList();
         var random = new Random();
 
-
         foreach (var student in students)
         {
             //1st enrollment - "compulsory"

@@ -14,7 +14,13 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             {
                 var user = await userRepository.GetByIdAsync(userId);
                 return user != null;
-            }).WithMessage("User with the specified UserId does not exist.");
+            }).WithMessage("User with the specified UserId does not exist.")
+            .MustAsync(async (userId, cancelation) =>
+            {
+                var user = await userRepository.GetByIdAsync(userId);
+                return user!.Role == Domain.Enums.UserRole.Student;
+            })
+            .WithMessage("User must be a student in order to be enrolled");
 
         RuleFor(e => e.SubGroupId)
             .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
