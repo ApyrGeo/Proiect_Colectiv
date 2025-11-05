@@ -224,7 +224,7 @@ public class AcademicsServiceTests
     [InlineData("IR2",-1)]
     public async Task CreateStudentGroupInvalidData(string name, int groupYearId)
     {
-        var dto = new StudentGroupPostDTO { Name = name };
+        var dto = new StudentGroupPostDTO { Name = name, GroupYearId = groupYearId };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty};
         var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation};
@@ -306,7 +306,7 @@ public class AcademicsServiceTests
     public async Task CreateUserEnrollmentValidData(int userId, int subGroupId)
     {
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
-        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Admin")};
+        var user = new User {Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Student")};
         _mockUserRepository 
             .Setup(r => r.GetByIdAsync(userId))
             .ReturnsAsync(user);
@@ -319,7 +319,7 @@ public class AcademicsServiceTests
             .Setup(r => r.GetSubGroupByIdAsync(subGroupId))
             .ReturnsAsync(subGroup);        
         var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
-        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Admin" };
+        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Student" };
         var subGroupDto= new StudentSubGroupResponseDTO{Id=subGroupId, Name=subGroup.Name};
         var responseDto = new EnrollmentResponseDTO { Id = 1,UserId = userId,SubGroupId = subGroupId,User = userResponseDto, SubGroup = subGroupDto };
 
@@ -343,7 +343,7 @@ public class AcademicsServiceTests
     public async Task CreateUserEnrollmentInvalidData(int userId, int subGroupId)
     {
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
-        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Admin")};
+        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Student")};
         _mockUserRepository 
             .Setup(r => r.GetByIdAsync(userId))
             .ReturnsAsync(user);
@@ -356,7 +356,7 @@ public class AcademicsServiceTests
             .Setup(r => r.GetSubGroupByIdAsync(subGroupId))
             .ReturnsAsync(subGroup);        
         var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
-        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Admin" };
+        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Student" };
         var subGroupDto= new StudentSubGroupResponseDTO{Id=subGroupId, Name=subGroup.Name};
         var responseDto = new EnrollmentResponseDTO { Id = 1,UserId = userId,SubGroupId = subGroupId,User = userResponseDto, SubGroup = subGroupDto };
 

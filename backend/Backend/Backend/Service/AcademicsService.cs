@@ -11,6 +11,7 @@ using EmailService.Models;
 using EmailService.Providers;
 using log4net;
 using System.Text.Json;
+using EmailService.Interfaces;
 
 namespace Backend.Service;
 

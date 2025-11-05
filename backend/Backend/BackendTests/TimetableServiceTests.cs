@@ -34,6 +34,7 @@ public class TimetableServiceTests
 
         _service = new TimetableService(
             _mockRepository.Object,
+            _mockAcademicRepository.Object,
             _mockMapper.Object,
             _validatorFactory
         );
