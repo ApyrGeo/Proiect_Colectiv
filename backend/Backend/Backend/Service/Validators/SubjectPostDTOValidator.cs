@@ -25,4 +25,5 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
                 return groupYear != null;
             }).WithMessage("The specified GroupYearId does not exist.");
     }
+    
 }
