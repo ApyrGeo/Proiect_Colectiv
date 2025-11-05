@@ -34,7 +34,7 @@ public class HourDataSeeder(AcademicAppContext context)
 
         var rnd = new Random();
         var dayValues = Enum.GetValues<HourDay>().Cast<HourDay>().ToArray();
-        var intervals = new[] { "8-10", "10-12", "12-14", "14-16", "16-18", "18-20" };
+        var intervals = new[] { "08-10", "10-12", "12-14", "14-16", "16-18", "18-20" };
 
         // Track occupancy and counts
         var occupiedTeacherSlots = new HashSet<string>();

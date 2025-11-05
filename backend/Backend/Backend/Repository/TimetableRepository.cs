@@ -138,6 +138,8 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             .Include(x => x.GroupYear)
             .Include(x => x.StudentGroup)
             .Include(x => x.StudentSubGroup)
+            .OrderBy(x => x.Day)
+                .ThenBy(x => x.HourInterval)
             .ToListAsync();
     }
 
