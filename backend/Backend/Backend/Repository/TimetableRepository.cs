@@ -78,15 +78,23 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
 
         if (filter.UserId != null)
         {
+            var enrollmentInfo = await _context.Enrollments
+                .Where(e => e.UserId == filter.UserId)
+                .Select(e => new
+                {
+                    e.SubGroupId,
+                    e.SubGroup.StudentGroupId,
+                    e.SubGroup.StudentGroup.GroupYearId
+                }).ToListAsync();
+
+            var subGroupIds = enrollmentInfo.Select(x => x.SubGroupId).Distinct().ToList();
+            var studentGroupIds = enrollmentInfo.Select(x => x.StudentGroupId).Distinct().ToList();
+            var groupYearIds = enrollmentInfo.Select(x => x.GroupYearId).Distinct().ToList();
+
             query = query.Where(h =>
-                _context.Enrollments.Any(e =>
-                    e.UserId == filter.UserId &&
-                    (
-                        e.SubGroupId == h.StudentSubGroupId
-                        || e.SubGroup.StudentGroupId == h.StudentGroupId
-                        || e.SubGroup.StudentGroup.GroupYearId == h.GroupYearId
-                    )
-                )
+                (h.StudentSubGroupId != null && subGroupIds.Contains(h.StudentSubGroupId.Value))
+                || (h.StudentGroupId != null && studentGroupIds.Contains(h.StudentGroupId.Value))
+                || (h.GroupYearId != null && groupYearIds.Contains(h.GroupYearId.Value))
             );
         }
 

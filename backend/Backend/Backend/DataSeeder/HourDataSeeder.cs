@@ -39,7 +39,7 @@ public class HourDataSeeder(AcademicAppContext context)
         // Track occupancy and counts
         var occupiedTeacherSlots = new HashSet<string>();
         var occupiedClassroomSlots = new HashSet<string>();
-        var occupiedGroupSlots = new HashSet<string>(); // keys for Group/GroupYear/SubGroup
+        var occupiedSubGroupSlots = new HashSet<string>(); // keys for specific StudentSubGroup slots (prevents per-enrollment overlap)
 
         // per-classroom counters: day -> count, weekly total
         var classroomDayCount = classrooms.ToDictionary(
@@ -53,6 +53,7 @@ public class HourDataSeeder(AcademicAppContext context)
         static string TeacherKey(int id, HourDay day, string interval) => $"T:{id}:{day}:{interval}";
         static string ClassroomKey(int id, HourDay day, string interval) => $"C:{id}:{day}:{interval}";
         static string GroupKey(string prefix, int id, HourDay day, string interval) => $"{prefix}:{id}:{day}:{interval}";
+        static string SubGroupKey(int subId, HourDay day, string interval) => $"SG:{subId}:{day}:{interval}";
 
         bool TryFindSlotAndClassroom(Func<HourDay, string, bool> slotOk, out HourDay foundDay, out string foundInterval, out Classroom selectedClassroom)
         {
@@ -115,6 +116,56 @@ public class HourDataSeeder(AcademicAppContext context)
             return false;
         }
 
+        bool AnySubGroupOccupiedForGroupYear(GroupYear gy, HourDay day, string interval)
+        {
+            if (gy?.StudentGroups == null) return false;
+            foreach (var g in gy.StudentGroups)
+            {
+                if (g?.StudentSubGroups == null) continue;
+                foreach (var ss in g.StudentSubGroups)
+                {
+                    if (occupiedSubGroupSlots.Contains(SubGroupKey(ss.Id, day, interval)))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        bool AnySubGroupOccupiedForGroup(StudentGroup group, HourDay day, string interval)
+        {
+            if (group?.StudentSubGroups == null) return false;
+            foreach (var ss in group.StudentSubGroups)
+            {
+                if (occupiedSubGroupSlots.Contains(SubGroupKey(ss.Id, day, interval)))
+                    return true;
+            }
+            return false;
+        }
+
+        // helper to reserve subgroups for a GroupYear
+        void ReserveSubGroupsForGroupYear(GroupYear gy, HourDay day, string interval)
+        {
+            if (gy?.StudentGroups == null) return;
+            foreach (var g in gy.StudentGroups)
+            {
+                if (g?.StudentSubGroups == null) continue;
+                foreach (var ss in g.StudentSubGroups)
+                {
+                    occupiedSubGroupSlots.Add(SubGroupKey(ss.Id, day, interval));
+                }
+            }
+        }
+
+        // helper to reserve subgroups for a StudentGroup
+        void ReserveSubGroupsForGroup(StudentGroup group, HourDay day, string interval)
+        {
+            if (group?.StudentSubGroups == null) return;
+            foreach (var ss in group.StudentSubGroups)
+            {
+                occupiedSubGroupSlots.Add(SubGroupKey(ss.Id, day, interval));
+            }
+        }
+
         foreach (var subject in subjects)
         {
             var gy = subject.GroupYear;
@@ -131,8 +182,8 @@ public class HourDataSeeder(AcademicAppContext context)
                 var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
                 if (TryFindSlotAndClassroom((d, it) =>
                     !occupiedTeacherSlots.Contains(TeacherKey(teacher.Id, d, it))
-                    // avoid group conflict for GY slot (GroupYear reference) — using a GY key
-                    && !occupiedGroupSlots.Contains(GroupKey("GY", gy.Id, d, it))
+                    // avoid any subgroup conflict for GY slot (a GY hour applies to all subgroups) 
+                    && !AnySubGroupOccupiedForGroupYear(gy, d, it)
                 , out var day, out var interval, out var classroom))
                 {
                     var h = new Hour
@@ -154,7 +205,8 @@ public class HourDataSeeder(AcademicAppContext context)
                     hoursToAdd.Add(h);
                     occupiedTeacherSlots.Add(TeacherKey(teacher.Id, day, interval));
                     occupiedClassroomSlots.Add(ClassroomKey(classroom.Id, day, interval));
-                    occupiedGroupSlots.Add(GroupKey("GY", gy.Id, day, interval));
+                    // reserve all student-subgroup slots under this GroupYear so no enrollment gets a duplicate slot
+                    ReserveSubGroupsForGroupYear(gy, day, interval);
                 }
             }
 
@@ -170,7 +222,8 @@ public class HourDataSeeder(AcademicAppContext context)
                     var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
 
                     if (TryFindSlotAndClassroom((d, it) =>
-                        !occupiedGroupSlots.Contains(GroupKey("G", group.Id, d, it))
+                        // avoid conflicts for any subgroup under this group
+                        !AnySubGroupOccupiedForGroup(group, d, it)
                         && !occupiedTeacherSlots.Contains(TeacherKey(teacher.Id, d, it))
                     , out var day, out var interval, out var classroom))
                     {
@@ -191,7 +244,8 @@ public class HourDataSeeder(AcademicAppContext context)
                         };
 
                         hoursToAdd.Add(h);
-                        occupiedGroupSlots.Add(GroupKey("G", group.Id, day, interval));
+                        // reserve subgroup slots under this group
+                        ReserveSubGroupsForGroup(group, day, interval);
                         occupiedTeacherSlots.Add(TeacherKey(teacher.Id, day, interval));
                         occupiedClassroomSlots.Add(ClassroomKey(classroom.Id, day, interval));
                     }
@@ -210,7 +264,8 @@ public class HourDataSeeder(AcademicAppContext context)
                         var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
 
                         if (TryFindSlotAndClassroom((d, it) =>
-                            !occupiedGroupSlots.Contains(GroupKey("SS", sub.Id, d, it))
+                            // avoid conflict for this exact sub-group slot
+                            !occupiedSubGroupSlots.Contains(SubGroupKey(sub.Id, d, it))
                             && !occupiedTeacherSlots.Contains(TeacherKey(teacher.Id, d, it))
                         , out var day, out var interval, out var classroom))
                         {
@@ -231,7 +286,7 @@ public class HourDataSeeder(AcademicAppContext context)
                             };
 
                             hoursToAdd.Add(h);
-                            occupiedGroupSlots.Add(GroupKey("SS", sub.Id, day, interval));
+                            occupiedSubGroupSlots.Add(SubGroupKey(sub.Id, day, interval));
                             occupiedTeacherSlots.Add(TeacherKey(teacher.Id, day, interval));
                             occupiedClassroomSlots.Add(ClassroomKey(classroom.Id, day, interval));
                         }
