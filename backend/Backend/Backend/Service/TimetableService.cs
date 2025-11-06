@@ -168,7 +168,10 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         _logger.InfoFormat("Mapping hour entities to DTOs for filter {0}", JsonSerializer.Serialize(filter));
 
-        return new TimetableResponseDTO { Hours = _mapper.Map<List<HourResponseDTO>>(hours) };
+        var mappedHours = _mapper.Map<List<HourResponseDTO>>(hours);
+        HourHelper.MarkHours(mappedHours);
+
+        return new TimetableResponseDTO { Hours = mappedHours };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)

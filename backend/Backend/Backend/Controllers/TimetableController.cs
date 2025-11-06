@@ -89,7 +89,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("hours")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId)
+    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
     {
         var filter = new HourFilter
         {
@@ -99,7 +99,8 @@ public class TimetableController(ITimetableService service) : ControllerBase
             SubjectId = subjectId,
             FacultyId = facultyId,
             SpecialisationId = specialisationId,
-            GroupYearId = groupYearId
+            GroupYearId = groupYearId,
+            CurrentWeekTimetable = currentWeekTimetable
         };
 
         _logger.InfoFormat("Fetching hours with filter {0}", JsonSerializer.Serialize(filter));

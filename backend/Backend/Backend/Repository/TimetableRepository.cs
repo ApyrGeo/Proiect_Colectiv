@@ -1,5 +1,6 @@
 ﻿using Backend.Context;
 using Backend.Domain;
+using Backend.Domain.Enums;
 using Backend.Interfaces;
 using Backend.Utils;
 using log4net;
@@ -96,6 +97,11 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
                 || (h.StudentGroupId != null && studentGroupIds.Contains(h.StudentGroupId.Value))
                 || (h.GroupYearId != null && groupYearIds.Contains(h.GroupYearId.Value))
             );
+        }
+
+        if (filter.CurrentWeekTimetable != null && filter.CurrentWeekTimetable == true)
+        {
+            query = query.Where(h => h.Frequency == HourFrequency.Weekly || h.Frequency == Constants.CurrentWeekType);
         }
 
         if (filter.FacultyId != null)
