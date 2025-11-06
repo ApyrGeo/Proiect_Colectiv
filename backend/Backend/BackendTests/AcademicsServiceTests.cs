@@ -381,7 +381,7 @@ public class AcademicsServiceTests
     public async Task CreateTeacherValidData(int userId, int facultyId)
     {
         var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
-        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
+        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "TestPassword", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
         _mockUserRepository 
             .Setup(r => r.GetByIdAsync(userId))
             .ReturnsAsync(user);
@@ -390,7 +390,7 @@ public class AcademicsServiceTests
             .Setup(r => r.GetFacultyByIdAsync(facultyId))
             .ReturnsAsync(faculty);
         var teacher = new Teacher { Id = 1, UserId = userId, User = user, FacultyId = facultyId, Faculty = faculty };
-        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Teacher" };
+        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "TestPassword", PhoneNumber = "+40777301089", Role =  "Teacher" };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = userId, FacultyId = facultyId };
 
         _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId)).ReturnsAsync(faculty);
@@ -652,10 +652,10 @@ public class AcademicsServiceTests
     public async Task GetTeacherValidId(int teacherId)
     {
        
-        var user = new User {Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
+        var user = new User {Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "TestPassword", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
         var faculty =  new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var teacher = new Teacher { Id = 1, UserId = 1, User = user, FacultyId = 1, Faculty = faculty };
-        var userResponseDto=new UserResponseDTO { Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Teacher" };
+        var userResponseDto=new UserResponseDTO { Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "TestPassword", PhoneNumber = "+40777301089", Role =  "Teacher" };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };
         
         _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync(teacher);
