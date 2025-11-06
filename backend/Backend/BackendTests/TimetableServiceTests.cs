@@ -279,7 +279,7 @@ public class TimetableServiceTests
             .ReturnsAsync(classroom);
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
+            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
             PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
         };
         var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
@@ -435,7 +435,7 @@ public class TimetableServiceTests
         var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
+            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
             PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
         };
         var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
