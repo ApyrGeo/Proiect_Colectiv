@@ -25,6 +25,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var AppAllowSpecificOrigins = "_appAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AppAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.AllowAnyHeader().AllowAnyOrigin();
+                      });
+});
+
+
 //database
 builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
 {
@@ -143,6 +155,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(AppAllowSpecificOrigins);
 
 //try seed DB
 using (var scope = app.Services.CreateScope())
