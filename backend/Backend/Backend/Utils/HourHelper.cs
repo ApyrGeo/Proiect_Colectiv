@@ -19,7 +19,7 @@ public class HourHelper
         var groupedHours = hours.GroupBy(h => h.Day)
             .Select(g => new
             {
-                Day = g.Key,
+                Day = HourDayConverter.ConvertToDayOfWeek(Enum.Parse<HourDay>(g.Key)),
                 HourIntervalGroup = g.GroupBy(h => h.HourInterval)
             })
             .ToDictionary(
@@ -31,7 +31,7 @@ public class HourHelper
             );
 
         var now = DateTime.Now;
-        var todayName = now.DayOfWeek.ToString();
+        var todayName = now.DayOfWeek;
 
         static bool TryParseInterval(string interval, out int startHour, out int endHour)
         {
@@ -123,7 +123,7 @@ public class HourHelper
         for (int offset = 1; offset <= 7; offset++)
         {
             var searchDateTime = now.AddDays(offset);
-            var dayName = searchDateTime.DayOfWeek.ToString();
+            var dayName = searchDateTime.DayOfWeek;
 
             if (!groupedHours.TryGetValue(dayName, out var dayIntervals) || dayIntervals.Count == 0) continue;
 

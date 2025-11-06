@@ -133,4 +133,27 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetHourById), new { hourId = createdHour.Id }, createdHour);
     }
+
+    [HttpGet("hours/download")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
+    {
+        var filter = new HourFilter
+        {
+            UserId = userId,
+            ClassroomId = classroomId,
+            TeacherId = teacherId,
+            SubjectId = subjectId,
+            FacultyId = facultyId,
+            SpecialisationId = specialisationId,
+            GroupYearId = groupYearId,
+            CurrentWeekTimetable = currentWeekTimetable
+        };
+        _logger.InfoFormat("Downloading ICS with filter {0}", JsonSerializer.Serialize(filter));
+
+        var icsBytes = await _service.GenerateIcs(filter);
+
+        return File(icsBytes, "text/calendar; charset=utf-8", $"timetable_{DateTime.UtcNow:yyyyMMdd}.ics");
+    }
 }
