@@ -232,7 +232,7 @@ public class TimetableServiceTests
     }
 
     [Theory]
-    [InlineData("Monday", "08:00-10:00", "Weekly", "Lecture", "I1")]
+    [InlineData("Monday", "08:00-10:00", "Weekly", "Lecture", "IR1")]
     [InlineData("Friday", "18:00-20:00", "SecondWeek", "Seminar", "231")]
     public async Task CreateHourValidData(
         string day, string hourInterval, string frequency, string category, string format)

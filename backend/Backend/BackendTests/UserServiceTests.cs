@@ -100,8 +100,8 @@ public class UserServiceTests
     }
     
     [Theory]
-    [InlineData(1, "Vanya", "Doktorovic", "0759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData(2, "Andrei", "Horo", "0779725710", "horo@gmail.com", "password", "Teacher")]
+    [InlineData(1, "Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
+    [InlineData(2, "Andrei", "Horo", "+40779725710", "horo@gmail.com", "password", "Teacher")]
     public async Task GetUserByIdExistingUser(int id,string firstName, string lastName, string phone, string email,
         string password, string role)
     {
