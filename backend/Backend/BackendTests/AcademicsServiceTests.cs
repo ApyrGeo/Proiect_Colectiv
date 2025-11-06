@@ -33,13 +33,16 @@ public class AcademicsServiceTests
         var studentGroupValidator = new StudentGroupPostDTOValidator(_mockRepository.Object);
         var studentSubGroupValidator = new StudentSubGroupPostDTOValidator(_mockRepository.Object);
         var enrollmentValidator = new EnrollmentPostDTOValidator(_mockUserRepository.Object, _mockRepository.Object);
+        var teacherValidator = new TeacherPostDTOValidator(_mockRepository.Object,_mockUserRepository.Object);
         var mockValidatorFactory = new Mock<IValidatorFactory>();
+       
         mockValidatorFactory.Setup(v => v.Get<FacultyPostDTO>()).Returns(facultyValidator);
         mockValidatorFactory.Setup(v => v.Get<GroupYearPostDTO>()).Returns(groupYearValidator);
         mockValidatorFactory.Setup(v => v.Get<SpecialisationPostDTO>()).Returns(specialisationValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentGroupPostDTO>()).Returns(studentGroupValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentSubGroupPostDTO>()).Returns(studentSubGroupValidator);
         mockValidatorFactory.Setup(v => v.Get<EnrollmentPostDTO>()).Returns(enrollmentValidator);
+        mockValidatorFactory.Setup(v => v.Get<TeacherPostDTO>()).Returns(teacherValidator);
         _validatorFactory = mockValidatorFactory.Object;
         
         _service = new AcademicsService(
@@ -371,6 +374,57 @@ public class AcademicsServiceTests
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
     
+    
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(2, 1)]
+    public async Task CreateTeacherValidData(int userId, int facultyId)
+    {
+        var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
+        var user = new User {Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
+        _mockUserRepository 
+            .Setup(r => r.GetByIdAsync(userId))
+            .ReturnsAsync(user);
+        var faculty =  new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
+        _mockRepository
+            .Setup(r => r.GetFacultyByIdAsync(facultyId))
+            .ReturnsAsync(faculty);
+        var teacher = new Teacher { Id = 1, UserId = userId, User = user, FacultyId = facultyId, Faculty = faculty };
+        var userResponseDto=new UserResponseDTO { Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Teacher" };
+        var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = userId, FacultyId = facultyId };
+
+        _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId)).ReturnsAsync(faculty);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+
+        _mockMapper.Setup(m => m.Map<Teacher>(dto)).Returns(teacher);
+        _mockRepository.Setup(r => r.AddTeacherAsync(teacher)).ReturnsAsync(teacher);
+        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+        _mockMapper.Setup(m => m.Map<TeacherResponseDTO>(teacher)).Returns(responseDto);
+        
+        var result = await _service.CreateTeacher(dto);
+        
+        Assert.NotNull(result);
+        Assert.Equal(userId, result.UserId);
+        Assert.Equal(facultyId, result.FacultyId);
+        _mockRepository.Verify(r => r.AddTeacherAsync(teacher), Times.Once);
+        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+    }
+    
+    [Theory]
+    [InlineData(99, 1)] 
+    [InlineData(1, 99)] 
+    public async Task CreateTeacherInvalidData(int userId, int facultyId)
+    {
+        var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User)null); // simulăm lipsa user-ului
+        _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId)).ReturnsAsync((Faculty)null); // simulăm lipsa facultății
+        
+        await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateTeacher(dto));
+
+        _mockRepository.Verify(r => r.AddTeacherAsync(It.IsAny<Teacher>()), Times.Never);
+        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+    }
+    
     [Theory]
     [InlineData(1, "Facultatea de Mate-Info")]
     [InlineData(2, "Facultatea de Drept")]
@@ -578,9 +632,7 @@ public class AcademicsServiceTests
         _mockRepository.Verify(r => r.AddEnrollmentAsync(It.IsAny<Enrollment>()), Times.Never);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
-    
-    
-    
+     
     
     [Theory]
     [InlineData(0)]
@@ -593,6 +645,39 @@ public class AcademicsServiceTests
 
         _mockUserRepository.Verify(r => r.GetByIdAsync(userId), Times.Once);
         _mockRepository.Verify(r => r.GetEnrollmentsByUserId(It.IsAny<int>()), Times.Never);
+    }
+    
+    [Theory]
+    [InlineData(1)]
+    public async Task GetTeacherValidId(int teacherId)
+    {
+       
+        var user = new User {Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  Enum.Parse<UserRole>("Teacher")};
+        var faculty =  new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
+        var teacher = new Teacher { Id = 1, UserId = 1, User = user, FacultyId = 1, Faculty = faculty };
+        var userResponseDto=new UserResponseDTO { Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com" , Password = "111222ppa", PhoneNumber = "+40777301089", Role =  "Teacher" };
+        var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };
+        
+        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync(teacher);
+        _mockMapper.Setup(m => m.Map<TeacherResponseDTO>(teacher)).Returns(responseDto);
+        
+        var result = await _service.GetTeacherById(teacherId);
+        
+        Assert.NotNull(result);
+        Assert.Equal(teacherId, result.Id);
+        _mockRepository.Verify(r => r.GetTeacherById(teacherId), Times.Once);
+    }
+    
+    [Theory]
+    [InlineData(99)]
+    [InlineData(-1)]
+    public async Task GetTeacherByIdInvalidId(int teacherId)
+    {
+        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync((Teacher)null);
+        
+        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetTeacherById(teacherId));
+
+        _mockRepository.Verify(r => r.GetTeacherById(teacherId), Times.Once);
     }
     
     
