@@ -9,33 +9,40 @@ using Backend.Domain;
 using Backend.Repository;
 using System.Threading.Tasks;
 
-public class TimetableRepositoryTests
+public class TimetableRepositoryTests : IDisposable
 {
-    private AcademicAppContext CreateInMemoryContext()
+    private readonly AcademicAppContext _context;
+    private readonly TimetableRepository _repo;
+
+
+    public TimetableRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "TimetableRepositoryTestsDB")
             .Options;
+        _context = new AcademicAppContext(options);
+        _repo = new TimetableRepository(_context);
+    }
 
-        return new AcademicAppContext(options);
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
     }
 
     [Theory]
     [InlineData("L001")]
     public async Task AddClassroomAsyncTest(string name)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
         var location = new Location { Name = "Fsega", Address = "Str. Mihail Kogalniceanu" };
-        context.Locations.Add(location);
-        await context.SaveChangesAsync();
+        _context.Locations.Add(location);
+        await _context.SaveChangesAsync();
 
         var classroom = new Classroom { Name = name, Location = location, LocationId = location.Id };
-        await repo.AddClassroomAsync(classroom);
-        await context.SaveChangesAsync();
+        await _repo.AddClassroomAsync(classroom);
+        await _context.SaveChangesAsync();
 
-        var result = await context.Classrooms.FirstOrDefaultAsync(c => c.Name == name);
+        var result = await _context.Classrooms.FirstOrDefaultAsync(c => c.Name == name);
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
@@ -44,14 +51,11 @@ public class TimetableRepositoryTests
     [InlineData("Cladire Centru", "Strada Universitatii")]
     public async Task AddLocationAsyncTest(string name, string address)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
         var location = new Location { Name = name, Address = address };
-        await repo.AddLocationAsync(location);
-        await context.SaveChangesAsync();
+        await _repo.AddLocationAsync(location);
+        await _context.SaveChangesAsync();
 
-        var result = await context.Locations.FirstOrDefaultAsync(l => l.Name == name);
+        var result = await _context.Locations.FirstOrDefaultAsync(l => l.Name == name);
         Assert.NotNull(result);
         Assert.Equal(address, result.Address);
     }
@@ -61,8 +65,6 @@ public class TimetableRepositoryTests
     [InlineData(1, "Sport", 2)]
     public async Task AddSubjectAsyncTest(int id, string name, int numberOfCredits)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
         var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
@@ -71,10 +73,10 @@ public class TimetableRepositoryTests
 
         var subject = new Subject
             { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
-        await repo.AddSubjectAsync(subject);
-        await context.SaveChangesAsync();
+        await _repo.AddSubjectAsync(subject);
+        await _context.SaveChangesAsync();
 
-        var result = await context.Subjects.FirstOrDefaultAsync(s => s.Name == name);
+        var result = await _context.Subjects.FirstOrDefaultAsync(s => s.Name == name);
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
@@ -83,17 +85,14 @@ public class TimetableRepositoryTests
     [InlineData(1)]
     public async Task GetClassroomByIdAsyncExistingId(int id)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
         var location = new Location { Name = "Fsega", Address = "Str Goldis" };
         var classroom = new Classroom { Name = "A303", Location = location };
 
-        context.Locations.Add(location);
-        context.Classrooms.Add(classroom);
-        await context.SaveChangesAsync();
+        _context.Locations.Add(location);
+        _context.Classrooms.Add(classroom);
+        await _context.SaveChangesAsync();
 
-        var result = await repo.GetClassroomByIdAsync(id);
+        var result = await _repo.GetClassroomByIdAsync(id);
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
     }
@@ -102,10 +101,7 @@ public class TimetableRepositoryTests
     [InlineData(999)]
     public async Task GetClassroomByIdAsyncNonExisting(int id)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
-        var result = await repo.GetClassroomByIdAsync(id);
+        var result = await _repo.GetClassroomByIdAsync(id);
         Assert.Null(result);
     }
 
@@ -113,14 +109,11 @@ public class TimetableRepositoryTests
     [InlineData("Fsega", "Str Goldis")]
     public async Task GetLocationByIdAsyncExistingId(string name, string address)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
         var location = new Location { Name = name, Address = address };
-        context.Locations.Add(location);
-        await context.SaveChangesAsync();
+        _context.Locations.Add(location);
+        await _context.SaveChangesAsync();
 
-        var result = await repo.GetLocationByIdAsync(location.Id);
+        var result = await _repo.GetLocationByIdAsync(location.Id);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
@@ -131,8 +124,6 @@ public class TimetableRepositoryTests
     [InlineData("OOP")]
     public async Task GetSubjectByNameAsyncExistingName(string name)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
         var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
@@ -144,10 +135,10 @@ public class TimetableRepositoryTests
 
         subject.Name = name;
 
-        context.Subjects.Add(subject);
-        await context.SaveChangesAsync();
+        _context.Subjects.Add(subject);
+        await _context.SaveChangesAsync();
 
-        var result = await repo.GetSubjectByNameAsync(name);
+        var result = await _repo.GetSubjectByNameAsync(name);
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
@@ -156,10 +147,7 @@ public class TimetableRepositoryTests
     [InlineData("None")]
     public async Task GetSubjectByNameAsyncNonExisting(string name)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
-
-        var result = await repo.GetSubjectByNameAsync(name);
+        var result = await _repo.GetSubjectByNameAsync(name);
         Assert.Null(result);
     }
 
@@ -167,8 +155,6 @@ public class TimetableRepositoryTests
     [InlineData(1)]
     public async Task GetHourByIdAsyncExistingId(int id)
     {
-        using var context = CreateInMemoryContext();
-        var repo = new TimetableRepository(context);
         var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
@@ -208,10 +194,10 @@ public class TimetableRepositoryTests
             Teacher = teacher
         };
 
-        context.Hours.Add(hour);
-        await context.SaveChangesAsync();
+        _context.Hours.Add(hour);
+        await _context.SaveChangesAsync();
 
-        var result = await repo.GetHourByIdAsync(id);
+        var result = await _repo.GetHourByIdAsync(id);
 
         Assert.NotNull(result);
         Assert.Equal("10:00-12:00", result.HourInterval);
