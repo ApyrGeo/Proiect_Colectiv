@@ -11,6 +11,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
     {
         builder.HasKey(x => x.Id);
 
+        builder.OwnsOne(l => l.GoogleMapsData);
+
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(Constants.DefaultStringMaxLenght);
