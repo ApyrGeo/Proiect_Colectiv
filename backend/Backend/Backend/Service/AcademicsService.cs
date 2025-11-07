@@ -140,7 +140,8 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollment));
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
-
+        
+        _logger.InfoFormat($"Sending email to: {enrollment.User.Email}");
         await SendAddedEnrollementEmail(enrollment);
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);

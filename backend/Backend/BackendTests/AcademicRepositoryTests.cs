@@ -17,7 +17,7 @@ public class AcademicRepositoryTests
 
         return new AcademicAppContext(options);
     }
-    
+
     [Theory]
     [InlineData("Facultatea de Drept")]
     [InlineData("Facultatea de Geografie")]
@@ -34,7 +34,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result!.Name);
     }
-    
+
     [Theory]
     [InlineData("Computer-Science")]
     [InlineData("Inginerie")]
@@ -55,7 +55,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result!.Name);
     }
-    
+
     [Theory]
     [InlineData("IR1")]
     [InlineData("IR2")]
@@ -77,8 +77,8 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(year, result!.Year);
     }
-    
-    
+
+
     [Theory]
     [InlineData("236")]
     [InlineData("833")]
@@ -102,7 +102,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result!.Name);
     }
-    
+
     [Theory]
     [InlineData("235/1")]
     [InlineData("237/2")]
@@ -119,7 +119,7 @@ public class AcademicRepositoryTests
         await context.Groups.AddAsync(group);
         await context.SaveChangesAsync();
 
-        var subGroup = new StudentSubGroup { Name = name, StudentGroup= group };
+        var subGroup = new StudentSubGroup { Name = name, StudentGroup = group };
         await repo.AddSubGroupAsync(subGroup);
         await repo.SaveChangesAsync();
 
@@ -127,7 +127,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result!.Name);
     }
-    
+
     [Theory]
     [InlineData("Istvan", "Csibula")]
     [InlineData("Dan", "Suciu")]
@@ -136,7 +136,11 @@ public class AcademicRepositoryTests
         using var context = CreateInMemoryContext();
         var repo = new AcademicRepository(context);
 
-        var user = new User { FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069", Role = UserRole.Admin, Password = "1234567"};
+        var user = new User
+        {
+            FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069",
+            Role = UserRole.Admin, Password = "1234567"
+        };
         var faculty = new Faculty { Name = "FMI" };
 
         await context.Users.AddAsync(user);
@@ -151,7 +155,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(firstName, result!.User.FirstName);
     }
-    
+
     [Theory]
     [InlineData(1)]
     public async Task GetFacultyByIdAsyncExistingId(int id)
@@ -159,7 +163,7 @@ public class AcademicRepositoryTests
         using var context = CreateInMemoryContext();
         var repo = new AcademicRepository(context);
 
-       
+
         var faculty = new Faculty { Name = "FSEGA" };
         await context.Faculties.AddAsync(faculty);
         await context.SaveChangesAsync();
@@ -169,7 +173,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal("FSEGA", result!.Name);
     }
-    
+
     [Theory]
     [InlineData("Istvan", "Csibula")]
     [InlineData("Dan", "Suciu")]
@@ -179,7 +183,11 @@ public class AcademicRepositoryTests
         var repo = new AcademicRepository(context);
 
         var faculty = new Faculty { Name = "FMI" };
-        var user =new User { FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069", Role = UserRole.Admin, Password = "1234567"};
+        var user = new User
+        {
+            FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069",
+            Role = UserRole.Admin, Password = "1234567"
+        };
         var teacher = new Teacher { User = user, Faculty = faculty };
 
         await context.Teachers.AddAsync(teacher);
@@ -190,7 +198,7 @@ public class AcademicRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(teacher.User.FirstName, result!.User.FirstName);
     }
-    
+
     [Theory]
     [InlineData("Computer-Science")]
     [InlineData("Inginerie")]
@@ -210,7 +218,7 @@ public class AcademicRepositoryTests
         Assert.Equal(spec.Name, result!.Name);
         Assert.NotNull(result.Faculty);
     }
-    
+
     [Theory]
     [InlineData("IR3")]
     [InlineData("IE1")]
@@ -232,7 +240,7 @@ public class AcademicRepositoryTests
         Assert.Equal(year, result.Year);
         Assert.Equal("Informatica", result.Specialisation.Name);
     }
-    
+
     [Theory]
     [InlineData("IR1", "312", "FMI")]
     public async Task GetGroupByIdAsyncTest(string year, string groupName, string facultyName)
@@ -257,7 +265,8 @@ public class AcademicRepositoryTests
 
     [Theory]
     [InlineData("IR1", "312", "312/2", "FMI")]
-    public async Task GetSubGroupByIdAsync_ReturnsCorrectSubGroup(string year, string groupName, string subGroupName, string facultyName)
+    public async Task GetSubGroupByIdAsync_ReturnsCorrectSubGroup(string year, string groupName, string subGroupName,
+        string facultyName)
     {
         using var context = CreateInMemoryContext();
         var repo = new AcademicRepository(context);
@@ -278,7 +287,7 @@ public class AcademicRepositoryTests
         Assert.Equal(groupName, result.StudentGroup.Name);
         Assert.Equal(facultyName, result.StudentGroup.GroupYear.Specialisation.Faculty.Name);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetFacultyByIdAsyncNonExisting(int invalidId)
@@ -290,7 +299,7 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetSpecialisationIdAsyncNonExisting(int invalidId)
@@ -302,7 +311,7 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetGroupYearByIdAsyncNonExisting(int invalidId)
@@ -314,7 +323,7 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetGroupByIdAsyncNonExisting(int invalidId)
@@ -326,7 +335,7 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetSubGroupByIdAsyncNonExisting(int invalidId)
@@ -338,7 +347,7 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetTeacherAsyncNonExisting(int invalidId)
@@ -350,9 +359,4 @@ public class AcademicRepositoryTests
 
         Assert.Null(result);
     }
-    
-    
-
-
-    
 }

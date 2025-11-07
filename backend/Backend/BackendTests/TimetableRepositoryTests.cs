@@ -2,6 +2,7 @@
 using Xunit;
 
 namespace BackendTests;
+
 using Microsoft.EntityFrameworkCore;
 using Backend.Context;
 using Backend.Domain;
@@ -18,7 +19,7 @@ public class TimetableRepositoryTests
 
         return new AcademicAppContext(options);
     }
-    
+
     [Theory]
     [InlineData("L001")]
     public async Task AddClassroomAsyncTest(string name)
@@ -26,7 +27,7 @@ public class TimetableRepositoryTests
         using var context = CreateInMemoryContext();
         var repo = new TimetableRepository(context);
 
-        var location = new Location { Name = "Fsega", Address = "Str. Mihail Kogalniceanu" }; 
+        var location = new Location { Name = "Fsega", Address = "Str. Mihail Kogalniceanu" };
         context.Locations.Add(location);
         await context.SaveChangesAsync();
 
@@ -38,7 +39,7 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
-    
+
     [Theory]
     [InlineData("Cladire Centru", "Strada Universitatii")]
     public async Task AddLocationAsyncTest(string name, string address)
@@ -54,21 +55,22 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(address, result.Address);
     }
-    
+
     [Theory]
-    [InlineData(2, "SDA",6)]
-    [InlineData(1,"Sport",2)]
-    public async Task AddSubjectAsyncTest(int id,string name, int numberOfCredits)
+    [InlineData(2, "SDA", 6)]
+    [InlineData(1, "Sport", 2)]
+    public async Task AddSubjectAsyncTest(int id, string name, int numberOfCredits)
     {
         using var context = CreateInMemoryContext();
         var repo = new TimetableRepository(context);
-        var faculty = new Faculty {  Name = "Facultate de Mate-Info" };
-        
-        var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty};
-       
-        var groupYear = new GroupYear {  Year = "IR1", Specialisation = specialisation};
+        var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
-        var subject = new Subject { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
+
+        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
+
+        var subject = new Subject
+            { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
         await repo.AddSubjectAsync(subject);
         await context.SaveChangesAsync();
 
@@ -76,7 +78,7 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
-    
+
     [Theory]
     [InlineData(1)]
     public async Task GetClassroomByIdAsyncExistingId(int id)
@@ -95,7 +97,7 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
     }
-    
+
     [Theory]
     [InlineData(999)]
     public async Task GetClassroomByIdAsyncNonExisting(int id)
@@ -106,7 +108,7 @@ public class TimetableRepositoryTests
         var result = await repo.GetClassroomByIdAsync(id);
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData("Fsega", "Str Goldis")]
     public async Task GetLocationByIdAsyncExistingId(string name, string address)
@@ -131,14 +133,15 @@ public class TimetableRepositoryTests
     {
         using var context = CreateInMemoryContext();
         var repo = new TimetableRepository(context);
-        var faculty = new Faculty {  Name = "Facultate de Mate-Info" };
-        
-        var specialisation = new Specialisation {  Name = "Computer Science", Faculty = faculty};
-       
-        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation};
+        var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
-        var subject = new Subject { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
-        
+        var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
+
+        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
+
+        var subject = new Subject
+            { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+
         subject.Name = name;
 
         context.Subjects.Add(subject);
@@ -148,7 +151,7 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
     }
-    
+
     [Theory]
     [InlineData("None")]
     public async Task GetSubjectByNameAsyncNonExisting(string name)
@@ -159,20 +162,21 @@ public class TimetableRepositoryTests
         var result = await repo.GetSubjectByNameAsync(name);
         Assert.Null(result);
     }
-    
+
     [Theory]
     [InlineData(1)]
     public async Task GetHourByIdAsyncExistingId(int id)
     {
         using var context = CreateInMemoryContext();
         var repo = new TimetableRepository(context);
-        var faculty = new Faculty {  Name = "Facultate de Mate-Info" };
-        
-        var specialisation = new Specialisation {  Name = "Computer Science", Faculty = faculty};
-       
-        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation};
+        var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
-        var subject = new Subject { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
+
+        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
+
+        var subject = new Subject
+            { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
         var location = new Location { Name = "Fsega", Address = "Str Goldis" };
         var classroom = new Classroom { Name = "A303", Location = location };
 
@@ -212,5 +216,4 @@ public class TimetableRepositoryTests
         Assert.NotNull(result);
         Assert.Equal("10:00-12:00", result.HourInterval);
     }
-    
 }

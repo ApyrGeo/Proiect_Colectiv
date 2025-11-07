@@ -23,14 +23,14 @@ public class TimetableServiceTests
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
 
     private readonly TimetableService _service;
-    
+
     public TimetableServiceTests()
     {
-        var subjectValidator = new SubjectPostDTOValidator(_mockRepository.Object,_mockAcademicRepository.Object);
+        var subjectValidator = new SubjectPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
         var classroomValidator = new ClassroomPostDTOValidator(_mockRepository.Object);
-        var hourValidator = new HourPostDTOValidator(_mockRepository.Object,_mockAcademicRepository.Object);
+        var hourValidator = new HourPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
         var locationValidator = new LocationPostDTOValidator();
-        
+
         var mockValidatorFactory = new Mock<IValidatorFactory>();
         mockValidatorFactory.Setup(v => v.Get<SubjectPostDTO>()).Returns(subjectValidator);
         mockValidatorFactory.Setup(v => v.Get<LocationPostDTO>()).Returns(locationValidator);
@@ -45,37 +45,38 @@ public class TimetableServiceTests
             _validatorFactory
         );
     }
-    
+
     [Theory]
     [InlineData("Analiza", 6, 1)]
     [InlineData("FP", 5, 2)]
     public async Task CreateSubjectValidData(string name, int credits, int groupYearId)
     {
         var postDto = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
-        
+
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty};
-       
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation};
-        
+
+        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
+
+        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
+
         _mockAcademicRepository
             .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
             .ReturnsAsync(groupYear);
-        
-        var subjectEntity = new Subject { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
+
+        var subjectEntity = new Subject
+            { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
 
         var responseDto = new SubjectResponseDTO { Id = 1, Name = name, NumberOfCredits = credits };
-        
+
 
         _mockMapper.Setup(m => m.Map<Subject>(postDto)).Returns(subjectEntity);
         _mockMapper.Setup(m => m.Map<SubjectResponseDTO>(subjectEntity)).Returns(responseDto);
 
         _mockRepository.Setup(r => r.AddSubjectAsync(subjectEntity)).ReturnsAsync(subjectEntity);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        
+
         var result = await _service.CreateSubject(postDto);
-        
+
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
         Assert.Equal(credits, result.NumberOfCredits);
@@ -91,28 +92,29 @@ public class TimetableServiceTests
     public async Task CreateSubjectInvalidData(string name, int credits, int groupYearId)
     {
         var postDto = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
-        
+
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty};
-       
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation};
-        
+
+        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
+
+        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
+
         _mockAcademicRepository
             .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
             .ReturnsAsync(groupYear);
-        
-        var subjectEntity = new Subject { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
+
+        var subjectEntity = new Subject
+            { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
 
         var responseDto = new SubjectResponseDTO { Id = 1, Name = name, NumberOfCredits = credits };
-        
-        
+
+
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateSubject(postDto));
-        
+
         _mockRepository.Verify(r => r.AddSubjectAsync(subjectEntity), Times.Never);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
-    
+
     [Theory]
     [InlineData(1, "Analiza", 6)]
     [InlineData(2, "FP", 5)]
@@ -121,7 +123,8 @@ public class TimetableServiceTests
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
         var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var subjectEntity = new Subject { Id = id, Name = name, NumberOfCredits = credits, GroupYear = groupYear, GroupYearId = groupYear.Id };
+        var subjectEntity = new Subject
+            { Id = id, Name = name, NumberOfCredits = credits, GroupYear = groupYear, GroupYearId = groupYear.Id };
         var responseDto = new SubjectResponseDTO { Id = id, Name = name, NumberOfCredits = credits };
 
         _mockRepository.Setup(r => r.GetSubjectByIdAsync(id))
@@ -129,9 +132,9 @@ public class TimetableServiceTests
 
         _mockMapper.Setup(m => m.Map<SubjectResponseDTO>(subjectEntity))
             .Returns(responseDto);
-        
+
         var result = await _service.GetSubjectById(id);
-        
+
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
         Assert.Equal(name, result.Name);
@@ -140,7 +143,7 @@ public class TimetableServiceTests
         _mockRepository.Verify(r => r.GetSubjectByIdAsync(id), Times.Once);
         _mockMapper.Verify(m => m.Map<SubjectResponseDTO>(subjectEntity), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(999)]
     [InlineData(0)]
@@ -148,13 +151,13 @@ public class TimetableServiceTests
     {
         _mockRepository.Setup(r => r.GetSubjectByIdAsync(invalidId))
             .ReturnsAsync((Subject?)null);
-        
+
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetSubjectById(invalidId));
 
         _mockRepository.Verify(r => r.GetSubjectByIdAsync(invalidId), Times.Once);
         _mockMapper.Verify(m => m.Map<SubjectResponseDTO>(It.IsAny<Subject>()), Times.Never);
     }
-    
+
     [Theory]
     [InlineData("Fsega", "Str. Vasile Goldis")]
     [InlineData("Centru", "Str. Universitatii")]
@@ -177,7 +180,7 @@ public class TimetableServiceTests
         _mockRepository.Verify(r => r.AddLocationAsync(entity), Times.Once);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
-    
+
     [Theory]
     [InlineData("", "Str. Vasile Goldis")]
     [InlineData("Centru", "")]
@@ -190,7 +193,7 @@ public class TimetableServiceTests
         _mockRepository.Verify(r => r.AddLocationAsync(It.IsAny<Location>()), Times.Never);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
-    
+
     [Theory]
     [InlineData("L002", 1)]
     [InlineData("A2", 2)]
@@ -214,7 +217,7 @@ public class TimetableServiceTests
         _mockRepository.Verify(r => r.AddClassroomAsync(entity), Times.Once);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
-    
+
     [Theory]
     [InlineData("", 1)]
     [InlineData("Room 305", 0)]
@@ -252,7 +255,7 @@ public class TimetableServiceTests
         _mockAcademicRepository
             .Setup(r => r.GetSubGroupByIdAsync(subGroup.Id))
             .ReturnsAsync(subGroup);
-        
+
         var dto = new HourPostDTO
         {
             Day = day,
@@ -266,11 +269,11 @@ public class TimetableServiceTests
             StudentGroupId = null,
             StudentSubGroupId = 1
         };
-        
+
         _mockRepository
             .Setup(r => r.GetSubjectByIdAsync(subject.Id))
             .ReturnsAsync(subject);
-        
+
 
         var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
         var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
@@ -286,7 +289,7 @@ public class TimetableServiceTests
         _mockAcademicRepository
             .Setup(r => r.GetTeacherById(teacher.Id))
             .ReturnsAsync(teacher);
-        
+
         var entity = new Hour
         {
             Id = 1,
@@ -304,9 +307,14 @@ public class TimetableServiceTests
 
         var locationResponse = new LocationResponseDTO { Id = 1, Name = location.Name, Address = location.Address };
         var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
-        var subjectResponse = new SubjectResponseDTO { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
-        var userResponse = new UserResponseDTO { Id = teacher.User.Id, FirstName = teacher.User.FirstName,LastName = teacher.User.LastName,
-        Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString() ,Password = teacher.User.Password };
+        var subjectResponse = new SubjectResponseDTO
+            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
+        var userResponse = new UserResponseDTO
+        {
+            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
+            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
+            Password = teacher.User.Password
+        };
         var teacherResponse = new TeacherResponseDTO
             { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
         var response = new HourResponseDTO
@@ -327,15 +335,15 @@ public class TimetableServiceTests
         _mockRepository.Setup(r => r.AddHourAsync(entity)).ReturnsAsync(entity);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         _mockMapper.Setup(m => m.Map<HourResponseDTO>(entity)).Returns(response);
-        
+
         var result = await _service.CreateHour(dto);
-        
+
         Assert.NotNull(result);
         Assert.Equal(dto.HourInterval, result.HourInterval);
         _mockRepository.Verify(r => r.AddHourAsync(entity), Times.Once);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
-    
+
     [Theory]
     [InlineData("Monday", "", "Weekly", "Lecture")]
     [InlineData("Monday", "09:00-11:00", "", "Lecture")]
@@ -354,14 +362,14 @@ public class TimetableServiceTests
             ClassroomId = 1,
             TeacherId = 1
         };
-        
-        
+
+
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateHour(dto));
 
         _mockRepository.Verify(r => r.AddHourAsync(It.IsAny<Hour>()), Times.Never);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
-    
+
     [Theory]
     [InlineData(1, "L001", "Marasti", "Groapa")]
     public async Task GetClassroomByIdValidId(int id, string name, string locName, string address)
@@ -379,7 +387,7 @@ public class TimetableServiceTests
         Assert.Equal(name, result.Name);
         _mockRepository.Verify(r => r.GetClassroomByIdAsync(id), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(999)]
     [InlineData(0)]
@@ -391,7 +399,7 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetClassroomByIdAsync(id), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(1, "Marasti", "Groapa")]
     public async Task GetLocationByIdValidId(int id, string name, string address)
@@ -408,7 +416,7 @@ public class TimetableServiceTests
         Assert.Equal(name, result.Name);
         _mockRepository.Verify(r => r.GetLocationByIdAsync(id), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(999)]
     [InlineData(-1)]
@@ -420,7 +428,7 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetLocationByIdAsync(id), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(1)]
     public async Task GetHourByIdValidId(int hourId)
@@ -450,12 +458,17 @@ public class TimetableServiceTests
             Classroom = classroom,
             Teacher = teacher
         };
-        
+
         var locationResponse = new LocationResponseDTO { Id = 1, Name = location.Name, Address = location.Address };
         var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
-        var subjectResponse = new SubjectResponseDTO { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
-        var userResponse = new UserResponseDTO { Id = teacher.User.Id, FirstName = teacher.User.FirstName,LastName = teacher.User.LastName,
-            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString() ,Password = teacher.User.Password };
+        var subjectResponse = new SubjectResponseDTO
+            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
+        var userResponse = new UserResponseDTO
+        {
+            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
+            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
+            Password = teacher.User.Password
+        };
         var teacherResponse = new TeacherResponseDTO
             { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
 
@@ -484,7 +497,7 @@ public class TimetableServiceTests
         _mockRepository.Verify(r => r.GetHourByIdAsync(hourId), Times.Once);
     }
 
-    
+
     [Theory]
     [InlineData(999)]
     [InlineData(0)]
@@ -496,7 +509,7 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetHourByIdAsync(hourId), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(1, 1, 1, 1, 1, 1, 1)]
     public async Task GetHourByFilterValidFilter(
@@ -527,7 +540,7 @@ public class TimetableServiceTests
         };
         var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
         _mockAcademicRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
-            .ReturnsAsync(new List<Enrollment> { new Enrollment{User=user ,SubGroup = subGroup }});
+            .ReturnsAsync(new List<Enrollment> { new Enrollment { User = user, SubGroup = subGroup } });
         _mockRepository.Setup(r => r.GetClassroomByIdAsync(classroomId))
             .ReturnsAsync(classroom);
         _mockAcademicRepository.Setup(r => r.GetTeacherById(teacherId))
@@ -557,9 +570,14 @@ public class TimetableServiceTests
         };
         var locationResponse = new LocationResponseDTO { Id = 1, Name = location.Name, Address = location.Address };
         var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
-        var subjectResponse = new SubjectResponseDTO { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
-        var userResponse = new UserResponseDTO { Id = teacher.User.Id, FirstName = teacher.User.FirstName,LastName = teacher.User.LastName,
-            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString() ,Password = teacher.User.Password };
+        var subjectResponse = new SubjectResponseDTO
+            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
+        var userResponse = new UserResponseDTO
+        {
+            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
+            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
+            Password = teacher.User.Password
+        };
         var teacherResponse = new TeacherResponseDTO
             { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
 
@@ -588,7 +606,7 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetHoursAsync(filter), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(5)]
     public async Task GetHourByFilterClassroomNotFound(int classroomId)
@@ -602,7 +620,7 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetClassroomByIdAsync(classroomId), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(3)]
     public async Task GetHourByFilterTeacherNotFound(int teacherId)
@@ -616,7 +634,7 @@ public class TimetableServiceTests
 
         _mockAcademicRepository.Verify(r => r.GetTeacherById(teacherId), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(10)]
     public async Task GetHourByFilterUserHasNoEnrollments(int userId)
