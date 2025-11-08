@@ -8,7 +8,6 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import { globalIgnores } from "eslint/config";
 import tsParser from "@typescript-eslint/parser";
 
-
 export default tseslint.config([
   globalIgnores(["dist"]),
   {
@@ -25,6 +24,9 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
       parser: tsParser,
+    },
+    rules: {
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
 ]);
