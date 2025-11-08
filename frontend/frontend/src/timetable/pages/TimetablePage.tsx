@@ -1,6 +1,7 @@
 import { useState, type SetStateAction } from "react";
 import Timetable from "../components/Timetable.tsx";
 import type { HourProps } from "../props.ts";
+import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 
 const TimetablePage: React.FC = () => {
   //TODO temporary user info, to be loaded from auth context
@@ -141,6 +142,7 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
       </div>
+      <GoogleMapsComponent />
     </>
   );
 };

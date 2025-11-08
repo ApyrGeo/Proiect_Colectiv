@@ -28,7 +28,6 @@ const App = () => {
         <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
       </Routes>
 
-      <GoogleMapsComponent />
     </>
   );
 };
