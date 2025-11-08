@@ -1,4 +1,4 @@
-import type { UserProps } from "../props.ts";
+import type { UserProps } from "../core/props.ts";
 
 export interface HourProps {
   id?: number | null;

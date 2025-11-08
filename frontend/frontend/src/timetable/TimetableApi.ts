@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { ClassroomProps, HourPropsDto, SubjectProps, TeacherProps } from "./props.ts";
+import { baseUrl, host } from "../core";
 
-const timetableUrl = "http://localhost:5206/api/Timetable";
-const academicsUrl = "http://localhost:5206/api/Academics";
+const timetableUrl = `${baseUrl}/api/Timetable`;
+const academicsUrl = `${baseUrl}/api/Academics`;
 const hourUrl = `${timetableUrl}/hours`;
 const teacherUrl = `${academicsUrl}/teachers`;
 const subjectUrl = `${timetableUrl}/subjects`;
@@ -25,7 +26,7 @@ async function withLogs<T>(promise: Promise<ResponseProps<T>>, fnName: string): 
 const config = {
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "localhost:5206",
+    "Access-Control-Allow-Origin": host,
   },
 };
 
