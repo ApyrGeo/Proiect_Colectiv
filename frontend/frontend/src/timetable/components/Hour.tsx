@@ -5,10 +5,11 @@ import type { TimetableProps } from "./Timetable.tsx";
 
 export interface HourPropsExtended extends HourProps {
   timetableProps: TimetableProps;
-  setSelectedLocations?: (props: SelectedLocationsProps) => void;
+  setSelectedCurrentLocation?: (location: SelectedLocationsProps, key: number) => void;
 }
 
 const Hour: React.FC<HourPropsExtended> = ({
+  id,
   day,
   hourInterval,
   frequency,
@@ -21,7 +22,7 @@ const Hour: React.FC<HourPropsExtended> = ({
   timetableProps,
   isNext,
   isCurrent,
-  setSelectedLocations,
+  setSelectedCurrentLocation: setSelectedCurrentLocation,
 }) => {
   const navigate = useNavigate();
 
@@ -53,9 +54,12 @@ const Hour: React.FC<HourPropsExtended> = ({
       <td>{day}</td>
       <td>{hourInterval}</td>
       <td>{frequency}</td>
-      {setSelectedLocations && (
+      {setSelectedCurrentLocation && (
         <td>
-          <button className={"timetable-button"} onClick={() => setSelectedLocations({ currentLocation: location })}>
+          <button
+            className={"timetable-button"}
+            onClick={() => setSelectedCurrentLocation({ currentLocation: location }, id!)}
+          >
             {location.name}
           </button>
         </td>

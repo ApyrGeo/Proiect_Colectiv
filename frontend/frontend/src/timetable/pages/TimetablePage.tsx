@@ -24,19 +24,25 @@ const TimetablePage: React.FC = () => {
 
   const sectionNavigationButtonsRef = useRef<HTMLDivElement | null>(null);
 
-  // const handleNavigate = () => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition((position) => {
-  //       const { latitude: originLat, longitude: originLng } = position.coords;
-  //       const { latitude: destLat, longitude: destLng } = destination;
+  const handleNavigateFromCurrentLocation = () => {
+    if (!selectedLocations.currentLocation) return;
 
-  //       const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}`;
-  //       window.open(mapsUrl, "_blank");
-  //     });
-  //   } else {
-  //     alert("Geolocation is not supported by this browser.");
-  //   }
-  // };
+    const { latitude: destLat, longitude: destLng } = selectedLocations.currentLocation!.googleMapsData;
+
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
+    window.open(mapsUrl, "_blank");
+  };
+
+  const handleNavigateBetweenLocations = () => {
+    if (!selectedLocations.currentLocation) return;
+    if (!selectedLocations.nextLocation) return;
+
+    const { latitude: originLat, longitude: originLng } = selectedLocations.nextLocation!.googleMapsData;
+    const { latitude: destLat, longitude: destLng } = selectedLocations.currentLocation!.googleMapsData;
+
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}`;
+    window.open(mapsUrl, "_blank");
+  };
 
   const scrollToNavigationButtonsSection = () => {
     sectionNavigationButtonsRef.current?.scrollIntoView({
@@ -72,8 +78,6 @@ const TimetablePage: React.FC = () => {
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
-
-  useEffect(() => console.log(selectedLocations), [selectedLocations]);
 
   return (
     <>
@@ -181,8 +185,23 @@ const TimetablePage: React.FC = () => {
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
       </div>
 
+      <div style={{ height: 500, background: "#ABCDEF", margin: 20 }}>{/* Maps Component Placeholder */}</div>
+
       <div ref={sectionNavigationButtonsRef}>
-        {selectedLocations.currentLocation && <button>Go To Navigation</button>}
+        {selectedLocations.currentLocation && (
+          <button
+            className="timetable-back-button"
+            onClick={handleNavigateFromCurrentLocation}
+            title="Open Google Maps"
+          >
+            Vezi rute către {selectedLocations.currentLocation.name}
+          </button>
+        )}
+        {selectedLocations.currentLocation && selectedLocations.nextLocation && (
+          <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
+            Vezi rute de la {selectedLocations.currentLocation.name} la {selectedLocations.nextLocation.name}
+          </button>
+        )}
       </div>
     </>
   );
