@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { HourProps } from "../props.ts";
+import type { HourProps, SelectedLocationsProps } from "../props.ts";
 import Hour from "./Hour.tsx";
 import "../timetable.css";
 import {
@@ -25,6 +25,7 @@ export type TimetableProps = {
 
   filterFn?: (hour: HourProps) => boolean;
   currentWeekOnly?: boolean;
+  setSelectedLocations?: (props: SelectedLocationsProps) => void;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
@@ -108,6 +109,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
                     subject={subject}
                     teacher={teacher}
                     timetableProps={props}
+                    setSelectedLocations={props.setSelectedLocations}
                   />
                 )
               )}

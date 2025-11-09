@@ -1,6 +1,11 @@
-import { useState, type SetStateAction } from "react";
+import { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
-import type { HourProps } from "../props.ts";
+import type { HourProps, SelectedLocationsProps } from "../props.ts";
+
+const defaultSelectedLocations: SelectedLocationsProps = {
+  currentLocation: null,
+  nextLocation: null,
+};
 
 const TimetablePage: React.FC = () => {
   //TODO temporary user info, to be loaded from auth context
@@ -15,6 +20,34 @@ const TimetablePage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState("personal");
   const [selectedFreq, setSelectedFreq] = useState("all");
   const [activeHours, setActiveHours] = useState(true);
+  const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
+
+  const sectionNavigationButtonsRef = useRef<HTMLDivElement | null>(null);
+
+  // const handleNavigate = () => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition((position) => {
+  //       const { latitude: originLat, longitude: originLng } = position.coords;
+  //       const { latitude: destLat, longitude: destLng } = destination;
+
+  //       const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}`;
+  //       window.open(mapsUrl, "_blank");
+  //     });
+  //   } else {
+  //     alert("Geolocation is not supported by this browser.");
+  //   }
+  // };
+
+  const scrollToNavigationButtonsSection = () => {
+    sectionNavigationButtonsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  useEffect(() => {
+    scrollToNavigationButtonsSection();
+  }, [selectedLocations.currentLocation]);
 
   const filterFreq1: (hour: HourProps) => boolean = (hour) =>
     hour.frequency == "FirstWeek" || hour.frequency == "Weekly";
@@ -39,6 +72,8 @@ const TimetablePage: React.FC = () => {
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
+
+  useEffect(() => console.log(selectedLocations), [selectedLocations]);
 
   return (
     <>
@@ -133,13 +168,21 @@ const TimetablePage: React.FC = () => {
             Săpt. 2
           </label>
         </div>
-        {selectedFilter == "personal" && !activeHours && <Timetable userId={userInfo.id} filterFn={getFreqFilter()} />}
-        {selectedFilter == "personal" && activeHours && <Timetable userId={userInfo.id} currentWeekOnly={true} />}
+        {selectedFilter == "personal" && !activeHours && (
+          <Timetable userId={userInfo.id} filterFn={getFreqFilter()} setSelectedLocations={setSelectedLocations} />
+        )}
+        {selectedFilter == "personal" && activeHours && (
+          <Timetable userId={userInfo.id} currentWeekOnly={true} setSelectedLocations={setSelectedLocations} />
+        )}
         {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
         {selectedFilter == "specialisation" && (
           <Timetable specialisationId={userInfo.spec} filterFn={getFreqFilter()} />
         )}
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
+      </div>
+
+      <div ref={sectionNavigationButtonsRef}>
+        {selectedLocations.currentLocation && <button>Go To Navigation</button>}
       </div>
     </>
   );

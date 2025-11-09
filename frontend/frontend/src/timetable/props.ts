@@ -20,6 +20,11 @@ export interface HourProps {
   isCurrent?: boolean;
 }
 
+export interface SelectedLocationsProps {
+  currentLocation?: LocationProps | null;
+  nextLocation?: LocationProps | null;
+}
+
 export interface LocationProps {
   id: number;
   name: string;
