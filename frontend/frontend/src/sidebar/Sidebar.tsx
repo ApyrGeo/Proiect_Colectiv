@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
 
   const toggleSubmenu = (title: string) => {
     if (isMinified) return;
-    setExpanded(prev => prev === title ? undefined : title);
+    setExpanded((prev) => (prev === title ? undefined : title));
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>, item: MenuItem) => {
@@ -104,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
       .flatMap((section) => section.submenu ?? [])
       .find((item) => item.submenu?.some((sub) => isActiveUrl(sub.url)));
 
-    setExpanded(prev => activeParent?.title ?? prev);
+    setExpanded((prev) => activeParent?.title ?? prev);
     setHoveredMenu(null);
   }, [location.pathname]);
 

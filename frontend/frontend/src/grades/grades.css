@@ -1,0 +1,171 @@
+/* grades.css */
+
+/* Pagina principală */
+.grades-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #242424;
+    color: #f0f0f0;
+    min-height: 200vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 20px;
+    box-sizing: border-box;
+}
+
+/* Container filtre */
+.filters-container {
+    background-color: #2c3440;
+    padding: 30px 40px;
+    border-radius: 25px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    border: 1px solid #444;
+    width: 95%;           /* aproape toată lățimea */
+    min-width: 1200px;
+    max-width: 1600px;    /* limită pe ecrane mari */
+    margin-bottom: 50px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+}
+
+/* Rând filtre */
+.filters-top {
+    display: flex;
+    flex-wrap: nowrap; /* toate filtrele pe o linie */
+    gap: 40px; /* spațiu între filtre */
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Fiecare filtru */
+.filter-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 200px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background-color: #3a4454; /* fundal filtru */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.filter-item label {
+    font-weight: 600;
+    color: #ddd;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.filter-item select {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #4b5568; /* mai contrastant */
+    color: #f0f0f0;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.filter-item select:hover {
+    background-color: #5c677d;
+    transform: scale(1.02);
+}
+
+/* Container carduri */
+.grades-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 26px; /* rând și coloană: 20px */
+    width: 100%;
+    max-width: 1200px;
+    justify-items: center;
+    margin: 0 auto 40px auto;
+}
+
+/* Card individual */
+.grade-card {
+    background-color: #2c3440;
+    padding: 16px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    max-width: 200px;
+}
+
+.grade-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+/* Text card */
+.subject-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.credit-badge {
+    font-size: 1.05rem;
+    color: #bbb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grade-badge {
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 28px;
+    text-align: center;
+    width: fit-content;
+    font-size: 1.1rem;
+    color: #fff;
+    transition: transform 0.2s;
+}
+
+/* Status note */
+.grade-card.pass .grade-badge {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+}
+
+.grade-card.fail .grade-badge {
+    background: linear-gradient(135deg, #f44336, #e57373);
+}
+
+.grade-card.not-counted .grade-badge {
+    background: linear-gradient(135deg, #757575, #9e9e9e);
+}
+
+.grade-card.pass {
+    border-left: 6px solid #4caf50;
+}
+
+.grade-card.fail {
+    border-left: 6px solid #f44336;
+}
+
+.grade-card.not-counted {
+    border-left: 6px solid #9e9e9e;
+}
+
+/* Scor mediu */
+.average-score {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: #1e1e1e;
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 30px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    text-align: center;
+}
