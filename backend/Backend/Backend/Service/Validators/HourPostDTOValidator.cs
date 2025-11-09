@@ -18,7 +18,8 @@ public class HourPostDTOValidator : AbstractValidator<HourPostDTO>
         RuleFor(x => x.HourInterval)
             .NotNull()
             .NotEmpty().WithMessage("HourInterval is required.")
-            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Name cannot exceed {Constants.DefaultStringMaxLenght} characters.");
+            .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Name cannot exceed {Constants.DefaultStringMaxLenght} characters.")
+            .Matches(@"^\d{2}-\d{2}$").WithMessage("HourInterval must match format 'HH-HH'.");
 
         RuleFor(x => x.Frequency)
             .NotNull()

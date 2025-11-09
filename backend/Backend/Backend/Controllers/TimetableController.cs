@@ -88,8 +88,8 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
     [HttpGet("hours")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
-    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId)
+    [ProducesResponseType(422)]
+    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
     {
         var filter = new HourFilter
         {
@@ -99,7 +99,8 @@ public class TimetableController(ITimetableService service) : ControllerBase
             SubjectId = subjectId,
             FacultyId = facultyId,
             SpecialisationId = specialisationId,
-            GroupYearId = groupYearId
+            GroupYearId = groupYearId,
+            CurrentWeekTimetable = currentWeekTimetable
         };
 
         _logger.InfoFormat("Fetching hours with filter {0}", JsonSerializer.Serialize(filter));
@@ -131,5 +132,17 @@ public class TimetableController(ITimetableService service) : ControllerBase
         var createdHour = await _service.CreateHour(dto);
 
         return CreatedAtAction(nameof(GetHourById), new { hourId = createdHour.Id }, createdHour);
+    }
+
+    [HttpGet("hours/download")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(422)]
+    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] HourFilter filter)
+    {
+        _logger.InfoFormat("Downloading ICS with filter {0}", JsonSerializer.Serialize(filter));
+
+        var icsBytes = await _service.GenerateIcs(filter);
+
+        return File(icsBytes, "text/calendar; charset=utf-8", $"timetable_{DateTime.UtcNow:yyyyMMdd}.ics");
     }
 }
