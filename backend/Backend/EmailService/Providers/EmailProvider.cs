@@ -1,13 +1,19 @@
 ﻿using EmailService.Configuration;
 using EmailService.Emails.CreatedAccount;
 using EmailService.Emails.CreatedEnrollment;
+using EmailService.Interfaces;
 using EmailService.Models;
 
 namespace EmailService.Providers;
 
-public class EmailProvider(EmailSettings config)
-{
-    private readonly EmailSettings _config = config;
+public class EmailProvider : IEmailProvider
+{   
+    private readonly EmailSettings _config;
+    
+    public EmailProvider(EmailSettings config)
+    {
+        _config = config;
+    }
 
     public async Task SendCreateAccountEmailAsync(string to, CreatedUserModel model)
     {

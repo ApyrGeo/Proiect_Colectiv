@@ -1,17 +1,21 @@
 ﻿using AutoMapper;
+using log4net;
 using Backend.Domain;
 using Backend.Domain.DTOs;
 using Backend.Exceptions.Custom;
 using Backend.Interfaces;
+using FluentValidation;
+using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using System.Text.Json;
 using EmailService.Models;
 using EmailService.Providers;
 using log4net;
 using System.Text.Json;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using EmailService.Interfaces;
 
 namespace Backend.Service;
 
-public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory, EmailProvider emailProvider) : IAcademicsService
+public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IAcademicsService
 {
     private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IUserRepository _userRepository = userRepository;
@@ -19,7 +23,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
-    private readonly EmailProvider _emailProvider = emailProvider;
+    private readonly IEmailProvider _emailProvider = emailProvider;
 
     public async Task<FacultyResponseDTO> CreateFaculty(FacultyPostDTO facultyPostDto)
     {
@@ -136,7 +140,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollment));
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
-
+        
         _logger.InfoFormat($"Sending email to: {enrollment.User.Email}");
         await SendAddedEnrollementEmail(enrollment);
 
