@@ -29,11 +29,10 @@ var AppAllowSpecificOrigins = "_appAllowSpecificOrigins";
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: AppAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.AllowAnyHeader().AllowAnyOrigin();
-                      });
+    options.AddPolicy(name: AppAllowSpecificOrigins, policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyOrigin();
+    });
 });
 
 

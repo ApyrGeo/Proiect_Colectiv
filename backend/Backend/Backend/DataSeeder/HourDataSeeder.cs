@@ -29,7 +29,7 @@ public class HourDataSeeder(AcademicAppContext context)
 
         var classrooms = await _context.Classrooms.ToListAsync();
 
-        if (!subjects.Any() || !teachers.Any() || !classrooms.Any())
+        if (subjects.Count == 0 || teachers.Count == 0 || classrooms.Count == 0)
             return;
 
         var rnd = new Random();
@@ -52,12 +52,10 @@ public class HourDataSeeder(AcademicAppContext context)
 
         static string TeacherKey(int id, HourDay day, string interval) => $"T:{id}:{day}:{interval}";
         static string ClassroomKey(int id, HourDay day, string interval) => $"C:{id}:{day}:{interval}";
-        static string GroupKey(string prefix, int id, HourDay day, string interval) => $"{prefix}:{id}:{day}:{interval}";
         static string SubGroupKey(int subId, HourDay day, string interval) => $"SG:{subId}:{day}:{interval}";
 
         bool TryFindSlotAndClassroom(Func<HourDay, string, bool> slotOk, out HourDay foundDay, out string foundInterval, out Classroom selectedClassroom)
         {
-            // random attempts first
             for (int attempt = 0; attempt < 100; attempt++)
             {
                 var day = dayValues[rnd.Next(dayValues.Length)];
@@ -79,13 +77,12 @@ public class HourDataSeeder(AcademicAppContext context)
                 foundDay = day;
                 foundInterval = interval;
                 selectedClassroom = classroom;
-                // update counts here to reserve the spot
+
                 classroomDayCount[classroom.Id][day]++;
                 classroomWeeklyCount[classroom.Id]++;
                 return true;
             }
 
-            // fallback linear search
             foreach (var day in dayValues)
             {
                 foreach (var interval in intervals)
@@ -118,10 +115,8 @@ public class HourDataSeeder(AcademicAppContext context)
 
         bool AnySubGroupOccupiedForGroupYear(GroupYear gy, HourDay day, string interval)
         {
-            if (gy?.StudentGroups == null) return false;
             foreach (var g in gy.StudentGroups)
             {
-                if (g?.StudentSubGroups == null) continue;
                 foreach (var ss in g.StudentSubGroups)
                 {
                     if (occupiedSubGroupSlots.Contains(SubGroupKey(ss.Id, day, interval)))
@@ -133,7 +128,6 @@ public class HourDataSeeder(AcademicAppContext context)
 
         bool AnySubGroupOccupiedForGroup(StudentGroup group, HourDay day, string interval)
         {
-            if (group?.StudentSubGroups == null) return false;
             foreach (var ss in group.StudentSubGroups)
             {
                 if (occupiedSubGroupSlots.Contains(SubGroupKey(ss.Id, day, interval)))
@@ -142,13 +136,10 @@ public class HourDataSeeder(AcademicAppContext context)
             return false;
         }
 
-        // helper to reserve subgroups for a GroupYear
         void ReserveSubGroupsForGroupYear(GroupYear gy, HourDay day, string interval)
         {
-            if (gy?.StudentGroups == null) return;
             foreach (var g in gy.StudentGroups)
             {
-                if (g?.StudentSubGroups == null) continue;
                 foreach (var ss in g.StudentSubGroups)
                 {
                     occupiedSubGroupSlots.Add(SubGroupKey(ss.Id, day, interval));
@@ -156,10 +147,8 @@ public class HourDataSeeder(AcademicAppContext context)
             }
         }
 
-        // helper to reserve subgroups for a StudentGroup
         void ReserveSubGroupsForGroup(StudentGroup group, HourDay day, string interval)
         {
-            if (group?.StudentSubGroups == null) return;
             foreach (var ss in group.StudentSubGroups)
             {
                 occupiedSubGroupSlots.Add(SubGroupKey(ss.Id, day, interval));
@@ -169,13 +158,12 @@ public class HourDataSeeder(AcademicAppContext context)
         foreach (var subject in subjects)
         {
             var gy = subject.GroupYear;
-            if (gy == null) continue;
 
             // find teachers matching faculty
             var facultyId = gy.Specialisation?.Faculty?.Id ?? 0;
             var candidateTeachers = teachers.Where(t => t.FacultyId == facultyId).ToList();
-            if (!candidateTeachers.Any())
-                candidateTeachers = teachers; // fallback
+            if (candidateTeachers.Count == 0)
+                candidateTeachers = teachers;
 
             // 1) Course: one hour referencing GroupYear
             {
@@ -295,7 +283,7 @@ public class HourDataSeeder(AcademicAppContext context)
             }
         }
 
-        if (hoursToAdd.Any())
+        if (hoursToAdd.Count != 0)
         {
             await _context.Hours.AddRangeAsync(hoursToAdd);
             await _context.SaveChangesAsync();

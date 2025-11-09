@@ -27,53 +27,6 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
 
-    private async Task<bool> VerifyHourFilterData(HourFilter filter)
-    {
-        if (filter.UserId != null)
-        {
-            var enrollments = await _academicRepository.GetEnrollmentsByUserId(filter.UserId.Value);
-            if (enrollments.Count == 0) throw new NotFoundException($"Enrollments with ID {filter.UserId} not found.");
-        }
-
-        if (filter.ClassroomId != null)
-        {
-            var _ = await _timetableRepository.GetClassroomByIdAsync(filter.ClassroomId.Value)
-                ?? throw new NotFoundException($"Classroom with ID {filter.ClassroomId} not found.");
-        }
-
-        if (filter.TeacherId != null)
-        {
-            var _ = await _academicRepository.GetTeacherById(filter.TeacherId.Value)
-                ?? throw new NotFoundException($"Teacher with ID {filter.TeacherId} not found.");
-        }
-
-        if (filter.SubjectId != null)
-        {
-            var _ = await _timetableRepository.GetSubjectByIdAsync(filter.SubjectId.Value)
-                ?? throw new NotFoundException($"Subject with ID {filter.SubjectId} not found.");
-        }
-
-        if (filter.FacultyId != null)
-        {
-            var _ = await _academicRepository.GetFacultyByIdAsync(filter.FacultyId.Value)
-                ?? throw new NotFoundException($"Faculty with ID {filter.FacultyId} not found.");
-        }
-
-        if (filter.SpecialisationId != null)
-        {
-            var _ = await _academicRepository.GetSpecialisationByIdAsync(filter.SpecialisationId.Value)
-                ?? throw new NotFoundException($"Specialisation with ID {filter.SpecialisationId} not found.");
-        }
-
-        if (filter.GroupYearId != null)
-        {
-            var _ = await _academicRepository.GetGroupYearByIdAsync(filter.GroupYearId.Value)
-                ?? throw new NotFoundException($"Group year with ID {filter.GroupYearId} not found.");
-        }
-
-        return true;
-    }
-
     public async Task<ClassroomResponseDTO> CreateClassroom(ClassroomPostDTO classroomPostDTO)
     {
         _logger.InfoFormat("Validating ClassroomPostDTO: {0}", JsonSerializer.Serialize(classroomPostDTO));
@@ -178,7 +131,13 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
     {
         _logger.InfoFormat("Trying to retrive hours with filter {0}", JsonSerializer.Serialize(filter));
 
-        await VerifyHourFilterData(filter);
+        var validator = _validatorFactory.Get<HourFilter>();
+        var validationResult = await validator.ValidateAsync(filter);
+
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
 
         var hours = await _timetableRepository.GetHoursAsync(filter);
 
@@ -230,7 +189,13 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
     {
         _logger.InfoFormat("Trying to retrive hours with filter {0}", JsonSerializer.Serialize(filter));
 
-        await VerifyHourFilterData(filter);
+        var validator = _validatorFactory.Get<HourFilter>();
+        var validationResult = await validator.ValidateAsync(filter);
+
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(validationResult.Errors);
+        }
 
         var hours = await _timetableRepository.GetHoursAsync(filter);
 

@@ -88,7 +88,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
     [HttpGet("hours")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(422)]
     public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
     {
         var filter = new HourFilter
@@ -136,20 +136,9 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
     [HttpGet("hours/download")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
-    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
+    [ProducesResponseType(422)]
+    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] HourFilter filter)
     {
-        var filter = new HourFilter
-        {
-            UserId = userId,
-            ClassroomId = classroomId,
-            TeacherId = teacherId,
-            SubjectId = subjectId,
-            FacultyId = facultyId,
-            SpecialisationId = specialisationId,
-            GroupYearId = groupYearId,
-            CurrentWeekTimetable = currentWeekTimetable
-        };
         _logger.InfoFormat("Downloading ICS with filter {0}", JsonSerializer.Serialize(filter));
 
         var icsBytes = await _service.GenerateIcs(filter);
