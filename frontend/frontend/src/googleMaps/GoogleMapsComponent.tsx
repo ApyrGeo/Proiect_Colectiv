@@ -155,23 +155,7 @@ const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
             ))}
           </GoogleMap>
         </div>
-        <div className="widget-map-list">
-          <div className="widget-list bg-none mb-4">
-            <div className="widget-list-item">
-              <div className="widget-list-media text-center">
-                <a href="#">
-                  <i className="fab fa-twitter fa-3x"></i>
-                </a>
-              </div>
-              <p className="widget-list-desc">Chinteni</p>
-              <div className="widget-list-action">
-                <a href="#" data-bs-toggle="dropdown" className="text-body text-opacity-50">
-                  <i className="fa fa-angle-right fa-2x"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="widget-map-list"></div>
       </div>
     </>
   );
