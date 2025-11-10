@@ -19,15 +19,13 @@ const App = () => {
         onToggleMinified={() => setSidebarMinified((prev) => !prev)}
         onToggleMobile={() => setMobileSidebarOpen((prev) => !prev)}
       />
-      <div>
-        <Routes>
-          <Route path="/grades" element={<Grades />} />
-          <Route path={"/timetable"} Component={TimetablePage} />
-          <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
-          <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
-          <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
-        </Routes>
-      </div>
+      <Routes>
+        <Route path={"/grades"} Component={Grades} />
+        <Route path={"/timetable"} Component={TimetablePage} />
+        <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
+        <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
+        <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
+      </Routes>
     </>
   );
 };
