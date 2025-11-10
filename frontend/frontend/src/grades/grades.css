@@ -142,7 +142,7 @@
 }
 
 .grade-card.not-counted .grade-badge {
-    background: linear-gradient(135deg, #757575, #9e9e9e);
+    background: linear-gradient(135deg, #f1c40f, #f9e79f);
 }
 
 .grade-card.pass {
@@ -154,7 +154,7 @@
 }
 
 .grade-card.not-counted {
-    border-left: 6px solid #9e9e9e;
+    border-left: 6px solid #f1c40f;
 }
 
 /* Scor mediu */

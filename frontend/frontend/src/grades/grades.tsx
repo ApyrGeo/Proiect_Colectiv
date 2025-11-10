@@ -149,7 +149,6 @@ const Grades: React.FC = () => {
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
   const [selectedSemester, setSelectedSemester] = useState<number | "">("");
 
-  // Filtrare
   const filteredGrades = mockGrades.result.filter((item) => {
     const matchYear = selectedYear === "" || item.academicYear === selectedYear;
     const matchSpec = selectedSpecialization === "" || item.specialization === selectedSpecialization;
@@ -159,18 +158,16 @@ const Grades: React.FC = () => {
     return matchYear && matchSpec && matchStudyYear && matchSemester;
   });
 
-  // Scor mediu
-  const averageScore =
-    filteredGrades.filter((g) => g.for_score).length > 0
-      ? (
-          filteredGrades.filter((g) => g.for_score).reduce((sum, g) => sum + g.score, 0) /
-          filteredGrades.filter((g) => g.for_score).length
-        ).toFixed(2)
-      : "—";
+  const gradedForAverage = filteredGrades.filter((g) => g.for_score && g.score > 0);
+
+  const totalCredits = gradedForAverage.reduce((sum, g) => sum + g.subject.credits, 0);
+
+  const weightedSum = gradedForAverage.reduce((sum, g) => sum + g.score * g.subject.credits, 0);
+
+  const averageScore = totalCredits > 0 ? (weightedSum / totalCredits).toFixed(2) : "—";
 
   return (
     <div className="grades-page">
-      {/* Filters */}
       <div className="filters-container">
         <div className="filters-top">
           <div className="filter-item">
@@ -223,7 +220,6 @@ const Grades: React.FC = () => {
         </div>
       </div>
 
-      {/* Grades Cards */}
       <div className="grades-table">
         {filteredGrades.map((item) => {
           let rowClass = "";
@@ -236,13 +232,12 @@ const Grades: React.FC = () => {
               <div className="credit-badge">
                 <i>🎓</i> Credite: {item.subject.credits}
               </div>
-              <div className={`grade-badge ${rowClass}`}>Nota: {item.for_score ? item.score : "—"}</div>
+              <div className={`grade-badge ${rowClass}`}>Nota: {item.score}</div>
             </div>
           );
         })}
       </div>
 
-      {/* Average score */}
       <p className="average-score">
         <strong>Average score:</strong> {averageScore}
       </p>
