@@ -25,6 +25,7 @@ export type TimetableProps = {
 
   filterFn?: (hour: HourProps) => boolean;
   currentWeekOnly?: boolean;
+  onHourClick?: (hourId: number, hours: HourProps[]) => void;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
@@ -96,6 +97,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
                   specialisation,
                 }: HourProps) => (
                   <Hour
+                    id={id}
                     key={id}
                     day={day}
                     hourInterval={hourInterval}
@@ -108,6 +110,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
                     subject={subject}
                     teacher={teacher}
                     timetableProps={props}
+                    onLocationClick={props.onHourClick ? () => props.onHourClick!(id!, hours) : undefined}
                   />
                 )
               )}

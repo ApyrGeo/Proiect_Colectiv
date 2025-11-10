@@ -5,6 +5,7 @@ import type { TimetableProps } from "./Timetable.tsx";
 
 export interface HourPropsExtended extends HourProps {
   timetableProps: TimetableProps;
+  onLocationClick?: () => void;
 }
 
 const Hour: React.FC<HourPropsExtended> = ({
@@ -20,6 +21,7 @@ const Hour: React.FC<HourPropsExtended> = ({
   timetableProps,
   isNext,
   isCurrent,
+  onLocationClick,
 }) => {
   const navigate = useNavigate();
 
@@ -51,7 +53,13 @@ const Hour: React.FC<HourPropsExtended> = ({
       <td>{day}</td>
       <td>{hourInterval}</td>
       <td>{frequency}</td>
-      <td>{location.name}</td>
+      {onLocationClick && (
+        <td>
+          <button className={"timetable-button"} onClick={onLocationClick}>
+            {location.name}
+          </button>
+        </td>
+      )}
       {!timetableProps.classroomId && (
         <td>
           <button className={"timetable-button"} onClick={() => openRoomTable(classroom.id)}>
