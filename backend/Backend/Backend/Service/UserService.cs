@@ -8,18 +8,19 @@ using EmailService.Providers;
 using log4net;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json;
+using EmailService.Interfaces;
 using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
 
 namespace Backend.Service;
 
-public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IPasswordHasher<User> passwordHasher, EmailProvider emailProvider) : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IPasswordHasher<User> passwordHasher, IEmailProvider emailProvider) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IValidatorFactory _validator = validator;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
-    private readonly EmailProvider _emailProvider = emailProvider;
+    private readonly IEmailProvider _emailProvider = emailProvider;
 
     public async Task<UserResponseDTO> CreateUser(UserPostDTO userDTO)
     {
