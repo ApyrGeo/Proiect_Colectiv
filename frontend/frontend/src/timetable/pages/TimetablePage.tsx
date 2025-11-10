@@ -22,6 +22,19 @@ const TimetablePage: React.FC = () => {
   const [activeHours, setActiveHours] = useState(true);
   const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
 
+  const handleHourClick = (hourId: number, hours: HourProps[]) => {
+    const hourIndex = hours.findIndex((h) => h.id === hourId);
+    if (hourIndex === -1) return;
+
+    const currentLocation = hours[hourIndex].location;
+    const nextLocation =
+      hourIndex < hours.length - 1 && hours[hourIndex].day === hours[hourIndex + 1].day
+        ? hours[hourIndex + 1].location
+        : null;
+
+    setSelectedLocations({ currentLocation, nextLocation });
+  };
+
   const sectionNavigationButtonsRef = useRef<HTMLDivElement | null>(null);
 
   const handleNavigateFromCurrentLocation = () => {
@@ -173,10 +186,10 @@ const TimetablePage: React.FC = () => {
           </label>
         </div>
         {selectedFilter == "personal" && !activeHours && (
-          <Timetable userId={userInfo.id} filterFn={getFreqFilter()} setSelectedLocations={setSelectedLocations} />
+          <Timetable userId={userInfo.id} filterFn={getFreqFilter()} onHourClick={handleHourClick} />
         )}
         {selectedFilter == "personal" && activeHours && (
-          <Timetable userId={userInfo.id} currentWeekOnly={true} setSelectedLocations={setSelectedLocations} />
+          <Timetable userId={userInfo.id} currentWeekOnly={true} onHourClick={handleHourClick} />
         )}
         {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
         {selectedFilter == "specialisation" && (
@@ -185,7 +198,7 @@ const TimetablePage: React.FC = () => {
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
       </div>
 
-      <div style={{ height: 500, background: "#ABCDEF", margin: 20 }}>{/* Maps Component Placeholder */}</div>
+      <div style={{ height: 500, background: "#83ddfeff", margin: 20 }}>{/* Maps Component Placeholder */}</div>
 
       <div ref={sectionNavigationButtonsRef}>
         {selectedLocations.currentLocation && (

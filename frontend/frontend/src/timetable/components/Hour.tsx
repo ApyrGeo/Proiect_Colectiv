@@ -1,15 +1,14 @@
-import type { HourProps, SelectedLocationsProps } from "../props.ts";
+import type { HourProps } from "../props.ts";
 import "../timetable.css";
 import { useNavigate } from "react-router-dom";
 import type { TimetableProps } from "./Timetable.tsx";
 
 export interface HourPropsExtended extends HourProps {
   timetableProps: TimetableProps;
-  setSelectedCurrentLocation?: (location: SelectedLocationsProps, key: number) => void;
+  onLocationClick?: () => void;
 }
 
 const Hour: React.FC<HourPropsExtended> = ({
-  id,
   day,
   hourInterval,
   frequency,
@@ -22,7 +21,7 @@ const Hour: React.FC<HourPropsExtended> = ({
   timetableProps,
   isNext,
   isCurrent,
-  setSelectedCurrentLocation: setSelectedCurrentLocation,
+  onLocationClick,
 }) => {
   const navigate = useNavigate();
 
@@ -54,12 +53,9 @@ const Hour: React.FC<HourPropsExtended> = ({
       <td>{day}</td>
       <td>{hourInterval}</td>
       <td>{frequency}</td>
-      {setSelectedCurrentLocation && (
+      {onLocationClick && (
         <td>
-          <button
-            className={"timetable-button"}
-            onClick={() => setSelectedCurrentLocation({ currentLocation: location }, id!)}
-          >
+          <button className={"timetable-button"} onClick={onLocationClick}>
             {location.name}
           </button>
         </td>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { HourProps, SelectedLocationsProps } from "../props.ts";
+import type { HourProps } from "../props.ts";
 import Hour from "./Hour.tsx";
 import "../timetable.css";
 import {
@@ -25,15 +25,12 @@ export type TimetableProps = {
 
   filterFn?: (hour: HourProps) => boolean;
   currentWeekOnly?: boolean;
-  selectedLocations?: SelectedLocationsProps;
-  setSelectedLocations?: (props: SelectedLocationsProps) => void;
+  onHourClick?: (hourId: number, hours: HourProps[]) => void;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
   const [hours, setHours] = useState<HourProps[]>([]);
   const [fetchError, setFetchError] = useState<Error | null>(null);
-  const [selectedCurrentLocation, setSelectedCurrentLocation] = useState<SelectedLocationsProps | null>(null);
-  const [hourId, setHourId] = useState<number>(-1);
 
   const getFetchFunc = () => {
     if (props.userId && !props.currentWeekOnly) return getUserHours(props.userId);
@@ -59,20 +56,6 @@ const Timetable: React.FC<TimetableProps> = (props) => {
         setFetchError(err as Error);
       });
   }, []);
-
-  useEffect(() => {
-    if (!selectedCurrentLocation?.currentLocation) return;
-    if (!props.setSelectedLocations) return;
-
-    const currentLocation = selectedCurrentLocation?.currentLocation;
-    const hourIndex = hours.findIndex((h) => h.id === hourId);
-    const nextLocation =
-      hourIndex >= 0 && hourIndex < hours.length - 1 && hours[hourIndex].day === hours[hourIndex + 1].day
-        ? hours[hourIndex + 1].location
-        : null;
-
-    props.setSelectedLocations({ currentLocation, nextLocation });
-  }, [selectedCurrentLocation?.currentLocation, hourId, hours, props]);
 
   return (
     <div className={"timetable"}>
@@ -127,10 +110,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
                     subject={subject}
                     teacher={teacher}
                     timetableProps={props}
-                    setSelectedCurrentLocation={(location, key) => {
-                      setSelectedCurrentLocation(location);
-                      setHourId(key);
-                    }}
+                    onLocationClick={props.onHourClick ? () => props.onHourClick!(id!, hours) : undefined}
                   />
                 )
               )}
