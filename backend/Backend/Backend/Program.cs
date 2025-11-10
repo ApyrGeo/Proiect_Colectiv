@@ -9,6 +9,7 @@ using Backend.Repository;
 using Backend.Service;
 using Backend.Service.Validators;
 using EmailService.Configuration;
+using EmailService.Interfaces;
 using EmailService.Providers;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -122,7 +123,7 @@ builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<EmailSettings>>().Value);
-builder.Services.AddScoped<EmailProvider>();
+builder.Services.AddScoped<IEmailProvider, EmailProvider>();
 
 //services
 builder.Services.AddScoped<IUserService, UserService>();
