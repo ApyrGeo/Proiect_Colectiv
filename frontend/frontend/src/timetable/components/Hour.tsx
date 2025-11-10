@@ -53,12 +53,14 @@ const Hour: React.FC<HourPropsExtended> = ({
       <td>{day}</td>
       <td>{hourInterval}</td>
       <td>{frequency}</td>
-      {onLocationClick && (
+      {onLocationClick ? (
         <td>
           <button className={"timetable-button"} onClick={onLocationClick}>
             {location.name}
           </button>
         </td>
+      ) : (
+        <td>{location.name}</td>
       )}
       {!timetableProps.classroomId && (
         <td>
