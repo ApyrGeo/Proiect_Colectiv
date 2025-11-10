@@ -1,7 +1,7 @@
 import { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
-import type { HourProps, SelectedLocationsProps } from "../props.ts";
+import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -21,7 +21,12 @@ const TimetablePage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState("personal");
   const [selectedFreq, setSelectedFreq] = useState("all");
   const [activeHours, setActiveHours] = useState(true);
+  const [locations, setLocations] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
+
+  const sendLocationsToMaps = (locs: LocationProps[]) => {
+    setLocations(locs);
+  };
 
   const handleHourClick = (hourId: number, hours: HourProps[]) => {
     const hourIndex = hours.findIndex((h) => h.id === hourId);
@@ -33,6 +38,7 @@ const TimetablePage: React.FC = () => {
         ? hours[hourIndex + 1].location
         : null;
 
+    setLocations([currentLocation]);
     setSelectedLocations({ currentLocation, nextLocation });
   };
 
@@ -94,7 +100,7 @@ const TimetablePage: React.FC = () => {
   };
 
   return (
-    <>
+    <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>Orar</div>
         <div className={"timetable-filter"}>
@@ -187,10 +193,20 @@ const TimetablePage: React.FC = () => {
           </label>
         </div>
         {selectedFilter == "personal" && !activeHours && (
-          <Timetable userId={userInfo.id} filterFn={getFreqFilter()} onHourClick={handleHourClick} />
+          <Timetable
+            userId={userInfo.id}
+            filterFn={getFreqFilter()}
+            onHourClick={handleHourClick}
+            sendLocationsToMaps={sendLocationsToMaps}
+          />
         )}
         {selectedFilter == "personal" && activeHours && (
-          <Timetable userId={userInfo.id} currentWeekOnly={true} onHourClick={handleHourClick} />
+          <Timetable
+            userId={userInfo.id}
+            currentWeekOnly={true}
+            onHourClick={handleHourClick}
+            sendLocationsToMaps={sendLocationsToMaps}
+          />
         )}
         {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
         {selectedFilter == "specialisation" && (
@@ -199,7 +215,7 @@ const TimetablePage: React.FC = () => {
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
       </div>
 
-      <GoogleMapsComponent />
+      <GoogleMapsComponent locations={locations} />
 
       <div ref={sectionNavigationButtonsRef}>
         {selectedLocations.currentLocation && (
@@ -217,7 +233,7 @@ const TimetablePage: React.FC = () => {
           </button>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

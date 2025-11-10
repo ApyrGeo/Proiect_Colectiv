@@ -13,6 +13,12 @@
     --timetable-current-hour-color: #466fb3;
 }
 
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
 .timetable-page {
     display: flex;
     flex-direction: column;

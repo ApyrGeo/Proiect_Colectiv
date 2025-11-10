@@ -17,8 +17,8 @@
     box-shadow: none;
     overflow: hidden;
     border: none;
-    width: 80vw;
-    margin: 0 calc(-40vw + 50%);
+    width: 50vw;
+    margin: 0 calc(-25vw + 50%);
 }
 
 .widget-map-body iframe {
