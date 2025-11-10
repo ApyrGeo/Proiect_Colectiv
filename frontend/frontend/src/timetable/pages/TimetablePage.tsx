@@ -1,6 +1,11 @@
-import { useState, type SetStateAction } from "react";
+import { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
-import type { HourProps } from "../props.ts";
+import type { HourProps, SelectedLocationsProps } from "../props.ts";
+
+const defaultSelectedLocations: SelectedLocationsProps = {
+  currentLocation: null,
+  nextLocation: null,
+};
 
 const TimetablePage: React.FC = () => {
   //TODO temporary user info, to be loaded from auth context
@@ -15,6 +20,53 @@ const TimetablePage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState("personal");
   const [selectedFreq, setSelectedFreq] = useState("all");
   const [activeHours, setActiveHours] = useState(true);
+  const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
+
+  const handleHourClick = (hourId: number, hours: HourProps[]) => {
+    const hourIndex = hours.findIndex((h) => h.id === hourId);
+    if (hourIndex === -1) return;
+
+    const currentLocation = hours[hourIndex].location;
+    const nextLocation =
+      hourIndex < hours.length - 1 && hours[hourIndex].day === hours[hourIndex + 1].day
+        ? hours[hourIndex + 1].location
+        : null;
+
+    setSelectedLocations({ currentLocation, nextLocation });
+  };
+
+  const sectionNavigationButtonsRef = useRef<HTMLDivElement | null>(null);
+
+  const handleNavigateFromCurrentLocation = () => {
+    if (!selectedLocations.currentLocation) return;
+
+    const { latitude: destLat, longitude: destLng } = selectedLocations.currentLocation!.googleMapsData;
+
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
+    window.open(mapsUrl, "_blank");
+  };
+
+  const handleNavigateBetweenLocations = () => {
+    if (!selectedLocations.currentLocation) return;
+    if (!selectedLocations.nextLocation) return;
+
+    const { latitude: originLat, longitude: originLng } = selectedLocations.nextLocation!.googleMapsData;
+    const { latitude: destLat, longitude: destLng } = selectedLocations.currentLocation!.googleMapsData;
+
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}`;
+    window.open(mapsUrl, "_blank");
+  };
+
+  const scrollToNavigationButtonsSection = () => {
+    sectionNavigationButtonsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  useEffect(() => {
+    scrollToNavigationButtonsSection();
+  }, [selectedLocations.currentLocation]);
 
   const filterFreq1: (hour: HourProps) => boolean = (hour) =>
     hour.frequency == "FirstWeek" || hour.frequency == "Weekly";
@@ -133,13 +185,36 @@ const TimetablePage: React.FC = () => {
             Săpt. 2
           </label>
         </div>
-        {selectedFilter == "personal" && !activeHours && <Timetable userId={userInfo.id} filterFn={getFreqFilter()} />}
-        {selectedFilter == "personal" && activeHours && <Timetable userId={userInfo.id} currentWeekOnly={true} />}
+        {selectedFilter == "personal" && !activeHours && (
+          <Timetable userId={userInfo.id} filterFn={getFreqFilter()} onHourClick={handleHourClick} />
+        )}
+        {selectedFilter == "personal" && activeHours && (
+          <Timetable userId={userInfo.id} currentWeekOnly={true} onHourClick={handleHourClick} />
+        )}
         {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
         {selectedFilter == "specialisation" && (
           <Timetable specialisationId={userInfo.spec} filterFn={getFreqFilter()} />
         )}
         {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
+      </div>
+
+      <div style={{ height: 500, background: "#83ddfeff", margin: 20 }}>{/* Maps Component Placeholder */}</div>
+
+      <div ref={sectionNavigationButtonsRef}>
+        {selectedLocations.currentLocation && (
+          <button
+            className="timetable-back-button"
+            onClick={handleNavigateFromCurrentLocation}
+            title="Open Google Maps"
+          >
+            Vezi rute către {selectedLocations.currentLocation.name}
+          </button>
+        )}
+        {selectedLocations.currentLocation && selectedLocations.nextLocation && (
+          <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
+            Vezi rute de la {selectedLocations.currentLocation.name} la {selectedLocations.nextLocation.name}
+          </button>
+        )}
       </div>
     </>
   );
