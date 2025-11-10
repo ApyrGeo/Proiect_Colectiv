@@ -1,11 +1,11 @@
-export interface Subject {
+export interface SubjectProps {
   name: string;
   credits: number;
 }
 
-export interface GradeItem {
+export interface GradeItemProps {
   id: string;
-  subject: Subject;
+  subject: SubjectProps;
   score: number;
   for_score: boolean;
   academicYear: string;
@@ -14,7 +14,7 @@ export interface GradeItem {
   semester: number;
 }
 
-export interface GradesData {
+export interface GradesDataProps {
   average_score: number;
-  result: GradeItem[];
+  result: GradeItemProps[];
 }

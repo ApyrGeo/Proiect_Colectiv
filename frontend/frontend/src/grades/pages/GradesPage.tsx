@@ -79,7 +79,16 @@ const GradesPage: React.FC = () => {
 
       <div className="grades-table">
         {filteredGrades.map((item) => (
-          <GradeItem key={item.id} item={item} />
+          <GradeItem
+            id={item.id}
+            subject={item.subject}
+            score={item.score}
+            for_score={item.for_score}
+            specialization={item.specialization}
+            academicYear={item.academicYear}
+            studyYear={item.studyYear}
+            semester={item.semester}
+          />
         ))}
       </div>
 

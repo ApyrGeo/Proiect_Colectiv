@@ -1,6 +1,6 @@
-import type { GradesData } from "./props.ts";
+import type { GradesDataProps } from "./props.ts";
 
-export const mockGrades: GradesData = {
+export const mockGrades: GradesDataProps = {
   average_score: 4.2,
   result: [
     {
