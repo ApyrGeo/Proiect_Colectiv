@@ -2,6 +2,7 @@ import "./App.css";
 import Sidebar from "./sidebar/Sidebar.tsx";
 import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import Grades from "./grades/pages/GradesPage.tsx";
 import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
@@ -18,9 +19,8 @@ const App = () => {
         onToggleMinified={() => setSidebarMinified((prev) => !prev)}
         onToggleMobile={() => setMobileSidebarOpen((prev) => !prev)}
       />
-
-      {/*temp routing*/}
       <Routes>
+        <Route path={"/grades"} Component={Grades} />
         <Route path={"/timetable"} Component={TimetablePage} />
         <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
         <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>

@@ -39,6 +39,11 @@ export function getAppMenus() {
           icon: "🎨",
           url: "/designs",
         },
+        {
+          title: "Grades",
+          icon: "🎓",
+          url: "/grades",
+        },
       ],
     },
   ];
