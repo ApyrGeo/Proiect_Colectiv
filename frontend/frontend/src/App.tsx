@@ -1,6 +1,7 @@
 import "./App.css";
 import Sidebar from "./sidebar/Sidebar.tsx";
 import { useState } from "react";
+import GoogleMapsComponent from "./googleMaps/GoogleMapsComponent.tsx";
 import { Route, Routes } from "react-router-dom";
 import Grades from "./grades/pages/GradesPage.tsx";
 import TimetablePage from "./timetable/pages/TimetablePage.tsx";
@@ -26,6 +27,7 @@ const App = () => {
         <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
         <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
       </Routes>
+
     </>
   );
 };

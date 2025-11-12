@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { HourProps } from "../props.ts";
+import type { HourProps, LocationProps } from "../props.ts";
 import Hour from "./Hour.tsx";
 import "../timetable.css";
 import {
@@ -22,15 +22,27 @@ export type TimetableProps = {
   facultyId?: number;
   specialisationId?: number;
   subjectId?: number;
-
   filterFn?: (hour: HourProps) => boolean;
   currentWeekOnly?: boolean;
   onHourClick?: (hourId: number, hours: HourProps[]) => void;
+  sendLocationsToMaps?: (locs: LocationProps[]) => void;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
   const [hours, setHours] = useState<HourProps[]>([]);
   const [fetchError, setFetchError] = useState<Error | null>(null);
+
+  const sendLocationsToMaps = (hours: HourProps[]) => {
+    if (props.sendLocationsToMaps) {
+      const uniqueLocations: LocationProps[] = [];
+      hours.forEach((hour) => {
+        if (!uniqueLocations.find((loc) => loc.id === hour.location.id)) {
+          uniqueLocations.push(hour.location);
+        }
+      });
+      props.sendLocationsToMaps(uniqueLocations);
+    }
+  };
 
   const getFetchFunc = () => {
     if (props.userId && !props.currentWeekOnly) return getUserHours(props.userId);
@@ -51,6 +63,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
     getFetchFunc()
       .then((res) => {
         setHours(res.hours);
+        sendLocationsToMaps(res.hours);
       })
       .catch((err) => {
         setFetchError(err as Error);

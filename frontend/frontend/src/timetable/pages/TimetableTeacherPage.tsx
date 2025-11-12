@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { TeacherProps } from "../props.ts";
 import { useEffect, useState } from "react";
 import { getTeacher } from "../TimetableApi.ts";
+import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 
 const TimetableTeacherPage: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherProps | null>(null);
@@ -28,18 +29,20 @@ const TimetableTeacherPage: React.FC = () => {
   }, [params]);
 
   return (
-    <div className={"timetable-page"}>
-      {teacher && (
-        <>
-          <div className={"timetable-title"}>Profesor: {teacher.user.lastName + " " + teacher.user.firstName}</div>
-          <button className={"timetable-back-button"} onClick={handleBack}>
-            Înapoi
-          </button>
-          <Timetable teacherId={teacher.id}></Timetable>
-        </>
-      )}
-      {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
-    </div>
+    <>
+      <div className={"timetable-page"}>
+        {teacher && (
+          <>
+            <div className={"timetable-title"}>Profesor: {teacher.user.lastName + " " + teacher.user.firstName}</div>
+            <button className={"timetable-back-button"} onClick={handleBack}>
+              Înapoi
+            </button>
+            <Timetable teacherId={teacher.id}></Timetable>
+          </>
+        )}
+        {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
+      </div>
+    </>
   );
 };
 
