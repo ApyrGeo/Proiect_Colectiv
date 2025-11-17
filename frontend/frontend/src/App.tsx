@@ -1,33 +1,33 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import Sidebar from "./sidebar/Sidebar.tsx";
+import { useState } from "react";
+import GoogleMapsComponent from "./googleMaps/GoogleMapsComponent.tsx";
+import { Route, Routes } from "react-router-dom";
+import Grades from "./grades/pages/GradesPage.tsx";
+import TimetablePage from "./timetable/pages/TimetablePage.tsx";
+import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
+import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
+import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
 
 const App = () => {
-  const [count, setCount] = useState(0);
+  const [sidebarMinified, setSidebarMinified] = useState(false);
+  const [, setMobileSidebarOpen] = useState(false);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Sidebar
+        appSidebarMinified={sidebarMinified}
+        onToggleMinified={() => setSidebarMinified((prev) => !prev)}
+        onToggleMobile={() => setMobileSidebarOpen((prev) => !prev)}
+      />
+      <Routes>
+        <Route path={"/grades"} Component={Grades} />
+        <Route path={"/timetable"} Component={TimetablePage} />
+        <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
+        <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
+        <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
+      </Routes>
+
     </>
   );
 };

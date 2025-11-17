@@ -3,9 +3,10 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
-import { globalIgnores } from "eslint/config";
-import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import eslintConfigPrettier from "eslint-config-prettier";
+import { globalIgnores } from "eslint/config";
+import tsParser from "@typescript-eslint/parser";
 
 export default tseslint.config([
   globalIgnores(["dist"]),
@@ -16,12 +17,16 @@ export default tseslint.config([
       tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
       reactRefresh.configs.vite,
+      eslintPluginPrettierRecommended,
       eslintConfigPrettier,
-      eslintPluginPrettier,
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parser: tsParser,
+    },
+    rules: {
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
 ]);

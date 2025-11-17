@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="Backend/Backend.csproj" />
+  <Project Path="BackendTests\BackendTests.csproj" Type="Classic C#" />
+  <Project Path="EmailService/EmailService.csproj" />
 </Solution>

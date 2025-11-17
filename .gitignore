@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.vscode
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -361,3 +362,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Rider / JetBrains IDE
+.idea/
+*.iml
+workspace.xml
+vcs.xml
+indexLayout.xml
