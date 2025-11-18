@@ -16,7 +16,7 @@ const TimetableSubjectPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!params.id || !Number(params.id) || fetchError) return;
+    if (!params.id || !Number(params.id)) return;
 
     getSubject(Number(params.id))
       .then((res) => {
@@ -25,7 +25,7 @@ const TimetableSubjectPage: React.FC = () => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, [params]);
+  }, [params.id]);
 
   return (
     <div className={"timetable-page"}>
