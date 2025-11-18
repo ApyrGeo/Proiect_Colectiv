@@ -18,11 +18,11 @@ const TimetablePage: React.FC = () => {
     faculty: 3,
   };
 
-  const [selectedFilter, setSelectedFilter] = useState("personal");
-  const [selectedFreq, setSelectedFreq] = useState("all");
-  const [activeHours, setActiveHours] = useState(true);
-  const [locations, setLocations] = useState([]);
-  const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
+  const [selectedFilter, setSelectedFilter] = useState<string>("personal");
+  const [selectedFreq, setSelectedFreq] = useState<string>("all");
+  const [activeHours, setActiveHours] = useState<boolean>(true);
+  const [locations, setLocations] = useState<LocationProps[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
 
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);

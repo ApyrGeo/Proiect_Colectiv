@@ -17,7 +17,9 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
       const raw = localStorage.getItem(LS_KEY);
       if (raw === "true") return true;
       if (raw === "false") return false;
-    } catch {}
+    } catch {
+      /* empty */
+    }
     return appSidebarMinified;
   };
 
@@ -82,14 +84,14 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setHoveredMenu(null);
   };
 
-  const isChildActive = (item: MenuItem): boolean => {
-    if (!item.submenu) return false;
-    return item.submenu.some((sub) => isActiveUrl(sub.url));
-  };
-
   const isActiveUrl = (url?: string) => {
     if (!url) return false;
     return location.pathname === url || location.pathname.startsWith(url + "/");
+  };
+
+  const isChildActive = (item: MenuItem): boolean => {
+    if (!item.submenu) return false;
+    return item.submenu.some((sub) => isActiveUrl(sub.url));
   };
 
   useEffect(() => {
