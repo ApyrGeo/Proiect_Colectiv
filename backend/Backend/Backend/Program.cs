@@ -1,11 +1,11 @@
-using Backend.Context;
+using Repository.Context;
 using Backend.DataSeeder;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
+using Domain;
+using Domain.DTOs;
+using Domain.Enums;
 using Backend.Interfaces;
 using Backend.Middlewares;
-using Backend.Repository;
+using Repository;
 using Backend.Service;
 using Backend.Service.Validators;
 using EmailService.Configuration;

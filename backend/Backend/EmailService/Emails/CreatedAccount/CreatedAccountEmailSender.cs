@@ -2,13 +2,7 @@
 using EmailService.Configuration;
 using EmailService.Interfaces;
 using EmailService.Models;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EmailService.Emails.CreatedAccount;
 

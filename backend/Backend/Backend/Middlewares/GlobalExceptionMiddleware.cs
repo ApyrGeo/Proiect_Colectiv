@@ -1,5 +1,5 @@
-﻿using Backend.Exceptions;
-using Backend.Exceptions.Custom;
+﻿using Domain.Exceptions;
+using Domain.Exceptions.Custom;
 using System.Net;
 
 namespace Backend.Middlewares;
