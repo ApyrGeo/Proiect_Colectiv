@@ -1,18 +1,18 @@
-﻿using Backend.Context;
-using Backend.Domain;
-using Backend.Domain.Enums;
+﻿using Repository.Context;
+using Domain;
+using Domain.Enums;
 using Bogus;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Utils.Security;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class UserDataSeeder
 {
     private readonly AcademicAppContext _context;
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IAdapterPasswordHasher<User> _passwordHasher;
 
-    public UserDataSeeder(AcademicAppContext context, IPasswordHasher<User> passwordHasher)
+    public UserDataSeeder(AcademicAppContext context, IAdapterPasswordHasher<User> passwordHasher)
     {
         _context = context;
         _passwordHasher = passwordHasher;

@@ -1,10 +1,9 @@
-﻿using Backend.Context;
-using Backend.Domain;
+﻿using Repository.Context;
+using Domain;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class LocationDataSeeder(AcademicAppContext context)
 {

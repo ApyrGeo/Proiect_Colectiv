@@ -1,6 +1,4 @@
-﻿using Bogus;
-
-namespace Backend.DataSeeder;
+﻿namespace DataSeeder;
 
 public class GlobalDataSeeder(UniversityDataSeeder universityDataSeeder, UserDataSeeder userDataSeeder, LocationDataSeeder locationDataSeeder, TeacherDataSeeder teacherDataSeeder, SubjectDataSeeder subjectDataSeeder, HourDataSeeder hourDataSeeder)
 {

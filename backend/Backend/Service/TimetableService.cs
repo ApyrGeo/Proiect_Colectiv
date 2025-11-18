@@ -1,23 +1,24 @@
 ﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Utils;
+using Domain;
+using Domain.DTOs;
+using Domain.Enums;
+using Domain.Exceptions.Custom;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
 using log4net;
-using System;
+using Repository.Interfaces;
+using Service.Interfaces;
+using Service.Utils;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using Utils;
 using Calendar = Ical.Net.Calendar;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
 
-namespace Backend.Service;
+namespace Service;
 
 public class TimetableService(ITimetableRepository timetableRepository, IAcademicRepository academicRepository, IMapper mapper, IValidatorFactory validatorFactory) : ITimetableService
 {
@@ -36,7 +37,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var classroom = _mapper.Map<Classroom>(classroomPostDTO);
@@ -58,7 +59,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var hour = _mapper.Map<Hour>(hourPostDTO);
@@ -80,7 +81,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var location = _mapper.Map<Location>(locationPostDTO);
@@ -102,7 +103,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var subject = _mapper.Map<Subject>(subjectPostDto);
@@ -136,7 +137,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var hours = await _timetableRepository.GetHoursAsync(filter);
@@ -146,7 +147,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         var mappedHours = _mapper.Map<List<HourResponseDTO>>(hours);
         HourHelper.MarkHours(mappedHours);
 
-        return new TimetableResponseDTO { Hours = mappedHours };
+        return new TimetableResponseDTO { Hours = mappedHours, CalendarStartISODate = HardcodedData.CalendarStartDate.ToString("o", CultureInfo.InvariantCulture) };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)
@@ -194,7 +195,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var hours = await _timetableRepository.GetHoursAsync(filter);

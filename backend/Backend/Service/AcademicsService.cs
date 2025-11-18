@@ -9,6 +9,7 @@ using IValidatorFactory = Service.Interfaces.IValidatorFactory;
 using System.Text.Json;
 using EmailService.Models;
 using EmailService.Interfaces;
+using Service.Utils;
 
 namespace Service;
 
@@ -29,7 +30,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(facultyPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var faculty = _mapper.Map<Faculty>(facultyPostDto);
@@ -49,7 +50,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(groupYearPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var groupYear = _mapper.Map<GroupYear>(groupYearPostDto);
@@ -69,7 +70,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(specialisationPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var specialisation = _mapper.Map<Specialisation>(specialisationPostDto);
@@ -89,7 +90,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(studentGroupPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var studentGroup = _mapper.Map<StudentGroup>(studentGroupPostDto);
@@ -109,7 +110,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(studentSubGroupPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var studentSubGroup = _mapper.Map<StudentSubGroup>(studentSubGroupPostDto);
@@ -129,7 +130,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(enrollmentPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var enrollment = _mapper.Map<Enrollment>(enrollmentPostDto);
@@ -244,7 +245,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(validationResult.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
         var teacher = _mapper.Map<Teacher>(teacherPostDTO);

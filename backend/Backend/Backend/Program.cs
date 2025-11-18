@@ -1,13 +1,13 @@
 using Repository.Context;
-using Backend.DataSeeder;
+using DataSeeder;
 using Domain;
 using Domain.DTOs;
 using Domain.Enums;
-using Backend.Interfaces;
+using Repository.Interfaces;
+using Service.Interfaces;
 using Backend.Middlewares;
 using Repository;
-using Backend.Service;
-using Backend.Service.Validators;
+using Service.Validators;
 using EmailService.Configuration;
 using EmailService.Interfaces;
 using EmailService.Providers;
@@ -15,7 +15,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using Utils.Security;
+using Backend.Security;
+using Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,7 +120,7 @@ builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 builder.Services.Configure<PasswordHasherOptions>(
     options => options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3
     );
-builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddSingleton<IAdapterPasswordHasher<User>, AspNetCorePasswordHasher<User>>();
 
 //email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));

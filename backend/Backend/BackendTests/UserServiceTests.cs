@@ -1,22 +1,16 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Configuration;
+﻿using AutoMapper;
+using Domain;
+using Domain.DTOs;
+using Domain.Enums;
+using Domain.Exceptions.Custom;
+using Repository.Interfaces;
+using Service;
+using Service.Validators;
 using EmailService.Interfaces;
-using EmailService.Models;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using Utils.Security;
 
 namespace BackendTests;
 
@@ -24,7 +18,7 @@ public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _mockUserRepository = new();
     private readonly Mock<IMapper> _mockMapper = new();
-    private readonly Mock<IPasswordHasher<User>> _mockPasswordHasher = new();
+    private readonly Mock<IAdapterPasswordHasher<User>> _mockPasswordHasher = new();
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;

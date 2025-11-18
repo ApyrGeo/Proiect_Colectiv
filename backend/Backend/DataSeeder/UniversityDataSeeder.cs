@@ -1,8 +1,8 @@
-﻿using Backend.Context;
-using Backend.Domain;
+﻿using Repository.Context;
+using Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class UniversityDataSeeder(AcademicAppContext context)
 {

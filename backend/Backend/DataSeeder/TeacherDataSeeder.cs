@@ -1,9 +1,9 @@
-﻿using Backend.Context;
-using Backend.Domain;
-using Backend.Domain.Enums;
+﻿using Repository.Context;
+using Domain;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class TeacherDataSeeder(AcademicAppContext context)
 {

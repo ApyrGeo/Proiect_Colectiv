@@ -14,14 +14,14 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.OwnsOne(l => l.GoogleMapsData, gm =>
         {
             gm.Property(g => g.Id)
-                .HasColumnName("GoogleMaps_Id")
+                .HasColumnName("GoogleMapsData_Id")
                 .HasMaxLength(Constants.DefaultStringMaxLenght);
 
             gm.Property(g => g.Latitude)
-                .HasColumnName("GoogleMaps_Latitude");
+                .HasColumnName("GoogleMapsData_Latitude");
 
             gm.Property(g => g.Longitude)
-                .HasColumnName("GoogleMaps_Longitude");
+                .HasColumnName("GoogleMapsData_Longitude");
         });
 
         builder.Navigation(l => l.GoogleMapsData)

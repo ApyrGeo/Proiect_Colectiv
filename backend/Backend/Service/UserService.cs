@@ -1,25 +1,26 @@
 ﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using EmailService.Models;
-using EmailService.Providers;
-using log4net;
-using Microsoft.AspNetCore.Identity;
-using System.Text.Json;
+using Domain;
+using Domain.DTOs;
+using Domain.Exceptions.Custom;
 using EmailService.Interfaces;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using EmailService.Models;
+using log4net;
+using Repository.Interfaces;
+using Service.Interfaces;
+using Service.Utils;
+using System.Text.Json;
+using Utils.Security;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
 
-namespace Backend.Service;
+namespace Service;
 
-public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IPasswordHasher<User> passwordHasher, IEmailProvider emailProvider) : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IAdapterPasswordHasher<User> passwordHasher, IEmailProvider emailProvider) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IValidatorFactory _validator = validator;
-    private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
+    private readonly IAdapterPasswordHasher<User> _passwordHasher = passwordHasher;
     private readonly IEmailProvider _emailProvider = emailProvider;
 
     public async Task<UserResponseDTO> CreateUser(UserPostDTO userDTO)
@@ -29,15 +30,13 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
         var result = await validator.ValidateAsync(userDTO);
         if (!result.IsValid)
         {
-            throw new EntityValidationException(result.Errors);
+            throw new EntityValidationException(ConvertValidationErrorToString.Convert(result.Errors));
         }
 
         _logger.InfoFormat("Attempting to create user: {0}", JsonSerializer.Serialize(userDTO));
         var user = _mapper.Map<User>(userDTO);
 
-        var tmp = user.Password;
         user.Password = _passwordHasher.HashPassword(user, user.Password);
-        _logger.InfoFormat("Hash test result: " + _passwordHasher.VerifyHashedPassword(user, user.Password, tmp).ToString());
 
         _logger.InfoFormat("Saving user to repository: {0}", JsonSerializer.Serialize(user));
         var addedUser = await _userRepository.AddAsync(user);

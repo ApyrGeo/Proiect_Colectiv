@@ -1,6 +1,6 @@
-﻿using Backend.Domain.DTOs;
-using Backend.Interfaces;
-using Backend.Utils;
+﻿using Domain.DTOs;
+using Service.Interfaces;
+using Utils;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;

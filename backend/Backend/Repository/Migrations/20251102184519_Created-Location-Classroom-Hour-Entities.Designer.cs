@@ -8,7 +8,7 @@ using Repository.Context;
 
 #nullable disable
 
-namespace Backend.Migrations
+namespace Repository.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
     [Migration("20251102184519_Created-Location-Classroom-Hour-Entities")]

@@ -1,7 +1,7 @@
-﻿using Backend.Context;
-using Backend.Domain;
-using Backend.Domain.Enums;
-using Backend.Repository;
+﻿using Repository.Context;
+using Domain;
+using Domain.Enums;
+using Repository;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 

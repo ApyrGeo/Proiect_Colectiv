@@ -1,17 +1,15 @@
 ﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using Backend.Utils;
-using FluentValidation;
-using FluentValidation.Results;
+using Domain;
+using Domain.DTOs;
+using Domain.Enums;
+using Domain.Exceptions.Custom;
+using Repository.Interfaces;
+using Service;
+using Service.Validators;
+using Utils;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
 
 namespace BackendTests;
 
@@ -26,7 +24,7 @@ public class TimetableServiceTests
 
     public TimetableServiceTests()
     {
-        var subjectValidator = new SubjectPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
+        var subjectValidator = new SubjectPostDTOValidator(_mockAcademicRepository.Object);
         var classroomValidator = new ClassroomPostDTOValidator(_mockRepository.Object);
         var hourValidator = new HourPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
         var locationValidator = new LocationPostDTOValidator();

@@ -1,18 +1,15 @@
 ﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
+using Domain;
+using Domain.DTOs;
+using Domain.Enums;
+using Domain.Exceptions.Custom;
+using Repository.Interfaces;
+using Service;
+using Service.Validators;
 using EmailService.Interfaces;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = Service.Interfaces.IValidatorFactory;
 
 namespace BackendTests;
 

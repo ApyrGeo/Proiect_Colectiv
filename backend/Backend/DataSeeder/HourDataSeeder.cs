@@ -3,7 +3,7 @@ using Domain;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class HourDataSeeder(AcademicAppContext context)
 {

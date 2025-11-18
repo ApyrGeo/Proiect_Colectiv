@@ -1,9 +1,12 @@
-﻿namespace Service.Utils;
+﻿using FluentValidation.Results;
+
+namespace Service.Utils;
 
 internal class ConvertValidationErrorToString
 {
-    internal static string Convert(List<>)
+    internal static List<string> Convert(List<ValidationFailure> errors)
     {
-        return $"Property: {propertyName}, Error: {errorMessage}";
+        return errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
+            .ToList();
     }
 }

@@ -1,12 +1,8 @@
-﻿using Backend.Context;
-using Backend.Domain;
-using Bogus;
+﻿using Repository.Context;
+using Domain;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 
-namespace Backend.DataSeeder;
+namespace DataSeeder;
 
 public class SubjectDataSeeder(AcademicAppContext context)
 {
