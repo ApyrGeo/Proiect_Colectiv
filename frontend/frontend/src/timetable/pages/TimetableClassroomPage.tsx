@@ -35,7 +35,10 @@ const TimetableClassroomPage: React.FC = () => {
           <button className={"timetable-back-button"} onClick={handleBack}>
             Înapoi
           </button>
-          <Timetable classroomId={classroom.id}></Timetable>
+          <Timetable
+            classroomId={classroom.id}
+            selectedLocations={{ currentLocation: null, nextLocation: null }}
+          ></Timetable>
         </>
       )}
       {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
