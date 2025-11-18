@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { TeacherProps } from "../props.ts";
 import { useEffect, useState } from "react";
 import { getTeacher } from "../TimetableApi.ts";
-import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 
 const TimetableTeacherPage: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherProps | null>(null);
@@ -17,7 +16,7 @@ const TimetableTeacherPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!params.id || !Number(params.id) || fetchError) return;
+    if (!params.id || !Number(params.id)) return;
 
     getTeacher(Number(params.id))
       .then((res) => {
@@ -26,7 +25,7 @@ const TimetableTeacherPage: React.FC = () => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, [params]);
+  }, [params.id]);
 
   return (
     <>
