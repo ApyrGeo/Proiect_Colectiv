@@ -47,7 +47,7 @@ interface LocationPropsArray {
 
 const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "x",
+    googleMapsApiKey: "AIzaSyDIzAl0JaT0Kggo4skVuOZTJb5LhkYtBdY",
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);

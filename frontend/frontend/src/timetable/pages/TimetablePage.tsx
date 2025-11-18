@@ -37,6 +37,13 @@ const TimetablePage: React.FC = () => {
     );
   };
 
+  const handleCancelSelection = () => {
+    setSelectedLocations(defaultSelectedLocations);
+    setTimeout(() => {
+      scrollToTopPage();
+    }, 0);
+  };
+
   const handleHourClick = (hourId: number, hours: HourProps[]) => {
     const hourIndex = hours.findIndex((h) => h.id === hourId);
     if (hourIndex === -1) return;
@@ -83,8 +90,14 @@ const TimetablePage: React.FC = () => {
     });
   };
 
+  const scrollToTopPage = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
-    scrollToNavigationButtonsSection();
+    if (selectedLocations.currentLocation) {
+      scrollToNavigationButtonsSection();
+    }
   }, [selectedLocations.currentLocation]);
 
   const filterFreq1: (hour: HourProps) => boolean = (hour) =>
@@ -210,6 +223,7 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
+            selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "personal" && activeHours && (
@@ -218,13 +232,26 @@ const TimetablePage: React.FC = () => {
             currentWeekOnly={true}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
+            selectedLocations={selectedLocations}
           />
         )}
-        {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
-        {selectedFilter == "specialisation" && (
-          <Timetable specialisationId={userInfo.spec} filterFn={getFreqFilter()} />
+        {selectedFilter == "group" && (
+          <Timetable
+            groupYearId={userInfo.groupYear}
+            filterFn={getFreqFilter()}
+            selectedLocations={selectedLocations}
+          />
         )}
-        {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
+        {selectedFilter == "specialisation" && (
+          <Timetable
+            specialisationId={userInfo.spec}
+            filterFn={getFreqFilter()}
+            selectedLocations={selectedLocations}
+          />
+        )}
+        {selectedFilter == "faculty" && (
+          <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} selectedLocations={selectedLocations} />
+        )}
       </div>
 
       <GoogleMapsComponent locations={locations} />
@@ -242,6 +269,11 @@ const TimetablePage: React.FC = () => {
         {selectedLocations.currentLocation && selectedLocations.nextLocation && (
           <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
             Vezi rute de la {selectedLocations.currentLocation.name} la {selectedLocations.nextLocation.name}
+          </button>
+        )}
+        {selectedLocations.currentLocation && (
+          <button className="timetable-back-button" onClick={handleCancelSelection} title="Open Google Maps">
+            Anuleaza selectia
           </button>
         )}
       </div>
