@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
-using TrackForUBB.Domain;
 using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Exceptions.Custom;
-using TrackForUBB.Repository.Interfaces;
 using TrackForUBB.Service;
 using TrackForUBB.Service.Validators;
 using Moq;
 using Xunit;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.BackendTests;
 

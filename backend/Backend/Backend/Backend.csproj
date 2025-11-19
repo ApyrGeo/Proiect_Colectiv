@@ -17,10 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Controller\Controller.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
     <ProjectReference Include="..\Service\Service.csproj" />

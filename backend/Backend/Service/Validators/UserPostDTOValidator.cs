@@ -1,8 +1,8 @@
 ﻿using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Enums;
-using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
 using TrackForUBB.Domain.Utils;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Service.Validators;
 

@@ -1,10 +1,10 @@
-﻿using TrackForUBB.Domain.Enums;
-using Xunit;
+﻿using Xunit;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Domain;
 using TrackForUBB.Repository;
 using System.Threading.Tasks;
+using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.BackendTests;
 

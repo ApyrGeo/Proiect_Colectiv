@@ -4,7 +4,7 @@ namespace TrackForUBB.Domain.Utils;
 
 public static class Constants
 {
-    private static HourFrequency GetWeekType(DateTime date)
+    public static HourFrequency GetWeekType(DateTime date)
     {
         int weeks = (DateOnly.FromDateTime(date).DayNumber - HardcodedData.CalendarStartDate.DayNumber) / 7;
 

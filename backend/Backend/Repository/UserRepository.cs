@@ -1,35 +1,46 @@
-﻿using TrackForUBB.Domain;
-using TrackForUBB.Repository.Interfaces;
+﻿using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Repository;
 
-public class UserRepository(AcademicAppContext context) : IUserRepository
+public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserRepository
 {
     private readonly AcademicAppContext _context = context;
-    private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
+	private readonly IMapper _mapper = mapper;
+	private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
 
-    public async Task<User?> GetByEmailAsync(string email)
+    public async Task<UserResponseDTO?> GetByEmailAsync(string email)
     {
         _logger.InfoFormat("Fetching user by email: {0}", email);
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        return _mapper.Map<UserResponseDTO>(user);
     }
 
-    public async Task<User> AddAsync(User user)
+    public async Task<UserResponseDTO> AddAsync(UserPostDTO user)
     {
         _logger.InfoFormat("Adding new user with email: {0}", user.Email);
-        await _context.Users.AddAsync(user);
 
-        return user;
-    }
+        var entity = _mapper.Map<User>(user);
+		await _context.Users.AddAsync(entity);
 
-    public Task<User?> GetByIdAsync(int id)
+		return _mapper.Map<UserResponseDTO>(entity);
+	}
+
+    public async Task<UserResponseDTO?> GetByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching user by ID: {0}", id);
-        return _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-    }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+		return _mapper.Map<UserResponseDTO>(user);
+	}
 
     public async Task SaveChangesAsync()
     {
@@ -37,9 +48,12 @@ public class UserRepository(AcademicAppContext context) : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public Task<List<User>> GetAll()
+    public async Task<List<UserResponseDTO>> GetAll()
     {
         _logger.InfoFormat("Fetching all users");
-        return _context.Users.ToListAsync();
+
+        var users = await _context.Users.ToListAsync();
+
+        return _mapper.Map<List<UserResponseDTO>>(users);
     }
 }

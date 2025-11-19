@@ -1,6 +1,6 @@
-﻿using TrackForUBB.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TrackForUBB.Repository.EFEntities;
 
 namespace TrackForUBB.Repository.Context.Configurations;
 

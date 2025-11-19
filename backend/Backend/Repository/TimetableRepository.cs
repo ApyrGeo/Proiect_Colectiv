@@ -1,65 +1,78 @@
-﻿using TrackForUBB.Domain;
-using TrackForUBB.Domain.Enums;
-using TrackForUBB.Repository.Interfaces;
+﻿using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
-using TrackForUBB.Repository.Context;
 using System.Text.Json;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Repository;
 
-public class TimetableRepository(AcademicAppContext context) : ITimetableRepository
+public class TimetableRepository(AcademicAppContext context, IMapper mapper) : ITimetableRepository
 {
     private readonly AcademicAppContext _context = context;
-    private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
+	private readonly IMapper _mapper = mapper;
+	private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
 
-    public async Task<Classroom> AddClassroomAsync(Classroom classroom)
+    public async Task<ClassroomResponseDTO> AddClassroomAsync(ClassroomPostDTO classroom)
     {
         _logger.InfoFormat("Adding new classroom with name: {0}", classroom.Name);
 
-        await _context.Classrooms.AddAsync(classroom);
-        return classroom;
-    }
+		var entity = _mapper.Map<Classroom>(classroom);
+		await _context.Classrooms.AddAsync(entity);
 
-    public async Task<Hour> AddHourAsync(Hour hour)
+		return _mapper.Map<ClassroomResponseDTO>(entity);
+	}
+
+    public async Task<HourResponseDTO> AddHourAsync(HourPostDTO hour)
     {
         _logger.InfoFormat("Adding new hour with interval: {0}", hour.HourInterval);
 
-        await _context.Hours.AddAsync(hour);
-        return hour;
-    }
+		var entity = _mapper.Map<Hour>(hour);
+		await _context.Hours.AddAsync(entity);
 
-    public async Task<Location> AddLocationAsync(Location location)
+		return _mapper.Map<HourResponseDTO>(entity);
+	}
+
+    public async Task<LocationResponseDTO> AddLocationAsync(LocationPostDTO location)
     {
         _logger.InfoFormat("Adding new location with name: {0}", location.Name);
 
-        await _context.Locations.AddAsync(location);
-        return location;
-    }
+		var entity = _mapper.Map<Location>(location);
+		await _context.Locations.AddAsync(entity);
 
-    public async Task<Subject> AddSubjectAsync(Subject subject)
+		return _mapper.Map<LocationResponseDTO>(entity);
+	}
+
+    public async Task<SubjectResponseDTO> AddSubjectAsync(SubjectPostDTO subject)
     {
         _logger.InfoFormat("Adding new subject with name: {0}", subject.Name);
 
-        await _context.Subjects.AddAsync(subject);
-        return subject;
-    }
+		var entity = _mapper.Map<Subject>(subject);
+		await _context.Subjects.AddAsync(entity);
 
-    public async Task<Classroom?> GetClassroomByIdAsync(int id)
+		return _mapper.Map<SubjectResponseDTO>(entity);
+	}
+
+    public async Task<ClassroomResponseDTO?> GetClassroomByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching classroom by ID: {0}", id);
 
-        return await _context.Classrooms
+        var classroom = await _context.Classrooms
             .Include(x => x.Location)
             .FirstOrDefaultAsync(x => x.Id == id);
-    }
 
-    public async Task<Hour?> GetHourByIdAsync(int id)
+		return _mapper.Map<ClassroomResponseDTO>(classroom);
+	}
+
+    public async Task<HourResponseDTO?> GetHourByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching hours by ID: {0}", id);
 
-        return await _context.Hours
+        var hour = await _context.Hours
             .Include(x => x.Classroom)
                 .ThenInclude(x => x.Location)
             .Include(x => x.Teacher)
@@ -69,9 +82,11 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             .Include(x => x.StudentGroup)
             .Include(x => x.StudentSubGroup)
             .FirstOrDefaultAsync(x => x.Id == id);
-    }
 
-    public async Task<List<Hour>> GetHoursAsync(HourFilter filter)
+		return _mapper.Map<HourResponseDTO>(hour);
+	}
+
+    public async Task<List<HourResponseDTO>> GetHoursAsync(HourFilter filter)
     {
         _logger.InfoFormat("Fetching hours by hour filter: {0}", JsonSerializer.Serialize(filter));
 
@@ -143,7 +158,7 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             query = query.Where(x => x.ClassroomId == filter.ClassroomId);
         }
 
-        return await query
+        var hours = await query
             .Include(x => x.Classroom)
                 .ThenInclude(x => x.Location)
             .Include(x => x.Teacher)
@@ -155,26 +170,34 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
             .OrderBy(x => x.Day)
                 .ThenBy(x => x.HourInterval)
             .ToListAsync();
-    }
 
-    public async Task<Location?> GetLocationByIdAsync(int id)
+		return _mapper.Map<List<HourResponseDTO>>(hours);
+	}
+
+    public async Task<LocationResponseDTO?> GetLocationByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching location by ID: {0}", id);
 
-        return await _context.Locations
+        var location = await _context.Locations
             .Include(x => x.Classrooms)
             .FirstOrDefaultAsync(x => x.Id == id);
-    }
 
-    public async Task<Subject?> GetSubjectByIdAsync(int id)
-    {
-        return await _context.Subjects.FirstOrDefaultAsync(f => f.Id == id);
-    }
+		return _mapper.Map<LocationResponseDTO>(location);
+	}
 
-    public async Task<Subject?> GetSubjectByNameAsync(string name)
+    public async Task<SubjectResponseDTO?> GetSubjectByIdAsync(int id)
     {
-        return await _context.Subjects.FirstOrDefaultAsync(f => f.Name == name);
-    }
+        var subject = await _context.Subjects.FirstOrDefaultAsync(f => f.Id == id);
+
+		return _mapper.Map<SubjectResponseDTO>(subject);
+	}
+
+	public async Task<SubjectResponseDTO?> GetSubjectByNameAsync(string name)
+    {
+        var subject = await _context.Subjects.FirstOrDefaultAsync(f => f.Name == name);
+
+		return _mapper.Map<SubjectResponseDTO>(subject);
+	}
 
     public async Task SaveChangesAsync()
     {
