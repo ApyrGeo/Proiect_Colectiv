@@ -1,7 +1,7 @@
-﻿using Domain.DTOs;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Interfaces;
+namespace TrackForUBB.Service.Interfaces;
 
 public interface ITimetableService
 {

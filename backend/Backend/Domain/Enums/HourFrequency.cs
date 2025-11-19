@@ -1,4 +1,4 @@
-﻿namespace Domain.Enums;
+﻿namespace TrackForUBB.Domain.Enums;
 
 public enum HourFrequency
 {

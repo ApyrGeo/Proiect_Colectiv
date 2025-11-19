@@ -1,11 +1,11 @@
-﻿using Domain;
-using Repository.Interfaces;
+﻿using TrackForUBB.Domain;
+using TrackForUBB.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Repository.Context;
+using TrackForUBB.Repository.Context;
 
-namespace Repository;
+namespace TrackForUBB.Repository;
 
-public class AcademicRepository (AcademicAppContext context) : IAcademicRepository
+public class AcademicRepository(AcademicAppContext context) : IAcademicRepository
 {
     private readonly AcademicAppContext _context = context;
 
@@ -90,7 +90,7 @@ public class AcademicRepository (AcademicAppContext context) : IAcademicReposito
         return await _context.Groups
             .Include(g => g.StudentSubGroups)
             .Include(g => g.GroupYear)
-                .ThenInclude(gy => gy.Specialisation)   
+                .ThenInclude(gy => gy.Specialisation)
                     .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(g => g.Id == id);
     }

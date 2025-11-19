@@ -1,15 +1,15 @@
-﻿using Repository.Context;
-using Domain;
-using Domain.Enums;
-using Repository;
+﻿using TrackForUBB.Repository.Context;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class AcademicRepositoryTests : IDisposable
 {
-    
+
     private readonly AcademicAppContext _context;
     private readonly AcademicRepository _repo;
 
@@ -18,12 +18,12 @@ public class AcademicRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "AcademicRepositoryTestsDB")
             .Options;
-        
+
         _context = new AcademicAppContext(options);
         _repo = new AcademicRepository(_context);
-        
+
     }
-    
+
     public void Dispose()
     {
         _context.Database.EnsureDeleted();
@@ -43,14 +43,14 @@ public class AcademicRepositoryTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(name, result!.Name);
     }
-    
-    
+
+
     [Theory]
     [InlineData("Computer-Science")]
     [InlineData("Inginerie")]
     public async Task AddSpecialisationAsyncTest(string name)
     {
-        
+
 
         var faculty = new Faculty { Name = "FMI" };
         await _context.Faculties.AddAsync(faculty);
@@ -70,7 +70,7 @@ public class AcademicRepositoryTests : IDisposable
     [InlineData("IR2")]
     public async Task AddGroupYearAsyncTest(string year)
     {
-       
+
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
         await _context.Specialisations.AddAsync(spec);
@@ -112,7 +112,7 @@ public class AcademicRepositoryTests : IDisposable
     [InlineData("237/2")]
     public async Task AddSubGroupAsyncTest(string name)
     {
-       
+
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
         var year = new GroupYear { Year = "IR1", Specialisation = spec };
@@ -135,11 +135,15 @@ public class AcademicRepositoryTests : IDisposable
     [InlineData("Dan", "Suciu")]
     public async Task AddTeacherAsyncTest(string firstName, string lastName)
     {
-       
+
         var user = new User
         {
-            FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069",
-            Role = UserRole.Admin, Password = "1234567"
+            FirstName = firstName,
+            LastName = lastName,
+            Email = $"{firstName}@mail.com",
+            PhoneNumber = "+40988301069",
+            Role = UserRole.Admin,
+            Password = "1234567"
         };
         var faculty = new Faculty { Name = "FMI" };
 
@@ -156,11 +160,10 @@ public class AcademicRepositoryTests : IDisposable
         Assert.Equal(firstName, result!.User.FirstName);
     }
 
-    [Theory]
-    [InlineData(1)]
-    public async Task GetFacultyByIdAsyncExistingId(int id)
+    [Fact]
+    public async Task GetFacultyByIdAsyncExistingId()
     {
-       
+
         var faculty = new Faculty { Name = "FSEGA" };
         await _context.Faculties.AddAsync(faculty);
         await _context.SaveChangesAsync();
@@ -179,8 +182,12 @@ public class AcademicRepositoryTests : IDisposable
         var faculty = new Faculty { Name = "FMI" };
         var user = new User
         {
-            FirstName = firstName, LastName = lastName, Email = $"{firstName}@mail.com", PhoneNumber = "+40988301069",
-            Role = UserRole.Admin, Password = "1234567"
+            FirstName = firstName,
+            LastName = lastName,
+            Email = $"{firstName}@mail.com",
+            PhoneNumber = "+40988301069",
+            Role = UserRole.Admin,
+            Password = "1234567"
         };
         var teacher = new Teacher { User = user, Faculty = faculty };
 

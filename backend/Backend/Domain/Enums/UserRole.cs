@@ -1,8 +1,8 @@
-﻿namespace Domain.Enums;
+﻿namespace TrackForUBB.Domain.Enums;
 
 public enum UserRole
 {
-    Student, 
+    Student,
     Teacher,
     Admin
 }

@@ -1,9 +1,9 @@
-﻿using Domain;
-using Utils;
+﻿using TrackForUBB.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TrackForUBB.Domain.Utils;
 
-namespace Repository.Context.Configurations;
+namespace TrackForUBB.Repository.Context.Configurations;
 
 public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
 {
@@ -17,7 +17,7 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
 
         builder.Property(f => f.NumberOfCredits)
             .IsRequired();
-        
+
         builder.HasOne(f => f.GroupYear)
             .WithMany(f => f.Subjects)
             .HasForeignKey(sg => sg.GroupYearId);

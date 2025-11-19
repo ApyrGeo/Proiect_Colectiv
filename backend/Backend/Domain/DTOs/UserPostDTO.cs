@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
+﻿using TrackForUBB.Domain.Enums;
 
-namespace Domain.DTOs;
+namespace TrackForUBB.Domain.DTOs;
 
 public class UserPostDTO
 {

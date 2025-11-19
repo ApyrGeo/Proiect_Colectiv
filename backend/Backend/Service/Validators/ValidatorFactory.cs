@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class ValidatorFactory : IValidatorFactory
 {

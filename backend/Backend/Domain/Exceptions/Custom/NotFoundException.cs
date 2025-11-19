@@ -1,5 +1,5 @@
 ﻿using System.Net;
 
-namespace Domain.Exceptions.Custom;
+namespace TrackForUBB.Domain.Exceptions.Custom;
 
-public class NotFoundException(string message) : CustomException(message, HttpStatusCode.NotFound) {}
+public class NotFoundException(string message) : CustomException(message, HttpStatusCode.NotFound) { }

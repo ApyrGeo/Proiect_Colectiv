@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
 {
@@ -17,7 +17,7 @@ public class GroupYearPostDTOValidator : AbstractValidator<GroupYearPostDTO>
         RuleFor(g => g.SpecialisationId)
             .NotNull()
             .GreaterThan(0).WithMessage("SpecialisationId must be a positive integer.")
-            .MustAsync(async (id, cancellation) => 
+            .MustAsync(async (id, cancellation) =>
             {
                 var specialisation = await academicRepository.GetSpecialisationByIdAsync(id);
                 return specialisation != null;

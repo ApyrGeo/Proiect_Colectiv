@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
+﻿using TrackForUBB.Domain.Enums;
 
-namespace Domain;
+namespace TrackForUBB.Domain;
 
 public class Hour
 {

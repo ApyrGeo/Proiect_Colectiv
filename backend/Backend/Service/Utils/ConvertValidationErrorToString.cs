@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace Service.Utils;
+namespace TrackForUBB.Service.Utils;
 
 internal class ConvertValidationErrorToString
 {

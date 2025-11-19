@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Service.Interfaces;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Service.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers;
+namespace TrackForUBB.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,10 +1,10 @@
-﻿using Domain.DTOs;
-using Domain.Enums;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class HourPostDTOValidator : AbstractValidator<HourPostDTO>
 {
@@ -37,7 +37,7 @@ public class HourPostDTOValidator : AbstractValidator<HourPostDTO>
                 var classroom = await timetableRepository.GetClassroomByIdAsync(classroomId);
                 return classroom != null;
             }).WithMessage("The specified Classroom does not exist.");
-        
+
         RuleFor(x => x.SubjectId)
             .MustAsync(async (subjectId, cancellation) =>
             {
@@ -65,7 +65,7 @@ public class HourPostDTOValidator : AbstractValidator<HourPostDTO>
         RuleFor(x => x.GroupYearId)
             .MustAsync(async (groupYearId, cancellation) =>
             {
-                if (groupYearId == null) return true; 
+                if (groupYearId == null) return true;
 
                 var gy = await academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
                 return gy != null;

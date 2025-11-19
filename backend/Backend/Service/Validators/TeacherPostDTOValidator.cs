@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Domain.Enums;
-using Repository.Interfaces;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class TeacherPostDTOValidator : AbstractValidator<TeacherPostDTO>
 {

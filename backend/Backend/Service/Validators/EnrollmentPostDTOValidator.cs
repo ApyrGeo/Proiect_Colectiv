@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Repository.Interfaces;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
-using Domain.Enums;
+using TrackForUBB.Domain.Enums;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
 {
@@ -13,7 +13,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .NotNull().WithMessage("UserId cannot be null.")
             .GreaterThan(0).WithMessage("UserId must be a positive integer.")
             .MustAsync(async (userId, cancellation) =>
-            {   
+            {
                 var user = await userRepository.GetByIdAsync(userId);
                 return user?.Role == UserRole.Student;
             }).WithMessage("User with the specified UserId does not exist.");
@@ -22,7 +22,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .NotNull().WithMessage("SubGroupId cannot be null.")
             .GreaterThan(0).WithMessage("SubGroupId must be a positive integer.")
             .MustAsync(async (subGroupId, cancellation) =>
-            {   
+            {
                 var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId);
                 return subGroup != null;
             }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");

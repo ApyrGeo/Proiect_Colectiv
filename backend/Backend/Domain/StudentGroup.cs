@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace TrackForUBB.Domain;
 
 public class StudentGroup
 {

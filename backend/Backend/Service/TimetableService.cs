@@ -1,29 +1,28 @@
 ﻿using AutoMapper;
-using Domain;
-using Domain.DTOs;
-using Domain.Enums;
-using Domain.Exceptions.Custom;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Exceptions.Custom;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
 using log4net;
-using Repository.Interfaces;
-using Service.Interfaces;
-using Service.Utils;
+using TrackForUBB.Repository.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Utils;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using Utils;
 using Calendar = Ical.Net.Calendar;
-using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Domain.Utils;
 
-namespace Service;
+namespace TrackForUBB.Service;
 
-public class TimetableService(ITimetableRepository timetableRepository, IAcademicRepository academicRepository, IMapper mapper, IValidatorFactory validatorFactory) : ITimetableService
+public class TimetableService(ITimetableRepository timetableRepository, IMapper mapper, IValidatorFactory validatorFactory) : ITimetableService
 {
     private readonly ITimetableRepository _timetableRepository = timetableRepository;
-    private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
@@ -147,7 +146,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         var mappedHours = _mapper.Map<List<HourResponseDTO>>(hours);
         HourHelper.MarkHours(mappedHours);
 
-        return new TimetableResponseDTO { Hours = mappedHours, CalendarStartISODate = HardcodedData.CalendarStartDate.ToString("o", CultureInfo.InvariantCulture) };
+        return new TimetableResponseDTO { Hours = mappedHours };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)
@@ -225,8 +224,8 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         foreach (var hour in hours)
         {
             var hourDayOfWeek = HourDayConverter.ConvertToDayOfWeek(hour.Day);
-            var intervalParts = hour.HourInterval.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            
+            var intervalParts = hour.HourInterval.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToArray();
+
             if (intervalParts.Length != 2) continue;
 
             if (!int.TryParse(intervalParts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var startHour)) continue;
@@ -239,7 +238,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
             var startTime = TimeSpan.FromHours(startHour);
             var endTime = TimeSpan.FromHours(endHour);
 
-            var daysUntil = ((int) hourDayOfWeek - (int) HardcodedData.CalendarStartDate.DayOfWeek + 7) % 7;
+            var daysUntil = ((int)hourDayOfWeek - (int)HardcodedData.CalendarStartDate.DayOfWeek + 7) % 7;
             var firstDate = HardcodedData.CalendarStartDate.AddDays(daysUntil);
 
             var summary = $"{hour.Subject.Name} - {hour.Teacher.User.FirstName} {hour.Teacher.User.LastName}";

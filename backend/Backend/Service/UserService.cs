@@ -1,18 +1,18 @@
 ﻿using AutoMapper;
-using Domain;
-using Domain.DTOs;
-using Domain.Exceptions.Custom;
-using EmailService.Interfaces;
-using EmailService.Models;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
 using log4net;
-using Repository.Interfaces;
-using Service.Interfaces;
-using Service.Utils;
+using TrackForUBB.Repository.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Utils;
 using System.Text.Json;
-using Utils.Security;
-using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.EmailService.Models;
+using TrackForUBB.Domain.Security;
 
-namespace Service;
+namespace TrackForUBB.Service;
 
 public class UserService(IUserRepository userRepository, IMapper mapper, IValidatorFactory validator, IAdapterPasswordHasher<User> passwordHasher, IEmailProvider emailProvider) : IUserService
 {
@@ -51,7 +51,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IValida
 
     private async Task SendWelcomeEmail(UserPostDTO user)
     {
-        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = user.Password!};
+        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = user.Password! };
         await _emailProvider.SendCreateAccountEmailAsync(user.Email!, userEmailModel);
     }
 

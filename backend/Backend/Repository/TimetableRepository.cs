@@ -1,13 +1,13 @@
-﻿using Domain;
-using Domain.Enums;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.Interfaces;
 using log4net;
 using Microsoft.EntityFrameworkCore;
-using Repository.Context;
+using TrackForUBB.Repository.Context;
 using System.Text.Json;
+using TrackForUBB.Domain.Utils;
 
-namespace Repository;
+namespace TrackForUBB.Repository;
 
 public class TimetableRepository(AcademicAppContext context) : ITimetableRepository
 {
@@ -170,12 +170,12 @@ public class TimetableRepository(AcademicAppContext context) : ITimetableReposit
     {
         return await _context.Subjects.FirstOrDefaultAsync(f => f.Id == id);
     }
-    
+
     public async Task<Subject?> GetSubjectByNameAsync(string name)
     {
         return await _context.Subjects.FirstOrDefaultAsync(f => f.Name == name);
     }
-    
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

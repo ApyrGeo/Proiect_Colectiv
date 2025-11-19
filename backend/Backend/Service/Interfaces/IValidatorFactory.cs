@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Service.Interfaces;
+namespace TrackForUBB.Service.Interfaces;
 
 public interface IValidatorFactory
 {

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Domain.Exceptions.Custom;
+namespace TrackForUBB.Domain.Exceptions.Custom;
 
 public abstract class CustomException(string message, HttpStatusCode statusCode) : Exception(message)
 {

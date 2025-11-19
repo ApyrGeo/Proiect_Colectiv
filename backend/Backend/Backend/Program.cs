@@ -1,24 +1,24 @@
-using Repository.Context;
-using DataSeeder;
-using Domain;
-using Domain.DTOs;
-using Domain.Enums;
-using Repository.Interfaces;
-using Service.Interfaces;
-using Backend.Middlewares;
-using Repository;
-using Service.Validators;
-using EmailService.Configuration;
-using EmailService.Interfaces;
-using EmailService.Providers;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Backend.Middlewares;
+using TrackForUBB.Repository;
+using TrackForUBB.Service.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using IValidatorFactory = Service.Interfaces.IValidatorFactory;
-using Utils.Security;
-using Backend.Security;
-using Service;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Backend.Security;
+using TrackForUBB.Service;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.EmailService.Configuration;
+using TrackForUBB.Service.EmailService.Providers;
+using TrackForUBB.Service.DataSeeder;
+using TrackForUBB.Domain.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,7 +126,7 @@ builder.Services.AddSingleton<IAdapterPasswordHasher<User>, AspNetCorePasswordHa
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<EmailSettings>>().Value);
-builder.Services.AddScoped<IEmailProvider,EmailProvider>();
+builder.Services.AddScoped<IEmailProvider, EmailProvider>();
 
 //services
 builder.Services.AddScoped<IUserService, UserService>();

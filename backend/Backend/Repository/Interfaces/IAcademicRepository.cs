@@ -1,6 +1,6 @@
-﻿using Domain;
+﻿using TrackForUBB.Domain;
 
-namespace Repository.Interfaces;
+namespace TrackForUBB.Repository.Interfaces;
 
 public interface IAcademicRepository
 {

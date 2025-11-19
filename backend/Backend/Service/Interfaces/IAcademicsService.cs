@@ -1,6 +1,6 @@
-﻿using Domain.DTOs;
+﻿using TrackForUBB.Domain.DTOs;
 
-namespace Service.Interfaces;
+namespace TrackForUBB.Service.Interfaces;
 
 public interface IAcademicsService
 {

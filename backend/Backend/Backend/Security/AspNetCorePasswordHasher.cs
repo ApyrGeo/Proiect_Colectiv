@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Utils.Security;
+using TrackForUBB.Domain.Security;
 
-namespace Backend.Security;
+namespace TrackForUBB.Backend.Security;
 
 public class AspNetCorePasswordHasher<TUser> : IAdapterPasswordHasher<TUser> where TUser : class
 {

@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class StudentSubGroupPostDTOValidator : AbstractValidator<StudentSubGroupPostDTO>
 {

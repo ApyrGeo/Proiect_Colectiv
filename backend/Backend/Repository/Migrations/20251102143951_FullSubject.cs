@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Repository.Migrations
+namespace TrackForUBB.Repository.Migrations
 {
     /// <inheritdoc />
     public partial class FullSubject : Migration

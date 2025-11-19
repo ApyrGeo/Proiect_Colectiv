@@ -1,10 +1,10 @@
-﻿using Domain;
-using Repository.Interfaces;
+﻿using TrackForUBB.Domain;
+using TrackForUBB.Repository.Interfaces;
 using log4net;
 using Microsoft.EntityFrameworkCore;
-using Repository.Context;
+using TrackForUBB.Repository.Context;
 
-namespace Repository;
+namespace TrackForUBB.Repository;
 
 public class UserRepository(AcademicAppContext context) : IUserRepository
 {

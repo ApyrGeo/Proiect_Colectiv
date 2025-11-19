@@ -1,14 +1,14 @@
-﻿using Domain;
-using Utils;
+﻿using TrackForUBB.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TrackForUBB.Domain.Utils;
 
-namespace Repository.Context.Configurations;
+namespace TrackForUBB.Repository.Context.Configurations;
 
 public class SpecialisationConfiguration : IEntityTypeConfiguration<Specialisation>
 {
     public void Configure(EntityTypeBuilder<Specialisation> builder)
-    { 
+    {
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Name)

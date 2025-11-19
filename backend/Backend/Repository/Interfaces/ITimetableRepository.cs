@@ -1,7 +1,7 @@
-﻿using Domain;
-using Utils;
+﻿using TrackForUBB.Domain;
+using TrackForUBB.Domain.Utils;
 
-namespace Repository.Interfaces;
+namespace TrackForUBB.Repository.Interfaces;
 
 public interface ITimetableRepository
 {

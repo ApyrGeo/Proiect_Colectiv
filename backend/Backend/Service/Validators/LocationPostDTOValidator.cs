@@ -1,8 +1,8 @@
-﻿using Domain.DTOs;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class LocationPostDTOValidator : AbstractValidator<LocationPostDTO>
 {

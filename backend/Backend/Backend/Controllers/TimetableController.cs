@@ -1,11 +1,11 @@
-﻿using Domain.DTOs;
-using Service.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Service.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TrackForUBB.Domain.Utils;
 
-namespace Backend.Controllers;
+namespace TrackForUBB.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -13,7 +13,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableController));
     private readonly ITimetableService _service = service;
-    
+
     [HttpGet("subjects/{subjectId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]

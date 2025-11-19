@@ -1,8 +1,8 @@
-﻿using Domain;
+﻿using TrackForUBB.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Repository.Context.Configurations;
+namespace TrackForUBB.Repository.Context.Configurations;
 
 public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
 {

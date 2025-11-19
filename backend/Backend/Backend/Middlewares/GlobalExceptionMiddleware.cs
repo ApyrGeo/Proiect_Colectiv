@@ -1,9 +1,8 @@
-﻿using Domain.Exceptions;
-using Domain.Exceptions.Custom;
+﻿using TrackForUBB.Domain.Exceptions;
+using TrackForUBB.Domain.Exceptions.Custom;
 using System.Net;
 
-namespace Backend.Middlewares;
-
+namespace TrackForUBB.Backend.Middlewares;
 
 public class GlobalExceptionMiddleware
 {

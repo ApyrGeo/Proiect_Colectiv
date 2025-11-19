@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Repository.Migrations
+namespace TrackForUBB.Repository.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
 using log4net;
-using Domain;
-using Domain.DTOs;
-using Domain.Exceptions.Custom;
-using Repository.Interfaces;
-using Service.Interfaces;
-using IValidatorFactory = Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Repository.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using System.Text.Json;
-using EmailService.Models;
-using EmailService.Interfaces;
-using Service.Utils;
+using TrackForUBB.Service.Utils;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.EmailService.Models;
 
-namespace Service;
+namespace TrackForUBB.Service;
 
 public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IAcademicsService
 {
@@ -138,7 +138,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollment));
         enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
         await _academicRepository.SaveChangesAsync();
-        
+
         _logger.InfoFormat($"Sending email to: {enrollment.User.Email}");
         await SendAddedEnrollementEmail(enrollment);
 

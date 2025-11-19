@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Service.Interfaces;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Service.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers;
+namespace TrackForUBB.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -123,9 +123,9 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     public async Task<ActionResult<GroupYearResponseDTO>> CreateGroupYear([FromBody] GroupYearPostDTO groupYearPostDto)
     {
         _logger.InfoFormat("Creating new group year for specialisation ID {0} and year {1}", groupYearPostDto.SpecialisationId, groupYearPostDto.Year);
-        
+
         GroupYearResponseDTO createdGroupYear = await _service.CreateGroupYear(groupYearPostDto);
-        
+
         return CreatedAtAction(nameof(GetGroupYearById), new { groupYearId = createdGroupYear.Id }, createdGroupYear);
     }
 
@@ -146,9 +146,9 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     public async Task<ActionResult<StudentGroupResponseDTO>> CreateStudentGroup([FromBody] StudentGroupPostDTO studentGroupPostDto)
     {
         _logger.InfoFormat("Creating new student group with name {0} for group year ID {1}", studentGroupPostDto.Name, studentGroupPostDto.GroupYearId);
-        
+
         StudentGroupResponseDTO createdStudentGroup = await _service.CreateStudentGroup(studentGroupPostDto);
-        
+
         return CreatedAtAction(nameof(GetStudentGroupById), new { studentGroupId = createdStudentGroup.Id }, createdStudentGroup);
     }
 
@@ -169,9 +169,9 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     public async Task<ActionResult<StudentSubGroupResponseDTO>> CreateStudentSubGroup([FromBody] StudentSubGroupPostDTO studentSubGroupPostDto)
     {
         _logger.InfoFormat("Creating new student sub-group with name {0} for student group ID {1}", studentSubGroupPostDto.Name, studentSubGroupPostDto.StudentGroupId);
-        
+
         StudentSubGroupResponseDTO createdStudentSubGroup = await _service.CreateStudentSubGroup(studentSubGroupPostDto);
-        
+
         return CreatedAtAction(nameof(GetStudentSubGroupById), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
     }
 }

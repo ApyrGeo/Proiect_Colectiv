@@ -1,8 +1,8 @@
-﻿using Domain;
+﻿using TrackForUBB.Domain;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace Repository.Context;
+namespace TrackForUBB.Repository.Context;
 
 public class AcademicAppContext(DbContextOptions<AcademicAppContext> options) : DbContext(options)
 {

@@ -1,10 +1,10 @@
-﻿using Domain.DTOs;
-using Domain.Enums;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
 {
@@ -47,7 +47,7 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
             .NotEmpty().WithMessage("Password is required.")
             .MaximumLength(Constants.ExtendedStringMaxLenght).WithMessage($"User password must not exceed {Constants.ExtendedStringMaxLenght} characters.")
             .MinimumLength(8).WithMessage("Password must be at least 8 characters long.");
-            
+
         RuleFor(user => user.Role)
             .NotNull()
             .NotEmpty().WithMessage("Role is required.")

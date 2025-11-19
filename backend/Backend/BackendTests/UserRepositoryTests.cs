@@ -1,11 +1,11 @@
-﻿using Repository.Context;
-using Domain;
-using Domain.Enums;
-using Repository;
+﻿using TrackForUBB.Repository.Context;
+using TrackForUBB.Domain;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class UserRepositoryTests : IDisposable
 {
@@ -35,7 +35,11 @@ public class UserRepositoryTests : IDisposable
     {
         _context.Users.Add(new User
         {
-            Email = email, FirstName = "Andrei", LastName = "Rotaru", Password = "1234", PhoneNumber = "+4077",
+            Email = email,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Password = "1234",
+            PhoneNumber = "+4077",
             Role = UserRole.Student
         });
         await _context.SaveChangesAsync();
@@ -62,7 +66,11 @@ public class UserRepositoryTests : IDisposable
     {
         var user = new User
         {
-            Email = $"user{id}@mail.com", FirstName = "Test", LastName = "User", Password = "111", PhoneNumber = "+400",
+            Email = $"user{id}@mail.com",
+            FirstName = "Test",
+            LastName = "User",
+            Password = "111",
+            PhoneNumber = "+400",
             Role = UserRole.Student
         };
         _context.Users.Add(user);
@@ -92,7 +100,11 @@ public class UserRepositoryTests : IDisposable
     {
         var user = new User
         {
-            Email = email, FirstName = firstName, LastName = lastName, Password = password, PhoneNumber = phoneNumber,
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            Password = password,
+            PhoneNumber = phoneNumber,
             Role = role
         };
 
@@ -110,13 +122,23 @@ public class UserRepositoryTests : IDisposable
         _context.Users.AddRange(
             new User
             {
-                Id = 1, Email = "a@a.com", FirstName = "A", LastName = "A", Password = "p",
-                PhoneNumber = "+40779725710", Role = UserRole.Student
+                Id = 1,
+                Email = "a@a.com",
+                FirstName = "A",
+                LastName = "A",
+                Password = "p",
+                PhoneNumber = "+40779725710",
+                Role = UserRole.Student
             },
             new User
             {
-                Id = 2, Email = "b@b.com", FirstName = "B", LastName = "B", Password = "p",
-                PhoneNumber = "+40779725710", Role = UserRole.Admin
+                Id = 2,
+                Email = "b@b.com",
+                FirstName = "B",
+                LastName = "B",
+                Password = "p",
+                PhoneNumber = "+40779725710",
+                Role = UserRole.Admin
             }
         );
         await _context.SaveChangesAsync();

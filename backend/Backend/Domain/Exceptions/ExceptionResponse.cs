@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Domain.Exceptions;
+namespace TrackForUBB.Domain.Exceptions;
 
 public class ExceptionResponse(HttpStatusCode statusCode, string description)
 {

@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Repository.Interfaces;
-using Utils;
+﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
+using TrackForUBB.Domain.Utils;
 
-namespace Service.Validators;
+namespace TrackForUBB.Service.Validators;
 
 public class FacultyPostDTOValidator : AbstractValidator<FacultyPostDTO>
 {
@@ -14,7 +14,7 @@ public class FacultyPostDTOValidator : AbstractValidator<FacultyPostDTO>
             .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"Faculty name must not exceed {Constants.DefaultStringMaxLenght} characters.")
             .MustAsync(async (name, cancellation) =>
             {
-                var existingFaculty = await repo.GetFacultyByNameAsync(name); 
+                var existingFaculty = await repo.GetFacultyByNameAsync(name);
                 return existingFaculty == null;
             }).WithMessage("A faculty with the same name already exists.");
     }

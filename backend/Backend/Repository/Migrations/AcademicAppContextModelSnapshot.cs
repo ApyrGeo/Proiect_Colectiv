@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Repository.Context;
+using TrackForUBB.Repository.Context;
 
 #nullable disable
 
-namespace Repository.Migrations
+namespace TrackForUBB.Repository.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
     partial class AcademicAppContextModelSnapshot : ModelSnapshot
