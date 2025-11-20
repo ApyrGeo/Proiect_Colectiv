@@ -12,7 +12,6 @@ using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Configuration;
 using TrackForUBB.Service.EmailService.Providers;
 using TrackForUBB.Domain.Security;
-using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Repository.DataSeeder;
 using TrackForUBB.Controller.Middlewares;
 using TrackForUBB.Controller.Security;
