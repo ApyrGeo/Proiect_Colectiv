@@ -116,7 +116,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         if (filter.CurrentWeekTimetable != null && filter.CurrentWeekTimetable == true)
         {
-            query = query.Where(h => h.Frequency == HourFrequency.Weekly || h.Frequency == Constants.CurrentWeekType);
+            query = query.Where(h => h.Frequency == HourFrequency.Weekly || h.Frequency == HelperFunctions.CurrentWeekType);
         }
 
         if (filter.FacultyId != null)

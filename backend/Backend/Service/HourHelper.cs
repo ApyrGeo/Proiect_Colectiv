@@ -54,7 +54,7 @@ public class HourHelper
         {
             foreach (var hh in group)
             {
-                if (hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == Constants.CurrentWeekType.ToString())
+                if (hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == HelperFunctions.CurrentWeekType.ToString())
                 {
                     hh.IsCurrent = true;
                 }
@@ -65,7 +65,7 @@ public class HourHelper
         {
             foreach (var hh in group)
             {
-                if (hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == Constants.GetWeekType(futureDate).ToString())
+                if (hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == HelperFunctions.GetWeekType(futureDate).ToString())
                 {
                     hh.IsNext = true;
                 }
@@ -83,7 +83,7 @@ public class HourHelper
 
                 if (start <= now && now < end)
                 {
-                    if (todayHours.Value.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == Constants.CurrentWeekType.ToString()))
+                    if (todayHours.Value.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == HelperFunctions.CurrentWeekType.ToString()))
                     {
                         MarkCurrentGroup(todayHours.Value);
                     }
@@ -105,7 +105,7 @@ public class HourHelper
 
             if (Group != null && Start != DateTime.MaxValue)
             {
-                if (Group.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == Constants.CurrentWeekType.ToString()))
+                if (Group.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == HelperFunctions.CurrentWeekType.ToString()))
                 {
                     MarkNextGroup(Group, now);
                 }
@@ -133,7 +133,7 @@ public class HourHelper
 
             if (Group != null && Start != DateTime.MaxValue)
             {
-                if (Group.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == Constants.GetWeekType(searchDateTime).ToString()))
+                if (Group.Any(hh => hh.Frequency == HourFrequency.Weekly.ToString() || hh.Frequency == HelperFunctions.GetWeekType(searchDateTime).ToString()))
                 {
                     MarkNextGroup(Group, searchDateTime);
                 }

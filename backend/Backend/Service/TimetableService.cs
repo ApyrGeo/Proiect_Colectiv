@@ -134,7 +134,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         HourHelper.MarkHours(hoursDto);
 
-        return new TimetableResponseDTO { Hours = hoursDto };
+        return new TimetableResponseDTO { Hours = hoursDto, CalendarStartISODate = HardcodedData.CalendarStartDate.ToString("o", CultureInfo.InvariantCulture) };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)
