@@ -7,5 +7,5 @@ public class TimetableResponseDTO
 {
     public List<HourResponseDTO> Hours { get; set; } = [];
 
-    public string CalendarStartISODate { get; set; } = HardcodedData.CalendarStartDate.ToString("o", CultureInfo.InvariantCulture);
+    public required string CalendarStartISODate { get; set; }
 }

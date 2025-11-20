@@ -1,14 +1,10 @@
-﻿using AutoMapper;
-using TrackForUBB.Domain;
-using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Enums;
+﻿using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
 using log4net;
-using TrackForUBB.Repository.Interfaces;
 using TrackForUBB.Service.Interfaces;
 using TrackForUBB.Service.Utils;
 using System.Globalization;
@@ -17,13 +13,14 @@ using System.Text.Json;
 using Calendar = Ical.Net.Calendar;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using TrackForUBB.Domain.Utils;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Controller.Interfaces;
 
 namespace TrackForUBB.Service;
 
-public class TimetableService(ITimetableRepository timetableRepository, IMapper mapper, IValidatorFactory validatorFactory) : ITimetableService
+public class TimetableService(ITimetableRepository timetableRepository, IValidatorFactory validatorFactory) : ITimetableService
 {
     private readonly ITimetableRepository _timetableRepository = timetableRepository;
-    private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
 
@@ -39,14 +36,12 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var classroom = _mapper.Map<Classroom>(classroomPostDTO);
+        _logger.InfoFormat("Adding new classroom to repository: {0}", JsonSerializer.Serialize(classroomPostDTO));
 
-        _logger.InfoFormat("Adding new classroom to repository: {0}", JsonSerializer.Serialize(classroom));
-
-        classroom = await _timetableRepository.AddClassroomAsync(classroom);
+        var classroomDto = await _timetableRepository.AddClassroomAsync(classroomPostDTO);
         await _timetableRepository.SaveChangesAsync();
 
-        return _mapper.Map<ClassroomResponseDTO>(classroom);
+        return classroomDto;
     }
 
     public async Task<HourResponseDTO> CreateHour(HourPostDTO hourPostDTO)
@@ -61,14 +56,12 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var hour = _mapper.Map<Hour>(hourPostDTO);
+        _logger.InfoFormat("Adding new hour to repository: {0}", JsonSerializer.Serialize(hourPostDTO));
 
-        _logger.InfoFormat("Adding new hour to repository: {0}", JsonSerializer.Serialize(hour));
-
-        hour = await _timetableRepository.AddHourAsync(hour);
+        var hourDto = await _timetableRepository.AddHourAsync(hourPostDTO);
         await _timetableRepository.SaveChangesAsync();
 
-        return _mapper.Map<HourResponseDTO>(hour);
+        return hourDto;
     }
 
     public async Task<LocationResponseDTO> CreateLocation(LocationPostDTO locationPostDTO)
@@ -83,14 +76,12 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var location = _mapper.Map<Location>(locationPostDTO);
+        _logger.InfoFormat("Adding new location to repository: {0}", JsonSerializer.Serialize(locationPostDTO));
 
-        _logger.InfoFormat("Adding new location to repository: {0}", JsonSerializer.Serialize(location));
-
-        location = await _timetableRepository.AddLocationAsync(location);
+        var locationDto = await _timetableRepository.AddLocationAsync(locationPostDTO);
         await _timetableRepository.SaveChangesAsync();
 
-        return _mapper.Map<LocationResponseDTO>(location);
+        return locationDto;
     }
 
     public async Task<SubjectResponseDTO> CreateSubject(SubjectPostDTO subjectPostDto)
@@ -105,26 +96,24 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var subject = _mapper.Map<Subject>(subjectPostDto);
+        _logger.InfoFormat("Adding new subject to repository: {0}", JsonSerializer.Serialize(subjectPostDto));
 
-        _logger.InfoFormat("Adding new subject to repository: {0}", JsonSerializer.Serialize(subject));
-
-        subject = await _timetableRepository.AddSubjectAsync(subject);
+        var subjectDto = await _timetableRepository.AddSubjectAsync(subjectPostDto);
         await _timetableRepository.SaveChangesAsync();
 
-        return _mapper.Map<SubjectResponseDTO>(subject);
+        return subjectDto;
     }
 
     public async Task<ClassroomResponseDTO> GetClassroomById(int classroomId)
     {
         _logger.InfoFormat("Trying to retrieve classroom with id {0}", classroomId);
 
-        var classroom = await _timetableRepository.GetClassroomByIdAsync(classroomId)
+        var classroomDto = await _timetableRepository.GetClassroomByIdAsync(classroomId)
             ?? throw new NotFoundException($"Classroom with ID {classroomId} not found.");
 
         _logger.InfoFormat("Mapping classroom entity to DTO for ID {0}", classroomId);
 
-        return _mapper.Map<ClassroomResponseDTO>(classroom);
+        return classroomDto;
     }
 
     public async Task<TimetableResponseDTO> GetHourByFilter(HourFilter filter)
@@ -139,50 +128,49 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var hours = await _timetableRepository.GetHoursAsync(filter);
+        var hoursDto = await _timetableRepository.GetHoursAsync(filter);
 
         _logger.InfoFormat("Mapping hour entities to DTOs for filter {0}", JsonSerializer.Serialize(filter));
 
-        var mappedHours = _mapper.Map<List<HourResponseDTO>>(hours);
-        HourHelper.MarkHours(mappedHours);
+        HourHelper.MarkHours(hoursDto);
 
-        return new TimetableResponseDTO { Hours = mappedHours };
+        return new TimetableResponseDTO { Hours = hoursDto, CalendarStartISODate = HardcodedData.CalendarStartDate.ToString("o", CultureInfo.InvariantCulture) };
     }
 
     public async Task<HourResponseDTO> GetHourById(int hourId)
     {
         _logger.InfoFormat("Trying to retrieve hour with id {0}", hourId);
 
-        var hour = await _timetableRepository.GetHourByIdAsync(hourId)
+        var hourDto = await _timetableRepository.GetHourByIdAsync(hourId)
             ?? throw new NotFoundException($"Hour with ID {hourId} not found.");
 
         _logger.InfoFormat("Mapping hour entity to DTO for ID {0}", hourId);
 
-        return _mapper.Map<HourResponseDTO>(hour);
+        return hourDto;
     }
 
     public async Task<LocationResponseDTO> GetLocationById(int locationId)
     {
         _logger.InfoFormat("Trying to retrieve location with id {0}", locationId);
 
-        var location = await _timetableRepository.GetLocationByIdAsync(locationId)
+        var locationDto = await _timetableRepository.GetLocationByIdAsync(locationId)
             ?? throw new NotFoundException($"Location with ID {locationId} not found.");
 
         _logger.InfoFormat("Mapping location entity to DTO for ID {0}", locationId);
 
-        return _mapper.Map<LocationResponseDTO>(location);
+        return locationDto;
     }
 
     public async Task<SubjectResponseDTO> GetSubjectById(int subjectId)
     {
         _logger.InfoFormat("Trying to retrieve subject with id {0}", JsonSerializer.Serialize(subjectId));
 
-        var subject = await _timetableRepository.GetSubjectByIdAsync(subjectId)
+        var subjectDto = await _timetableRepository.GetSubjectByIdAsync(subjectId)
             ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
 
         _logger.InfoFormat("Mapping subject entity to DTO for ID {0}", JsonSerializer.Serialize(subjectId));
 
-        return _mapper.Map<SubjectResponseDTO>(subject);
+        return subjectDto;
     }
 
     public async Task<byte[]> GenerateIcs(HourFilter filter)
@@ -223,17 +211,37 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
 
         foreach (var hour in hours)
         {
-            var hourDayOfWeek = HourDayConverter.ConvertToDayOfWeek(hour.Day);
+            if (!Enum.TryParse<DayOfWeek>(hour.Day.Trim(), ignoreCase: true, out var hourDayOfWeek))
+            {
+                continue;
+            }
+
             var intervalParts = hour.HourInterval.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToArray();
 
-            if (intervalParts.Length != 2) continue;
+            if (intervalParts.Length != 2)
+            {
+                continue;
+            }
 
-            if (!int.TryParse(intervalParts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var startHour)) continue;
+            if (!int.TryParse(intervalParts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var startHour))
+            {
+                continue;
+            }
 
-            if (!int.TryParse(intervalParts[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var endHour)) continue;
+            if (!int.TryParse(intervalParts[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var endHour))
+            {
+                continue;
+            }
 
-            if (startHour < 0 || startHour > 23) continue;
-            if (endHour < 0 || endHour > 24) continue;
+            if (startHour < 0 || startHour > 23)
+            {
+                continue;
+            }
+
+            if (endHour < 0 || endHour > 24)
+            {
+                continue;
+            }
 
             var startTime = TimeSpan.FromHours(startHour);
             var endTime = TimeSpan.FromHours(endHour);
@@ -242,8 +250,8 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
             var firstDate = HardcodedData.CalendarStartDate.AddDays(daysUntil);
 
             var summary = $"{hour.Subject.Name} - {hour.Teacher.User.FirstName} {hour.Teacher.User.LastName}";
-            var locationText = $"Location: {hour.Classroom.Location.Name} - Classroom: {hour.Classroom.Name}";
-            var format = hour.StudentSubGroup?.Name ?? hour.StudentGroup?.Name ?? hour.GroupYear?.Year ?? "Unknown";
+            var locationText = $"Location: {hour.Location.Name} - Classroom: {hour.Classroom.Name}";
+            var format = hour.Format;
             var description = $"Category: {hour.Category} - Format: {format}";
 
             void AddRecurringCalendarEvent(DateOnly dtStartDate, int weeklyInterval, int count)
@@ -275,19 +283,19 @@ public class TimetableService(ITimetableRepository timetableRepository, IMapper 
 
             switch (hour.Frequency)
             {
-                case HourFrequency.Weekly:
+                case nameof(HourFrequency.Weekly):
                     AddRecurringCalendarEvent(firstDate, weeklyInterval: 1, count: 12);
                     var secondBlockStart = AddWeeks(firstDate, 14);
                     AddRecurringCalendarEvent(secondBlockStart, weeklyInterval: 1, count: 2);
                     break;
 
-                case HourFrequency.FirstWeek:
+                case nameof(HourFrequency.FirstWeek):
                     AddRecurringCalendarEvent(firstDate, weeklyInterval: 2, count: 6);
                     var firstWeekSecondStart = AddWeeks(firstDate, 14);
                     AddRecurringCalendarEvent(firstWeekSecondStart, weeklyInterval: 2, count: 1);
                     break;
 
-                case HourFrequency.SecondWeek:
+                case nameof(HourFrequency.SecondWeek):
                     var shifted = firstDate.AddDays(7);
                     AddRecurringCalendarEvent(shifted, weeklyInterval: 2, count: 6);
                     var secondWeekSecondStart = AddWeeks(shifted, 14);

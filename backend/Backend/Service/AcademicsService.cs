@@ -1,24 +1,21 @@
-﻿using AutoMapper;
-using log4net;
-using TrackForUBB.Domain;
+﻿using log4net;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
-using TrackForUBB.Repository.Interfaces;
 using TrackForUBB.Service.Interfaces;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using System.Text.Json;
 using TrackForUBB.Service.Utils;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Models;
+using TrackForUBB.Controller.Interfaces;
 
 namespace TrackForUBB.Service;
 
-public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IMapper mapper, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IAcademicsService
+public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IAcademicsService
 {
     private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IUserRepository _userRepository = userRepository;
 
-    private readonly IMapper _mapper = mapper;
     private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
     private readonly IEmailProvider _emailProvider = emailProvider;
@@ -33,13 +30,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var faculty = _mapper.Map<Faculty>(facultyPostDto);
-
-        _logger.InfoFormat("Adding new faculty to repository: {0}", JsonSerializer.Serialize(faculty));
-        faculty = await _academicRepository.AddFacultyAsync(faculty);
+        _logger.InfoFormat("Adding new faculty to repository: {0}", JsonSerializer.Serialize(facultyPostDto));
+        var facultyDto = await _academicRepository.AddFacultyAsync(facultyPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        var facultyDto = _mapper.Map<FacultyResponseDTO>(faculty);
         return facultyDto;
     }
 
@@ -53,13 +47,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var groupYear = _mapper.Map<GroupYear>(groupYearPostDto);
-
-        _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(groupYear));
-        groupYear = await _academicRepository.AddGroupYearAsync(groupYear);
+        _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(groupYearPostDto));
+        var groupYearDto = await _academicRepository.AddGroupYearAsync(groupYearPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        var groupYearDto = _mapper.Map<GroupYearResponseDTO>(groupYear);
         return groupYearDto;
     }
 
@@ -73,13 +64,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var specialisation = _mapper.Map<Specialisation>(specialisationPostDto);
-
-        _logger.InfoFormat("Adding new specialisation to repository: {0}", JsonSerializer.Serialize(specialisation));
-        specialisation = await _academicRepository.AddSpecialisationAsync(specialisation);
+        _logger.InfoFormat("Adding new specialisation to repository: {0}", JsonSerializer.Serialize(specialisationPostDto));
+        var specialisationDto = await _academicRepository.AddSpecialisationAsync(specialisationPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        var specialisationDto = _mapper.Map<SpecialisationResponseDTO>(specialisation);
         return specialisationDto;
     }
 
@@ -93,13 +81,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var studentGroup = _mapper.Map<StudentGroup>(studentGroupPostDto);
-
-        _logger.InfoFormat("Adding new student group to repository: {0}", JsonSerializer.Serialize(studentGroup));
-        studentGroup = await _academicRepository.AddGroupAsync(studentGroup);
+        _logger.InfoFormat("Adding new student group to repository: {0}", JsonSerializer.Serialize(studentGroupPostDto));
+		var studentGroupDto = await _academicRepository.AddGroupAsync(studentGroupPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        var studentGroupDto = _mapper.Map<StudentGroupResponseDTO>(studentGroup);
         return studentGroupDto;
     }
 
@@ -113,13 +98,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var studentSubGroup = _mapper.Map<StudentSubGroup>(studentSubGroupPostDto);
-
-        _logger.InfoFormat("Adding new student sub-group to repository: {0}", JsonSerializer.Serialize(studentSubGroup));
-        studentSubGroup = await _academicRepository.AddSubGroupAsync(studentSubGroup);
+        _logger.InfoFormat("Adding new student sub-group to repository: {0}", JsonSerializer.Serialize(studentSubGroupPostDto));
+		var studentSubGroupDto = await _academicRepository.AddSubGroupAsync(studentSubGroupPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        var studentSubGroupDto = _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
         return studentSubGroupDto;
     }
 
@@ -133,22 +115,19 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var enrollment = _mapper.Map<Enrollment>(enrollmentPostDto);
-
-        _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollment));
-        enrollment = await _academicRepository.AddEnrollmentAsync(enrollment);
+        _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollmentPostDto));
+        var enrollmentDto = await _academicRepository.AddEnrollmentAsync(enrollmentPostDto);
         await _academicRepository.SaveChangesAsync();
 
-        _logger.InfoFormat($"Sending email to: {enrollment.User.Email}");
-        await SendAddedEnrollementEmail(enrollment);
+        _logger.InfoFormat($"Sending email to: {enrollmentDto.User.Email}");
+        await SendAddedEnrollementEmail(enrollmentDto);
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", enrollmentPostDto.UserId);
-        var enrollmentDto = _mapper.Map<EnrollmentResponseDTO>(enrollment);
 
         return enrollmentDto;
     }
 
-    private async Task SendAddedEnrollementEmail(Enrollment enrollment)
+    private async Task SendAddedEnrollementEmail(EnrollmentResponseDTO enrollment)
     {
         var enrollmentModel = new CreatedEnrollmentModel
         {
@@ -163,11 +142,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     public async Task<FacultyResponseDTO> GetFacultyById(int facultyId)
     {
         _logger.InfoFormat("Trying to retrieve faculty with id {0}", facultyId);
-        var faculty = await _academicRepository.GetFacultyByIdAsync(facultyId)
+        var facultyDto = await _academicRepository.GetFacultyByIdAsync(facultyId)
             ?? throw new NotFoundException($"Faculty with ID {facultyId} not found.");
 
         _logger.InfoFormat("Mapping faculty entity to DTO for ID {0}", facultyId);
-        var facultyDto = _mapper.Map<FacultyResponseDTO>(faculty);
 
         return facultyDto;
     }
@@ -175,11 +153,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     public async Task<GroupYearResponseDTO> GetGroupYearById(int groupYearId)
     {
         _logger.InfoFormat("Trying to retrieve group year with id {0}", groupYearId);
-        var groupYear = await _academicRepository.GetGroupYearByIdAsync(groupYearId)
+        var groupYearDto = await _academicRepository.GetGroupYearByIdAsync(groupYearId)
             ?? throw new NotFoundException($"GroupYear with ID {groupYearId} not found.");
 
         _logger.InfoFormat("Mapping group year entity to DTO for ID {0}", groupYearId);
-        var groupYearDto = _mapper.Map<GroupYearResponseDTO>(groupYear);
 
         return groupYearDto;
     }
@@ -187,11 +164,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     public async Task<SpecialisationResponseDTO> GetSpecialisationById(int specialisationId)
     {
         _logger.InfoFormat("Trying to retrieve specialisation with id {0}", specialisationId);
-        var specialisation = await _academicRepository.GetSpecialisationByIdAsync(specialisationId)
+        var specialisationDto = await _academicRepository.GetSpecialisationByIdAsync(specialisationId)
             ?? throw new NotFoundException($"Specialisation with ID {specialisationId} not found.");
 
         _logger.InfoFormat("Mapping specialisation entity to DTO for ID {0}", specialisationId);
-        var specialisationDto = _mapper.Map<SpecialisationResponseDTO>(specialisation);
 
         return specialisationDto;
     }
@@ -199,11 +175,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     public async Task<StudentGroupResponseDTO> GetStudentGroupById(int studentGroupId)
     {
         _logger.InfoFormat("Trying to retrieve student group with id {0}", studentGroupId);
-        var studentGroup = await _academicRepository.GetGroupByIdAsync(studentGroupId)
+        var studentGroupDto = await _academicRepository.GetGroupByIdAsync(studentGroupId)
             ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
 
         _logger.InfoFormat("Mapping student group entity to DTO for ID {0}", studentGroupId);
-        var studentGroupDto = _mapper.Map<StudentGroupResponseDTO>(studentGroup);
 
         return studentGroupDto;
     }
@@ -211,11 +186,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     public async Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId)
     {
         _logger.InfoFormat("Trying to retrieve student sub-group with id {0}", studentSubGroupId);
-        var studentSubGroup = await _academicRepository.GetSubGroupByIdAsync(studentSubGroupId)
+        var studentSubGroupDto = await _academicRepository.GetSubGroupByIdAsync(studentSubGroupId)
            ?? throw new NotFoundException($"StudentSubGroup with ID {studentSubGroupId} not found.");
 
         _logger.InfoFormat("Mapping student sub-group entity to DTO for ID {0}", studentSubGroupId);
-        var studentSubGroupDto = _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
 
         return studentSubGroupDto;
     }
@@ -227,11 +201,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var _ = await _userRepository.GetByIdAsync(userId)
             ?? throw new NotFoundException($"Student with ID {userId} not found.");
 
-        var enrollments = await _academicRepository.GetEnrollmentsByUserId(userId)
+        var enrollmentsDto = await _academicRepository.GetEnrollmentsByUserId(userId)
             ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", userId);
-        var enrollmentsDto = _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
 
         return enrollmentsDto;
     }
@@ -248,25 +221,24 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
         }
 
-        var teacher = _mapper.Map<Teacher>(teacherPostDTO);
+        _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacherPostDTO));
 
-        _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacher));
-
-        teacher = await _academicRepository.AddTeacherAsync(teacher);
+        var teacherDto = await _academicRepository.AddTeacherAsync(teacherPostDTO);
         await _academicRepository.SaveChangesAsync();
 
-        return _mapper.Map<TeacherResponseDTO>(teacher);
-    }
+        return teacherDto;
+	}
 
     public async Task<TeacherResponseDTO> GetTeacherById(int id)
     {
         _logger.InfoFormat("Trying to retrieve teacher with ID {0}", id);
 
-        var teacher = await _academicRepository.GetTeacherById(id)
+        var teacherDto = await _academicRepository.GetTeacherById(id)
             ?? throw new NotFoundException($"Teacher with ID {id} not found.");
 
         _logger.InfoFormat("Mapping teacher entity to DTO with ID {0}", id);
 
-        return _mapper.Map<TeacherResponseDTO>(teacher);
-    }
+        return teacherDto;
+
+	}
 }

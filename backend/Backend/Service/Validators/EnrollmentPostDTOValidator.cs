@@ -1,7 +1,7 @@
 ﻿using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Repository.Interfaces;
 using FluentValidation;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Service.Validators;
 
@@ -15,7 +15,7 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
             .MustAsync(async (userId, cancellation) =>
             {
                 var user = await userRepository.GetByIdAsync(userId);
-                return user?.Role == UserRole.Student;
+                return user?.Role == nameof(UserRole.Student);
             }).WithMessage("User with the specified UserId does not exist.");
 
         RuleFor(e => e.SubGroupId)

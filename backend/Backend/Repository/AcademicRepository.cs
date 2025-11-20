@@ -1,68 +1,87 @@
-﻿using TrackForUBB.Domain;
-using TrackForUBB.Repository.Interfaces;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Repository;
 
-public class AcademicRepository(AcademicAppContext context) : IAcademicRepository
+public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IAcademicRepository
 {
     private readonly AcademicAppContext _context = context;
+	private readonly IMapper _mapper = mapper;
 
-    public async Task<Enrollment> AddEnrollmentAsync(Enrollment enrollment)
+	public async Task<EnrollmentResponseDTO> AddEnrollmentAsync(EnrollmentPostDTO enrollment)
     {
-        await _context.Enrollments.AddAsync(enrollment);
-        return enrollment;
+        var entity = _mapper.Map<Enrollment>(enrollment);
+		await _context.Enrollments.AddAsync(entity);
+
+        return _mapper.Map<EnrollmentResponseDTO>(entity);
     }
 
-    public async Task<Faculty> AddFacultyAsync(Faculty faculty)
+    public async Task<FacultyResponseDTO> AddFacultyAsync(FacultyPostDTO faculty)
     {
-        await _context.Faculties.AddAsync(faculty);
-        return faculty;
+		var entity = _mapper.Map<Faculty>(faculty);
+		await _context.Faculties.AddAsync(entity);
+
+        return _mapper.Map<FacultyResponseDTO>(entity);
     }
 
-    public async Task<StudentGroup> AddGroupAsync(StudentGroup studentGroup)
+    public async Task<StudentGroupResponseDTO> AddGroupAsync(StudentGroupPostDTO studentGroup)
     {
-        await _context.Groups.AddAsync(studentGroup);
-        return studentGroup;
-    }
+		var entity = _mapper.Map<StudentGroup>(studentGroup);
+		await _context.Groups.AddAsync(entity);
 
-    public async Task<GroupYear> AddGroupYearAsync(GroupYear groupYear)
-    {
-        await _context.GroupYears.AddAsync(groupYear);
-        return groupYear;
-    }
+        return _mapper.Map<StudentGroupResponseDTO>(entity);
+	}
 
-    public async Task<Specialisation> AddSpecialisationAsync(Specialisation specialisation)
+    public async Task<GroupYearResponseDTO> AddGroupYearAsync(GroupYearPostDTO groupYear)
     {
-        await _context.Specialisations.AddAsync(specialisation);
-        return specialisation;
-    }
+		var entity = _mapper.Map<GroupYear>(groupYear);
+		await _context.GroupYears.AddAsync(entity);
 
-    public async Task<StudentSubGroup> AddSubGroupAsync(StudentSubGroup studentSubGroup)
-    {
-        await _context.SubGroups.AddAsync(studentSubGroup);
-        return studentSubGroup;
-    }
+        return _mapper.Map<GroupYearResponseDTO>(entity);
+	}
 
-    public async Task<Teacher> AddTeacherAsync(Teacher teacher)
+    public async Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation)
     {
-        await _context.Teachers.AddAsync(teacher);
-        return teacher;
-    }
+		var entity = _mapper.Map<Specialisation>(specialisation);
+		await _context.Specialisations.AddAsync(entity);
 
-    public async Task<Teacher?> GetTeacherById(int id)
+		return _mapper.Map<SpecialisationResponseDTO>(entity);
+	}
+
+    public async Task<StudentSubGroupResponseDTO> AddSubGroupAsync(StudentSubGroupPostDTO studentSubGroup)
     {
-        return await _context.Teachers
+		var entity = _mapper.Map<StudentSubGroup>(studentSubGroup);
+		await _context.SubGroups.AddAsync(entity);
+
+		return _mapper.Map<StudentSubGroupResponseDTO>(entity);
+	}
+
+    public async Task<TeacherResponseDTO> AddTeacherAsync(TeacherPostDTO teacher)
+    {
+		var entity = _mapper.Map<Teacher>(teacher);
+		await _context.Teachers.AddAsync(entity);
+
+		return _mapper.Map<TeacherResponseDTO>(entity);
+	}
+
+    public async Task<TeacherResponseDTO?> GetTeacherById(int id)
+    {
+        var teacher = await _context.Teachers
             .Include(t => t.User)
             .Include(t => t.Faculty)
             .Where(t => t.Id == id)
             .FirstOrDefaultAsync();
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
     }
 
-    public async Task<List<Enrollment>> GetEnrollmentsByUserId(int userId)
+    public async Task<List<EnrollmentResponseDTO>> GetEnrollmentsByUserId(int userId)
     {
-        return await _context.Enrollments
+        var enrollments = await _context.Enrollments
             .Include(e => e.SubGroup)
                 .ThenInclude(sg => sg.StudentGroup)
                     .ThenInclude(g => g.GroupYear)
@@ -71,59 +90,73 @@ public class AcademicRepository(AcademicAppContext context) : IAcademicRepositor
             .Include(e => e.User)
             .Where(e => e.UserId == userId)
             .ToListAsync();
-    }
 
-    public async Task<Faculty?> GetFacultyByIdAsync(int id)
+		return _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
+	}
+
+    public async Task<FacultyResponseDTO?> GetFacultyByIdAsync(int id)
     {
-        return await _context.Faculties
+        var faculty = await _context.Faculties
             .Include(f => f.Specialisations)
             .SingleOrDefaultAsync(f => f.Id == id);
-    }
 
-    public async Task<Faculty?> GetFacultyByNameAsync(string name)
-    {
-        return await _context.Faculties.FirstOrDefaultAsync(f => f.Name == name);
-    }
+		return _mapper.Map<FacultyResponseDTO>(faculty);
+	}
 
-    public async Task<StudentGroup?> GetGroupByIdAsync(int id)
+    public async Task<FacultyResponseDTO?> GetFacultyByNameAsync(string name)
     {
-        return await _context.Groups
+        var faculty = await _context.Faculties.FirstOrDefaultAsync(f => f.Name == name);
+
+		return _mapper.Map<FacultyResponseDTO>(faculty);
+	}
+
+    public async Task<StudentGroupResponseDTO?> GetGroupByIdAsync(int id)
+    {
+        var studentGroup = await _context.Groups
             .Include(g => g.StudentSubGroups)
             .Include(g => g.GroupYear)
                 .ThenInclude(gy => gy.Specialisation)
                     .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(g => g.Id == id);
-    }
 
-    public async Task<GroupYear?> GetGroupYearByIdAsync(int id)
+		return _mapper.Map<StudentGroupResponseDTO>(studentGroup);
+	}
+
+    public async Task<GroupYearResponseDTO?> GetGroupYearByIdAsync(int id)
     {
-        return await _context.GroupYears
+        var groupYear = await _context.GroupYears
             .Include(gy => gy.StudentGroups)
             .Include(gy => gy.Specialisation)
                 .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(gy => gy.Id == id);
-    }
 
-    public async Task<Specialisation?> GetSpecialisationByIdAsync(int id)
+		return _mapper.Map<GroupYearResponseDTO>(groupYear);
+	}
+
+    public async Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id)
     {
-        return await _context.Specialisations
+        var specialisation = await _context.Specialisations
              .Include(s => s.Faculty)
              .Include(s => s.GroupYears)
              .FirstOrDefaultAsync(s => s.Id == id);
-    }
 
-    public async Task<StudentSubGroup?> GetSubGroupByIdAsync(int id)
+		return _mapper.Map<SpecialisationResponseDTO>(specialisation);
+	}
+
+	public async Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id)
     {
-        return await _context.SubGroups
+        var studentSubGroup = await _context.SubGroups
             .Include(sg => sg.StudentGroup)
                 .ThenInclude(g => g.GroupYear)
                     .ThenInclude(gy => gy.Specialisation)
                         .ThenInclude(s => s.Faculty)
             .Include(sg => sg.Enrollments)
             .FirstOrDefaultAsync(sg => sg.Id == id);
-    }
 
-    public async Task SaveChangesAsync()
+		return _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
+	}
+
+	public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
     }

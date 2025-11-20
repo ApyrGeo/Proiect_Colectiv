@@ -1,15 +1,14 @@
-﻿using TrackForUBB.Repository.Context;
-using TrackForUBB.Domain;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Repository;
-using Microsoft.EntityFrameworkCore;
+using TrackForUBB.Repository.Context;
 using Xunit;
 
 namespace TrackForUBB.BackendTests;
 
 public class AcademicRepositoryTests : IDisposable
 {
-
     private readonly AcademicAppContext _context;
     private readonly AcademicRepository _repo;
 
