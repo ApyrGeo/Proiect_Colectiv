@@ -11,12 +11,14 @@ using TrackForUBB.Service;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Configuration;
 using TrackForUBB.Service.EmailService.Providers;
+using TrackForUBB.Service.PdfGeneration;
 using TrackForUBB.Domain.Security;
 using TrackForUBB.Repository.DataSeeder;
 using TrackForUBB.Controller.Middlewares;
 using TrackForUBB.Controller.Security;
 using TrackForUBB.Repository.AutoMapper;
 using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Service.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +48,11 @@ builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
         );
 });
 
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<EFEntitiesMappingProfile>());
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<EFEntitiesMappingProfile>();
+    cfg.AddProfile<AutoMapperServiceProfile>();
+});
 
 //logging
 builder.Logging.ClearProviders();
@@ -77,6 +83,17 @@ builder.Services.AddScoped<IEmailProvider, EmailProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAcademicsService, AcademicsService>();
 builder.Services.AddScoped<ITimetableService, TimetableService>();
+builder.Services
+    .AddScoped<IContractService, ContractService>()
+    .AddScoped<IContractUnitOfWork, ContractUnitOfWork>()
+    .AddSingleton<IDocumentTemplateFiller, DocumentTemplateFiller>()
+    .AddSingleton<IPdfConverter, PdfConverter>()
+    .AddSingleton<IPdfGenerator, PdfGenerator>()
+    .AddSingleton<IXmlTemplateFiller, XmlTemplateFiller>()
+    .Configure<PdfConverterConfiguration>(builder.Configuration.GetSection("PdfConverter"))
+    .AddSingleton(resolver => resolver.GetRequiredService<IOptions<PdfConverterConfiguration>>().Value)
+    ;
+
 
 //data seeders
 builder.Services.AddScoped<UniversityDataSeeder>();
