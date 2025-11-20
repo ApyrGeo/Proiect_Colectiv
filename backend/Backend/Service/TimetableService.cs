@@ -33,7 +33,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new classroom to repository: {0}", JsonSerializer.Serialize(classroomPostDTO));
@@ -53,7 +53,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new hour to repository: {0}", JsonSerializer.Serialize(hourPostDTO));
@@ -73,7 +73,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new location to repository: {0}", JsonSerializer.Serialize(locationPostDTO));
@@ -93,7 +93,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new subject to repository: {0}", JsonSerializer.Serialize(subjectPostDto));
@@ -125,7 +125,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         var hoursDto = await _timetableRepository.GetHoursAsync(filter);
@@ -182,7 +182,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
         var hours = await _timetableRepository.GetHoursAsync(filter);

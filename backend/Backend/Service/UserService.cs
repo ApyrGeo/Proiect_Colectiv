@@ -28,7 +28,7 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
         var result = await validator.ValidateAsync(userDTO);
         if (!result.IsValid)
         {
-            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(result.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(result.Errors));
         }
 
         _logger.InfoFormat("Attempting to create user: {0}", JsonSerializer.Serialize(userDTO));
