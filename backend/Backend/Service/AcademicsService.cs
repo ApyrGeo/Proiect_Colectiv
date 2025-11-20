@@ -27,7 +27,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(facultyPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new faculty to repository: {0}", JsonSerializer.Serialize(facultyPostDto));
@@ -44,7 +44,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(groupYearPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(groupYearPostDto));
@@ -61,7 +61,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(specialisationPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new specialisation to repository: {0}", JsonSerializer.Serialize(specialisationPostDto));
@@ -78,7 +78,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(studentGroupPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new student group to repository: {0}", JsonSerializer.Serialize(studentGroupPostDto));
@@ -95,7 +95,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(studentSubGroupPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new student sub-group to repository: {0}", JsonSerializer.Serialize(studentSubGroupPostDto));
@@ -112,7 +112,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validationResult = await validator.ValidateAsync(enrollmentPostDto);
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollmentPostDto));
@@ -218,7 +218,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         if (!validationResult.IsValid)
         {
-            throw new EntityValidationException(ConvertValidationErrorToString.Convert(validationResult.Errors));
+            throw new EntityValidationException(ValidationHelper.ConvertErrorToListOfStrings(validationResult.Errors));
         }
 
         _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacherPostDTO));
