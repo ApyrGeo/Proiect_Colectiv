@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { HourProps, LocationProps } from "../props.ts";
+import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
 import Hour from "./Hour.tsx";
 import "../timetable.css";
 import {
@@ -26,6 +26,7 @@ export type TimetableProps = {
   currentWeekOnly?: boolean;
   onHourClick?: (hourId: number, hours: HourProps[]) => void;
   sendLocationsToMaps?: (locs: LocationProps[]) => void;
+  selectedLocations: SelectedLocationsProps;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
@@ -58,6 +59,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   useEffect(() => {
+    if (props.selectedLocations.currentLocation !== null) return;
     if (fetchError) return;
 
     getFetchFunc()
@@ -68,7 +70,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, []);
+  }, [props.selectedLocations.currentLocation]);
 
   return (
     <div className={"timetable"}>
