@@ -1,0 +1,59 @@
+﻿using AutoMapper;
+using log4net;
+using Microsoft.EntityFrameworkCore;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Service.Interfaces;
+
+namespace TrackForUBB.Repository;
+
+public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserRepository
+{
+    private readonly AcademicAppContext _context = context;
+	private readonly IMapper _mapper = mapper;
+	private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
+
+    public async Task<UserResponseDTO?> GetByEmailAsync(string email)
+    {
+        _logger.InfoFormat("Fetching user by email: {0}", email);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        return _mapper.Map<UserResponseDTO>(user);
+    }
+
+    public async Task<UserResponseDTO> AddAsync(UserPostDTO user)
+    {
+        _logger.InfoFormat("Adding new user with email: {0}", user.Email);
+
+        var entity = _mapper.Map<User>(user);
+		await _context.Users.AddAsync(entity);
+
+		return _mapper.Map<UserResponseDTO>(entity);
+	}
+
+    public async Task<UserResponseDTO?> GetByIdAsync(int id)
+    {
+        _logger.InfoFormat("Fetching user by ID: {0}", id);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+		return _mapper.Map<UserResponseDTO>(user);
+	}
+
+    public async Task SaveChangesAsync()
+    {
+        _logger.InfoFormat("Saving changes");
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<UserResponseDTO>> GetAll()
+    {
+        _logger.InfoFormat("Fetching all users");
+
+        var users = await _context.Users.ToListAsync();
+
+        return _mapper.Map<List<UserResponseDTO>>(users);
+    }
+}

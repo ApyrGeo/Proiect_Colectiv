@@ -1,30 +1,24 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Configuration;
-using EmailService.Interfaces;
-using EmailService.Models;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Service;
+using TrackForUBB.Service.Validators;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Domain.Security;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _mockUserRepository = new();
     private readonly Mock<IMapper> _mockMapper = new();
-    private readonly Mock<IPasswordHasher<User>> _mockPasswordHasher = new();
+    private readonly Mock<IAdapterPasswordHasher<User>> _mockPasswordHasher = new();
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
@@ -50,19 +44,32 @@ public class UserServiceTests
     {
         var userDTO = new UserPostDTO
         {
-            FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email, Password = password,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
+            Password = password,
             Role = role
         };
 
 
         var userEntity = new User
         {
-            FirstName = firstName, LastName = lastName, Email = email, Password = password, PhoneNumber = phone,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            Password = password,
+            PhoneNumber = phone,
             Role = Enum.Parse<UserRole>(role)
         };
         var userResponseDTO = new UserResponseDTO
         {
-            Id = 1, FirstName = firstName, LastName = lastName, Email = email, PhoneNumber = phone, Password = password,
+            Id = 1,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            PhoneNumber = phone,
+            Password = password,
             Role = role
         };
 
@@ -99,7 +106,11 @@ public class UserServiceTests
     {
         var userDTO = new UserPostDTO
         {
-            FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email, Password = password,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
+            Password = password,
             Role = role
         };
 
@@ -118,13 +129,23 @@ public class UserServiceTests
     {
         var user = new User
         {
-            Id = id, FirstName = firstName, LastName = lastName, Email = email, Password = password,
-            PhoneNumber = phone, Role = Enum.Parse<UserRole>(role)
+            Id = id,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            Password = password,
+            PhoneNumber = phone,
+            Role = Enum.Parse<UserRole>(role)
         };
         var userDto = new UserResponseDTO
         {
-            Id = id, FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email,
-            Password = password, Role = role
+            Id = id,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
+            Password = password,
+            Role = role
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(user);

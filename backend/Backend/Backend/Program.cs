@@ -1,21 +1,22 @@
-using Backend.Context;
-using Backend.DataSeeder;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Interfaces;
-using Backend.Middlewares;
-using Backend.Repository;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Configuration;
-using EmailService.Interfaces;
-using EmailService.Providers;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Repository;
+using TrackForUBB.Service.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Service;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.EmailService.Configuration;
+using TrackForUBB.Service.EmailService.Providers;
+using TrackForUBB.Domain.Security;
+using TrackForUBB.Repository.DataSeeder;
+using TrackForUBB.Controller.Middlewares;
+using TrackForUBB.Controller.Security;
+using TrackForUBB.Repository.AutoMapper;
+using TrackForUBB.Controller.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,60 +46,7 @@ builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
         );
 });
 
-builder.Services.AddAutoMapper(cfg =>
-{
-    // Register your mappings here
-    // Example: cfg.CreateMap<Source, Destination>();
-
-    cfg.CreateMap<User, UserResponseDTO>().ReverseMap();
-    cfg.CreateMap<UserPostDTO, User>();
-
-    cfg.CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
-    cfg.CreateMap<EnrollmentPostDTO, Enrollment>();
-
-    cfg.CreateMap<Faculty, FacultyResponseDTO>().ReverseMap();
-    cfg.CreateMap<FacultyPostDTO, Faculty>();
-
-    cfg.CreateMap<Specialisation, SpecialisationResponseDTO>().ReverseMap();
-    cfg.CreateMap<SpecialisationPostDTO, Specialisation>();
-
-    cfg.CreateMap<GroupYear, GroupYearResponseDTO>().ReverseMap();
-    cfg.CreateMap<GroupYearPostDTO, GroupYear>();
-
-    cfg.CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
-    cfg.CreateMap<StudentGroupPostDTO, StudentGroup>();
-
-    cfg.CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
-    cfg.CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
-
-    cfg.CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
-    cfg.CreateMap<SubjectPostDTO, Subject>();
-
-    cfg.CreateMap<Teacher, TeacherResponseDTO>().ReverseMap();
-    cfg.CreateMap<TeacherPostDTO, Teacher>();
-
-    cfg.CreateMap<Classroom, ClassroomResponseDTO>().ReverseMap();
-    cfg.CreateMap<ClassroomPostDTO, Classroom>();
-
-    cfg.CreateMap<Location, LocationResponseDTO>().ReverseMap();
-    cfg.CreateMap<LocationPostDTO, Location>();
-
-    cfg.CreateMap<Hour, HourResponseDTO>()
-        .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
-        .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
-        .ForMember(x => x.Category, o => o.MapFrom(s => s.Category.ToString()))
-        .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom.Location))
-        .ForMember(x => x.Format, o => o.MapFrom(s =>
-            s.StudentSubGroup != null ? s.StudentSubGroup.Name
-            : s.StudentGroup != null ? s.StudentGroup.Name
-            : s.GroupYear != null ? s.GroupYear.Year
-            : "Unknown"
-        ));
-    cfg.CreateMap<HourPostDTO, Hour>()
-        .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))
-        .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency!)))
-        .ForMember(x => x.Category, o => o.MapFrom(s => Enum.Parse<HourCategory>(s.Category!)));
-});
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<EFEntitiesMappingProfile>());
 
 //logging
 builder.Logging.ClearProviders();
@@ -117,13 +65,13 @@ builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 builder.Services.Configure<PasswordHasherOptions>(
     options => options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3
     );
-builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddSingleton(typeof(IAdapterPasswordHasher<>), typeof(AspNetCorePasswordHasher<>));
 
 //email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<EmailSettings>>().Value);
-builder.Services.AddScoped<IEmailProvider,EmailProvider>();
+builder.Services.AddScoped<IEmailProvider, EmailProvider>();
 
 //services
 builder.Services.AddScoped<IUserService, UserService>();

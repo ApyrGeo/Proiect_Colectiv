@@ -1,5 +1,8 @@
 <Solution>
   <Project Path="Backend/Backend.csproj" />
-  <Project Path="BackendTests\BackendTests.csproj" Type="Classic C#" />
-  <Project Path="EmailService/EmailService.csproj" />
+  <Project Path="BackendTests\BackendTests.csproj" />
+  <Project Path="Controller/Controller.csproj" Id="52a0b4c9-ea2f-4c6f-ad26-25d380a3c7ea" />
+  <Project Path="Domain/Domain.csproj" Id="1d003c98-8043-4aba-9911-f81ef0b72e66" />
+  <Project Path="Repository/Repository.csproj" Id="c641cfe7-3e30-43e9-a9c7-87c7b75ded42" />
+  <Project Path="Service/Service.csproj" Id="00ca645d-be0f-4845-a943-319b95a69009" />
 </Solution>

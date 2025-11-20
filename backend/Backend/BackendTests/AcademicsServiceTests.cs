@@ -1,20 +1,17 @@
 ﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Interfaces;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Service;
+using TrackForUBB.Service.Validators;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class AcademicsServiceTests
 {
@@ -310,8 +307,13 @@ public class AcademicsServiceTests
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Student")
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -327,12 +329,17 @@ public class AcademicsServiceTests
         var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Student"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = "Student"
         };
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
-            { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
+        { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
 
         _mockMapper.Setup(m => m.Map<Enrollment>(dto)).Returns(entity);
         _mockRepository.Setup(r => r.AddEnrollmentAsync(entity)).ReturnsAsync(entity);
@@ -356,8 +363,13 @@ public class AcademicsServiceTests
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
         var user = new User
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Student")
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -373,12 +385,17 @@ public class AcademicsServiceTests
         var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Student"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = "Student"
         };
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
-            { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
+        { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
 
         _mockMapper.Setup(m => m.Map<Enrollment>(dto)).Returns(entity);
         _mockRepository.Setup(r => r.AddEnrollmentAsync(entity)).ReturnsAsync(entity);
@@ -400,8 +417,13 @@ public class AcademicsServiceTests
         var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
         var user = new User
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com",
-            Password = "TestPassword", PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Teacher")
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "TestPassword",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Teacher")
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -413,11 +435,16 @@ public class AcademicsServiceTests
         var teacher = new Teacher { Id = 1, UserId = userId, User = user, FacultyId = facultyId, Faculty = faculty };
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com",
-            Password = "TestPassword", PhoneNumber = "+40777301089", Role = "Teacher"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "TestPassword",
+            PhoneNumber = "+40777301089",
+            Role = "Teacher"
         };
         var responseDto = new TeacherResponseDTO
-            { Id = 1, User = userResponseDto, UserId = userId, FacultyId = facultyId };
+        { Id = 1, User = userResponseDto, UserId = userId, FacultyId = facultyId };
 
         _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId)).ReturnsAsync(faculty);
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
@@ -442,9 +469,9 @@ public class AcademicsServiceTests
     public async Task CreateTeacherInvalidData(int userId, int facultyId)
     {
         var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
-        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User)null); // simulăm lipsa user-ului
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User?)null); // simulăm lipsa user-ului
         _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId))
-            .ReturnsAsync((Faculty)null); // simulăm lipsa facultății
+            .ReturnsAsync((Faculty?)null); // simulăm lipsa facultății
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateTeacher(dto));
 
@@ -629,8 +656,13 @@ public class AcademicsServiceTests
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
         var user = new User
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Admin")
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Admin")
         };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
@@ -639,15 +671,20 @@ public class AcademicsServiceTests
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Admin"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "111222ppa",
+            PhoneNumber = "+40777301089",
+            Role = "Admin"
         };
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var enrollment = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
         var enrollments = new List<Enrollment> { enrollment };
 
         var enrollmentDto = new EnrollmentResponseDTO
-            { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = userResponseDto, SubGroup = subGroupDto };
+        { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = userResponseDto, SubGroup = subGroupDto };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
         _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId)).ReturnsAsync(enrollments);
@@ -690,15 +727,25 @@ public class AcademicsServiceTests
     {
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Teacher")
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "TestPassword",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Teacher")
         };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var teacher = new Teacher { Id = 1, UserId = 1, User = user, FacultyId = 1, Faculty = faculty };
         var userResponseDto = new UserResponseDTO
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = "Teacher"
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Password = "TestPassword",
+            PhoneNumber = "+40777301089",
+            Role = "Teacher"
         };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };
 
@@ -717,7 +764,7 @@ public class AcademicsServiceTests
     [InlineData(-1)]
     public async Task GetTeacherByIdInvalidId(int teacherId)
     {
-        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync((Teacher)null);
+        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync((Teacher?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetTeacherById(teacherId));
 

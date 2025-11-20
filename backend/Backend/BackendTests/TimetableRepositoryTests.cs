@@ -1,13 +1,12 @@
-﻿using Backend.Domain.Enums;
-using Xunit;
-
-namespace BackendTests;
-
+﻿using Xunit;
 using Microsoft.EntityFrameworkCore;
-using Backend.Context;
-using Backend.Domain;
-using Backend.Repository;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Domain;
+using TrackForUBB.Repository;
 using System.Threading.Tasks;
+using TrackForUBB.Domain.Enums;
+
+namespace TrackForUBB.BackendTests;
 
 public class TimetableRepositoryTests : IDisposable
 {
@@ -61,9 +60,9 @@ public class TimetableRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData(2, "SDA", 6)]
-    [InlineData(1, "Sport", 2)]
-    public async Task AddSubjectAsyncTest(int id, string name, int numberOfCredits)
+    [InlineData("SDA", 6)]
+    [InlineData("Sport", 2)]
+    public async Task AddSubjectAsyncTest(string name, int numberOfCredits)
     {
         var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
@@ -72,7 +71,7 @@ public class TimetableRepositoryTests : IDisposable
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
         var subject = new Subject
-            { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
         await _repo.AddSubjectAsync(subject);
         await _context.SaveChangesAsync();
 
@@ -131,7 +130,7 @@ public class TimetableRepositoryTests : IDisposable
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
         var subject = new Subject
-            { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
 
         subject.Name = name;
 
@@ -162,7 +161,7 @@ public class TimetableRepositoryTests : IDisposable
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
         var subject = new Subject
-            { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
         var location = new Location { Name = "Fsega", Address = "Str Goldis" };
         var classroom = new Classroom { Name = "A303", Location = location };
 
