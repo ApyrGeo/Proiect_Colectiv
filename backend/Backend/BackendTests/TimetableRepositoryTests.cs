@@ -1,10 +1,13 @@
 ﻿using Xunit;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.Context;
-using TrackForUBB.Domain;
+using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Repository;
-using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.AutoMapper;
 
 namespace TrackForUBB.BackendTests;
 
@@ -19,8 +22,12 @@ public class TimetableRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "TimetableRepositoryTestsDB")
             .Options;
+        var config = new MapperConfiguration(cfg => { cfg.AddProfile<EFEntitiesMappingProfile>(); },
+            new NullLoggerFactory());
+
+        IMapper mapper = config.CreateMapper();
         _context = new AcademicAppContext(options);
-        _repo = new TimetableRepository(_context);
+        _repo = new TimetableRepository(_context, mapper);
     }
 
     public void Dispose()
@@ -37,7 +44,7 @@ public class TimetableRepositoryTests : IDisposable
         _context.Locations.Add(location);
         await _context.SaveChangesAsync();
 
-        var classroom = new Classroom { Name = name, Location = location, LocationId = location.Id };
+        var classroom = new ClassroomPostDTO { Name = name, LocationId = location.Id };
         await _repo.AddClassroomAsync(classroom);
         await _context.SaveChangesAsync();
 
@@ -50,7 +57,7 @@ public class TimetableRepositoryTests : IDisposable
     [InlineData("Cladire Centru", "Strada Universitatii")]
     public async Task AddLocationAsyncTest(string name, string address)
     {
-        var location = new Location { Name = name, Address = address };
+        var location = new LocationPostDTO() { Name = name, Address = address };
         await _repo.AddLocationAsync(location);
         await _context.SaveChangesAsync();
 
@@ -70,8 +77,7 @@ public class TimetableRepositoryTests : IDisposable
 
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
-        var subject = new Subject
-        { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        var subject = new SubjectPostDTO { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id };
         await _repo.AddSubjectAsync(subject);
         await _context.SaveChangesAsync();
 
@@ -130,7 +136,7 @@ public class TimetableRepositoryTests : IDisposable
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
         var subject = new Subject
-        { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+            { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
 
         subject.Name = name;
 
@@ -161,7 +167,7 @@ public class TimetableRepositoryTests : IDisposable
         var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
 
         var subject = new Subject
-        { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+            { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
         var location = new Location { Name = "Fsega", Address = "Str Goldis" };
         var classroom = new Classroom { Name = "A303", Location = location };
 

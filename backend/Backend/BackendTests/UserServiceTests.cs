@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using TrackForUBB.Domain.DTOs;
+﻿using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service;
 using TrackForUBB.Service.Validators;
@@ -8,8 +7,6 @@ using Xunit;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Domain.Security;
-using TrackForUBB.Repository.EFEntities;
-using TrackForUBB.Domain.Enums;
 using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.BackendTests;
@@ -17,8 +14,7 @@ namespace TrackForUBB.BackendTests;
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _mockUserRepository = new();
-    private readonly Mock<IMapper> _mockMapper = new();
-    private readonly Mock<IAdapterPasswordHasher<User>> _mockPasswordHasher = new();
+    private readonly Mock<IAdapterPasswordHasher<UserPostDTO>> _mockPasswordHasher = new();
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
@@ -32,7 +28,7 @@ public class UserServiceTests
 
         _validatorFactory = mockValidatorFactory.Object;
 
-        _userService = new UserService(_mockUserRepository.Object, _mockMapper.Object, _validatorFactory,
+        _userService = new UserService(_mockUserRepository.Object, _validatorFactory,
             _mockPasswordHasher.Object, _mockEmailProvider.Object);
     }
 
@@ -52,16 +48,6 @@ public class UserServiceTests
             Role = role
         };
 
-
-        var userEntity = new User
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            Email = email,
-            Password = password,
-            PhoneNumber = phone,
-            Role = Enum.Parse<UserRole>(role)
-        };
         var userResponseDTO = new UserResponseDTO
         {
             Id = 1,
@@ -73,12 +59,10 @@ public class UserServiceTests
             Role = role
         };
 
-        _mockMapper.Setup(m => m.Map<User>(userDTO)).Returns(userEntity);
-        _mockMapper.Setup(m => m.Map<UserResponseDTO>(userEntity)).Returns(userResponseDTO);
 
-        _mockPasswordHasher.Setup(h => h.HashPassword(userEntity, password)).Returns("hashedPassword");
+        _mockPasswordHasher.Setup(h => h.HashPassword(userDTO, password)).Returns("hashedPassword");
 
-        _mockUserRepository.Setup(r => r.AddAsync(userEntity)).ReturnsAsync(userEntity);
+        _mockUserRepository.Setup(r => r.AddAsync(userDTO)).ReturnsAsync(userResponseDTO);
         _mockUserRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
 
@@ -89,7 +73,7 @@ public class UserServiceTests
         Assert.Equal(lastName, result.LastName);
         Assert.Equal(email, result.Email);
 
-        _mockUserRepository.Verify(r => r.AddAsync(userEntity), Times.Once);
+        _mockUserRepository.Verify(r => r.AddAsync(userDTO), Times.Once);
         _mockUserRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -116,9 +100,9 @@ public class UserServiceTests
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _userService.CreateUser(userDTO));
 
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<UserPostDTO>()), Times.Never);
 
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<UserPostDTO>()), Times.Never);
     }
 
     [Theory]
@@ -127,16 +111,6 @@ public class UserServiceTests
     public async Task GetUserByIdExistingUser(int id, string firstName, string lastName, string phone, string email,
         string password, string role)
     {
-        var user = new User
-        {
-            Id = id,
-            FirstName = firstName,
-            LastName = lastName,
-            Email = email,
-            Password = password,
-            PhoneNumber = phone,
-            Role = Enum.Parse<UserRole>(role)
-        };
         var userDto = new UserResponseDTO
         {
             Id = id,
@@ -148,8 +122,7 @@ public class UserServiceTests
             Role = role
         };
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(user);
-        _mockMapper.Setup(m => m.Map<UserResponseDTO>(user)).Returns(userDto);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(userDto);
 
         var result = await _userService.GetUserById(id);
 
@@ -166,11 +139,10 @@ public class UserServiceTests
     public async Task GetUserByIdNonExistingUser(int invalidId)
     {
         _mockUserRepository.Setup(r => r.GetByIdAsync(invalidId))
-            .ReturnsAsync((User?)null);
+            .ReturnsAsync((UserResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserById(invalidId));
 
         _mockUserRepository.Verify(r => r.GetByIdAsync(invalidId), Times.Once);
-        _mockMapper.Verify(m => m.Map<UserResponseDTO>(It.IsAny<User>()), Times.Never);
     }
 }
