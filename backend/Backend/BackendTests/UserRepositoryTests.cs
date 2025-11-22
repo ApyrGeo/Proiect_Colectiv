@@ -1,9 +1,13 @@
-﻿using TrackForUBB.Repository.Context;
-using TrackForUBB.Domain;
+﻿using AutoMapper;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
+using TrackForUBB.Domain.DTOs;
 using Xunit;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.AutoMapper;
 
 namespace TrackForUBB.BackendTests;
 
@@ -11,15 +15,23 @@ public class UserRepositoryTests : IDisposable
 {
     private readonly AcademicAppContext _context;
     private readonly UserRepository _repo;
+   
 
     public UserRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "UserRepositoryTestsDB")
             .Options;
+        
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<EFEntitiesMappingProfile>(); 
+        },new NullLoggerFactory());
+
+        IMapper mapper = config.CreateMapper();
 
         _context = new AcademicAppContext(options);
-        _repo = new UserRepository(_context);
+        _repo = new UserRepository(_context,mapper);
     }
 
     public void Dispose()
@@ -98,14 +110,14 @@ public class UserRepositoryTests : IDisposable
     public async Task AddAsyncValidUser(string firstName, string lastName, string phoneNumber, string email,
         string password, UserRole role)
     {
-        var user = new User
+        var user = new UserPostDTO
         {
             Email = email,
             FirstName = firstName,
             LastName = lastName,
             Password = password,
             PhoneNumber = phoneNumber,
-            Role = role
+            Role = role.ToString()
         };
 
         await _repo.AddAsync(user);
