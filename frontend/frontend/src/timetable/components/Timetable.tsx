@@ -26,7 +26,7 @@ export type TimetableProps = {
   currentWeekOnly?: boolean;
   onHourClick?: (hourId: number, hours: HourProps[]) => void;
   sendLocationsToMaps?: (locs: LocationProps[]) => void;
-  selectedLocations: SelectedLocationsProps;
+  selectedLocations?: SelectedLocationsProps;
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
@@ -59,6 +59,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   useEffect(() => {
+    if (!props.selectedLocations) return;
     if (props.selectedLocations.currentLocation !== null) return;
     if (fetchError) return;
 
@@ -70,7 +71,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, [props.selectedLocations.currentLocation]);
+  }, [props.selectedLocations?.currentLocation]);
 
   return (
     <div className={"timetable"}>
