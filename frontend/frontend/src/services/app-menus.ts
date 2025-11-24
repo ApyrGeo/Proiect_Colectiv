@@ -27,6 +27,11 @@ export function getAppMenus() {
           url: "/timetable",
         },
         {
+          title: "Contracts",
+          icon: "📆",
+          url: "/contracts",
+        },
+        {
           title: "WebHosting",
           icon: "🏠",
           submenu: [

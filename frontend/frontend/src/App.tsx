@@ -7,6 +7,7 @@ import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
+import ContractsPage from "./contracts/ContractsPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -25,6 +26,7 @@ const App = () => {
         <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
         <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
         <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
+        <Route path={"/contracts"} Component={ContractsPage}></Route>
       </Routes>
     </>
   );
