@@ -1,0 +1,59 @@
+.contract-title {
+    font-size: x-large;
+    margin: 10px;
+}
+
+.contracts-filter {
+    margin: 10px;
+}
+
+.contracts-page {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.contracts-page form{
+    display: flex;
+    flex-direction: column;
+}
+
+.contracts-page form label{
+    margin: 10px;
+    display: inline-flex;
+    position: relative;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.contracts-page form label input{
+    margin-left: 10px;
+}
+
+.contracts-page form label select{
+    margin-left: 10px;
+}
+
+
+.contracts-page form button{
+    margin: 10px;
+}
+
+.sigContainer {
+    width: 80%;
+    height: 80%;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+.sigCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+.sigImage {
+    background-size: 200px 50px;
+    width: 200px;
+    height: 50px;
+    background-color: white;
+}

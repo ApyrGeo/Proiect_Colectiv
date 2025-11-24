@@ -19,6 +19,11 @@ export function getAppMenus() {
           url: "/timetable",
         },
         {
+          title: "Contracts",
+          icon: "📆",
+          url: "/contracts",
+        },
+        {
           title: "Grades",
           icon: "🎓",
           url: "/grades",

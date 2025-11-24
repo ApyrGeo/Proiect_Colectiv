@@ -15,6 +15,7 @@ import Homepage from "./homepage/HomePage.tsx";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import SignOutButton from "./auth/components/SignOutButton.tsx";
 import SignInButton from "./auth/components/SignInButton.tsx";
+import ContractsPage from "./contracts/ContractsPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -47,6 +48,7 @@ const App = () => {
           <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
           <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
           <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
+          <Route path={"/contracts"} Component={ContractsPage}></Route>
           <Route path={"/profile"} Component={ProfilePage} />
         </Routes>
       </div>
