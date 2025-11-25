@@ -20,8 +20,8 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<Specialisation, SpecialisationResponseDTO>().ReverseMap();
         CreateMap<SpecialisationPostDTO, Specialisation>();
 
-        CreateMap<GroupYear, GroupYearResponseDTO>().ReverseMap();
-        CreateMap<GroupYearPostDTO, GroupYear>();
+        CreateMap<Promotion, PromotionResponseDTO>().ReverseMap();
+        CreateMap<PromotionPostDTO, Promotion>();
 
         CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
         CreateMap<StudentGroupPostDTO, StudentGroup>();
@@ -51,8 +51,8 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(x => x.Format, o => o.MapFrom(s =>
                 s.StudentSubGroup != null ? s.StudentSubGroup.Name
                 : s.StudentGroup != null ? s.StudentGroup.Name
-                : s.GroupYear != null ? s.GroupYear.Year
-                : "Unknown"
+                : s.Promotion != null ? s.Promotion.Specialisation.Name + " " + (DateTime.Now.Year - s.Promotion.StartYear + (DateTime.Now.Month < 7 ? 0 : 1))
+				: "Unknown"
             ));
         CreateMap<HourPostDTO, Hour>()
             .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))

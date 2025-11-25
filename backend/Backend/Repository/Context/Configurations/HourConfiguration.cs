@@ -39,9 +39,9 @@ public class HourConfiguration : IEntityTypeConfiguration<Hour>
             .HasForeignKey(x => x.ClassroomId)
             .IsRequired();
 
-        builder.HasOne(x => x.GroupYear)
+        builder.HasOne(x => x.Promotion)
             .WithMany()
-            .HasForeignKey(x => x.GroupYearId)
+            .HasForeignKey(x => x.PromotionId)
             .IsRequired(false);
 
         builder.HasOne(x => x.StudentGroup)
@@ -53,5 +53,9 @@ public class HourConfiguration : IEntityTypeConfiguration<Hour>
             .WithMany()
             .HasForeignKey(x => x.StudentSubGroupId)
             .IsRequired(false);
-    }
+
+        builder.HasOne(x => x.Semester)
+            .WithMany(s => s.Hours)
+            .HasForeignKey(x => x.SemesterId);
+	}
 }

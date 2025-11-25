@@ -78,7 +78,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             .Include(x => x.Teacher)
                 .ThenInclude(x => x.User)
             .Include(x => x.Subject)
-            .Include(x => x.GroupYear)
+            .Include(x => x.Promotion)
             .Include(x => x.StudentGroup)
             .Include(x => x.StudentSubGroup)
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -100,17 +100,17 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
                 {
                     e.SubGroupId,
                     e.SubGroup.StudentGroupId,
-                    e.SubGroup.StudentGroup.GroupYearId
+                    e.SubGroup.StudentGroup.PromotionId
                 }).ToListAsync();
 
             var subGroupIds = enrollmentInfo.Select(x => x.SubGroupId).Distinct().ToList();
             var studentGroupIds = enrollmentInfo.Select(x => x.StudentGroupId).Distinct().ToList();
-            var groupYearIds = enrollmentInfo.Select(x => x.GroupYearId).Distinct().ToList();
+            var promotionIds = enrollmentInfo.Select(x => x.PromotionId).Distinct().ToList();
 
             query = query.Where(h =>
                 (h.StudentSubGroupId != null && subGroupIds.Contains(h.StudentSubGroupId.Value))
                 || (h.StudentGroupId != null && studentGroupIds.Contains(h.StudentGroupId.Value))
-                || (h.GroupYearId != null && groupYearIds.Contains(h.GroupYearId.Value))
+                || (h.PromotionId != null && promotionIds.Contains(h.PromotionId.Value))
             );
         }
 
@@ -122,25 +122,25 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         if (filter.FacultyId != null)
         {
             query = query.Where(h =>
-                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.Specialisation.FacultyId == filter.FacultyId)
-                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYear.Specialisation.FacultyId == filter.FacultyId)
-                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYear.Specialisation.FacultyId == filter.FacultyId));
+                _context.Promotions.Any(gy => gy.Id == h.PromotionId && gy.Specialisation.FacultyId == filter.FacultyId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.Promotion.Specialisation.FacultyId == filter.FacultyId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.Promotion.Specialisation.FacultyId == filter.FacultyId));
         }
 
         if (filter.SpecialisationId != null)
         {
             query = query.Where(h =>
-                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.SpecialisationId == filter.SpecialisationId)
-                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYear.SpecialisationId == filter.SpecialisationId)
-                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYear.SpecialisationId == filter.SpecialisationId));
+                _context.Promotions.Any(gy => gy.Id == h.PromotionId && gy.SpecialisationId == filter.SpecialisationId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.Promotion.SpecialisationId == filter.SpecialisationId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.Promotion.SpecialisationId == filter.SpecialisationId));
         }
 
         if (filter.GroupYearId != null)
         {
             query = query.Where(h =>
-                _context.GroupYears.Any(gy => gy.Id == h.GroupYearId && gy.Id == filter.GroupYearId)
-                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.GroupYearId == filter.GroupYearId)
-                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.GroupYearId == filter.GroupYearId));
+                _context.Promotions.Any(gy => gy.Id == h.PromotionId && gy.Id == filter.GroupYearId)
+                || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.PromotionId == filter.GroupYearId)
+                || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.PromotionId == filter.GroupYearId));
         }
 
         if (filter.TeacherId != null)
@@ -164,7 +164,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             .Include(x => x.Teacher)
                 .ThenInclude(x => x.User)
             .Include(x => x.Subject)
-            .Include(x => x.GroupYear)
+            .Include(x => x.Promotion)
             .Include(x => x.StudentGroup)
             .Include(x => x.StudentSubGroup)
             .OrderBy(x => x.Day)

@@ -37,18 +37,18 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return facultyDto;
     }
 
-    public async Task<GroupYearResponseDTO> CreateGroupYear(GroupYearPostDTO groupYearPostDto)
+    public async Task<PromotionResponseDTO> CreatePromotion(PromotionPostDTO promotionPostDTO)
     {
-        _logger.InfoFormat("Validating GroupYearPostDTO: {0}", JsonSerializer.Serialize(groupYearPostDto));
-        var validator = _validatorFactory.Get<GroupYearPostDTO>();
-        var validationResult = await validator.ValidateAsync(groupYearPostDto);
+        _logger.InfoFormat("Validating PromotionPostDTO: {0}", JsonSerializer.Serialize(promotionPostDTO));
+        var validator = _validatorFactory.Get<PromotionPostDTO>();
+        var validationResult = await validator.ValidateAsync(promotionPostDTO);
         if (!validationResult.IsValid)
         {
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
-        _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(groupYearPostDto));
-        var groupYearDto = await _academicRepository.AddGroupYearAsync(groupYearPostDto);
+        _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(promotionPostDTO));
+        var groupYearDto = await _academicRepository.AddPromotionAsync(promotionPostDTO);
         await _academicRepository.SaveChangesAsync();
 
         return groupYearDto;
@@ -150,15 +150,15 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return facultyDto;
     }
 
-    public async Task<GroupYearResponseDTO> GetGroupYearById(int groupYearId)
+    public async Task<PromotionResponseDTO> GetPromotionById(int promotionId)
     {
-        _logger.InfoFormat("Trying to retrieve group year with id {0}", groupYearId);
-        var groupYearDto = await _academicRepository.GetGroupYearByIdAsync(groupYearId)
-            ?? throw new NotFoundException($"GroupYear with ID {groupYearId} not found.");
+        _logger.InfoFormat("Trying to retrieve promotion with id {0}", promotionId);
+        var promotionDto = await _academicRepository.GetPromotionByIdAsync(promotionId)
+            ?? throw new NotFoundException($"Promotion with ID {promotionId} not found.");
 
-        _logger.InfoFormat("Mapping group year entity to DTO for ID {0}", groupYearId);
+        _logger.InfoFormat("Mapping promotion entity to DTO for ID {0}", promotionId);
 
-        return groupYearDto;
+        return promotionDto;
     }
 
     public async Task<SpecialisationResponseDTO> GetSpecialisationById(int specialisationId)

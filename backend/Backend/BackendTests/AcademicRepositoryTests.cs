@@ -69,22 +69,22 @@ public class AcademicRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("IR1")]
-    [InlineData("IR2")]
-    public async Task AddGroupYearAsyncTest(string year)
+    [InlineData(2023, 2025)]
+    [InlineData(2024, 2027)]
+    public async Task AddPromotionAsyncTest(int sy, int ey)
     {
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
         await _context.Specialisations.AddAsync(spec);
         await _context.SaveChangesAsync();
 
-        var groupYear = new GroupYearPostDTO { Year = year, SpecialisationId = spec.Id };
-        await _repo.AddGroupYearAsync(groupYear);
+        var promotion = new PromotionPostDTO { StartYear = sy, EndYear = ey, SpecialisationId = spec.Id };
+        await _repo.AddPromotionAsync(promotion);
         await _repo.SaveChangesAsync();
 
-        var result = await _context.GroupYears.FirstOrDefaultAsync(g => g.Year == year);
+        var result = await _context.Promotions.FirstOrDefaultAsync(g => g.StartYear == sy);
         Assert.NotNull(result);
-        Assert.Equal(year, result!.Year);
+        Assert.Equal(sy, result!.StartYear);
     }
 
 
@@ -95,12 +95,12 @@ public class AcademicRepositoryTests : IDisposable
     {
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
-        var year = new GroupYear { Year = "IR1", Specialisation = spec };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = spec };
 
-        await _context.GroupYears.AddAsync(year);
+        await _context.Promotions.AddAsync(promotion);
         await _context.SaveChangesAsync();
 
-        var group = new StudentGroupPostDTO { Name = name, GroupYearId = year.Id };
+        var group = new StudentGroupPostDTO { Name = name, GroupYearId = promotion.Id };
         await _repo.AddGroupAsync(group);
         await _repo.SaveChangesAsync();
 
@@ -116,8 +116,8 @@ public class AcademicRepositoryTests : IDisposable
     {
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
-        var year = new GroupYear { Year = "IR1", Specialisation = spec };
-        var group = new StudentGroup { Name = "IR1A", GroupYear = year };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = spec };
+        var group = new StudentGroup { Name = "IR1A", Promotion = promotion };
 
         await _context.Groups.AddAsync(group);
         await _context.SaveChangesAsync();
@@ -217,21 +217,21 @@ public class AcademicRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("IR3")]
-    [InlineData("IE1")]
-    public async Task GetGroupYearByIdAsyncTest(string year)
+    [InlineData(2023)]
+    [InlineData(2024)]
+    public async Task GetPromotionByIdAsyncTest(int year)
     {
         var faculty = new Faculty { Name = "FMI" };
         var specialisation = new Specialisation { Name = "Informatica", Faculty = faculty };
-        var groupYear = new GroupYear { Year = year, Specialisation = specialisation };
+        var promotion = new Promotion { StartYear = year, EndYear = year + 3, Specialisation = specialisation };
 
-        _context.GroupYears.Add(groupYear);
+        _context.Promotions.Add(promotion);
         await _context.SaveChangesAsync();
 
-        var result = await _repo.GetGroupYearByIdAsync(groupYear.Id);
+        var result = await _repo.GetPromotionByIdAsync(promotion.Id);
 
         Assert.NotNull(result);
-        Assert.Equal(year, result.Year);
+        Assert.Equal(year, result.StartYear);
     }
 
     [Theory]
@@ -240,8 +240,8 @@ public class AcademicRepositoryTests : IDisposable
     {
         var faculty = new Faculty { Name = facultyName };
         var specialisation = new Specialisation { Name = "Informatica", Faculty = faculty };
-        var groupYear = new GroupYear { Year = year, Specialisation = specialisation };
-        var group = new StudentGroup { Name = groupName, GroupYear = groupYear };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var group = new StudentGroup { Name = groupName, Promotion = promotion };
 
         _context.Groups.Add(group);
         await _context.SaveChangesAsync();
@@ -253,14 +253,14 @@ public class AcademicRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("IR1", "312", "312/2", "FMI")]
-    public async Task GetSubGroupByIdAsync_ReturnsCorrectSubGroup(string year, string groupName, string subGroupName,
+    [InlineData(2023, 2024, "312", "312/2", "FMI")]
+    public async Task GetSubGroupByIdAsync_ReturnsCorrectSubGroup(int startYear, int endYear, string groupName, string subGroupName,
         string facultyName)
     {
         var faculty = new Faculty { Name = facultyName };
         var specialisation = new Specialisation { Name = "Informatica", Faculty = faculty };
-        var groupYear = new GroupYear { Year = year, Specialisation = specialisation };
-        var group = new StudentGroup { Name = groupName, GroupYear = groupYear };
+        var promotion = new Promotion { StartYear= startYear, EndYear = endYear, Specialisation = specialisation };
+        var group = new StudentGroup { Name = groupName, Promotion = promotion };
         var subGroup = new StudentSubGroup { Name = subGroupName, StudentGroup = group };
 
         _context.SubGroups.Add(subGroup);
@@ -292,9 +292,9 @@ public class AcademicRepositoryTests : IDisposable
 
     [Theory]
     [InlineData(999)]
-    public async Task GetGroupYearByIdAsyncNonExisting(int invalidId)
+    public async Task GetPromotionByIdAsyncNonExisting(int invalidId)
     {
-        var result = await _repo.GetGroupYearByIdAsync(invalidId);
+        var result = await _repo.GetPromotionByIdAsync(invalidId);
 
         Assert.Null(result);
     }

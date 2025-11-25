@@ -67,7 +67,7 @@ public class HourPostDTOValidator : AbstractValidator<HourPostDTO>
             {
                 if (groupYearId == null) return true;
 
-                var gy = await academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
+                var gy = await academicRepository.GetPromotionByIdAsync(groupYearId.Value);
                 return gy != null;
             }).WithMessage("The specified GroupYear does not exist.");
 

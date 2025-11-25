@@ -9,60 +9,62 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
 {
     public async Task<List<ContractData>> GetData(int userId)
     {
-        var enrollment = await dbContext.Enrollments
-            .Include(x => x.SubGroup)
-                .ThenInclude(x => x.StudentGroup)
-                    .ThenInclude(x => x.GroupYear)
-                        .ThenInclude(x => x.Specialisation)
-                            .ThenInclude(x => x.Faculty)
-            .Include(x => x.SubGroup)
-                .ThenInclude(x => x.StudentGroup)
-                    .ThenInclude(x => x.GroupYear)
-                        .ThenInclude(x => x.Subjects)
-            .Include(x => x.User)
-            .Where(x => x.UserId == userId)
-            .ToListAsync();
+		//TODO: get the semester number from date
+		int yearNumber = 1;
 
-        return enrollment
-            .Select(x =>
+        var contract = await dbContext.Contracts
+            .Include(x => x.Subjects)
+            .Include(x => x.Enrollment)
+                .ThenInclude(x => x.SubGroup)
+                    .ThenInclude(x => x.StudentGroup)
+                        .ThenInclude(x => x.Promotion)
+                            .ThenInclude(x => x.Specialisation)
+                                .ThenInclude(x => x.Faculty)
+            .Include(x => x.Enrollment)
+                .ThenInclude(x => x.User)
+            .Include(x => x.Semester)
+                .ThenInclude(x => x.PromotionYear)
+			.Where(x => x.Enrollment.UserId == userId && x.Semester.PromotionYear.YearNumber == yearNumber)
+            .FirstOrDefaultAsync() ?? throw new Exception("Contract not found");
+
+        var x = contract.Enrollment;
+
+        var specialisation = x.SubGroup.StudentGroup.Promotion.Specialisation;
+        var faculty = specialisation.Faculty;
+
+        var subjects = contract.Subjects;
+        var student = x.User;
+
+        var semester1Data = subjects.Select(
+            x => new ContractSubjectData()
             {
-                var specialisation = x.SubGroup.StudentGroup.GroupYear.Specialisation;
-                var faculty = specialisation.Faculty;
+                Code = x.Id.ToString(),
+                Type = "TODO",
+                Name = x.Name,
+                Credits = x.NumberOfCredits,
+            }).ToList();
+        // TODO
+        var semester2Data = semester1Data.ToList();
+        semester2Data.Reverse();
 
-                var subjects = x.SubGroup.StudentGroup.GroupYear.Subjects;
-                var student = x.User;
+        var r = new ContractData()
+        {
+            FacultyName = faculty.Name,
+            Domain = specialisation.Name,
+            Specialization = specialisation.Name,
+            Language = "TODO",
+            StudentYear = "TODO",
+            SubjectsSemester1 = semester1Data,
+            SubjectsSemester2 = semester2Data,
 
-                var semester1Data = subjects.Select(
-                    x => new ContractSubjectData()
-                    {
-                        Code = x.Id.ToString(),
-                        Type = "TODO",
-                        Name = x.Name,
-                        Credits = x.NumberOfCredits,
-                    }).ToList();
-                // TODO
-                var semester2Data = semester1Data.ToList();
-                semester2Data.Reverse();
-
-                return new ContractData()
-                {
-                    FacultyName = faculty.Name,
-                    Domain = specialisation.Name,
-                    Specialization = specialisation.Name,
-                    Language = "TODO",
-                    StudentYear = "TODO",
-                    SubjectsSemester1 = semester1Data,
-                    SubjectsSemester2 = semester2Data,
-
-                    FullName = $"{student.FirstName} {student.LastName}",
-                    StudentId = student.Id.ToString(),
-                    IdCardSeries = "TODO",
-                    IdCardNumber = "TODO",
-                    CNP = "TODO",
-                    StudentPhone = student.PhoneNumber,
-                    StudentEmail = student.Email,
-                };
-            })
-        .ToList();
+            FullName = $"{student.FirstName} {student.LastName}",
+            StudentId = student.Id.ToString(),
+            IdCardSeries = "TODO",
+            IdCardNumber = "TODO",
+            CNP = "TODO",
+            StudentPhone = student.PhoneNumber,
+            StudentEmail = student.Email,
+        };
+        return [ r ];
     }
 }

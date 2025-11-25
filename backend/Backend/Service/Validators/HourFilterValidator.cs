@@ -73,7 +73,7 @@ public class HourFilterValidator : AbstractValidator<HourFilter>
             {
                 if (groupYearId == null) return true;
 
-                var groupYear = await _academicRepository.GetGroupYearByIdAsync(groupYearId.Value);
+                var groupYear = await _academicRepository.GetPromotionByIdAsync(groupYearId.Value);
                 return groupYear != null;
             }).WithMessage(filter => $"Group year with ID {filter.GroupYearId} not found.");
     }

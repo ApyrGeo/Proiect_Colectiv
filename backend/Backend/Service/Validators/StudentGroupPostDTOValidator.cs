@@ -17,7 +17,7 @@ public class StudentGroupPostDTOValidator : AbstractValidator<StudentGroupPostDT
             .GreaterThan(0).WithMessage("GroupYearId must be a positive integer.")
             .MustAsync(async (groupYearId, cancellation) =>
             {
-                var groupYear = await academicRepository.GetGroupYearByIdAsync(groupYearId);
+                var groupYear = await academicRepository.GetPromotionByIdAsync(groupYearId);
                 return groupYear != null;
             }).WithMessage("The specified GroupYearId does not exist.");
     }
