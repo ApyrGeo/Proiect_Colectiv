@@ -1,6 +1,7 @@
 ﻿using TrackForUBB.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Repository.DataSeeder;
 
@@ -68,7 +69,7 @@ public class UniversityDataSeeder(AcademicAppContext context)
                 EndYear = 2026 + promoNum - 1,
                 Specialisation = spec
             };
-            promotion.StudentGroups = GenerateGroups(spec_nr, (DateTime.Now.Year - promotion.StartYear + (DateTime.Now.Month < 7 ? 0 : 1)), promotion);
+            promotion.StudentGroups = GenerateGroups(spec_nr, HelperFunctions.GetCurrentStudentYear(promotion.StartYear), promotion);
             promotion.Years = GenerateYears(promotion);
 			promotions.Add(promotion);
         }

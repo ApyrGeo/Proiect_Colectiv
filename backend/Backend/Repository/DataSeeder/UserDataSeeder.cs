@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.Security;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Repository.DataSeeder;
 
@@ -74,7 +75,7 @@ public class UserDataSeeder
 		async Task CreateContractForEnrollmentAsync(Enrollment enrollment, Promotion promotion)
 		{
 			// determine current semester for the promotion
-			var currentYearNum = Math.Clamp(DateTime.Now.Year - promotion.StartYear + 1, 1, 3);
+			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
 			var currentSemesterNum = DateTime.Now.Month < 7 ? 1 : 2;
 			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
 			var currentSemester = currentYear?.PromotionSemesters.FirstOrDefault(s => s.SemesterNumber == currentSemesterNum);

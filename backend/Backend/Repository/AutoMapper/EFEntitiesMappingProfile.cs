@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.EFEntities;
 
 namespace TrackForUBB.Repository.AutoMapper;
@@ -51,7 +52,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(x => x.Format, o => o.MapFrom(s =>
                 s.StudentSubGroup != null ? s.StudentSubGroup.Name
                 : s.StudentGroup != null ? s.StudentGroup.Name
-                : s.Promotion != null ? s.Promotion.Specialisation.Name + " " + (DateTime.Now.Year - s.Promotion.StartYear + (DateTime.Now.Month < 7 ? 0 : 1))
+                : s.Promotion != null ? s.Promotion.Specialisation.Name + " " + HelperFunctions.GetCurrentStudentYear(s.Promotion.StartYear)
 				: "Unknown"
             ));
         CreateMap<HourPostDTO, Hour>()
