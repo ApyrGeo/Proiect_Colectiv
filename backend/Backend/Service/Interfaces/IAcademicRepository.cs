@@ -11,8 +11,8 @@ public interface IAcademicRepository
     Task<FacultyResponseDTO> AddFacultyAsync(FacultyPostDTO faculty);
     Task<FacultyResponseDTO?> GetFacultyByIdAsync(int id);
     Task<FacultyResponseDTO?> GetFacultyByNameAsync(string name);
-    Task<GroupYearResponseDTO> AddGroupYearAsync(GroupYearPostDTO groupYear);
-    Task<GroupYearResponseDTO?> GetGroupYearByIdAsync(int id);
+    Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion);
+    Task<PromotionResponseDTO?> GetPromotionByIdAsync(int id);
     Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation);
     Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id);
     Task<StudentGroupResponseDTO> AddGroupAsync(StudentGroupPostDTO studentGroup);

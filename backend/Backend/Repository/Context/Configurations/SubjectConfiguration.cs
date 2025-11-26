@@ -18,8 +18,7 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         builder.Property(f => f.NumberOfCredits)
             .IsRequired();
 
-        builder.HasOne(f => f.GroupYear)
-            .WithMany(f => f.Subjects)
-            .HasForeignKey(sg => sg.GroupYearId);
+        builder.HasMany(s => s.Contracts)
+            .WithMany(c => c.Subjects);
     }
 }

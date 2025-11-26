@@ -33,7 +33,7 @@ public class AcademicsServiceTests
         var mockValidatorFactory = new Mock<IValidatorFactory>();
 
         mockValidatorFactory.Setup(v => v.Get<FacultyPostDTO>()).Returns(facultyValidator);
-        mockValidatorFactory.Setup(v => v.Get<GroupYearPostDTO>()).Returns(groupYearValidator);
+        mockValidatorFactory.Setup(v => v.Get<PromotionPostDTO>()).Returns(groupYearValidator);
         mockValidatorFactory.Setup(v => v.Get<SpecialisationPostDTO>()).Returns(specialisationValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentGroupPostDTO>()).Returns(studentGroupValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentSubGroupPostDTO>()).Returns(studentSubGroupValidator);
@@ -80,23 +80,24 @@ public class AcademicsServiceTests
     [Theory]
     [InlineData("IR1", 1)]
     [InlineData("IE3", 1)]
-    public async Task CreateGroupYearValid(string year, int specialisationId)
+    public async Task CreatePromotionValid(string year, int specialisationId)
     {
-        var dto = new GroupYearPostDTO { Year = year, SpecialisationId = specialisationId };
+        var dto = new PromotionPostDTO { StartYear = 2023, EndYear = 2025, SpecialisationId = specialisationId };
         var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisationResponse);
-        var responseDto = new GroupYearResponseDTO { Id = 1, Year = year };
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
 
-        _mockRepository.Setup(r => r.AddGroupYearAsync(dto)).ReturnsAsync(responseDto);
+        _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
-        var result = await _service.CreateGroupYear(dto);
+        var result = await _service.CreatePromotion(dto);
 
         Assert.NotNull(result);
-        Assert.Equal(year, result.Year);
-        _mockRepository.Verify(r => r.AddGroupYearAsync(dto), Times.Once);
+        Assert.Equal(2023, result.StartYear);
+        Assert.Equal(2025, result.EndYear);
+        _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Once);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -104,21 +105,21 @@ public class AcademicsServiceTests
     [Theory]
     [InlineData("", 1)]
     [InlineData("IE3", -1)]
-    public async Task CreateGroupYearInvalidData(string year, int specialisationId)
+    public async Task CreatePromotionInvalidData(string year, int specialisationId)
     {
-        var dto = new GroupYearPostDTO { Year = year, SpecialisationId = specialisationId };
+        var dto = new PromotionPostDTO { StartYear = 2023, EndYear = 2025, SpecialisationId = specialisationId };
         var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisationResponse);
-        var responseDto = new GroupYearResponseDTO { Id = 1, Year = year };
-        
-        _mockRepository.Setup(r => r.AddGroupYearAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        
-        await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateGroupYear(dto));
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
 
-        _mockRepository.Verify(r => r.AddGroupYearAsync(dto), Times.Never);
+        _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
+        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+        await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreatePromotion(dto));
+
+        _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Never);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
     
@@ -175,10 +176,10 @@ public class AcademicsServiceTests
         var dto = new StudentGroupPostDTO { Name = name, GroupYearId = groupYearId };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
-        var groupYearResponse = new GroupYearResponseDTO { Id = 1, Year = groupYear.Year };
+        var groupYear = new Promotion { Id = groupYearId, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var groupYearResponse = new PromotionResponseDTO { Id = 1, StartYear = groupYear.StartYear, EndYear = groupYear.EndYear };
         _mockRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
             .ReturnsAsync(groupYearResponse);
 
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
@@ -202,10 +203,10 @@ public class AcademicsServiceTests
         var dto = new StudentGroupPostDTO { Name = name, GroupYearId = groupYearId };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
-        var groupYearResponse = new GroupYearResponseDTO { Id = groupYearId, Year = groupYear.Year };
+        var groupYear = new Promotion { Id = groupYearId, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var groupYearResponse = new PromotionResponseDTO { Id = groupYearId, StartYear = groupYear.StartYear, EndYear = groupYear.EndYear };
         _mockRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
             .ReturnsAsync(groupYearResponse);
 
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
@@ -285,8 +286,8 @@ public class AcademicsServiceTests
             .ReturnsAsync(userResponse);
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var subGroupResponse = new StudentSubGroupResponseDTO { Id = 1, Name = subGroup.Name };
         _mockRepository
@@ -339,8 +340,8 @@ public class AcademicsServiceTests
             .ReturnsAsync(userResponseDto);
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var subGroupResponse = new StudentSubGroupResponseDTO { Id = 1, Name = subGroup.Name };
         _mockRepository
@@ -449,32 +450,33 @@ public class AcademicsServiceTests
     }
 
     [Theory]
-    [InlineData(1, "IR1")]
-    [InlineData(2, "IR2")]
-    public async Task GetGroupYearByIdValid(int id, string year)
+    [InlineData(1, 2023, 2025)]
+    [InlineData(2, 2024, 2027)]
+    public async Task GetPromotionByIdValid(int id, int startYear, int endYear)
     {
-        var dto = new GroupYearResponseDTO { Id = id, Year = year };
+        var dto = new PromotionResponseDTO { Id = id, StartYear = startYear, EndYear = endYear };
 
-        _mockRepository.Setup(r => r.GetGroupYearByIdAsync(id)).ReturnsAsync(dto);
+        _mockRepository.Setup(r => r.GetPromotionByIdAsync(id)).ReturnsAsync(dto);
 
-        var result = await _service.GetGroupYearById(id);
+        var result = await _service.GetPromotionById(id);
 
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
-        Assert.Equal(year, result.Year);
-        _mockRepository.Verify(r => r.GetGroupYearByIdAsync(id), Times.Once);
+        Assert.Equal(startYear, result.StartYear);
+        Assert.Equal(endYear, result.EndYear);
+		_mockRepository.Verify(r => r.GetPromotionByIdAsync(id), Times.Once);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(999)]
-    public async Task GetGroupYearByIdInvalidId(int id)
+    public async Task GetPromotionByIdInvalidId(int id)
     {
-        _mockRepository.Setup(r => r.GetGroupYearByIdAsync(id)).ReturnsAsync((GroupYearResponseDTO?)null);
+        _mockRepository.Setup(r => r.GetPromotionByIdAsync(id)).ReturnsAsync((PromotionResponseDTO?)null);
 
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetGroupYearById(id));
+        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetPromotionById(id));
 
-        _mockRepository.Verify(r => r.GetGroupYearByIdAsync(id), Times.Once);
+        _mockRepository.Verify(r => r.GetPromotionByIdAsync(id), Times.Once);
     }
 
     [Theory]

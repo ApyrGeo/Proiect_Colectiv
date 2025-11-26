@@ -108,11 +108,11 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
     [HttpGet("group-years/{groupYearId}")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<GroupYearResponseDTO>> GetGroupYearById([FromRoute] int groupYearId)
+    public async Task<ActionResult<PromotionResponseDTO>> GetGroupYearById([FromRoute] int groupYearId)
     {
         _logger.InfoFormat("Fetching group year with id {0}", groupYearId);
 
-        GroupYearResponseDTO groupYear = await _service.GetGroupYearById(groupYearId);
+        PromotionResponseDTO groupYear = await _service.GetPromotionById(groupYearId);
 
         return Ok(groupYear);
     }
@@ -120,11 +120,11 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("group-years")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<GroupYearResponseDTO>> CreateGroupYear([FromBody] GroupYearPostDTO groupYearPostDto)
+    public async Task<ActionResult<PromotionResponseDTO>> CreateGroupYear([FromBody] PromotionPostDTO promotionPostDto)
     {
-        _logger.InfoFormat("Creating new group year for specialisation ID {0} and year {1}", groupYearPostDto.SpecialisationId, groupYearPostDto.Year);
+        _logger.InfoFormat("Creating new group year for specialisation ID {0} and years {1} {2}", promotionPostDto.SpecialisationId, promotionPostDto.StartYear, promotionPostDto.EndYear);
 
-        GroupYearResponseDTO createdGroupYear = await _service.CreateGroupYear(groupYearPostDto);
+        PromotionResponseDTO createdGroupYear = await _service.CreatePromotion(promotionPostDto);
 
         return CreatedAtAction(nameof(GetGroupYearById), new { groupYearId = createdGroupYear.Id }, createdGroupYear);
     }

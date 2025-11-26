@@ -6,73 +6,76 @@ namespace TrackForUBB.Repository.DataSeeder;
 
 public class SubjectDataSeeder(AcademicAppContext context)
 {
-    private readonly AcademicAppContext _context = context;
+	private readonly AcademicAppContext _context = context;
 
-    public async Task SeedAsync()
-    {
-        if (await _context.Subjects.AnyAsync())
-            return;
+	public async Task SeedAsync()
+	{
+		if (await _context.Subjects.AnyAsync())
+			return;
 
-        var groupYears = await _context.GroupYears
-            .Include(gy => gy.Specialisation)
-            .ThenInclude(s => s.Faculty)
-            .ToListAsync();
+		var specialisations = await _context.Specialisations
+			.Include(s => s.Faculty)
+			.ToListAsync();
 
-        if (groupYears.Count == 0)
-            return;
+		if (specialisations.Count == 0)
+			return;
 
-        var rand = new Random();
+		var rand = new Random();
 
-        //more to be added in the future
-        var pools = new Dictionary<string, string[]>
-        {
-            ["Matematică și Informatică"] = [
-                "Programare orientată pe obiecte", "Algoritmi și structuri de date",
-                "Baze de date", "Analiză matematică", "Algebră liniară", "Inteligență artificială"
-            ],
-            ["Chimie"] = ["Chimie organică", "Chimie analitică", "Chimie fizică", "Laborator de chimie"],
-            ["Fizică"] = ["Mecanică", "Fizică cuantică", "Fizică teoretică", "Laborator de fizică"],
-            ["Economie"] = ["Microeconomie", "Macroeconomie", "Contabilitate", "Finanțe"],
-            ["Teatru"] = ["Istoria teatrului", "Teatru practic", "Regie", "Teatrologie"],
-            ["Drept"] = ["Drept civil", "Drept constituțional", "Drept penal", "Drept comercial"],
-            ["generic"] = ["Introducere în domeniu", "Metodologie", "Proiect"]
-        };
+		var pools = new Dictionary<string, string[]>
+		{
+			["Matematică și Informatică"] = new[]
+			{
+				"Programare orientată pe obiecte", "Algoritmi și structuri de date",
+				"Baze de date", "Analiză matematică", "Algebră liniară", "Inteligență artificială"
+			},
+			["Chimie"] = new[] { "Chimie organică", "Chimie analitică", "Chimie fizică", "Laborator de chimie" },
+			["Fizică"] = new[] { "Mecanică", "Fizică cuantică", "Fizică teoretică", "Laborator de fizică" },
+			["Economie"] = new[] { "Microeconomie", "Macroeconomie", "Contabilitate", "Finanțe" },
+			["Teatru"] = new[] { "Istoria teatrului", "Teatru practic", "Regie", "Teatrologie" },
+			["Drept"] = new[] { "Drept civil", "Drept constituțional", "Drept penal", "Drept comercial" },
+			["generic"] = new[] { "Introducere în domeniu", "Metodologie", "Proiect" }
+		};
 
-        var subjects = new List<Subject>();
+		var subjectsToAdd = new List<Subject>();
 
-        foreach (var gy in groupYears)
-        {
-            var facultyName = gy.Specialisation?.Faculty?.Name ?? "";
-            var specName = gy.Specialisation?.Name ?? "";
+		foreach (var spec in specialisations)
+		{
+			var facultyName = spec.Faculty?.Name ?? "";
+			var specName = spec.Name ?? "";
 
-            string[]? chosenPool = null;
-            foreach (var key in pools.Keys.Where(k => k != "generic"))
-            {
-                if (facultyName.Contains(key, StringComparison.OrdinalIgnoreCase)
-                    || specName.Contains(key, StringComparison.OrdinalIgnoreCase)
-                    || specName.Split(' ').Any(t => key.Contains(t, StringComparison.OrdinalIgnoreCase)))
-                {
-                    chosenPool = pools[key];
-                    break;
-                }
-            }
+			string[]? chosenPool = null;
+			foreach (var key in pools.Keys.Where(k => k != "generic"))
+			{
+				if (facultyName.Contains(key, StringComparison.OrdinalIgnoreCase)
+					|| specName.Contains(key, StringComparison.OrdinalIgnoreCase)
+					|| specName.Split(' ').Any(t => key.Contains(t, StringComparison.OrdinalIgnoreCase)))
+				{
+					chosenPool = pools[key];
+					break;
+				}
+			}
+			chosenPool ??= pools["generic"];
 
-            chosenPool ??= pools["generic"];
+			var allNames = chosenPool.Concat(pools["generic"]).Distinct();
 
-            foreach (var subjName in chosenPool.Distinct())
-            {
-                var subj = new Subject
-                {
-                    Name = subjName,
-                    NumberOfCredits = rand.Next(3, 9),
-                    GroupYear = gy,
-                    GroupYearId = gy.Id
-                };
-                subjects.Add(subj);
-            }
-        }
+			// create subjects for the specialisation (no semester)
+			foreach (var name in allNames)
+			{
+				subjectsToAdd.Add(new Subject
+				{
+					Name = name,
+					NumberOfCredits = rand.Next(3, 7),
+					// If Subject has a SpecialisationId/Navigation, set it here:
+					// Specialisation = spec, SpecialisationId = spec.Id
+				});
+			}
+		}
 
-        await _context.Subjects.AddRangeAsync(subjects);
-        await _context.SaveChangesAsync();
-    }
+		if (subjectsToAdd.Any())
+		{
+			await _context.Subjects.AddRangeAsync(subjectsToAdd);
+			await _context.SaveChangesAsync();
+		}
+	}
 }

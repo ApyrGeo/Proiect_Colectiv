@@ -19,12 +19,15 @@ public class Hour
     public int TeacherId { get; set; }
     public required Teacher Teacher { get; set; }
 
-    public int? GroupYearId { get; set; }
-    public GroupYear? GroupYear { get; set; }
+    public int? PromotionId { get; set; }
+    public Promotion? Promotion { get; set; }
 
     public int? StudentGroupId { get; set; }
     public StudentGroup? StudentGroup { get; set; }
 
     public int? StudentSubGroupId { get; set; }
     public StudentSubGroup? StudentSubGroup { get; set; }
+
+    public int SemesterId { get; set; }
+	public required PromotionSemester Semester { get; set; } 
 }

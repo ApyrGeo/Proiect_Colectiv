@@ -55,15 +55,16 @@ public class TimetableServiceTests
         };
 
 
-        var groupYearResponse = new GroupYearResponseDTO
+        var promotionResponseDTO = new PromotionResponseDTO
         {
             Id = groupYearId,
-            Year = "IR1",
-        };
+            StartYear = 2023,
+            EndYear = 2027,
+		};
 
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYearResponse);
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(promotionResponseDTO);
 
         var responseDto = new SubjectResponseDTO
         {
@@ -94,14 +95,15 @@ public class TimetableServiceTests
     {
         var postDto = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
 
-        var groupYearResponse = new GroupYearResponseDTO
+        var promotionResponseDTO = new PromotionResponseDTO
         {
             Id = groupYearId,
-            Year = "IR1",
+            StartYear = 2023,
+            EndYear = 2027,
         };
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYearResponse);
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(promotionResponseDTO);
 
         var subjectEntity = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
 
@@ -249,10 +251,10 @@ public class TimetableServiceTests
         string day, string hourInterval, string frequency, string category, string format)
     {
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var groupYear = new GroupYearResponseDTO { Id = 1, Year = "IR1" };
+        var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2027 };
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYear.Id))
-            .ReturnsAsync(groupYear);
+            .Setup(r => r.GetPromotionByIdAsync(promotion.Id))
+            .ReturnsAsync(promotion);
         var subject = new SubjectResponseDTO { Id = 1, Name = "FP", NumberOfCredits = 6 };
         var studentGroup = new StudentGroupResponseDTO { Id = 1, Name = "234" };
         _mockAcademicRepository
@@ -439,9 +441,9 @@ public class TimetableServiceTests
     {
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6, GroupYearId = 1, GroupYear = groupYear };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2027, Specialisation = specialisation };
+        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6 };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
         var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
@@ -531,7 +533,7 @@ public class TimetableServiceTests
         };
         var faculty = new FacultyResponseDTO { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
-        var groupYear = new GroupYearResponseDTO { Id = 1, Year = "IR1" };
+        var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2027 };
         var subject = new SubjectResponseDTO { Id = 1, Name = "FP", NumberOfCredits = 6 };
         var studentGroup = new StudentGroupResponseDTO { Id = 1, Name = "234" };
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "234/1" };
@@ -574,8 +576,8 @@ public class TimetableServiceTests
             .ReturnsAsync(faculty);
         _mockAcademicRepository.Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisation);
-        _mockAcademicRepository.Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
+        _mockAcademicRepository.Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(promotion);
 
 
         var response = new HourResponseDTO

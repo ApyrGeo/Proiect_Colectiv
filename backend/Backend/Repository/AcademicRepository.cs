@@ -36,12 +36,12 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         return _mapper.Map<StudentGroupResponseDTO>(entity);
 	}
 
-    public async Task<GroupYearResponseDTO> AddGroupYearAsync(GroupYearPostDTO groupYear)
+    public async Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion)
     {
-		var entity = _mapper.Map<GroupYear>(groupYear);
-		await _context.GroupYears.AddAsync(entity);
+		var entity = _mapper.Map<Promotion>(promotion);
+		await _context.Promotions.AddAsync(entity);
 
-        return _mapper.Map<GroupYearResponseDTO>(entity);
+        return _mapper.Map<PromotionResponseDTO>(entity);
 	}
 
     public async Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation)
@@ -84,7 +84,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var enrollments = await _context.Enrollments
             .Include(e => e.SubGroup)
                 .ThenInclude(sg => sg.StudentGroup)
-                    .ThenInclude(g => g.GroupYear)
+                    .ThenInclude(g => g.Promotion)
                         .ThenInclude(gy => gy.Specialisation)
                             .ThenInclude(s => s.Faculty)
             .Include(e => e.User)
@@ -114,7 +114,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var studentGroup = await _context.Groups
             .Include(g => g.StudentSubGroups)
-            .Include(g => g.GroupYear)
+            .Include(g => g.Promotion)
                 .ThenInclude(gy => gy.Specialisation)
                     .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(g => g.Id == id);
@@ -122,22 +122,22 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 		return _mapper.Map<StudentGroupResponseDTO>(studentGroup);
 	}
 
-    public async Task<GroupYearResponseDTO?> GetGroupYearByIdAsync(int id)
+    public async Task<PromotionResponseDTO?> GetPromotionByIdAsync(int id)
     {
-        var groupYear = await _context.GroupYears
+        var promotion = await _context.Promotions
             .Include(gy => gy.StudentGroups)
             .Include(gy => gy.Specialisation)
                 .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(gy => gy.Id == id);
 
-		return _mapper.Map<GroupYearResponseDTO>(groupYear);
+		return _mapper.Map<PromotionResponseDTO>(promotion);
 	}
 
     public async Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id)
     {
         var specialisation = await _context.Specialisations
              .Include(s => s.Faculty)
-             .Include(s => s.GroupYears)
+             .Include(s => s.Promotions)
              .FirstOrDefaultAsync(s => s.Id == id);
 
 		return _mapper.Map<SpecialisationResponseDTO>(specialisation);
@@ -147,7 +147,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var studentSubGroup = await _context.SubGroups
             .Include(sg => sg.StudentGroup)
-                .ThenInclude(g => g.GroupYear)
+                .ThenInclude(g => g.Promotion)
                     .ThenInclude(gy => gy.Specialisation)
                         .ThenInclude(s => s.Faculty)
             .Include(sg => sg.Enrollments)

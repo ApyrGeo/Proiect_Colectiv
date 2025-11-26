@@ -1,6 +1,7 @@
 ﻿using TrackForUBB.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Repository.DataSeeder;
 
@@ -24,79 +25,101 @@ public class UniversityDataSeeder(AcademicAppContext context)
             new() {Name = "Facultatea de Drept"}
         };
 
-        faculties.ForEach(f =>
-        {
-            var facultyCode = f.Name.Split()[^1][0];
-            var languages = new[] { "Romana", "Engleza", "Germana", "Maghiara" };
+		faculties.ForEach(f =>
+		{
+			var facultyCode = f.Name.Split()[^1][0];
+			var languages = new[] { "Romana", "Engleza", "Germana", "Maghiara" };
 
-            var specialisationNames = new List<string>();
-            foreach (var language in languages)
-            {
-                specialisationNames.Add($"{f.Name.Split()[^1]} {language}");
-            }
+			var specialisationNames = new List<string>();
+			foreach (var language in languages)
+			{
+				specialisationNames.Add($"{f.Name.Split()[^1]} {language}");
+			}
 
-            int spec_nr = 1;
-            f.Specialisations = [.. specialisationNames.Select(s => {
-                var spec = new Specialisation
-                {
-                    Name = s,
-                    Faculty = f
-                };
-                spec.GroupYears = GenerateYears(facultyCode, spec, spec_nr);
-                spec_nr ++;
-                return spec;
-                })];
-        });
+			var specs = new List<Specialisation>();
+			int specNr = 1;
+			foreach (var specName in specialisationNames)
+			{
+				var spec = new Specialisation
+				{
+					Name = specName,
+					Faculty = f
+				};
+				spec.Promotions = GeneratePromotions(facultyCode, spec, specNr);
+				specNr++;
+				specs.Add(spec);
+			}
 
-        await _context.Faculties.AddRangeAsync(faculties);
+			f.Specialisations = specs;
+		});
+
+		await _context.Faculties.AddRangeAsync(faculties);
         await _context.SaveChangesAsync();
     }
 
-    private static List<GroupYear> GenerateYears(char facultyCode, Specialisation spec, int spec_nr)
+    private static List<Promotion> GeneratePromotions(char facultyCode, Specialisation spec, int spec_nr)
     {
-        var years = new List<GroupYear>();
-
-        for (int yearNum = 1; yearNum <= 3; yearNum++)
+        var promotions = new List<Promotion>();
+        for (int promoNum = 1; promoNum <= 3; promoNum++)
         {
-            string yearcode = $"{spec.Name.Split()[0][0]}{spec.Name.Split()[1][0]}{yearNum}";
-
-            var year = new GroupYear()
+            string promocode = $"{facultyCode}{spec.Name.Split()[0][0]}{spec.Name.Split()[1][0]}{promoNum}";
+            var promotion = new Promotion()
             {
-                Year = yearcode,
+                StartYear = 2023 + promoNum - 1,
+                EndYear = 2026 + promoNum - 1,
                 Specialisation = spec
             };
-            year.StudentGroups = GenerateGroups(spec_nr, yearNum, year);
-
-            years.Add(year);
+            promotion.StudentGroups = GenerateGroups(spec_nr, HelperFunctions.GetCurrentStudentYear(promotion.StartYear), promotion);
+            promotion.Years = GenerateYears(promotion);
+			promotions.Add(promotion);
         }
+        return promotions;
+	}
 
-        return years;
-    }
+	private static List<PromotionYear> GenerateYears(Promotion promotion)
+	{
+		var years = new List<PromotionYear>();
+		for (int i = 1; i <= 3; i++)
+		{
+			var year = new PromotionYear
+			{
+				YearNumber = i,
+				Promotion = promotion
+			};
+			year.PromotionSemesters = new List<PromotionSemester>
+		{
+			new PromotionSemester { SemesterNumber = 1, PromotionYear = year },
+			new PromotionSemester { SemesterNumber = 2, PromotionYear = year }
+		};
+			years.Add(year);
+		}
+		return years;
+	}
 
-    private static List<StudentGroup> GenerateGroups(int specialisationNr, int yearNum, GroupYear year)
-    {
-        var random = new Random();
-        var groups = new List<StudentGroup>();
-        int numGroups = random.Next(3, 8);
+	private static List<StudentGroup> GenerateGroups(int specialisationNr, int yearNum, Promotion promotion)
+	{
+		var random = new Random();
+		var groups = new List<StudentGroup>();
+		int numGroups = random.Next(3, 8);
 
-        for (int i = 1; i <= numGroups; i++)
-        {
-            string groupCode = $"{specialisationNr}{yearNum}{i}";
+		for (int i = 1; i <= numGroups; i++)
+		{
+			string groupCode = $"{specialisationNr}{yearNum}{i}";
 
-            var group = new StudentGroup
-            {
-                Name = groupCode,
-                GroupYear = year
-            };
+			var group = new StudentGroup
+			{
+				Name = groupCode,
+				Promotion = promotion
+			};
 
-            group.StudentSubGroups =
-                [
-                    new() {Name = $"{groupCode}-1", StudentGroup = group},
-                    new() {Name = $"{groupCode}-2", StudentGroup = group}
-                ];
-            groups.Add(group);
+			group.StudentSubGroups = new List<StudentSubGroup>
+		{
+			new StudentSubGroup { Name = $"{groupCode}-1", StudentGroup = group },
+			new StudentSubGroup { Name = $"{groupCode}-2", StudentGroup = group }
+		};
 
-        }
-        return groups;
-    }
+			groups.Add(group);
+		}
+		return groups;
+	}
 }

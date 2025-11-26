@@ -15,8 +15,8 @@ public class StudentGroupConfiguration : IEntityTypeConfiguration<StudentGroup>
             .IsRequired()
             .HasMaxLength(Constants.DefaultStringMaxLenght);
 
-        builder.HasOne(sg => sg.GroupYear)
+        builder.HasOne(sg => sg.Promotion)
             .WithMany(gy => gy.StudentGroups)
-            .HasForeignKey(sg => sg.GroupYearId);
+            .HasForeignKey(sg => sg.PromotionId);
     }
 }

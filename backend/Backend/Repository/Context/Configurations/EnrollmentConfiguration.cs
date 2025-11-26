@@ -19,5 +19,5 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
             .WithMany(x => x.Enrollments)
             .HasForeignKey(x => x.SubGroupId)
             .IsRequired();
-    }
+	}
 }
