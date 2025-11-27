@@ -2,7 +2,7 @@ import "./googleMaps.css";
 
 import { Marker, useJsApiLoader, OverlayView } from "@react-google-maps/api";
 import { GoogleMap } from "@react-google-maps/api";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import type { LocationProps } from "../timetable/props.ts";
 
 const mapOptions = {
@@ -47,7 +47,7 @@ interface LocationPropsArray {
 
 const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "x",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
