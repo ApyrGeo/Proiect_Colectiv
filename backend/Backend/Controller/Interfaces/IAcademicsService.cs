@@ -18,4 +18,5 @@ public interface IAcademicsService
     Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId);
     Task<List<EnrollmentResponseDTO>> GetUserEnrollments(int userId);
     Task<TeacherResponseDTO> GetTeacherById(int id);
+    Task<EnrollmentResponseDTO> GetEnrollmentById(int enrollmentId);
 }

@@ -20,4 +20,5 @@ public interface IAcademicRepository
     Task<StudentSubGroupResponseDTO> AddSubGroupAsync(StudentSubGroupPostDTO studentSubGroup);
     Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id);
     Task SaveChangesAsync();
+    Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId);
 }

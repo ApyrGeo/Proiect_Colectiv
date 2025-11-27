@@ -160,4 +160,17 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId)
+    {
+       var enrollment = await _context.Enrollments.Where(e => e.Id == enrollmentId)
+            .Include(e => e.User)
+            .Include(e => e.SubGroup)
+                .ThenInclude(sg => sg.StudentGroup)
+                    .ThenInclude(g => g.Promotion)
+                        .ThenInclude(gy => gy.Specialisation)
+                            .ThenInclude(s => s.Faculty)
+            .FirstOrDefaultAsync();
+        return _mapper.Map<EnrollmentResponseDTO>(enrollment);
+	}
 }

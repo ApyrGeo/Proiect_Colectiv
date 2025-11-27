@@ -241,4 +241,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return teacherDto;
 
 	}
+
+    public Task<EnrollmentResponseDTO> GetEnrollmentById(int enrollmentId)
+    {
+        _logger.InfoFormat("Trying to retrieve enrollment with ID {0}", enrollmentId);
+        return _academicRepository.GetEnrollmentByIdAsync(enrollmentId)
+            ?? throw new NotFoundException($"Enrollment with ID {enrollmentId} not found.");
+	}
 }
