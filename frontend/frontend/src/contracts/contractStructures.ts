@@ -1,3 +1,5 @@
+import { getStudyContract } from "./contractAPI.ts";
+
 export enum FieldCategory {
   TEXT = "text",
   DATE = "date",
@@ -22,7 +24,11 @@ export type ContractStructure = {
   title: string;
   fields: ContractField[];
   signature: boolean;
+  apiCall?: ContractAPICall;
 };
+
+type StudyContractCall = (userId: number) => Promise<string>;
+type ContractAPICall = StudyContractCall;
 
 export const exampleStructures: ContractStructure[] = [
   {
@@ -46,5 +52,11 @@ export const exampleStructures: ContractStructure[] = [
       { name: "agree", label: "I agree to the Terms and Conditions", category: FieldCategory.CHECKBOX },
     ],
     signature: true,
+  },
+  {
+    title: "Study Contract",
+    fields: [],
+    signature: false,
+    apiCall: getStudyContract,
   },
 ];

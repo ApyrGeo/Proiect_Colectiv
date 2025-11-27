@@ -4,9 +4,14 @@ import "./contracts.css";
 import SignatureCanvas from "react-signature-canvas";
 
 const ContractsPage: React.FC = () => {
+  // TODO remove hard coded user id
+  const userId = 6;
+
   const contractStructures = exampleStructures;
 
   const [selectedContract, setSelectedContract] = useState(0);
+
+  const [generatedContracts, setGeneratedContracts] = useState<Map<number, string>>(new Map());
 
   const sigCanvas = useRef<SignatureCanvas>(null);
 
@@ -17,6 +22,14 @@ const ContractsPage: React.FC = () => {
   const handleSubmit = (formData: FormData) => {
     console.log(formData);
     if (contractStructures[selectedContract].signature && sigCanvas.current) console.log(sigCanvas.current.toDataURL());
+
+    if (contractStructures[selectedContract].apiCall) {
+      contractStructures[selectedContract].apiCall(userId).then((href) => {
+        const map = generatedContracts;
+        map.set(selectedContract, href);
+        setGeneratedContracts(map);
+      });
+    }
   };
 
   return (
@@ -61,6 +74,7 @@ const ContractsPage: React.FC = () => {
           </div>
         )}
         <button type="submit">Generate Contract</button>
+        {generatedContracts.has(selectedContract) && <a href={generatedContracts.get(selectedContract)}>Download</a>}
       </form>
     </div>
   );
