@@ -24,11 +24,19 @@ const ContractsPage: React.FC = () => {
     if (contractStructures[selectedContract].signature && sigCanvas.current) console.log(sigCanvas.current.toDataURL());
 
     if (contractStructures[selectedContract].apiCall) {
-      contractStructures[selectedContract].apiCall(userId).then((href) => {
-        const map = generatedContracts;
-        map.set(selectedContract, href);
-        setGeneratedContracts(map);
-      });
+      contractStructures[selectedContract]
+        .apiCall(userId)
+        .then((href) => {
+          const map = generatedContracts;
+          map.set(selectedContract, href);
+          setGeneratedContracts(map);
+        })
+        .catch((error) => {
+          console.log(error as Error);
+          const map = generatedContracts;
+          map.set(selectedContract, "error");
+          setGeneratedContracts(map);
+        });
     }
   };
 
@@ -74,7 +82,12 @@ const ContractsPage: React.FC = () => {
           </div>
         )}
         <button type="submit">Generate Contract</button>
-        {generatedContracts.has(selectedContract) && <a href={generatedContracts.get(selectedContract)}>Download</a>}
+        {generatedContracts.has(selectedContract) &&
+          (generatedContracts.get(selectedContract) != "error" ? (
+            <a href={generatedContracts.get(selectedContract)}>Download</a>
+          ) : (
+            <div>Error generating file</div>
+          ))}
       </form>
     </div>
   );

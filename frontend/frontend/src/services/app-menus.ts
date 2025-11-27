@@ -20,7 +20,7 @@ export function getAppMenus() {
         },
         {
           title: "Contracts",
-          icon: "📆",
+          icon: "📝",
           url: "/contracts",
         },
         {
