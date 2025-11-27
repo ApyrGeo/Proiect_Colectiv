@@ -17,24 +17,8 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     {
         var entity = _mapper.Map<Grade>(gradePostDTO);
         await _context.Grades.AddAsync(entity);
-
+        
         return _mapper.Map<GradeResponseDTO>(entity);
-    }
-
-    public async Task<List<GradeResponseDTO>> GetGradesByUserAsync(int userId)
-    {
-        var grades = await _context.Grades
-            .Include(g => g.Subject)
-            .Include(g => g.Semester)
-                .ThenInclude(ps => ps.PromotionYear)
-                    .ThenInclude(py => py.Promotion)
-                        .ThenInclude(p => p.Specialisation)
-                            .ThenInclude(s => s.Faculty)
-            .Include(g => g.Enrollment)
-            .Where(g => g.Enrollment.UserId == userId)
-            .ToListAsync();
-
-        return _mapper.Map<List<GradeResponseDTO>>(grades);
     }
     
     public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int userId, int? yearOfStudy, int? semester)

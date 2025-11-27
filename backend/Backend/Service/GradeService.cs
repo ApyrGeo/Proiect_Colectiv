@@ -41,7 +41,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         _logger.InfoFormat("Adding new grade : {0}", JsonSerializer.Serialize(gradePostDto));
         var gradeDto = await _gradeRepository.AddGradeAsync(gradePostDto);
         await _gradeRepository.SaveChangesAsync();
-        await CheckIfSemesterCompletedAndSendEmail(gradeDto);
+       // await CheckIfSemesterCompletedAndSendEmail(gradeDto);
         return gradeDto;
     }
     
