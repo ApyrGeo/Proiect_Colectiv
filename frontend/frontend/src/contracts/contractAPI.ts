@@ -11,7 +11,12 @@ const config = {
 };
 
 export const getStudyContract: (userId: number) => Promise<string> = (userId: number) => {
-  return axios.get(contractUrl + "/" + userId, config).then((res) => {
-    return URL.createObjectURL(res.data);
-  });
+  return axios
+    .get(contractUrl + "/" + userId, config)
+    .then((res) => {
+      return URL.createObjectURL(res.data);
+    })
+    .catch(() => {
+      throw Error("Error generating file!");
+    });
 };
