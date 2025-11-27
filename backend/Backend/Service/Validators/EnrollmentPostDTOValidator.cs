@@ -26,5 +26,12 @@ public class EnrollmentPostDTOValidator : AbstractValidator<EnrollmentPostDTO>
                 var subGroup = await academicRepository.GetSubGroupByIdAsync(subGroupId);
                 return subGroup != null;
             }).WithMessage("StudentSubGroup with the specified SubGroupId does not exist.");
-    }
+
+		RuleFor(e => e)
+	        .MustAsync(async (dto, cancellation) =>
+	        {
+		        var enrollments = await academicRepository.GetEnrollmentsByUserId(dto.UserId);
+		        return !enrollments.Any(enrollment => enrollment.SubGroupId == dto.SubGroupId);
+	        }).WithMessage("The user is already enrolled in the specified StudentSubGroup.");
+	}
 }
