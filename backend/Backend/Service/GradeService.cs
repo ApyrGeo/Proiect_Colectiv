@@ -37,16 +37,19 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         {
             throw new UnauthorizedAccessException("Only teachers can add grades.");
         }
-
+        
+        bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacherId, gradePostDto.SubjectId);
+        if (!teaches)
+            throw new  UnauthorizedAccessException("Teacher does not teach this subject.");
+        
         _logger.InfoFormat("Adding new grade : {0}", JsonSerializer.Serialize(gradePostDto));
         var gradeDto = await _gradeRepository.AddGradeAsync(gradePostDto);
-        await _gradeRepository.SaveChangesAsync();
-       // await CheckIfSemesterCompletedAndSendEmail(gradeDto);
+        await CheckIfSemesterCompletedAndSendEmail(gradeDto);
         return gradeDto;
     }
     
 
-    public async Task<List<GradeResponseDTO>> GetGradesFiteredAsync(int userId, int? yearOfStudy, int? semester)
+    public async Task<List<GradeResponseDTO>> GetGradesFiteredAsync(int userId, int? yearOfStudy, int? semester, string specialisation)
     {
         _logger.InfoFormat("Trying to retrieve filtered grades for user with ID {0}, year {1}, semester {2}", 
             userId, yearOfStudy, semester);
@@ -54,7 +57,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         var _ = await _userRepository.GetByIdAsync(userId)
                 ?? throw new NotFoundException($"Student with ID {userId} not found.");
         
-        var gradesDto = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfStudy, semester)
+        var gradesDto = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfStudy, semester, specialisation)
                         ?? throw new NotFoundException($"Filtered grades for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping filtered grade entity to DTO for user with ID {0}", userId);
@@ -62,25 +65,32 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return gradesDto;
     }
 
+    public Task<GradeResponseDTO> GetGradeByIdAsync(int gradeId)
+    {
+        _logger.InfoFormat("Trying to retrieve grade with ID {0}", gradeId);
+        return _gradeRepository.GetGradeByIdAsync(gradeId)
+               ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
+    }
+
     private async Task CheckIfSemesterCompletedAndSendEmail(GradeResponseDTO grade)
     {
-        var subjectsInSemester = await _gradeRepository.GetSubjectsForSemesterAsync(grade.PromotionSemester.Id);
-        var gradesForSemester = await _gradeRepository.GetGradesForStudentInSemesterAsync(grade.Enrollment.UserId, grade.PromotionSemester.Id);
+        var subjectsInSemester = await _gradeRepository.GetSubjectsForSemesterAsync(grade.Semester.Id);
+        var gradesForSemester = await _gradeRepository.GetGradesForStudentInSemesterAsync(grade.Enrollment.UserId, grade.Semester.Id);
        
         if (gradesForSemester.Count != subjectsInSemester.Count)
         {
             _logger.Info("Semester not fully graded yet.");
             return;
         }
-        _logger.Info("All grades posted → preparing email");
+        _logger.Info("All grades posted, preparing email");
       
 
         var gradesSemester = new PostedSemesterGradesModel
         {
             UserFirstName = grade.Enrollment.User.FirstName,
             UserLastName = grade.Enrollment.User.LastName,
-            YearOfStudy = grade.PromotionSemester.PromotionYear.YearNumber,
-            SemesterNumber = grade.PromotionSemester.SemesterNumber,
+            YearOfStudy = grade.Semester.PromotionYear.YearNumber,
+            SemesterNumber = grade.Semester.SemesterNumber,
         };
         
         await _emailProvider.SendSemesterGradesEmailAsync(grade.Enrollment.User.Email,gradesSemester);

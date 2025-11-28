@@ -17,14 +17,29 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     {
         var entity = _mapper.Map<Grade>(gradePostDTO);
         await _context.Grades.AddAsync(entity);
+        await SaveChangesAsync();
+        var fullEntity = await _context.Grades
+            .Include(g => g.Semester)
+                .ThenInclude(s => s.PromotionYear)
+                    .ThenInclude(py => py.Promotion)
+                        .ThenInclude(p => p.Specialisation)
+                            .ThenInclude(s => s.Faculty)
+            .Include(g => g.Enrollment)
+                .ThenInclude(e => e.SubGroup)
+                    .ThenInclude(sg => sg.StudentGroup)
+            .Include(g => g.Enrollment)
+                .ThenInclude(e => e.User)
+            .FirstOrDefaultAsync(g => g.Id == entity.Id);
         
-        return _mapper.Map<GradeResponseDTO>(entity);
+        return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
     
-    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int userId, int? yearOfStudy, int? semester)
+    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int userId, int? yearOfStudy, int? semester, string specialisation)
     {
         var query = _context.Grades
             .Include(g => g.Subject)
+            .Include(g => g.Enrollment)
+                .ThenInclude(e => e.User)
             .Include(g => g.Semester)
                 .ThenInclude(s => s.PromotionYear)
                     .ThenInclude(py => py.Promotion)
@@ -42,6 +57,11 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         if (semester.HasValue)
         {
             query = query.Where(g => g.Semester.SemesterNumber == semester.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(specialisation))
+        {
+            query = query.Where(g => g.Semester.PromotionYear.Promotion.Specialisation.Name == specialisation);
         }
 
         var grades = await query.ToListAsync();
@@ -68,7 +88,29 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         
         return _mapper.Map<List<SubjectResponseDTO>>(subjects);
     }
-    
+
+    public async Task<GradeResponseDTO?> GetGradeByIdAsync(int gradeId)
+    {
+        var grade = _context.Grades.Where(g=>g.Id == gradeId)
+            .Include(g => g.Subject)
+            .Include(g => g.Enrollment)
+            .Include(g => g.Semester)
+                 .ThenInclude(s => s.PromotionYear)
+                    .ThenInclude(py => py.Promotion)
+                        .ThenInclude(p => p.Specialisation)
+                            .ThenInclude(s => s.Faculty)
+            .FirstOrDefaultAsync();
+        return _mapper.Map<GradeResponseDTO>(grade);
+    }
+
+    public async Task<bool> TeacherTeachesSubjectAsync(int teacherId, int subjectId)
+    {
+        return await _context.Hours
+            .AnyAsync(h =>
+                h.TeacherId == teacherId &&
+                h.SubjectId == subjectId);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

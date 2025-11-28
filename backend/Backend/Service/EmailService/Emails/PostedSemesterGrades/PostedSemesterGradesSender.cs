@@ -8,7 +8,7 @@ namespace TrackForUBB.Service.EmailService.Emails.PostedSemesterGrades;
 
 public class PostedSemesterGradesSender(EmailSettings config) : BaseEmailSender<PostedSemesterGradesModel>(config), IEmailSender<PostedSemesterGradesModel>
 {
-    private const string TemplatePath = "Grades\\SemesterGradesEmailPage.html";
+    private const string TemplatePath = "PostedSemesterGrades\\PostedSemesterGradesPage.html";
 
     public override async Task SendEmailAsync(string to, PostedSemesterGradesModel model)
     {
@@ -18,7 +18,7 @@ public class PostedSemesterGradesSender(EmailSettings config) : BaseEmailSender<
             .Replace("{{UserLastName}}", WebUtility.HtmlEncode(model.UserLastName))
             .Replace("{{YearOfStudy}}", WebUtility.HtmlEncode(model.YearOfStudy.ToString()))
             .Replace("{{SemesterNumber}}", WebUtility.HtmlEncode(model.SemesterNumber.ToString()))
-            .Replace("{{BaseUrl}}", WebUtility.HtmlEncode(_baseUrl));
+            .Replace("{{BaseUrl}}", WebUtility.HtmlEncode(_baseUrl+"/grades"));
 
         var message = new EmailMessage
         {

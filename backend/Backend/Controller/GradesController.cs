@@ -17,14 +17,27 @@ public class GradesController(IGradeService service) : ControllerBase
     [HttpGet("grades")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<GradeResponseDTO>>> GetUserGrades([FromQuery] int userId, [FromQuery] int? yearOfStudy, [FromQuery] int? semester)
+    public async Task<ActionResult<List<GradeResponseDTO>>> GetUserGrades([FromQuery] int userId, [FromQuery] int? yearOfStudy, [FromQuery] int? semester, [FromQuery] string specialisation)
     {
-        _logger.InfoFormat("Fetching grades for user {0}, year {1}, semester {2}", userId, yearOfStudy, semester);
+        _logger.InfoFormat("Fetching grades for user {0}, year {1}, semester {2}, specialisation {3}", userId, yearOfStudy, semester, specialisation);
 
-        List<GradeResponseDTO> grades = await _service.GetGradesFiteredAsync(userId, yearOfStudy, semester);
+        List<GradeResponseDTO> grades = await _service.GetGradesFiteredAsync(userId, yearOfStudy, semester, specialisation);
 
         return Ok(grades);
     }
+    
+    [HttpGet("grades/{gradeId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<GradeResponseDTO>> GetGradeById([FromRoute] int gradeId)
+    {
+        _logger.InfoFormat("Fetching grade with ID {0}", gradeId);
+
+        var grade = await _service.GetGradeByIdAsync(gradeId);
+
+        return Ok(grade);
+    }
+    
     
     [HttpPost("grades")]
     [ProducesResponseType(201)]
@@ -35,6 +48,6 @@ public class GradesController(IGradeService service) : ControllerBase
 
         GradeResponseDTO createdGrade = await _service.CreateGrade(teacherId,gradePostDto);
 
-        return CreatedAtAction(nameof(GetUserGrades), new { userId = createdGrade.Enrollment.UserId }, createdGrade);
+        return CreatedAtAction(nameof(GetGradeById), new { gradeId = createdGrade.Id }, createdGrade);
     }
 }
