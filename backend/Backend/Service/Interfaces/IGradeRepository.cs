@@ -10,5 +10,6 @@ public interface IGradeRepository
     Task<List<SubjectResponseDTO>> GetSubjectsForSemesterAsync(int semesterId);
     Task<GradeResponseDTO?> GetGradeByIdAsync(int gradeId);
     Task<bool> TeacherTeachesSubjectAsync(int teacherId, int subjectId);
+    Task<GradeResponseDTO> GetGradeByEnrollmentAndSubjectAsync(int arg1EnrollmentId, int arg1SubjectId);
     Task SaveChangesAsync();
 }

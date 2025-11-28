@@ -114,6 +114,13 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
                 h.SubjectId == subjectId);
     }
 
+    public async Task<GradeResponseDTO> GetGradeByEnrollmentAndSubjectAsync(int arg1EnrollmentId, int arg1SubjectId)
+    {
+        var grade = await _context.Grades.Where(g => g.EnrollmentId == arg1EnrollmentId  && g.SubjectId == arg1SubjectId)
+            .FirstOrDefaultAsync();
+        return _mapper.Map<GradeResponseDTO>(grade);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

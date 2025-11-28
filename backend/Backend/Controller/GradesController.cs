@@ -11,7 +11,7 @@ namespace TrackForUBB.Controller;
 [Route("api/[controller]")]
 public class GradesController(IGradeService service) : ControllerBase
 {
-    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsController));
+    private readonly ILog _logger = LogManager.GetLogger(typeof(GradesController));
     private readonly IGradeService _service = service;
     
     [HttpGet("grades")]
