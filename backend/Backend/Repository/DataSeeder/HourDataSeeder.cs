@@ -2,54 +2,48 @@
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Repository.DataSeeder;
 
 public class HourDataSeeder(AcademicAppContext context)
 {
 	private readonly AcademicAppContext _context = context;
+	private static readonly Random _random = new Random(6767);
 
 	public async Task SeedAsync()
 	{
 		if (await _context.Hours.AnyAsync())
 			return;
 
-		var subjects = await _context.Subjects
-			.Include(s => s.Contracts)
-				.ThenInclude(c => c.Semester)
-					.ThenInclude(ps => ps.PromotionYear)
-						.ThenInclude(py => py.Promotion)
-							.ThenInclude(p => p.Specialisation)
-								.ThenInclude(sp => sp.Faculty)
-			.Include(s => s.Contracts)
-				.ThenInclude(c => c.Semester)
-					.ThenInclude(ps => ps.PromotionYear)
-						.ThenInclude(py => py.Promotion)
-							.ThenInclude(p => p.StudentGroups)
-								.ThenInclude(sg => sg.StudentSubGroups)
+		var promotions = await _context.Promotions
+			.Include(p => p.Specialisation)
+				.ThenInclude(s => s.Faculty)
+			.Include(p => p.StudentGroups)
+				.ThenInclude(sg => sg.StudentSubGroups)
+			.Include(p => p.Years)
+				.ThenInclude(y => y.PromotionSemesters)
 			.ToListAsync();
 
+		var subjects = await _context.Subjects.ToListAsync();
 		var teachers = await _context.Teachers
 			.Include(t => t.Faculty)
 			.ToListAsync();
-
 		var classrooms = await _context.Classrooms.ToListAsync();
 
-		if (subjects.Count == 0 || teachers.Count == 0 || classrooms.Count == 0)
+		if (promotions.Count == 0 || subjects.Count == 0 || teachers.Count == 0 || classrooms.Count == 0)
 			return;
 
-		var rnd = new Random();
-		// exclude Unknown (or other sentinel) from available days
 		var dayValues = Enum.GetValues<HourDay>().Cast<HourDay>()
+			.Where(d => d != HourDay.Unknown && d != HourDay.Saturday && d != HourDay.Sunday)
 			.ToArray();
+
 		var intervals = new[] { "08-10", "10-12", "12-14", "14-16", "16-18", "18-20" };
 
-		// Track occupancy and counts
 		var occupiedTeacherSlots = new HashSet<string>();
 		var occupiedClassroomSlots = new HashSet<string>();
-		var occupiedSubGroupSlots = new HashSet<string>(); // keys for specific StudentSubGroup slots
+		var occupiedSubGroupSlots = new HashSet<string>();
 
-		// per-classroom counters: day -> count, weekly total
 		var classroomDayCount = classrooms.ToDictionary(
 			c => c.Id,
 			c => dayValues.ToDictionary(d => d, d => 0)
@@ -64,10 +58,10 @@ public class HourDataSeeder(AcademicAppContext context)
 
 		bool TryFindSlotAndClassroom(Func<HourDay, string, bool> slotOk, out HourDay foundDay, out string foundInterval, out Classroom selectedClassroom)
 		{
-			for (int attempt = 0; attempt < 100; attempt++)
+			for (int attempt = 0; attempt < 50; attempt++)
 			{
-				var day = dayValues[rnd.Next(dayValues.Length)];
-				var interval = intervals[rnd.Next(intervals.Length)];
+				var day = dayValues[_random.Next(dayValues.Length)];
+				var interval = intervals[_random.Next(intervals.Length)];
 
 				if (!slotOk(day, interval))
 					continue;
@@ -168,73 +162,74 @@ public class HourDataSeeder(AcademicAppContext context)
 			}
 		}
 
-		foreach (var subject in subjects)
+		// ✅ Process each promotion - generate hours for BOTH semesters of current year
+		foreach (var promotion in promotions)
 		{
-			// collect non-null distinct semesters referenced by subject.Contracts
-			var semesters = subject.Contracts?
-				.Select(c => c?.Semester)
-				.Where(s => s != null)
-				.Distinct()
-				.ToList()
-				?? new List<PromotionSemester>();
+			if (promotion?.Years == null || promotion.StudentGroups == null) continue;
 
-			foreach (var semester in semesters)
+			// ✅ Determine current year for THIS promotion
+			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
+
+			// ✅ Get the CURRENT year
+			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
+			if (currentYear?.PromotionSemesters == null) continue;
+
+			// ✅ Generate hours for BOTH semesters (1 and 2) of the current year
+			foreach (var semester in currentYear.PromotionSemesters.OrderBy(s => s.SemesterNumber))
 			{
-				// null-safe access
-				if (semester == null) continue;
-				var promotion = semester.PromotionYear?.Promotion;
-				if (promotion == null)
-					continue;
+				// ✅ Pick 5 subjects for this semester (random from all available)
+				var semesterSubjects = subjects.OrderBy(_ => _random.Next()).Take(5).ToList();
+				if (semesterSubjects.Count == 0) continue;
 
-				// find teachers matching faculty
 				var facultyId = promotion.Specialisation?.Faculty?.Id ?? 0;
 				var candidateTeachers = teachers.Where(t => t.FacultyId == facultyId).ToList();
 				if (candidateTeachers.Count == 0)
-					candidateTeachers = teachers;
+					candidateTeachers = teachers.ToList();
 
-				// 1) Course: one hour referencing Promotion (applies to entire promotion)
+				// ✅ Generate hours for each of the 5 subjects
+				foreach (var subject in semesterSubjects)
 				{
-					var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
-					if (TryFindSlotAndClassroom((d, it) =>
-						!occupiedTeacherSlots.Contains(TeacherKey(teacher.Id, d, it))
-						&& !AnySubGroupOccupiedForPromotion(promotion, d, it)
-					, out var day, out var interval, out var classroom))
+					// 1) Lecture for entire promotion (all groups/subgroups attend)
 					{
-						var h = new Hour
+						var teacher = candidateTeachers[_random.Next(candidateTeachers.Count)];
+						if (TryFindSlotAndClassroom((d, it) =>
+							!occupiedTeacherSlots.Contains(TeacherKey(teacher.Id, d, it))
+							&& !AnySubGroupOccupiedForPromotion(promotion, d, it)
+						, out var day, out var interval, out var classroom))
 						{
-							Day = day,
-							HourInterval = interval,
-							Frequency = HourFrequency.Weekly,
-							Subject = subject,
-							SubjectId = subject.Id,
-							Classroom = classroom,
-							ClassroomId = classroom.Id,
-							Teacher = teacher,
-							TeacherId = teacher.Id,
-							Promotion = promotion,
-							PromotionId = promotion.Id,
-							Semester = semester,
-							SemesterId = semester.Id,
-							Category = HourCategory.Lecture
-						};
+							var h = new Hour
+							{
+								Day = day,
+								HourInterval = interval,
+								Frequency = HourFrequency.Weekly,
+								Subject = subject,
+								SubjectId = subject.Id,
+								Classroom = classroom,
+								ClassroomId = classroom.Id,
+								Teacher = teacher,
+								TeacherId = teacher.Id,
+								Promotion = promotion,
+								PromotionId = promotion.Id,
+								Semester = semester,
+								SemesterId = semester.Id,
+								Category = HourCategory.Lecture
+							};
 
-						hoursToAdd.Add(h);
-						occupiedTeacherSlots.Add(TeacherKey(teacher.Id, day, interval));
-						occupiedClassroomSlots.Add(ClassroomKey(classroom.Id, day, interval));
-						ReserveSubGroupsForPromotion(promotion, day, interval);
+							hoursToAdd.Add(h);
+							occupiedTeacherSlots.Add(TeacherKey(teacher.Id, day, interval));
+							occupiedClassroomSlots.Add(ClassroomKey(classroom.Id, day, interval));
+							ReserveSubGroupsForPromotion(promotion, day, interval);
+						}
 					}
-				}
 
-				// 2) For each StudentGroup -> seminar (75% weekly; else 50/50 First/Second)
-				if (promotion?.StudentGroups != null)
-				{
+					// 2) Seminars for each group (75% weekly, else 50/50 First/Second week)
 					foreach (var group in promotion.StudentGroups)
 					{
-						var p = rnd.NextDouble();
+						var p = _random.NextDouble();
 						HourFrequency freq = p < 0.75 ? HourFrequency.Weekly
-							: rnd.NextDouble() < 0.5 ? HourFrequency.FirstWeek : HourFrequency.SecondWeek;
+							: _random.NextDouble() < 0.5 ? HourFrequency.FirstWeek : HourFrequency.SecondWeek;
 
-						var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
+						var teacher = candidateTeachers[_random.Next(candidateTeachers.Count)];
 
 						if (TryFindSlotAndClassroom((d, it) =>
 							!AnySubGroupOccupiedForGroup(group, d, it)
@@ -266,17 +261,17 @@ public class HourDataSeeder(AcademicAppContext context)
 						}
 					}
 
-					// 3) For each StudentSubGroup -> lab (50% weekly; else 25/25 first/second)
+					// 3) Labs for each subgroup (50% weekly, else 25/25 first/second week)
 					foreach (var group in promotion.StudentGroups)
 					{
 						if (group?.StudentSubGroups == null) continue;
 						foreach (var sub in group.StudentSubGroups)
 						{
-							var r = rnd.NextDouble();
+							var r = _random.NextDouble();
 							HourFrequency freq = r < 0.5 ? HourFrequency.Weekly
-								: rnd.NextDouble() < 0.5 ? HourFrequency.FirstWeek : HourFrequency.SecondWeek;
+								: _random.NextDouble() < 0.5 ? HourFrequency.FirstWeek : HourFrequency.SecondWeek;
 
-							var teacher = candidateTeachers[rnd.Next(candidateTeachers.Count)];
+							var teacher = candidateTeachers[_random.Next(candidateTeachers.Count)];
 
 							if (TryFindSlotAndClassroom((d, it) =>
 								!occupiedSubGroupSlots.Contains(SubGroupKey(sub.Id, d, it))

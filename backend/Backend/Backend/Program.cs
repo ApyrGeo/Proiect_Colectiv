@@ -104,7 +104,6 @@ builder.Services.AddScoped<LocationDataSeeder>();
 builder.Services.AddScoped<TeacherDataSeeder>();
 builder.Services.AddScoped<SubjectDataSeeder>();
 builder.Services.AddScoped<HourDataSeeder>();
-builder.Services.AddScoped<ContractDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
 
 var app = builder.Build();
