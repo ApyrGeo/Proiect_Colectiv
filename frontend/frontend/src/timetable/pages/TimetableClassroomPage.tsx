@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { ClassroomProps } from "../props.ts";
 import { useEffect, useState } from "react";
 import { getClassroom } from "../TimetableApi.ts";
+import { useTranslation } from "react-i18next";
 
 const TimetableClassroomPage: React.FC = () => {
   const [classroom, setClassroom] = useState<ClassroomProps | null>(null);
@@ -10,6 +11,8 @@ const TimetableClassroomPage: React.FC = () => {
 
   const navigate = useNavigate();
   const params = useParams();
+
+  const { t } = useTranslation();
 
   const handleBack = () => {
     navigate("/timetable");
@@ -31,15 +34,17 @@ const TimetableClassroomPage: React.FC = () => {
     <div className={"timetable-page"}>
       {classroom && (
         <>
-          <div className={"timetable-title"}>Sală: {classroom.name}</div>
+          <div className={"timetable-title"}>
+            {t("Classroom")}: {classroom.name}
+          </div>
           <button className={"timetable-back-button"} onClick={handleBack}>
-            Înapoi
+            {t("Back")}
           </button>
           <Timetable classroomId={classroom.id}></Timetable>
         </>
       )}
-      {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
-      {!classroom && !fetchError && <div>Loading</div>}
+      {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
+      {!classroom && !fetchError && <div>{t("Loading")}</div>}
     </div>
   );
 };
