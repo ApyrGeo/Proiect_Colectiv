@@ -9,6 +9,8 @@ import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
 import { Toaster } from "react-hot-toast";
 
+import "../i18n.ts";
+
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
   const [, setMobileSidebarOpen] = useState(false);
