@@ -1,0 +1,13 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.{tsx,css,ts}]
+indent_style = space
+indent_size = 2
