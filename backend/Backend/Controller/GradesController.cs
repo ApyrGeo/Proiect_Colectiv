@@ -1,4 +1,4 @@
-﻿using log4net;
+using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackForUBB.Controller.Interfaces;
@@ -14,7 +14,7 @@ public class GradesController(IGradeService service) : ControllerBase
     private readonly ILog _logger = LogManager.GetLogger(typeof(GradesController));
     private readonly IGradeService _service = service;
     
-    [HttpGet("grades")]
+    [HttpGet]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult<List<GradeResponseDTO>>> GetUserGrades([FromQuery] int userId, [FromQuery] int? yearOfStudy, [FromQuery] int? semester, [FromQuery] string specialisation)
@@ -25,8 +25,18 @@ public class GradesController(IGradeService service) : ControllerBase
 
         return Ok(grades);
     }
-    
-    [HttpGet("grades/{gradeId}")]
+
+    [HttpGet("status")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<ScholarshipStatusDTO>> GetUserAverageScoreAndScholarshipStatus([FromQuery] int userId, [FromQuery] int yearOfStudy, [FromQuery] int semester, [FromQuery] string specialisation)
+    {
+        _logger.Info("Fetching all grades");
+        ScholarshipStatusDTO status = await _service.GetUserAverageScoreAndScholarshipStatusAsync(userId, yearOfStudy, semester, specialisation);
+        return Ok(status);
+    }
+
+    [HttpGet("{gradeId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult<GradeResponseDTO>> GetGradeById([FromRoute] int gradeId)
@@ -38,11 +48,10 @@ public class GradesController(IGradeService service) : ControllerBase
         return Ok(grade);
     }
     
-    
-    [HttpPost("grades")]
+    [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<GradeResponseDTO>> CreateUserGrade([FromQuery] int teacherId,[FromBody] GradePostDTO gradePostDto)
+    public async Task<ActionResult<GradeResponseDTO>> CreateUserGrade([FromQuery] int teacherId, [FromBody] GradePostDTO gradePostDto)
     {
         _logger.InfoFormat("Teacher {0} creating grade: {1}", teacherId, gradePostDto);
 
