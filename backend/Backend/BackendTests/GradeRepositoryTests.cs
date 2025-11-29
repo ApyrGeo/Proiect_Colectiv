@@ -34,18 +34,17 @@ public class GradeRepositoryTests : IDisposable
         _context.Database.EnsureDeleted();
         _context.Dispose();
     }
-    
+
     [Theory]
-    [InlineData(1, 1, 1,9.5)] 
-    [InlineData(2, 1, 1,8.0)]
-    public async Task AddGradeAsyncTest(int enrollmentId, int subjectId,int semesterId,int value)
+    [InlineData(1, 1, 1, 9.5)]
+    [InlineData(2, 1, 1, 8.0)]
+    public async Task AddGradeAsyncTest(int enrollmentId, int subjectId, int semesterId, int value)
     {
-        
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
         var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = spec };
         var group = new StudentGroup { Name = "IR1A", Promotion = promotion };
-        var subGroup = new StudentSubGroup { Name = "235/1", StudentGroup=group };
+        var subGroup = new StudentSubGroup { Name = "235/1", StudentGroup = group };
         var user = new User
         {
             FirstName = "andrei",
@@ -55,8 +54,9 @@ public class GradeRepositoryTests : IDisposable
             Role = UserRole.Admin,
             Password = "1234567"
         };
-        var enrollment = new Enrollment { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user,SubGroup = subGroup };
-        
+        var enrollment = new Enrollment
+            { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
+
         var gradeDto = new GradePostDTO
         {
             SemesterId = semesterId,
@@ -64,8 +64,9 @@ public class GradeRepositoryTests : IDisposable
             SubjectId = subjectId,
             Value = value
         };
-        var year =new PromotionYear{ Id = 1, Promotion = promotion };
-        var semester = new PromotionSemester { Id = semesterId, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
+        var year = new PromotionYear { Id = 1, Promotion = promotion };
+        var semester = new PromotionSemester
+            { Id = semesterId, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
         var subject = new Subject { Id = subjectId, Name = "TestSubject", NumberOfCredits = 5 };
 
         await _context.Users.AddAsync(user);
@@ -77,8 +78,9 @@ public class GradeRepositoryTests : IDisposable
         var result = await _repo.AddGradeAsync(gradeDto);
         await _repo.SaveChangesAsync();
 
-       
-        var dbGrade = await _context.Grades.FirstOrDefaultAsync(g => g.EnrollmentId == enrollmentId && g.SubjectId == subjectId);
+
+        var dbGrade =
+            await _context.Grades.FirstOrDefaultAsync(g => g.EnrollmentId == enrollmentId && g.SubjectId == subjectId);
         Assert.NotNull(dbGrade);
         Assert.Equal(value, dbGrade!.Value);
         Assert.Equal(enrollmentId, dbGrade.EnrollmentId);
@@ -87,7 +89,7 @@ public class GradeRepositoryTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(value, result.Value);
     }
-    
+
     [Theory]
     [InlineData(1, 1, null, "Informatica")]
     [InlineData(2, null, 1, null)]
@@ -107,9 +109,11 @@ public class GradeRepositoryTests : IDisposable
             Role = UserRole.Admin,
             Password = "1234567"
         };
-        var enrollment = new Enrollment { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
-        var year =new PromotionYear{ Id = 1, Promotion = promotion };
-        var semesterP = new PromotionSemester { Id = 1, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
+        var enrollment = new Enrollment
+            { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
+        var year = new PromotionYear { Id = 1, Promotion = promotion };
+        var semesterP = new PromotionSemester
+            { Id = 1, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
         var subject = new Subject { Id = 1, Name = "Matematica", NumberOfCredits = 5 };
 
         var grade = new Grade
@@ -127,10 +131,10 @@ public class GradeRepositoryTests : IDisposable
         await _context.Grades.AddAsync(grade);
         await _context.SaveChangesAsync();
 
-        
+
         var result = await _repo.GetGradesFilteredAsync(userId, yearOfStudy, semester, specialisation);
 
-       
+
         Assert.NotNull(result);
         Assert.All(result, g => Assert.Equal(userId, g.Enrollment.UserId));
     }
@@ -142,10 +146,11 @@ public class GradeRepositoryTests : IDisposable
         var faculty = new Faculty { Name = "FMI" };
         var spec = new Specialisation { Name = "Informatica", Faculty = faculty };
         var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = spec };
-        var year =new PromotionYear{ Id = 1, Promotion = promotion };
+        var year = new PromotionYear { Id = 1, Promotion = promotion };
         var group = new StudentGroup { Name = "IR1A", Promotion = promotion };
-        var subGroup = new StudentSubGroup { Name = "235/1", StudentGroup=group };
-        var semester = new PromotionSemester { Id = semesterId, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
+        var subGroup = new StudentSubGroup { Name = "235/1", StudentGroup = group };
+        var semester = new PromotionSemester
+            { Id = semesterId, SemesterNumber = 1, PromotionYearId = year.Id, PromotionYear = year };
         var subject = new Subject { Id = 1, Name = "TestSubject", NumberOfCredits = 5 };
         var user = new User
         {
@@ -156,7 +161,8 @@ public class GradeRepositoryTests : IDisposable
             Role = UserRole.Admin,
             Password = "1234567"
         };
-        var enrollment = new Enrollment { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user,SubGroup = subGroup };
+        var enrollment = new Enrollment
+            { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
 
         var grade = new Grade
         {
@@ -172,13 +178,10 @@ public class GradeRepositoryTests : IDisposable
 
         await _context.Grades.AddAsync(grade);
         await _context.SaveChangesAsync();
-        
+
         var result = await _repo.GetGradesForStudentInSemesterAsync(enrollmentId, semesterId);
 
         Assert.Single(result);
         Assert.Equal(9, result.First().Value);
     }
-    
-
-    
 }

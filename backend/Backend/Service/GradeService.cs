@@ -65,11 +65,16 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return gradesDto;
     }
 
-    public Task<GradeResponseDTO> GetGradeByIdAsync(int gradeId)
+    public async Task<GradeResponseDTO> GetGradeByIdAsync(int gradeId)
     {
         _logger.InfoFormat("Trying to retrieve grade with ID {0}", gradeId);
-        return _gradeRepository.GetGradeByIdAsync(gradeId)
-               ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
+
+        var grade = await _gradeRepository.GetGradeByIdAsync(gradeId);
+
+        if (grade == null)
+            throw new NotFoundException($"Grade with ID {gradeId} not found.");
+
+        return grade;
     }
 
     private async Task CheckIfSemesterCompletedAndSendEmail(GradeResponseDTO grade)
