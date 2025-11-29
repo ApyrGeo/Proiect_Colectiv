@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Domain.Enums;
@@ -162,22 +162,17 @@ public class HourDataSeeder(AcademicAppContext context)
 			}
 		}
 
-		// ✅ Process each promotion - generate hours for BOTH semesters of current year
 		foreach (var promotion in promotions)
 		{
 			if (promotion?.Years == null || promotion.StudentGroups == null) continue;
 
-			// ✅ Determine current year for THIS promotion
 			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
 
-			// ✅ Get the CURRENT year
 			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
 			if (currentYear?.PromotionSemesters == null) continue;
 
-			// ✅ Generate hours for BOTH semesters (1 and 2) of the current year
 			foreach (var semester in currentYear.PromotionSemesters.OrderBy(s => s.SemesterNumber))
 			{
-				// ✅ Pick 5 subjects for this semester (random from all available)
 				var semesterSubjects = subjects.OrderBy(_ => _random.Next()).Take(5).ToList();
 				if (semesterSubjects.Count == 0) continue;
 
@@ -186,7 +181,6 @@ public class HourDataSeeder(AcademicAppContext context)
 				if (candidateTeachers.Count == 0)
 					candidateTeachers = teachers.ToList();
 
-				// ✅ Generate hours for each of the 5 subjects
 				foreach (var subject in semesterSubjects)
 				{
 					// 1) Lecture for entire promotion (all groups/subgroups attend)
