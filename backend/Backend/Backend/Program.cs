@@ -66,6 +66,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserPostDTOValidator>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAcademicRepository, AcademicRepository>();
 builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 
 //helpers
 builder.Services.Configure<PasswordHasherOptions>(
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IEmailProvider, EmailProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAcademicsService, AcademicsService>();
 builder.Services.AddScoped<ITimetableService, TimetableService>();
+builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services
     .AddScoped<IContractService, ContractService>()
     .AddScoped<IContractUnitOfWork, ContractUnitOfWork>()
