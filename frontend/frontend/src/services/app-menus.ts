@@ -4,21 +4,13 @@ export function getAppMenus() {
       title: "Navigation",
       submenu: [
         {
-          title: "Maintenance",
+          title: "Submenu ex",
           icon: "🧰",
           submenu: [
-            { title: "Servers", url: "/servers" },
-            { title: "Logs", url: "/logs" },
-            { title: "Backups", url: "/backups" },
-            { title: "Settings", url: "/settings" },
-          ],
-        },
-        {
-          title: "WebDesign",
-          icon: "💻",
-          submenu: [
-            { title: "HTML", url: "/html" },
-            { title: "CSS", url: "/css" },
+            { title: "Ex1", url: "/ex1" },
+            { title: "Ex2", url: "/ex2" },
+            { title: "Ex3", url: "/ex3" },
+            { title: "Ex4", url: "/ex4" },
           ],
         },
         {
@@ -27,22 +19,14 @@ export function getAppMenus() {
           url: "/timetable",
         },
         {
-          title: "WebHosting",
-          icon: "🏠",
-          submenu: [
-            { title: "Plans", url: "/plans" },
-            { title: "Domains", url: "/domains" },
-          ],
-        },
-        {
-          title: "Design",
-          icon: "🎨",
-          url: "/designs",
-        },
-        {
           title: "Grades",
           icon: "🎓",
           url: "/grades",
+        },
+        {
+          title: "Profile",
+          icon: "👤",
+          url: "/profile",
         },
       ],
     },
