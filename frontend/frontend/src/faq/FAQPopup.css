@@ -1,0 +1,155 @@
+/* Butonul de deschidere */
+.faq-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: #2c3440; /* culoarea caracterului */
+    font-size: 32px; /* dimensiunea caracterului */
+    z-index: 999999;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.faq-icon:hover {
+    transform: scale(1.2);
+    color: #3b4555; /* ușor mai închis la hover, dacă vrei */
+}
+
+.faq-icon:active {
+    transform: scale(0.9);
+}
+
+
+/* Overlay-ul negru */
+.faq-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999998;
+}
+
+/* Containerul alb */
+.faq-container {
+    position: relative;
+    background: #2c3440;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 999999;
+
+    /* animație smooth */
+    animation: faqFadeIn 0.25s ease-out;
+}
+
+.faq-close {
+    position: absolute;
+    top: 4px;
+    right: 3px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+
+    width: 10px;
+    height: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: transform 0.1s ease; /* animatie rapida pentru hover */
+}
+
+.faq-close:hover {
+    transform: scale(1.05); /* efect de “apăsare” la hover */
+}
+
+.faq-close:active {
+    transform: scale(0.85); /* efect mai pronunțat când chiar dai click */
+}
+
+
+
+/* Titlu */
+.faq-title {
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Item FAQ cu card mic */
+.faq-item {
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05); /* ușor diferit față de container */
+    transition: background 0.2s ease;
+}
+
+.faq-item:hover {
+    background: rgba(255, 255, 255, 0.1); /* efect subtil la hover */
+}
+
+/* Întrebarea */
+.faq-question {
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #ffd966; /* un galben plăcut pentru întrebări */
+    font-size: 16px;
+}
+
+/* Răspunsul */
+.faq-answer {
+    color: #e0e0e0; /* gri deschis, ușor contrastant */
+    font-size: 14px;
+    line-height: 1.6; /* mai aerisit */
+    margin: 0;
+}
+
+/* Titlu container */
+.faq-title {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* Close button mai mare și clar */
+.faq-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 28px;
+    color: #ffffff;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.faq-close:hover {
+    transform: scale(1.1);
+}
+
+.faq-close:active {
+    transform: scale(0.9);
+}
+
+
+/* Animație */
+@keyframes faqFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

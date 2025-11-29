@@ -1,7 +1,9 @@
-import { useEffect, useState, type SetStateAction, useRef } from "react";
+import React, { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
+import { faqsTimetable } from "../../faq/FAQData.ts";
+import FAQPopup from "../../faq/components/FAQPopup.tsx";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -277,6 +279,7 @@ const TimetablePage: React.FC = () => {
           </button>
         )}
       </div>
+      <FAQPopup faqs={faqsTimetable} />
     </div>
   );
 };
