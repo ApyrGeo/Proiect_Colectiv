@@ -372,3 +372,4 @@ indexLayout.xml
 
 # Environment vars
 .env
+.config
