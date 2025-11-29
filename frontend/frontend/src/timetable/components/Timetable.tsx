@@ -13,6 +13,7 @@ import {
   getUserCurrentWeekHours,
   getUserHours,
 } from "../TimetableApi.ts";
+import { useTranslation } from "react-i18next";
 
 export type TimetableProps = {
   userId?: number;
@@ -32,6 +33,8 @@ export type TimetableProps = {
 const Timetable: React.FC<TimetableProps> = (props) => {
   const [hours, setHours] = useState<HourProps[]>([]);
   const [fetchError, setFetchError] = useState<Error | null>(null);
+
+  const { t } = useTranslation();
 
   const sendLocationsToMaps = (hours: HourProps[]) => {
     if (props.sendLocationsToMaps) {
@@ -79,16 +82,15 @@ const Timetable: React.FC<TimetableProps> = (props) => {
         <table>
           <thead>
             <tr className={"timetable-header"}>
-              <th>Zi</th>
-              <th>Interval</th>
-              <th>Frecv.</th>
-              <th>Locație</th>
-              {!props.classroomId && <th>Sală</th>}
-              <th>Format</th>
-              <th>Tip</th>
-              {!props.subjectId && <th>Materie</th>}
-              {!props.teacherId && <th>Profesor</th>}
-              {/*<th>Specializare</th>*/}
+              <th>{t("Day")}</th>
+              <th>{t("Interval")}</th>
+              <th>{t("Frequency")}</th>
+              <th>{t("Location")}</th>
+              {!props.classroomId && <th>{t("Classroom")}</th>}
+              <th>{t("Format")}</th>
+              <th>{t("Type")}</th>
+              {!props.subjectId && <th>{t("Subject")}</th>}
+              {!props.teacherId && <th>{t("Professor")}</th>}
             </tr>
           </thead>
           <tbody>
@@ -134,7 +136,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
         </table>
       )}
 
-      {fetchError && <div>{fetchError.message || "Failed to fetch meshes"}</div>}
+      {fetchError && <div>{fetchError.message || t("Error")}</div>}
     </div>
   );
 };

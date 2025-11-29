@@ -8,6 +8,8 @@ import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
 
+import "../i18n.ts";
+
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
   const [, setMobileSidebarOpen] = useState(false);

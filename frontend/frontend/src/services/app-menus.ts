@@ -22,7 +22,7 @@ export function getAppMenus() {
           ],
         },
         {
-          title: "Orar",
+          title: "Timetable",
           icon: "📆",
           url: "/timetable",
         },
