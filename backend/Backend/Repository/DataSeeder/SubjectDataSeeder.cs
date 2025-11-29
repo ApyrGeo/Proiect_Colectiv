@@ -7,68 +7,153 @@ namespace TrackForUBB.Repository.DataSeeder;
 public class SubjectDataSeeder(AcademicAppContext context)
 {
 	private readonly AcademicAppContext _context = context;
+	private static readonly Random _random = new Random(6767);
 
 	public async Task SeedAsync()
 	{
 		if (await _context.Subjects.AnyAsync())
 			return;
 
-		var specialisations = await _context.Specialisations
-			.Include(s => s.Faculty)
+		var faculties = await _context.Faculties
+			.Include(f => f.Specialisations)
+				.ThenInclude(s => s.Promotions)
+					.ThenInclude(p => p.Years)
+						.ThenInclude(y => y.PromotionSemesters)
 			.ToListAsync();
 
-		if (specialisations.Count == 0)
+		if (faculties.Count == 0)
 			return;
 
-		var rand = new Random();
-
-		var pools = new Dictionary<string, string[]>
+		var pools = new Dictionary<string, List<string>>
 		{
-			["Matematică și Informatică"] = new[]
+			["Matematică și Informatică"] = new()
 			{
-				"Programare orientată pe obiecte", "Algoritmi și structuri de date",
-				"Baze de date", "Analiză matematică", "Algebră liniară", "Inteligență artificială"
+				// Year 1 subjects
+				"Introducere în programare", "Analiză matematică I", "Algebră liniară", "Fizică", "Limba engleză",
+				"Programare orientată pe obiecte", "Analiză matematică II", "Geometrie", "Logică matematică", "Metodologia cercetării",
+				// Year 2 subjects
+				"Algoritmi și structuri de date", "Baze de date", "Sisteme de operare", "Probabilități și statistică", "Metode numerice",
+				"Programare avansată", "Arhitectura calculatoarelor", "Rețele de calculatoare", "Ingineria software", "Proiectare web",
+				// Year 3 subjects
+				"Inteligență artificială", "Compilatoare", "Învățare automată", "Securitate informatică", "Grafică pe calculator",
+				"Cloud computing", "Baze de date avansate", "Programare mobilă", "Testare software", "Proiect de licență"
 			},
-			["Chimie"] = new[] { "Chimie organică", "Chimie analitică", "Chimie fizică", "Laborator de chimie" },
-			["Fizică"] = new[] { "Mecanică", "Fizică cuantică", "Fizică teoretică", "Laborator de fizică" },
-			["Economie"] = new[] { "Microeconomie", "Macroeconomie", "Contabilitate", "Finanțe" },
-			["Teatru"] = new[] { "Istoria teatrului", "Teatru practic", "Regie", "Teatrologie" },
-			["Drept"] = new[] { "Drept civil", "Drept constituțional", "Drept penal", "Drept comercial" },
-			["generic"] = new[] { "Introducere în domeniu", "Metodologie", "Proiect" }
+			["Chimie"] = new()
+			{
+				"Chimie generală", "Chimie organică", "Chimie anorganică", "Chimie fizică", "Chimie analitică",
+				"Laborator de chimie I", "Laborator de chimie II", "Chimie organică avansată", "Spectroscopie", "Electrochimie",
+				"Chimia compușilor organici", "Chimia mediului", "Biochimie", "Chimie industrială", "Nanochimie",
+				"Chimia polimerilor", "Cataliza chimică", "Chimia materialelor", "Chimie computațională", "Metode de analiză"
+			},
+			["Fizică"] = new()
+			{
+				"Fizică generală", "Mecanică", "Termodinamică", "Electricitate și magnetism", "Optică",
+				"Fizică cuantică", "Fizică atomică", "Fizică nucleară", "Fizică statistică", "Mecanica fluidelor",
+				"Fizică teoretică", "Fizica solidului", "Astrofizică", "Fizica plasmei", "Mecanica cuantică",
+				"Relativitate", "Fizică moleculară", "Spectroscopie optică", "Fizica laserului", "Fizica particulelor"
+			},
+			["Economie"] = new()
+			{
+				"Microeconomie", "Macroeconomie", "Introducere în economie", "Matematici pentru economiști", "Statistică economică",
+				"Contabilitate financiară", "Contabilitate de gestiune", "Finanțe publice", "Finanțe corporative", "Marketing",
+				"Management", "Econometrie", "Economie internațională", "Drept comercial", "Analiză financiară",
+				"Resurse umane", "Antreprenoriat", "Piețe financiare", "Banking", "Fiscalitate"
+			},
+			["Teatru"] = new()
+			{
+				"Istoria teatrului", "Teoria dramei", "Actorie I", "Actorie II", "Regie teatrală",
+				"Scenografie", "Teatru practic", "Teatrologie", "Dramaturgie", "Interpretare",
+				"Teatru contemporan", "Teatru experimental", "Tehnici de joc", "Mișcare scenică", "Voce și dicție",
+				"Regie avansată", "Teatru și societate", "Critique dramatică", "Performance art", "Teatru muzical"
+			},
+			["Drept"] = new()
+			{
+				"Drept constituțional", "Drept civil I", "Drept civil II", "Drept penal I", "Drept penal II",
+				"Drept administrativ", "Drept comercial", "Drept procesual civil", "Drept procesual penal", "Dreptul muncii",
+				"Drept fiscal", "Drept internațional public", "Drept internațional privat", "Drept european", "Dreptul proprietății intelectuale",
+				"Drept financiar", "Dreptul consumatorului", "Dreptul mediului", "Arbitraj și mediere", "Etică juridică"
+			}
 		};
 
 		var subjectsToAdd = new List<Subject>();
 
-		foreach (var spec in specialisations)
+		// For each faculty, generate subjects per year per semester
+		foreach (var faculty in faculties)
 		{
-			var facultyName = spec.Faculty?.Name ?? "";
-			var specName = spec.Name ?? "";
-
-			string[]? chosenPool = null;
-			foreach (var key in pools.Keys.Where(k => k != "generic"))
+			string[]? facultyPool = null;
+			foreach (var key in pools.Keys)
 			{
-				if (facultyName.Contains(key, StringComparison.OrdinalIgnoreCase)
-					|| specName.Contains(key, StringComparison.OrdinalIgnoreCase)
-					|| specName.Split(' ').Any(t => key.Contains(t, StringComparison.OrdinalIgnoreCase)))
+				if (faculty.Name.Contains(key, StringComparison.OrdinalIgnoreCase))
 				{
-					chosenPool = pools[key];
+					facultyPool = pools[key].ToArray();
 					break;
 				}
 			}
-			chosenPool ??= pools["generic"];
 
-			var allNames = chosenPool.Concat(pools["generic"]).Distinct();
+			if (facultyPool == null || facultyPool.Length == 0)
+				continue;
 
-			// create subjects for the specialisation (no semester)
-			foreach (var name in allNames)
+			// Get all unique semesters across all promotions in this faculty's specialisations
+			var allSemesters = faculty.Specialisations
+				.SelectMany(s => s.Promotions)
+				.SelectMany(p => p.Years)
+				.SelectMany(y => y.PromotionSemesters)
+				.GroupBy(ps => new { ps.PromotionYear.YearNumber, ps.SemesterNumber })
+				.Select(g => g.Key)
+				.OrderBy(x => x.YearNumber)
+				.ThenBy(x => x.SemesterNumber)
+				.ToList();
+
+			// Track used subject names to avoid duplicates
+			var usedSubjects = new HashSet<string>();
+			var availableSubjects = facultyPool.ToList();
+
+			// For each year-semester combination
+			foreach (var semesterKey in allSemesters)
 			{
-				subjectsToAdd.Add(new Subject
+				// Pick 5 unique subjects for this semester
+				var semesterSubjects = new List<string>();
+				var attempts = 0;
+
+				while (semesterSubjects.Count < 5 && attempts < 100)
 				{
-					Name = name,
-					NumberOfCredits = rand.Next(3, 7),
-					// If Subject has a SpecialisationId/Navigation, set it here:
-					// Specialisation = spec, SpecialisationId = spec.Id
-				});
+					attempts++;
+
+					// If we've run out of unused subjects, reset the pool
+					if (availableSubjects.Count == 0)
+					{
+						availableSubjects = facultyPool.Where(s => !usedSubjects.Contains(s)).ToList();
+						if (availableSubjects.Count == 0)
+						{
+							// All subjects used, reset completely
+							usedSubjects.Clear();
+							availableSubjects = facultyPool.ToList();
+						}
+					}
+
+					var subject = availableSubjects[_random.Next(availableSubjects.Count)];
+					availableSubjects.Remove(subject);
+
+					if (!usedSubjects.Contains(subject))
+					{
+						semesterSubjects.Add(subject);
+						usedSubjects.Add(subject);
+					}
+				}
+
+				// Create subject entities
+				foreach (var subjectName in semesterSubjects)
+				{
+					// Only add if not already in the list (avoid global duplicates)
+					if (!subjectsToAdd.Any(s => s.Name == subjectName))
+					{
+						subjectsToAdd.Add(new Subject
+						{
+							Name = subjectName,
+							NumberOfCredits = _random.Next(3, 7)
+						});
+					}
+				}
 			}
 		}
 

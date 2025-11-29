@@ -7,23 +7,24 @@ namespace TrackForUBB.Repository.DataSeeder;
 
 public class UniversityDataSeeder(AcademicAppContext context)
 {
-    private readonly AcademicAppContext _context = context;
+	private readonly AcademicAppContext _context = context;
+	private static readonly Random _random = new Random(6767);
 
-    public async Task SeedAsync()
-    {
-        // only populate empty db
-        if (await _context.Faculties.AnyAsync())
-            return;
+	public async Task SeedAsync()
+	{
+		// only populate empty db
+		if (await _context.Faculties.AnyAsync())
+			return;
 
-        var faculties = new List<Faculty>
-        {
-            new() {Name = "Facultatea de Matematică și Informatică"},
-            new() {Name = "Facultatea de Chimie"},
-            new() {Name = "Facultatea de Fizică"},
-            new() {Name = "Facultatea de Economie"},
-            new() {Name = "Facultatea de Teatru"},
-            new() {Name = "Facultatea de Drept"}
-        };
+		var faculties = new List<Faculty>
+		{
+			new() {Name = "Facultatea de Matematică și Informatică"},
+			new() {Name = "Facultatea de Chimie"},
+			new() {Name = "Facultatea de Fizică"},
+			new() {Name = "Facultatea de Economie"},
+			new() {Name = "Facultatea de Teatru"},
+			new() {Name = "Facultatea de Drept"}
+		};
 
 		faculties.ForEach(f =>
 		{
@@ -54,26 +55,27 @@ public class UniversityDataSeeder(AcademicAppContext context)
 		});
 
 		await _context.Faculties.AddRangeAsync(faculties);
-        await _context.SaveChangesAsync();
-    }
+		await _context.SaveChangesAsync();
+	}
 
-    private static List<Promotion> GeneratePromotions(char facultyCode, Specialisation spec, int spec_nr)
-    {
-        var promotions = new List<Promotion>();
-        for (int promoNum = 1; promoNum <= 3; promoNum++)
-        {
-            string promocode = $"{facultyCode}{spec.Name.Split()[0][0]}{spec.Name.Split()[1][0]}{promoNum}";
-            var promotion = new Promotion()
-            {
-                StartYear = 2023 + promoNum - 1,
-                EndYear = 2026 + promoNum - 1,
-                Specialisation = spec
-            };
-            promotion.StudentGroups = GenerateGroups(spec_nr, HelperFunctions.GetCurrentStudentYear(promotion.StartYear), promotion);
-            promotion.Years = GenerateYears(promotion);
+	private static List<Promotion> GeneratePromotions(char facultyCode, Specialisation spec, int specNr)
+	{
+		var promotions = new List<Promotion>();
+		for (int promoNum = 1; promoNum <= 3; promoNum++)
+		{
+			var promotion = new Promotion
+			{
+				StartYear = 2023 + promoNum - 1,
+				EndYear = 2026 + promoNum - 1,
+				Specialisation = spec
+			};
+
+			promotion.Years = GenerateYears(promotion);
+			promotion.StudentGroups = GenerateGroups(specNr, HelperFunctions.GetCurrentStudentYear(promotion.StartYear), promotion);
+
 			promotions.Add(promotion);
-        }
-        return promotions;
+		}
+		return promotions;
 	}
 
 	private static List<PromotionYear> GenerateYears(Promotion promotion)
@@ -87,10 +89,10 @@ public class UniversityDataSeeder(AcademicAppContext context)
 				Promotion = promotion
 			};
 			year.PromotionSemesters = new List<PromotionSemester>
-		{
-			new PromotionSemester { SemesterNumber = 1, PromotionYear = year },
-			new PromotionSemester { SemesterNumber = 2, PromotionYear = year }
-		};
+			{
+				new PromotionSemester { SemesterNumber = 1, PromotionYear = year },
+				new PromotionSemester { SemesterNumber = 2, PromotionYear = year }
+			};
 			years.Add(year);
 		}
 		return years;
@@ -98,9 +100,8 @@ public class UniversityDataSeeder(AcademicAppContext context)
 
 	private static List<StudentGroup> GenerateGroups(int specialisationNr, int yearNum, Promotion promotion)
 	{
-		var random = new Random();
 		var groups = new List<StudentGroup>();
-		int numGroups = random.Next(3, 8);
+		int numGroups = _random.Next(3, 8);
 
 		for (int i = 1; i <= numGroups; i++)
 		{
@@ -113,10 +114,10 @@ public class UniversityDataSeeder(AcademicAppContext context)
 			};
 
 			group.StudentSubGroups = new List<StudentSubGroup>
-		{
-			new StudentSubGroup { Name = $"{groupCode}-1", StudentGroup = group },
-			new StudentSubGroup { Name = $"{groupCode}-2", StudentGroup = group }
-		};
+			{
+				new StudentSubGroup { Name = $"{groupCode}-1", StudentGroup = group },
+				new StudentSubGroup { Name = $"{groupCode}-2", StudentGroup = group }
+			};
 
 			groups.Add(group);
 		}

@@ -10,4 +10,5 @@ public class HourFilter
     public int? SpecialisationId { get; set; } = null;
     public int? GroupYearId { get; set; } = null;
     public bool? CurrentWeekTimetable { get; set; } = null;
+    public int? SemesterNumber { get; set; } = null;
 }

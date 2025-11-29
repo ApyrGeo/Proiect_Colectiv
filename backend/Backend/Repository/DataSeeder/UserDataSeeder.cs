@@ -21,9 +21,16 @@ public class UserDataSeeder
 
 	public async Task SeedAsync()
 	{
-		//populate only empty DB
 		if (await _context.Users.AnyAsync())
 			return;
+
+		// Load all subjects ONCE at the start
+		var allSubjects = await _context.Subjects.ToListAsync();
+		if (!allSubjects.Any())
+		{
+			// Log warning or throw - cannot create contracts without subjects
+			Console.WriteLine("Warning: No subjects found. Contracts will be empty.");
+		}
 
 		var subGroups = await _context.SubGroups
 			.Include(s => s.StudentGroup)
@@ -33,14 +40,12 @@ public class UserDataSeeder
 				.ThenInclude(sg => sg.Promotion)
 					.ThenInclude(p => p.Years)
 						.ThenInclude(py => py.PromotionSemesters)
-							.ThenInclude(ps => ps.Contracts)
-								.ThenInclude(ps => ps.Subjects)
 			.ToListAsync();
 		var subGroupsCounts = subGroups.ToDictionary(sg => sg.Id, sg => 0);
 
 		var faker = new Faker<User>("ro").UseSeed(6767);
 
-		int totalUsers = 1000;
+		int totalUsers = 10000;
 		int minStudentsPerSubGroup = 14;
 
 		var userFaker = faker
@@ -71,58 +76,43 @@ public class UserDataSeeder
 		var students = users.Where(u => u.Role == UserRole.Student).ToList();
 		var random = new Random();
 
-		// helper to create contract for an enrollment
-		async Task CreateContractForEnrollmentAsync(Enrollment enrollment, Promotion promotion)
+		// Helper to create contract for an enrollment - NO async DB calls inside
+		void CreateContractForEnrollment(Enrollment enrollment, Promotion promotion)
 		{
-			// determine current semester for the promotion
+			if (!allSubjects.Any())
+				return;
+
 			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
 			var currentSemesterNum = DateTime.Now.Month < 7 ? 1 : 2;
+
 			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
 			var currentSemester = currentYear?.PromotionSemesters.FirstOrDefault(s => s.SemesterNumber == currentSemesterNum);
 
 			if (currentSemester == null)
 				return;
 
-			// pick available subjects for this semester (fallback to promotion-level subjects)
-			var available = currentSemester.Contracts.SelectMany(c => c.Subjects).ToList() ?? new List<Subject>();
-			if (!available.Any())
-			{
-				available = await _context.Subjects
-					.Include(s => s.Contracts)
-						.ThenInclude(c => c.Semester)
-							.ThenInclude(ps => ps.PromotionYear)
-								.ThenInclude(py => py.Promotion)
-					.Where(s => s.Contracts.Any(c => c.Semester != null && c.Semester.PromotionYear.Promotion.Id == promotion.Id))
-					.ToListAsync();
-			}
-
-			if (!available.Any())
-				return;
-
-			int take = random.Next(4, Math.Min(available.Count, 8) + 1);
-			var chosen = available.OrderBy(_ => random.Next()).Take(take).ToList();
+			int take = random.Next(4, Math.Min(allSubjects.Count, 8) + 1);
+			var chosen = allSubjects.OrderBy(_ => random.Next()).Take(take).Distinct().ToList();
 
 			var contract = new Contract
 			{
 				Semester = currentSemester,
 				SemesterId = currentSemester.Id,
 				Enrollment = enrollment,
+				EnrollmentId = enrollment.Id,
 				Subjects = chosen
 			};
 
-			// ensure enrollment.Contracts collection exists and add
-			if (enrollment.Contracts == null)
-				enrollment.Contracts = new List<Contract>();
+			enrollment.Contracts ??= new List<Contract>();
 			enrollment.Contracts.Add(contract);
 		}
 
 		foreach (var student in students)
 		{
-			//1st enrollment - "compulsory"
+			// 1st enrollment - "compulsory"
 			var sg1 = subGroups[random.Next(subGroups.Count)];
-
 			var promotion = sg1.StudentGroup.Promotion;
-			// create enrollment
+
 			var enrollment1 = new Enrollment
 			{
 				SubGroup = sg1,
@@ -134,15 +124,14 @@ public class UserDataSeeder
 
 			student.Enrollments.Add(enrollment1);
 			subGroupsCounts[sg1.Id]++;
+			CreateContractForEnrollment(enrollment1, promotion);
 
-			// create contract for this enrollment
-			await CreateContractForEnrollmentAsync(enrollment1, promotion);
-
-			//2nd enrollment - optional - 20% chances
+			// 2nd enrollment - optional - 20% chances
 			if (random.NextDouble() < 0.2)
 			{
 				var otherSubGroups = subGroups
-					.Where(s => s.Id != sg1.Id && s.StudentGroup.Promotion.Specialisation.FacultyId != sg1.StudentGroup.Promotion.Specialisation.FacultyId)
+					.Where(s => s.Id != sg1.Id &&
+						   s.StudentGroup.Promotion.Specialisation.FacultyId != sg1.StudentGroup.Promotion.Specialisation.FacultyId)
 					.ToList();
 
 				if (otherSubGroups.Any())
@@ -161,24 +150,34 @@ public class UserDataSeeder
 
 					student.Enrollments.Add(enrollment2);
 					subGroupsCounts[sg2.Id]++;
-
-					// create contract for second enrollment
-					await CreateContractForEnrollmentAsync(enrollment2, promotion2);
+					CreateContractForEnrollment(enrollment2, promotion2);
 				}
 			}
 		}
 
-		//ensure all subgroups are filled
+		// Ensure all subgroups are filled
 		foreach (var sg in subGroups)
 		{
 			while (subGroupsCounts[sg.Id] < minStudentsPerSubGroup)
 			{
-				var eligible = students.Where(s => !s.Enrollments.Any(e => e.SubGroupId == sg.Id || e.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId == sg.StudentGroup.Promotion.Specialisation.FacultyId)).ToList();
+				var targetFacultyId = sg.StudentGroup.Promotion.Specialisation.FacultyId;
+
+				var eligible = students.Where(s => !s.Enrollments.Any(e =>
+				{
+					if (e.SubGroupId == sg.Id)
+						return true;
+
+					var enrolledSubGroup = subGroups.FirstOrDefault(sub => sub.Id == e.SubGroupId);
+					if (enrolledSubGroup == null)
+						return false;
+
+					var enrolledFacultyId = enrolledSubGroup.StudentGroup.Promotion.Specialisation.FacultyId;
+					return enrolledFacultyId == targetFacultyId;
+				})).ToList();
+
 				if (!eligible.Any()) break;
 
-				var rndIdx = new Random();
-				var student = eligible[rndIdx.Next(eligible.Count)];
-
+				var student = eligible[random.Next(eligible.Count)];
 				var promotion = sg.StudentGroup.Promotion;
 
 				var enrollment = new Enrollment
@@ -192,8 +191,7 @@ public class UserDataSeeder
 
 				student.Enrollments.Add(enrollment);
 				subGroupsCounts[sg.Id]++;
-
-				await CreateContractForEnrollmentAsync(enrollment, promotion);
+				CreateContractForEnrollment(enrollment, promotion);
 			}
 		}
 

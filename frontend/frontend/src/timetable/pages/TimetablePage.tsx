@@ -12,7 +12,7 @@ const TimetablePage: React.FC = () => {
   //TODO temporary user info, to be loaded from auth context
   //groupYear, spec, faculty invalid example id's
   const userInfo = {
-    id: 11111,
+    id: 21004,
     groupYear: 47,
     spec: 2,
     faculty: 3,
