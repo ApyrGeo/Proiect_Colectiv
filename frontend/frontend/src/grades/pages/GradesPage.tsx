@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "../grades.css";
 import { mockGrades } from "../GradesApi.ts";
 import GradeItem from "../components/GradeItem.tsx";
+import FAQPopup from "../../faq/components/FAQPopup.tsx";
+import { faqsGrades } from "../../faq/FAQData.ts";
 
 const years = ["2025/2026", "2024/2025", "2023/2024"];
 const specializations = ["Informatica", "Matematica", "Fizica"];
@@ -95,6 +97,7 @@ const GradesPage: React.FC = () => {
       <p className="average-score">
         <strong>Average score:</strong> {mockGrades.average_score}
       </p>
+      <FAQPopup faqs={faqsGrades} />
     </div>
   );
 };
