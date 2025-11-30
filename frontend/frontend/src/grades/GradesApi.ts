@@ -36,17 +36,25 @@ export const fetchStatusForUser = async (
 
 export const fetchGradesForUser = async (
   userId: number,
-  specialization: string,
-  studyYear: number,
-  semester: number
+  specialization?: string | null,
+  studyYear?: null | number | "",
+  semester?: null | number | ""
 ) => {
-  const response = await fetch(
-    `${GRADE_API_URL}?userId=${userId}&specialisation=${specialization}&yearOfStudy=${studyYear}&semester=${semester}`
-  );
+  let url = `${GRADE_API_URL}?userId=${userId}`;
 
+  if (specialization) url += `&specialisation=${specialization}`;
+  if (specialization && studyYear) url += `&yearOfStudy=${studyYear}`;
+  if (specialization && studyYear && semester) url += `&semester=${semester}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Please select a specialisation");
+  }
   if (response.status === 204) {
     return [];
   }
 
-  return await response.json();
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
 };

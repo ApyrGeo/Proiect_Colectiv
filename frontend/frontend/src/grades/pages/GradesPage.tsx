@@ -6,8 +6,9 @@ import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent
 import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { faqsGrades } from "../../faq/FAQData.ts";
+import { toast } from "react-toastify";
 
-const USER_ID = 21011;
+const USER_ID = 27273;
 
 const GradesPage: React.FC = () => {
   const [selectedSpecialization, setSelectedSpecialization] = useState<string | "">("");
@@ -16,30 +17,63 @@ const GradesPage: React.FC = () => {
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [grades, setGrades] = useState<GradeItemProps[]>([]);
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
+  // Fetch specializations la mount
   useEffect(() => {
     const fetchSpecializations = async () => {
-      const specs = await fetchUserSpecializations(USER_ID);
-      setSpecializations(specs);
+      try {
+        const specs = await fetchUserSpecializations(USER_ID);
+        setSpecializations(specs);
+      } catch (err) {
+        const e = err as Error;
+        setError(e);
+      }
     };
     fetchSpecializations();
   }, []);
 
+  // Fetch grades și status când se schimbă filtrele
   useEffect(() => {
-    if (selectedSpecialization && selectedStudyYear && selectedSemester) {
-      const fetchData = async () => {
-        // fetch grades
-        const result = await fetchGradesForUser(USER_ID, selectedSpecialization, selectedStudyYear, selectedSemester);
-        setGrades(result);
+    const spec = selectedSpecialization === "" ? null : selectedSpecialization;
+    const year = selectedStudyYear === "" ? null : selectedStudyYear;
+    const sem = selectedSemester === "" ? null : selectedSemester;
 
-        // fetch scholarship status
-        const stat = await fetchStatusForUser(USER_ID, selectedSpecialization, selectedStudyYear, selectedSemester);
-        setStatus(stat);
-      };
-
-      fetchData();
+    // Fetch status
+    if (spec && year && sem) {
+      (async () => {
+        try {
+          const stat = await fetchStatusForUser(USER_ID, spec, year, sem);
+          setStatus(stat);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
+          setStatus(null);
+        }
+      })();
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStatus(null);
     }
+
+    // Fetch grades
+    (async () => {
+      try {
+        const result = await fetchGradesForUser(USER_ID, spec, year, sem);
+        setGrades(result);
+        setError(null);
+      } catch (err) {
+        setError(err as Error);
+      }
+    })();
   }, [selectedSpecialization, selectedStudyYear, selectedSemester]);
+
+  // Toast pentru erori – folosit în useEffect și cu setTimeout pentru siguranță
+  useEffect(() => {
+    if (error) {
+      // Delay zero pentru a ne asigura că Toaster e montat
+      setTimeout(() => toast.error(error.message), 0);
+    }
+  }, [error]);
 
   const studyYears = [1, 2, 3];
   const semesters = [1, 2];
@@ -51,7 +85,9 @@ const GradesPage: React.FC = () => {
           <div className="filter-item">
             <label>Specialization:</label>
             <select value={selectedSpecialization} onChange={(e) => setSelectedSpecialization(e.target.value)}>
-              <option value="">All</option>
+              <option value="" hidden>
+                -
+              </option>
               {specializations.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -88,12 +124,11 @@ const GradesPage: React.FC = () => {
 
       <div className="grades-table">
         {grades.map((item) => (
-          <GradeItem id={item.id} subject={item.subject} value={item.value} />
+          <GradeItem key={item.id} id={item.id} subject={item.subject} value={item.value} />
         ))}
       </div>
 
       {status && <ScholarshipStatusComponent status={status} />}
-
       <FAQPopup faqs={faqsGrades} />
     </div>
   );
