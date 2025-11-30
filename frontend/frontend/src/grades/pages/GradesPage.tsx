@@ -4,6 +4,8 @@ import { fetchUserSpecializations, mockGrades, fetchStatusForUser } from "../Gra
 import GradeItem from "../components/GradeItem.tsx";
 import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent.tsx";
 import type { ScholarshipStatus } from "../props.ts";
+import FAQPopup from "../../faq/components/FAQPopup.tsx";
+import { faqsGrades } from "../../faq/FAQData.ts";
 
 const USER_ID = 27273;
 
@@ -105,6 +107,7 @@ const GradesPage: React.FC = () => {
       <p className="average-score">
         <strong>Average score:</strong> {mockGrades.average_score}
       </p>
+      <FAQPopup faqs={faqsGrades} />
     </div>
   );
 };
