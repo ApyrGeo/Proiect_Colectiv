@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TrackForUBB.Controller.Interfaces;
@@ -41,5 +41,14 @@ public class UserController(IUserService service) : ControllerBase
         _logger.InfoFormat("Received request to create user: {0}", user);
         UserResponseDTO createdUser = await _service.CreateUser(user);
         return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+    }
+
+    [HttpGet("{userId}/enrolled-specialisations")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<SpecialisationResponseDTO>>> GetUserEnrolledSpecialisations([FromRoute] int userId)
+    {
+        _logger.InfoFormat("Received request for enrolled specialisations for user ID: {0}", userId);
+        List<SpecialisationResponseDTO> specialisations = await _service.GetUserEnrolledSpecialisations(userId);
+        return Ok(specialisations);
     }
 }

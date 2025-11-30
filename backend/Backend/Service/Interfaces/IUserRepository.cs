@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Service.Interfaces;
 public interface IUserRepository
@@ -8,4 +8,5 @@ public interface IUserRepository
     Task<UserResponseDTO> AddAsync(UserPostDTO user);
     Task SaveChangesAsync();
     Task<List<UserResponseDTO>> GetAll();
+    Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
 }

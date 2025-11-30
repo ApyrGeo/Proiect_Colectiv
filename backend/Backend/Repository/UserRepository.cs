@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
@@ -11,8 +11,8 @@ namespace TrackForUBB.Repository;
 public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserRepository
 {
     private readonly AcademicAppContext _context = context;
-	private readonly IMapper _mapper = mapper;
-	private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
+    private readonly IMapper _mapper = mapper;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
 
     public async Task<UserResponseDTO?> GetByEmailAsync(string email)
     {
@@ -28,10 +28,10 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         _logger.InfoFormat("Adding new user with email: {0}", user.Email);
 
         var entity = _mapper.Map<User>(user);
-		await _context.Users.AddAsync(entity);
+        await _context.Users.AddAsync(entity);
 
-		return _mapper.Map<UserResponseDTO>(entity);
-	}
+        return _mapper.Map<UserResponseDTO>(entity);
+    }
 
     public async Task<UserResponseDTO?> GetByIdAsync(int id)
     {
@@ -39,8 +39,8 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-		return _mapper.Map<UserResponseDTO>(user);
-	}
+        return _mapper.Map<UserResponseDTO>(user);
+    }
 
     public async Task SaveChangesAsync()
     {
@@ -55,5 +55,20 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         var users = await _context.Users.ToListAsync();
 
         return _mapper.Map<List<UserResponseDTO>>(users);
+    }
+
+    public async Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId)
+    {
+        _logger.InfoFormat("Fetching enrolled specialisations for user ID: {0}", userId);
+
+        var specialisations = await _context.Users
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Enrollments)
+            .Select(e => e.SubGroup.StudentGroup.Promotion.Specialisation)
+            .Where(s => s != null)
+            .Distinct()
+            .ToListAsync();
+
+        return _mapper.Map<List<SpecialisationResponseDTO>>(specialisations);
     }
 }
