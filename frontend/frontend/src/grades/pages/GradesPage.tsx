@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "../grades.css";
-import { fetchUserSpecializations, mockGrades, fetchStatusForUser } from "../GradesApi.ts";
+import { fetchUserSpecializations, fetchStatusForUser, fetchGradesForUser } from "../GradesApi.ts";
 import GradeItem from "../components/GradeItem.tsx";
 import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent.tsx";
-import type { ScholarshipStatus } from "../props.ts";
+import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { faqsGrades } from "../../faq/FAQData.ts";
 
-const USER_ID = 27273;
+const USER_ID = 21011;
 
 const GradesPage: React.FC = () => {
   const [selectedSpecialization, setSelectedSpecialization] = useState<string | "">("");
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
   const [selectedSemester, setSelectedSemester] = useState<number | "">("");
   const [specializations, setSpecializations] = useState<string[]>([]);
+  const [grades, setGrades] = useState<GradeItemProps[]>([]);
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
 
   useEffect(() => {
@@ -25,25 +26,23 @@ const GradesPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedSpecialization !== "" && selectedStudyYear !== "" && selectedSemester !== "") {
-      const fetchStatus = async () => {
+    if (selectedSpecialization && selectedStudyYear && selectedSemester) {
+      const fetchData = async () => {
+        // fetch grades
+        const result = await fetchGradesForUser(USER_ID, selectedSpecialization, selectedStudyYear, selectedSemester);
+        setGrades(result);
+
+        // fetch scholarship status
         const stat = await fetchStatusForUser(USER_ID, selectedSpecialization, selectedStudyYear, selectedSemester);
         setStatus(stat);
       };
-      fetchStatus();
+
+      fetchData();
     }
   }, [selectedSpecialization, selectedStudyYear, selectedSemester]);
 
   const studyYears = [1, 2, 3];
   const semesters = [1, 2];
-
-  const filteredGrades = mockGrades.result.filter((item) => {
-    const matchSpec = selectedSpecialization === "" || item.specialization === selectedSpecialization;
-    const matchStudyYear = selectedStudyYear === "" || item.studyYear === selectedStudyYear;
-    const matchSemester = selectedSemester === "" || item.semester === selectedSemester;
-
-    return matchSpec && matchStudyYear && matchSemester;
-  });
 
   return (
     <div className="grades-page">
@@ -88,25 +87,13 @@ const GradesPage: React.FC = () => {
       </div>
 
       <div className="grades-table">
-        {filteredGrades.map((item) => (
-          <GradeItem
-            id={item.id}
-            subject={item.subject}
-            score={item.score}
-            for_score={item.for_score}
-            specialization={item.specialization}
-            academicYear={item.academicYear}
-            studyYear={item.studyYear}
-            semester={item.semester}
-          />
+        {grades.map((item) => (
+          <GradeItem id={item.id} subject={item.subject} value={item.value} />
         ))}
       </div>
 
       {status && <ScholarshipStatusComponent status={status} />}
 
-      <p className="average-score">
-        <strong>Average score:</strong> {mockGrades.average_score}
-      </p>
       <FAQPopup faqs={faqsGrades} />
     </div>
   );
