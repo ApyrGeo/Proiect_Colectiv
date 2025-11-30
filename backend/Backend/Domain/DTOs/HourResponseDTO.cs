@@ -18,4 +18,5 @@ public class HourResponseDTO
     public string TeacherUrl => $"{Teacher.User.Id}";
     public bool IsCurrent { get; set; } = false;
     public bool IsNext { get; set; } = false;
+    public int SemesterId { get; set; }
 }
