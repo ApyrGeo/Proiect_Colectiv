@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Repository.Context;
@@ -34,7 +34,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
     
-    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int userId, int? yearOfStudy, int? semester, string specialisation)
+    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, string specialisation)
     {
         var query = _context.Grades
             .Include(g => g.Subject)
@@ -50,7 +50,10 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
                             .ThenInclude(s => s.Faculty)
             .AsQueryable();
         
-        query = query.Where(g => g.Enrollment.UserId == userId);
+        if (userId.HasValue)
+        {
+            query = query.Where(g => g.Enrollment.UserId == userId);
+        }
 
         if (yearOfStudy.HasValue)
         {

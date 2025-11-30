@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using log4net;
@@ -33,7 +33,7 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
 
         _logger.InfoFormat("Attempting to create user: {0}", JsonSerializer.Serialize(userDTO));
 
-		userDTO.Password = _passwordHasher.HashPassword(userDTO, userDTO.Password!);
+        userDTO.Password = _passwordHasher.HashPassword(userDTO, userDTO.Password!);
 
         _logger.InfoFormat("Saving user to repository: {0}", JsonSerializer.Serialize(userDTO));
         var addedUserDTO = await _userRepository.AddAsync(userDTO);
@@ -69,5 +69,11 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
         _logger.InfoFormat("Mapping User to Response DTO");
 
         return userDTO;
+    }
+
+    public async Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId)
+    {
+        _logger.InfoFormat("Getting enrolled specialisations for user ID: {0}", userId);
+        return await _userRepository.GetUserEnrolledSpecialisations(userId);
     }
 }
