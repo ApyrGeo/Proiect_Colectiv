@@ -78,16 +78,16 @@ public class AcademicsServiceTests
     }
 
     [Theory]
-    [InlineData("IR1", 1)]
-    [InlineData("IE3", 1)]
-    public async Task CreatePromotionValid(string year, int specialisationId)
+    [InlineData(2022,2026, 1)]
+    [InlineData(2023,2025, 1)]
+    public async Task CreatePromotionValid(int startYear , int endYear, int specialisationId)
     {
-        var dto = new PromotionPostDTO { StartYear = 2023, EndYear = 2025, SpecialisationId = specialisationId };
+        var dto = new PromotionPostDTO { StartYear = startYear, EndYear = endYear, SpecialisationId = specialisationId };
         var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisationResponse);
-        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
         _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -95,24 +95,24 @@ public class AcademicsServiceTests
         var result = await _service.CreatePromotion(dto);
 
         Assert.NotNull(result);
-        Assert.Equal(2023, result.StartYear);
-        Assert.Equal(2025, result.EndYear);
+        Assert.Equal(startYear, result.StartYear);
+        Assert.Equal(endYear, result.EndYear);
         _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Once);
         _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
 
     [Theory]
-    [InlineData("", 1)]
-    [InlineData("IE3", -1)]
-    public async Task CreatePromotionInvalidData(string year, int specialisationId)
+    [InlineData(2023,2021 ,1)]
+    [InlineData(2024,2027, -1)]
+    public async Task CreatePromotionInvalidData(int startYear , int endYear, int specialisationId)
     {
-        var dto = new PromotionPostDTO { StartYear = 2023, EndYear = 2025, SpecialisationId = specialisationId };
+        var dto = new PromotionPostDTO { StartYear = startYear, EndYear = endYear, SpecialisationId = specialisationId };
         var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisationResponse);
-        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
         _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -306,7 +306,7 @@ public class AcademicsServiceTests
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
             { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
-        
+        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId)).ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
@@ -344,14 +344,12 @@ public class AcademicsServiceTests
         var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var subGroupResponse = new StudentSubGroupResponseDTO { Id = 1, Name = subGroup.Name };
-        _mockRepository
-            .Setup(r => r.GetSubGroupByIdAsync(subGroupId))
-            .ReturnsAsync(subGroupResponse);
-
+        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(subGroupId)).ReturnsAsync(subGroupResponse);
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
             { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
-        
+        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
+            .ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
         _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         

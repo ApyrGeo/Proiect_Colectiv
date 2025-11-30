@@ -97,7 +97,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
     public async Task<GradeResponseDTO?> GetGradeByIdAsync(int gradeId)
     {
-        var grade = _context.Grades.Where(g=>g.Id == gradeId)
+        var grade = await _context.Grades.Where(g=>g.Id == gradeId)
             .Include(g => g.Subject)
             .Include(g => g.Enrollment)
             .Include(g => g.Semester)

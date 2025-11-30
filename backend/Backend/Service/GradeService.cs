@@ -67,6 +67,16 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return gradesDto;
     }
 
+    public async Task<GradeResponseDTO> GetGradeByIdAsync(int gradeId)
+    {
+        _logger.InfoFormat("Trying to retrieve grade with ID {0}", gradeId);
+
+        var grade = await _gradeRepository.GetGradeByIdAsync(gradeId);
+
+        if (grade == null)
+            throw new NotFoundException($"Grade with ID {gradeId} not found.");
+
+        return grade;
     public async Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int yearOfstudy, int semester, string specialisation)
     {
         var userGrades = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfstudy, semester, specialisation)
@@ -121,13 +131,6 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         };
 
         return result;
-    }
-
-    public async Task<GradeResponseDTO> GetGradeByIdAsync(int gradeId)
-    {
-        _logger.InfoFormat("Trying to retrieve grade with ID {0}", gradeId);
-        return await _gradeRepository.GetGradeByIdAsync(gradeId)
-               ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
     }
 
     private async Task CheckIfSemesterCompletedAndSendEmail(GradeResponseDTO grade)
