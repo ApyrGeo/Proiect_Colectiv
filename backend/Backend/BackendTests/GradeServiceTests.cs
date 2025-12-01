@@ -34,6 +34,7 @@ public class GradeServiceTests
         _service = new GradeService(
             _mockRepository.Object,
             _mockUserRepository.Object,
+            _mockAcademicRepository.Object,
             _validatorFactory,
             _mockEmailProvider.Object
         );
