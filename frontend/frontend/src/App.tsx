@@ -7,7 +7,7 @@ import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -16,7 +16,7 @@ const App = () => {
   return (
     <>
       {/* Toaster permanent la nivel global */}
-      <ToastContainer aria-label={undefined} />
+      <Toaster />
 
       <Sidebar
         appSidebarMinified={sidebarMinified}

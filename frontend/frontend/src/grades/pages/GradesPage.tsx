@@ -6,7 +6,7 @@ import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent
 import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { faqsGrades } from "../../faq/FAQData.ts";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const USER_ID = 27273;
 
@@ -71,7 +71,7 @@ const GradesPage: React.FC = () => {
   useEffect(() => {
     if (error) {
       // Delay zero pentru a ne asigura că Toaster e montat
-      setTimeout(() => toast.error(error.message), 0);
+      toast.error(`Error: ${error.message}`);
     }
   }, [error]);
 
