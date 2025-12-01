@@ -77,6 +77,8 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
             throw new NotFoundException($"Grade with ID {gradeId} not found.");
 
         return grade;
+    }
+
     public async Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int yearOfstudy, int semester, string specialisation)
     {
         var userGrades = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfstudy, semester, specialisation)
