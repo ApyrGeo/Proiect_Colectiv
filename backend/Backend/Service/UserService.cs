@@ -84,14 +84,13 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
     {
         _logger.InfoFormat("Getting user by ID: {0}", userId);
         var userDTO = await _userRepository.GetProfileByIdAsync(userId) ?? throw new NotFoundException($"User with ID {userId} not found.");
-
         return userDTO;
     }
 
     public async Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPostDTO dto)
     {
 
-        var existingUser = await _userRepository.GetByIdAsync(userId);
+        var existingUser = await _userRepository.GetProfileByIdAsync(userId);
         if (existingUser == null)
         {
             throw new NotFoundException($"User with ID {userId} not found.");
@@ -101,10 +100,9 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
 
         if (string.IsNullOrEmpty(dto.PhoneNumber))
             dto.PhoneNumber = existingUser.PhoneNumber ;
-        dto.Email = existingUser.Email;
-        dto.FirstName = existingUser.FirstName;
-        dto.LastName = existingUser.LastName;
-        dto.Role = existingUser.Role;
+        
+        dto.Password = _passwordHasher.HashPassword(dto, dto.Password!);
+        dto.SignatureBase64=existingUser.SignatureUrl;
         
         _logger.InfoFormat("Validating request data");
         var validator = _validator.Get<UserPostDTO>();
@@ -114,7 +112,6 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(result.Errors));
         }
         
-        dto.Password = _passwordHasher.HashPassword(dto, dto.Password!);
         
         var updatedUserDTO = await _userRepository.UpdateAsync(userId,dto);
         await _userRepository.SaveChangesAsync();

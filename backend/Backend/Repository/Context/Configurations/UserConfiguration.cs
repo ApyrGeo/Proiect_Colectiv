@@ -32,5 +32,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.Role)
             .IsRequired();
+        
+        builder.Property(user => user.Signature)
+            .IsRequired(false);
     }
 }
