@@ -2,18 +2,22 @@ import "./App.css";
 import Sidebar from "./sidebar/Sidebar.tsx";
 import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import Grades from "./grades/pages/GradesPage.tsx";
+import GradesPage from "./grades/pages/GradesPage.tsx";
 import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
 import ProfilePage from "./profile/pages/ProfilePage.tsx";
+import { Toaster } from "react-hot-toast";
+
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
 
   return (
     <>
+      {/* Toaster permanent la nivel global */}
+      <Toaster />
       <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
       <div className={`app-content`}>
@@ -31,3 +35,4 @@ const App = () => {
 };
 
 export default App;
+

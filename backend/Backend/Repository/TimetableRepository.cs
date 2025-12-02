@@ -158,6 +158,11 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             query = query.Where(x => x.ClassroomId == filter.ClassroomId);
         }
 
+        if (filter.SemesterNumber != null)
+        {
+            query = query.Where(h => h.Semester.SemesterNumber == filter.SemesterNumber);
+        }
+
         var hours = await query
             .Include(x => x.Classroom)
                 .ThenInclude(x => x.Location)
