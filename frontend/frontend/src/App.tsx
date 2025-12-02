@@ -7,34 +7,33 @@ import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
+import ProfilePage from "./profile/pages/ProfilePage.tsx";
 import { Toaster } from "react-hot-toast";
 
 import "../i18n.ts";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
-  const [, setMobileSidebarOpen] = useState(false);
 
   return (
     <>
       {/* Toaster permanent la nivel global */}
       <Toaster />
+      <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
-      <Sidebar
-        appSidebarMinified={sidebarMinified}
-        onToggleMinified={() => setSidebarMinified((prev) => !prev)}
-        onToggleMobile={() => setMobileSidebarOpen((prev) => !prev)}
-      />
-
-      <Routes>
-        <Route path="/grades" Component={GradesPage} />
-        <Route path="/timetable" Component={TimetablePage} />
-        <Route path="/timetable/teacher/:id" Component={TimetableTeacherPage} />
-        <Route path="/timetable/subject/:id" Component={TimetableSubjectPage} />
-        <Route path="/timetable/classroom/:id" Component={TimetableClassroomPage} />
-      </Routes>
+      <div className={`app-content`}>
+        <Routes>
+          <Route path={"/grades"} Component={Grades} />
+          <Route path={"/timetable"} Component={TimetablePage} />
+          <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
+          <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
+          <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
+          <Route path={"/profile"} Component={ProfilePage} />
+        </Routes>
+      </div>
     </>
   );
 };
 
 export default App;
+

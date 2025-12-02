@@ -117,6 +117,11 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setHoveredMenu(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const width = isMinified ? "var(--sidebar-width-min)" : "var(--sidebar-width)";
+    document.documentElement.style.setProperty("--current-sidebar-width", width);
+  }, [isMinified]);
+
   return (
     <>
       <div className={`app-sidebar ${isMinified ? "minified" : ""}`}>
