@@ -23,7 +23,7 @@ const App = () => {
 
       <div className={`app-content`}>
         <Routes>
-          <Route path={"/grades"} Component={Grades} />
+          <Route path={"/grades"} Component={GradesPage} />
           <Route path={"/timetable"} Component={TimetablePage} />
           <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
           <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
