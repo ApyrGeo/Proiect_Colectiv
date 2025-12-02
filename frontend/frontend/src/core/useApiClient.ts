@@ -18,21 +18,6 @@ const useApiClient = () => {
     []
   );
 
-  apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      console.error("API call failed:", error);
-
-      if (error.response.status === 401) {
-        // Unauthorized
-      } else if (error.response.status === 404) {
-        // Not found
-      }
-
-      return Promise.reject(error);
-    }
-  );
-
   useEffect(() => {
     const responseInterceptor = apiClient.interceptors.response.use(
       (response) => response,
