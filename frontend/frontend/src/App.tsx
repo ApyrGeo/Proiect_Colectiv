@@ -10,6 +10,7 @@ import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx
 import ProfilePage from "./profile/pages/ProfilePage.tsx";
 import { Toaster } from "react-hot-toast";
 
+import "../i18n.ts";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);

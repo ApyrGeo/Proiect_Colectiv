@@ -331,3 +331,42 @@
         pointer-events: auto !important;
     }
 }
+
+.language-radio {
+    display: inline-flex;
+    flex-direction: row;
+    justify-items: center;
+    align-items: center;
+    align-self: center;
+}
+
+.language-radio label:has(input[type=radio]) {
+    font-size: large;
+    border: solid 2px var(--timetable-button-color);
+    border-radius: var(--timetable-border-radius);
+    background: var(--timetable-button-color);
+
+    padding: 1px 5px;
+    margin: 10px 5px;
+}
+
+.language-radio label:has(input[type=radio]:checked) {
+    background: var(--timetable-highlight-color);
+    border-color: var(--timetable-highlight-color);
+}
+
+.language-radio label:has(input[type=radio]:disabled) {
+    background: var(--timetable-text-highlight-color);
+    border-color: var(--timetable-disabled-color);
+    color: var(--timetable-disabled-color);
+}
+
+.language-radio label:has(input[type=radio]:hover) {
+    border-color: var(--timetable-border-color);
+    transition: border-color var(--timetable-transition-time);
+}
+
+.language-radio input[type=radio] {
+    position:absolute;
+    opacity: 0;
+}
