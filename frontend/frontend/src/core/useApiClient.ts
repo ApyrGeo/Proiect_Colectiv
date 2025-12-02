@@ -1,10 +1,10 @@
 import axios from "axios";
 import { baseUrl, host } from ".";
-import useAuth from "../auth/hooks/useAuth";
 import { useEffect, useMemo } from "react";
+import { useAuthContext } from "../auth/context/AuthContext";
 
 const useApiClient = () => {
-  const { accessToken, activeAccount } = useAuth();
+  const { accessToken, activeAccount } = useAuthContext();
 
   const apiClient = useMemo(
     () =>
