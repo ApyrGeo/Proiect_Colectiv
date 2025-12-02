@@ -91,7 +91,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("hours")]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] bool? currentWeekTimetable)
+    public async Task<ActionResult<List<HourResponseDTO>>> GetHours([FromQuery] int? userId, [FromQuery] int? classroomId, [FromQuery] int? teacherId, [FromQuery] int? subjectId, [FromQuery] int? facultyId, [FromQuery] int? specialisationId, [FromQuery] int? groupYearId, [FromQuery] int? semesterNumber, [FromQuery] bool? currentWeekTimetable)
     {
         var filter = new HourFilter
         {
@@ -102,6 +102,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
             FacultyId = facultyId,
             SpecialisationId = specialisationId,
             GroupYearId = groupYearId,
+            SemesterNumber = semesterNumber,
             CurrentWeekTimetable = currentWeekTimetable
         };
 

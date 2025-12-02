@@ -43,6 +43,15 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
         CreateMap<LocationPostDTO, Location>();
+        
+        CreateMap<Grade, GradeResponseDTO>()
+            .ForMember(x => x.Semester, o => o.MapFrom(s => s.Semester));;
+        CreateMap<GradePostDTO, Grade>();
+        
+        CreateMap<PromotionSemester, PromotionSemesterResponseDTO>().ReverseMap();
+        
+        CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
+
 
         CreateMap<Hour, HourResponseDTO>()
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))

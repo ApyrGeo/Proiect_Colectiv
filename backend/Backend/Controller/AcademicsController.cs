@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using log4net;
 using TrackForUBB.Controller.Interfaces;
 using Microsoft.AspNetCore.Mvc;

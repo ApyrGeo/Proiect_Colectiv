@@ -17,6 +17,10 @@
     display: flex;
     flex-direction: column;
     gap: 3rem;
+    margin: 0;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
 }
 
 .timetable-page {

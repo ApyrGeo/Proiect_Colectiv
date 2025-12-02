@@ -1,6 +1,11 @@
 {
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "framer-motion": "^12.23.24",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.6",
+    "react-toastify": "^11.0.5"
   }
 }

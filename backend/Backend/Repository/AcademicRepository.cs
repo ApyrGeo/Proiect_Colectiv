@@ -173,4 +173,16 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .FirstOrDefaultAsync();
         return _mapper.Map<EnrollmentResponseDTO>(enrollment);
 	}
+
+    public async Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId)
+    {
+	    var semester= await _context.PromotionSemesters.Where(p => p.Id == semesterId)
+		    .Include(s=>s.PromotionYear)
+				.ThenInclude(g => g.Promotion)
+					.ThenInclude(gy => gy.Specialisation)
+						.ThenInclude(s => s.Faculty)
+		    .FirstOrDefaultAsync();
+
+	    return _mapper.Map<PromotionSemesterResponseDTO>(semester);
+    }
 }

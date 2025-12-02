@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { SubjectProps } from "../props.ts";
 import { useEffect, useState } from "react";
 import { getSubject } from "../TimetableApi.ts";
+import { useTranslation } from "react-i18next";
 
 const TimetableSubjectPage: React.FC = () => {
   const [subject, setSubject] = useState<SubjectProps | null>(null);
@@ -10,6 +11,8 @@ const TimetableSubjectPage: React.FC = () => {
 
   const navigate = useNavigate();
   const params = useParams();
+
+  const { t } = useTranslation();
 
   const handleBack = () => {
     navigate("/timetable");
@@ -31,14 +34,17 @@ const TimetableSubjectPage: React.FC = () => {
     <div className={"timetable-page"}>
       {subject && (
         <>
-          <div className={"timetable-title"}>Materie: {subject.name}</div>
+          <div className={"timetable-title"}>
+            {t("Subject")}: {subject.name}
+          </div>
           <button className={"timetable-back-button"} onClick={handleBack}>
-            Înapoi
+            {t("Back")}
           </button>
           <Timetable subjectId={subject.id}></Timetable>
         </>
       )}
-      {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
+      {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
+      {!subject && !fetchError && <div>{t("Loading")}</div>}
     </div>
   );
 };

@@ -1,7 +1,10 @@
-import { useEffect, useState, type SetStateAction, useRef } from "react";
+import React, { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
+import { faqsTimetable } from "../../faq/FAQData.ts";
+import FAQPopup from "../../faq/components/FAQPopup.tsx";
+import { useTranslation } from "react-i18next";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -9,10 +12,12 @@ const defaultSelectedLocations: SelectedLocationsProps = {
 };
 
 const TimetablePage: React.FC = () => {
+  const { t } = useTranslation();
+
   //TODO temporary user info, to be loaded from auth context
   //groupYear, spec, faculty invalid example id's
   const userInfo = {
-    id: 11111,
+    id: 21004,
     groupYear: 47,
     spec: 2,
     faculty: 3,
@@ -127,7 +132,7 @@ const TimetablePage: React.FC = () => {
   return (
     <div className={"container"}>
       <div className={"timetable-page"}>
-        <div className={"timetable-title"}>Orar</div>
+        <div className={"timetable-title"}>{t("Timetable")}</div>
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -137,7 +142,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "personal"}
               onChange={handleChange}
             />
-            Personalizat
+            {t("Personalized")}
           </label>
           <label>
             <input
@@ -147,7 +152,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "group"}
               onChange={handleChange}
             />
-            Grupă
+            {t("Group")}
           </label>
           <label>
             <input
@@ -157,7 +162,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "specialisation"}
               onChange={handleChange}
             />
-            Specializare
+            {t("Specialization")}
           </label>
           <label>
             <input
@@ -167,7 +172,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "faculty"}
               onChange={handleChange}
             />
-            Facultate
+            {t("Faculty")}
           </label>
         </div>
         <div className={"timetable-filter"}>
@@ -179,7 +184,7 @@ const TimetablePage: React.FC = () => {
               checked={activeHours}
               onChange={() => setActiveHours(!activeHours)}
             />
-            Săptămâna curentă
+            {t("CurrentWeek")}
           </label>
         </div>
         <div className={"timetable-filter"}>
@@ -192,7 +197,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFreq === "all"}
               onChange={handleChangeFreq}
             />
-            Oricând
+            {t("Anytime")}
           </label>
           <label>
             <input
@@ -203,7 +208,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFreq === "1"}
               onChange={handleChangeFreq}
             />
-            Săpt. 1
+            {t("FirstWeek")}
           </label>
           <label>
             <input
@@ -214,7 +219,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFreq === "2"}
               onChange={handleChangeFreq}
             />
-            Săpt. 2
+            {t("SecondWeek")}
           </label>
         </div>
         {selectedFilter == "personal" && !activeHours && (
@@ -263,20 +268,21 @@ const TimetablePage: React.FC = () => {
             onClick={handleNavigateFromCurrentLocation}
             title="Open Google Maps"
           >
-            Vezi rute către {selectedLocations.currentLocation.name}
+            {t("SeeRoutesTo")} {selectedLocations.currentLocation.name}
           </button>
         )}
         {selectedLocations.currentLocation && selectedLocations.nextLocation && (
           <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
-            Vezi rute de la {selectedLocations.currentLocation.name} la {selectedLocations.nextLocation.name}
+            {t("SeeRoutesBetween")} {selectedLocations.currentLocation.name} & {selectedLocations.nextLocation.name}
           </button>
         )}
         {selectedLocations.currentLocation && (
           <button className="timetable-back-button" onClick={handleCancelSelection} title="Open Google Maps">
-            Anuleaza selectia
+            {t("CancelSelection")}
           </button>
         )}
       </div>
+      <FAQPopup faqs={faqsTimetable} />
     </div>
   );
 };

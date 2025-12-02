@@ -28,6 +28,9 @@
     <None Update="EmailService\Emails\CreatedEnrollment\CreatedEnrollmentEmailPage.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="EmailService\Emails\PostedSemesterGrades\PostedSemesterGradesPage.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

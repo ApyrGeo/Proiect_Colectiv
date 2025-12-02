@@ -4,11 +4,14 @@ import { getAppMenus } from "../services/app-menus";
 import type { MenuItem } from "./MenuItem";
 import type { SidebarProps } from "./SidebarProps";
 import "./sidebar.css";
+import { useTranslation } from "react-i18next";
 
 const LS_KEY = "app_sidebar_minified";
 
 const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const location = useLocation();
+
+  const { t, i18n } = useTranslation();
 
   const [menus] = useState<MenuItem[]>(getAppMenus);
 
@@ -95,6 +98,10 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   };
 
   useEffect(() => {
+    console.log(i18n.language);
+  }, [i18n.language]);
+
+  useEffect(() => {
     if (!mountedRef.current) return;
 
     if (hoverTimeout.current) {
@@ -109,6 +116,11 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setExpanded((prev) => activeParent?.title ?? prev);
     setHoveredMenu(null);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const width = isMinified ? "var(--sidebar-width-min)" : "var(--sidebar-width)";
+    document.documentElement.style.setProperty("--current-sidebar-width", width);
+  }, [isMinified]);
 
   return (
     <>
@@ -164,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                         }}
                       >
                         <span className="menu-icon">{item.icon}</span>
-                        {!isMinified && <span className="menu-text">{item.title}</span>}
+                        {!isMinified && <span className="menu-text">{t(item.title)}</span>}
                       </NavLink>
                     )}
 
@@ -217,6 +229,50 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
             </div>
           )}
         </div>
+        {!isMinified && (
+          <div className={"language-radio"}>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="en"
+                checked={i18n.language === "en"}
+                onChange={() => i18n.changeLanguage("en")}
+              />
+              EN
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="ro"
+                checked={i18n.language === "ro"}
+                onChange={() => i18n.changeLanguage("ro")}
+              />
+              RO
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="filter"
+                value="hu"
+                checked={i18n.language === "hu"}
+                onChange={() => i18n.changeLanguage("hu")}
+              />
+              HU
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="filter"
+                value="de"
+                checked={i18n.language === "de"}
+                onChange={() => i18n.changeLanguage("de")}
+              />
+              DE
+            </label>
+          </div>
+        )}
       </div>
       <div className={`app-sidebar-backdrop ${isMinified ? "" : "show"}`} />
     </>
