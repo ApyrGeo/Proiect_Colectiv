@@ -25,15 +25,17 @@ const App = () => {
       <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
       <div className={`app-content`}>
-        <div>
-          <AuthenticatedTemplate>
-            <p>This will only render if a user is signed-in.</p>
-            <SignOutButton />
-          </AuthenticatedTemplate>
-          <UnauthenticatedTemplate>
-            <p>This will only render if a user is not signed-in.</p>
-            <SignInButton />
-          </UnauthenticatedTemplate>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <AuthenticatedTemplate>
+              <p>This will only render if a user is signed-in.</p>
+              <SignOutButton />
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+              <p>This will only render if a user is not signed-in.</p>
+              <SignInButton />
+            </UnauthenticatedTemplate>
+          </div>
         </div>
 
         <Routes>

@@ -1,4 +1,4 @@
-import { LogLevel, PublicClientApplication, type AuthenticationResult } from "@azure/msal-browser";
+import { LogLevel, PublicClientApplication } from "@azure/msal-browser";
 
 export const msalConfig = {
   auth: {
@@ -7,7 +7,7 @@ export const msalConfig = {
     redirectUri: "http://localhost:5173/",
   },
   cache: {
-    cacheLocation: "sessionStorage",
+    cacheLocation: "localStorage",
     storeAuthStateInCookie: false,
   },
   system: {
@@ -42,22 +42,3 @@ export const loginRequest = {
 };
 
 export const msalInstance = new PublicClientApplication(msalConfig);
-
-msalInstance
-  .handleRedirectPromise()
-  .then((tokenResponse: AuthenticationResult | null) => {
-    if (tokenResponse?.account) {
-      msalInstance.setActiveAccount(tokenResponse.account);
-    } else {
-      const accounts = msalInstance.getAllAccounts();
-
-      if (accounts.length > 0) {
-        msalInstance.setActiveAccount(accounts[0]);
-      } else {
-        msalInstance.setActiveAccount(null);
-      }
-    }
-  })
-  .catch((error: Error) => {
-    console.error(error);
-  });
