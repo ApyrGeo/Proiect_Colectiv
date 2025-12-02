@@ -52,7 +52,8 @@ public class EFEntitiesMappingProfile : Profile
         
         CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
 
-
+        CreateMap<User, UserProfileResponseDTO>();
+        
         CreateMap<Hour, HourResponseDTO>()
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
