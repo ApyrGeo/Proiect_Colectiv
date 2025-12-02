@@ -7,10 +7,13 @@ import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { faqsGrades } from "../../faq/FAQData.ts";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const USER_ID = 27273;
 
 const GradesPage: React.FC = () => {
+  const { t } = useTranslation();
+
   const [selectedSpecialization, setSelectedSpecialization] = useState<string | "">("");
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
   const [selectedSemester, setSelectedSemester] = useState<number | "">("");
@@ -83,7 +86,7 @@ const GradesPage: React.FC = () => {
       <div className="filters-container">
         <div className="filters-top">
           <div className="filter-item">
-            <label>Specialization:</label>
+            <label>{t("Specialization")}:</label>
             <select value={selectedSpecialization} onChange={(e) => setSelectedSpecialization(e.target.value)}>
               <option value="" hidden>
                 -
@@ -97,7 +100,7 @@ const GradesPage: React.FC = () => {
           </div>
 
           <div className="filter-item">
-            <label>Year of Study:</label>
+            <label>{t("YearOfStudy")}:</label>
             <select value={selectedStudyYear} onChange={(e) => setSelectedStudyYear(Number(e.target.value) || "")}>
               <option value="">All</option>
               {studyYears.map((y) => (
@@ -109,7 +112,7 @@ const GradesPage: React.FC = () => {
           </div>
 
           <div className="filter-item">
-            <label>Semester:</label>
+            <label>{t("Semester")}:</label>
             <select value={selectedSemester} onChange={(e) => setSelectedSemester(Number(e.target.value) || "")}>
               <option value="">All</option>
               {semesters.map((s) => (
