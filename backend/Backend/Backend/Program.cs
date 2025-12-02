@@ -19,6 +19,9 @@ using TrackForUBB.Controller.Security;
 using TrackForUBB.Repository.AutoMapper;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Service.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +30,53 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    var oauthScheme = new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Flows = new OpenApiOAuthFlows
+        {
+            AuthorizationCode = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri(
+                    $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}/oauth2/v2.0/authorize"),
+                TokenUrl = new Uri(
+                    $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}/oauth2/v2.0/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { $"api://{builder.Configuration["AzureAd:ClientId"]}/TrackForUBB.Read", "Read access to TrackForUBB" },
+                    { $"api://{builder.Configuration["AzureAd:ClientId"]}/TrackForUBB.ReadWrite", "Read/Write access to TrackForUBB" }
+                }
+            }
+        }
+    };
+
+    c.AddSecurityDefinition("oauth2", oauthScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new[]
+            {
+                $"api://{builder.Configuration["AzureAd:ClientId"]}/TrackForUBB.Read",
+                $"api://{builder.Configuration["AzureAd:ClientId"]}/TrackForUBB.ReadWrite"
+            }
+        }
+    });
+});
 
 var AppAllowSpecificOrigins = "_appAllowSpecificOrigins";
 
@@ -39,6 +88,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 //database
 builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
@@ -111,13 +162,19 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+        c.OAuthClientId(builder.Configuration["AzureAd:SwaggerClientId"]);
+        c.OAuthUsePkce();
+    });
 }
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

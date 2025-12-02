@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Controller.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TrackForUBB.Controller;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class TimetableController(ITimetableService service) : ControllerBase
 {
