@@ -56,6 +56,10 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         _logger.InfoFormat("Updating user with email: {0}", user.Email);
         var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         _mapper.Map(user, entity);
+        
+        if (!string.IsNullOrEmpty(user.SignatureBase64))
+            entity.Signature = Convert.FromBase64String(user.SignatureBase64);
+
         _context.Users.Update(entity);
 
         return _mapper.Map<UserResponseDTO>(entity);

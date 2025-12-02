@@ -102,7 +102,6 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
             dto.PhoneNumber = existingUser.PhoneNumber ;
         
         dto.Password = _passwordHasher.HashPassword(dto, dto.Password!);
-        dto.SignatureBase64=existingUser.SignatureUrl;
         
         _logger.InfoFormat("Validating request data");
         var validator = _validator.Get<UserPostDTO>();
@@ -111,7 +110,6 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
         {
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(result.Errors));
         }
-        
         
         var updatedUserDTO = await _userRepository.UpdateAsync(userId,dto);
         await _userRepository.SaveChangesAsync();
