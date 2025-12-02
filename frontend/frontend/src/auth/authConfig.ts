@@ -38,7 +38,10 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-  scopes: ["TrackForUBB.Read", "TrackForUBB.ReadWrite"],
+  scopes: [
+    "api://98597d4f-08f9-4e43-8387-16cf8d7c510b/TrackForUBB.Read",
+    "api://98597d4f-08f9-4e43-8387-16cf8d7c510b/TrackForUBB.ReadWrite",
+  ],
 };
 
 export const msalInstance = new PublicClientApplication(msalConfig);

@@ -1,12 +1,13 @@
 import type { IPublicClientApplication } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
+import { loginRequest } from "../authConfig";
 
 export interface SignInButtonProps {
   text?: string;
 }
 
 const signInClickHandler = (instance: IPublicClientApplication) => {
-  instance.loginRedirect();
+  instance.loginRedirect(loginRequest);
 };
 
 const SignInButton = ({ text }: SignInButtonProps) => {

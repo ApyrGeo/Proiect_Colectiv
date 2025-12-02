@@ -20,7 +20,7 @@ const useAuth = () => {
     setLoading(true);
     const request = {
       scopes: loginRequest.scopes,
-      activeAccount,
+      account: activeAccount,
     };
 
     try {
