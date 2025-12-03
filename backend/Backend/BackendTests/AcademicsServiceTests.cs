@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service;
 using TrackForUBB.Service.Validators;
@@ -641,7 +641,6 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
             Role = Enum.Parse<UserRole>("Teacher")
         };
@@ -653,7 +652,7 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
+            Password = "",
             PhoneNumber = "+40777301089",
             Role = "Teacher"
         };

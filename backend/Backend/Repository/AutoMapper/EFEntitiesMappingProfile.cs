@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
@@ -51,7 +51,6 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<PromotionSemester, PromotionSemesterResponseDTO>().ReverseMap();
         
         CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
-
 
         CreateMap<Hour, HourResponseDTO>()
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))

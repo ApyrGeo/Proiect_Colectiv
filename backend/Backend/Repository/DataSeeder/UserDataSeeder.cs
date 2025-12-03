@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.Context;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.Security;
@@ -53,7 +53,6 @@ public class UserDataSeeder
 			.RuleFor(u => u.LastName, f => f.Name.LastName())
 			.RuleFor(u => u.PhoneNumber, (f, u) => $"+40 {f.Random.Number(700, 799)} {f.UniqueIndex:D2} {f.Random.Number(100, 999)}")
 			.RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FirstName, u.LastName, "gmoil.com", f.UniqueIndex.ToString()))
-			.RuleFor(u => u.Password, (f, u) => _passwordHasher.HashPassword(u, "Password123!"))
 			.RuleFor(u => u.Role, f => f.Random.Double() < 0.10 ? UserRole.Teacher : UserRole.Student)
 			.RuleFor(u => u.Enrollments, _ => new List<Enrollment>());
 
@@ -65,12 +64,10 @@ public class UserDataSeeder
 			LastName = "User",
 			Email = "admin@example.com",
 			PhoneNumber = "+40 700 000 000",
-			Password = "AdminPassword123!",
 			Role = UserRole.Admin,
 			Enrollments = new List<Enrollment>()
 		};
 
-		admin.Password = _passwordHasher.HashPassword(admin, admin.Password);
 		users.Add(admin);
 
 		var students = users.Where(u => u.Role == UserRole.Student).ToList();

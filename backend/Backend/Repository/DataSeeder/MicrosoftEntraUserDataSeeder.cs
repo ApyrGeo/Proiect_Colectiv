@@ -45,44 +45,56 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
             return;
         }
 
-        //var students = await GetRandomStudents();
+        var students = await GetRandomStudents();
 
-        //foreach (var student in students)
-        //{
-        //    var requestBody = new EntraUser
-        //    {
-        //        AccountEnabled = true,
-        //        DisplayName = $"{student.LastName} {student.FirstName}",
-        //        MailNickname = $"{student.LastName}.{student.FirstName}",
-        //        UserPrincipalName = $"{student.FirstName}.{student.LastName}@trackforubb.onmicrosoft.com",
-        //        PasswordProfile = new PasswordProfile
-        //        {
-        //            ForceChangePasswordNextSignIn = true,
-        //            Password = "Parola1234!",
-        //        },
-        //    };
+        foreach (var student in students)
+        {
+            var requestBody = new EntraUser
+            {
+                AccountEnabled = true,
+                DisplayName = $"{student.LastName} {student.FirstName}",
+                MailNickname = $"{student.LastName}.{student.FirstName}",
+                UserPrincipalName = $"{student.FirstName}.{student.LastName}@trackforubb.onmicrosoft.com",
+                PasswordProfile = new PasswordProfile
+                {
+                    ForceChangePasswordNextSignIn = true,
+                    Password = "Parola1234!",
+                },
+            };
 
-        //    var result = await _graph.Users.PostAsync(requestBody);
-        //}
+            var result = await _graph.Users.PostAsync(requestBody);
 
-        //var teachers = await GetRandomTeachers();
+            if (result != null && result.Id != null)
+            {
+                student.Owner = Guid.Parse(result.Id);
+            }
+        }
 
-        //foreach (var teacher in teachers)
-        //{
-        //    var requestBody = new EntraUser
-        //    {
-        //        AccountEnabled = true,
-        //        DisplayName = $"{teacher.LastName} {teacher.FirstName}",
-        //        MailNickname = $"{teacher.LastName}.{teacher.FirstName}",
-        //        UserPrincipalName = $"{teacher.FirstName}.{teacher.LastName}@trackforubb.onmicrosoft.com",
-        //        PasswordProfile = new PasswordProfile
-        //        {
-        //            ForceChangePasswordNextSignIn = true,
-        //            Password = "Parola1234!",
-        //        },
-        //    };
+        var teachers = await GetRandomTeachers();
 
-        //    var result = await _graph.Users.PostAsync(requestBody);
-        //}
+        foreach (var teacher in teachers)
+        {
+            var requestBody = new EntraUser
+            {
+                AccountEnabled = true,
+                DisplayName = $"{teacher.LastName} {teacher.FirstName}",
+                MailNickname = $"{teacher.LastName}.{teacher.FirstName}",
+                UserPrincipalName = $"{teacher.FirstName}.{teacher.LastName}@trackforubb.onmicrosoft.com",
+                PasswordProfile = new PasswordProfile
+                {
+                    ForceChangePasswordNextSignIn = true,
+                    Password = "Parola1234!",
+                },
+            };
+
+            var result = await _graph.Users.PostAsync(requestBody);
+
+            if (result != null && result.Id != null)
+            {
+                teacher.Owner = Guid.Parse(result.Id);
+            }
+        }
+
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.EFEntities;
@@ -26,9 +26,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(user => user.Email)
             .IsUnique();
 
-        builder.Property(user => user.Password)
-            .IsRequired()
-            .HasMaxLength(Constants.ExtendedStringMaxLenght);
+        builder.Property(user => user.Owner)
+            .IsRequired(false);
 
         builder.Property(user => user.Role)
             .IsRequired();

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using TrackForUBB.Domain.DTOs;
@@ -51,8 +51,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
-            Role = UserRole.Admin,
-            Password = "1234567"
+            Role = UserRole.Admin
         };
         var enrollment = new Enrollment
             { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
@@ -106,8 +105,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
-            Role = UserRole.Admin,
-            Password = "1234567"
+            Role = UserRole.Admin
         };
         var enrollment = new Enrollment
             { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
@@ -158,8 +156,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
-            Role = UserRole.Admin,
-            Password = "1234567"
+            Role = UserRole.Admin
         };
         var enrollment = new Enrollment
             { Id = enrollmentId, UserId = user.Id, SubGroupId = subGroup.Id, User = user, SubGroup = subGroup };
