@@ -22,8 +22,8 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
             .WithMany(c => c.Subjects);
 
         builder.HasOne(s => s.HolderTeacher)
-            .WithOne(t => t.HeldSubject)
-            .HasForeignKey<Teacher>(t => t.HeldSubjectId)
+            .WithMany(t => t.HeldSubjects)
+            .HasForeignKey(s => s.HolderTeacherId)
             .IsRequired(false);
     }
 }

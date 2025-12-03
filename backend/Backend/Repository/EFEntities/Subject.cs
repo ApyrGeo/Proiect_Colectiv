@@ -11,6 +11,7 @@ public class Subject
     
     public List<Contract> Contracts { get; set; } = [];
 
+    public int? HolderTeacherId { get; set; }
     public Teacher? HolderTeacher { get; set; }
     public List<ExamEntry> RegisteredExams { get; set; } = [];
 }

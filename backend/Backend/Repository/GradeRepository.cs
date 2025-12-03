@@ -128,12 +128,4 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     {
         await _context.SaveChangesAsync();
     }
-
-    public Task<SubjectResponseDTO?> GetSubjectById(int subjectId)
-    {
-        return _context.Subjects
-            .Where(s => s.Id == subjectId)
-            .Select(s => _mapper.Map<SubjectResponseDTO>(s))
-            .FirstOrDefaultAsync();
-    }
 }

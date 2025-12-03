@@ -188,55 +188,63 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 
     public async Task<List<StudentGroupResponseDTO>> GetGroupsEnrolledToSubjectOwnedByTeacher(int teacherId)
     {
-        int? subjectId = await _context.Teachers
-            .Include(t => t.HeldSubject)
-            .Where(t => t.UserId == teacherId)
-            .Select(t => t.HeldSubjectId)
-            .FirstOrDefaultAsync();
+        var teacher = await _context.Teachers
+            .Include(t => t.HeldSubjects)
+            .FirstOrDefaultAsync(t => t.UserId == teacherId);
 
-        if (subjectId == null)
-        {
+        if (teacher == null)
             return [];
-        }
 
-        var subGroupEnrollmentCounts = await _context.Subjects
-            .Where(s => s.Id == subjectId)
+        var subjectIds = teacher.HeldSubjects?.Select(s => s.Id).ToList() ?? new List<int>();
+        if (!subjectIds.Any())
+            return [];
+
+        var subjectEnrollmentCounts = await _context.Subjects
+            .Where(s => subjectIds.Contains(s.Id))
             .SelectMany(s => s.Contracts)
             .Select(c => c.Enrollment)
-            .GroupBy(e => e.SubGroup.StudentGroup)
-            .ToDictionaryAsync(
-                g => g.Key,
-                g => g.Count()
-            );
+            .Where(e => e != null)
+            .GroupBy(e => e.SubGroup.StudentGroupId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count());
 
-        var studentGroupIds = subGroupEnrollmentCounts.Keys.Select(g => g.Id).ToList();
+        if (subjectEnrollmentCounts.Count == 0)
+            return [];
+
+        var studentGroupIds = subjectEnrollmentCounts.Keys.ToList();
 
         var totalEnrollmentCounts = await _context.Groups
             .Where(g => studentGroupIds.Contains(g.Id))
             .Include(g => g.StudentSubGroups)
                 .ThenInclude(sg => sg.Enrollments)
             .ToDictionaryAsync(
-                g => g,
+                g => g.Id,
                 g => g.StudentSubGroups.Sum(sg => sg.Enrollments.Count)
             );
 
-        var filteredGroups = subGroupEnrollmentCounts
+        const double thresholdFraction = 0.1;
+
+        var filteredGroupIds = subjectEnrollmentCounts
             .Where(kvp =>
             {
-                var group = kvp.Key;
-                var subjectEnrollmentCount = kvp.Value;
-                var totalEnrollments = totalEnrollmentCounts.GetValueOrDefault(group, 0);
-
-                return totalEnrollments > 0 &&
-                       (double)subjectEnrollmentCount / totalEnrollments > 0.1;
+                var groupId = kvp.Key;
+                var subjectCount = kvp.Value;
+                var total = totalEnrollmentCounts.GetValueOrDefault(groupId, 0);
+                return total > 0 && (double)subjectCount / total > thresholdFraction;
             })
             .Select(kvp => kvp.Key)
             .ToList();
 
-        var result = filteredGroups
-            .Select(g => _mapper.Map<StudentGroupResponseDTO>(g))
-            .ToList();
+        if (!filteredGroupIds.Any())
+            return [];
 
-        return result;
+        var filteredGroups = await _context.Groups
+            .Where(g => filteredGroupIds.Contains(g.Id))
+            .Include(g => g.StudentSubGroups)
+            .Include(g => g.Promotion)
+                .ThenInclude(p => p.Specialisation)
+                    .ThenInclude(s => s.Faculty)
+            .ToListAsync();
+
+        return _mapper.Map<List<StudentGroupResponseDTO>>(filteredGroups);
     }
 }

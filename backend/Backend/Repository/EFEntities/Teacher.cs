@@ -9,7 +9,5 @@ public class Teacher
     public required Faculty Faculty { get; set; }
     public List<Hour> Hours { get; set; } = [];
 
-    // Here we will pretend that a teacher can hold more subjects
-    public int? HeldSubjectId { get; set; }
-    public Subject? HeldSubject { get; set; } = null;
+    public List<Subject>? HeldSubjects { get; set; } = [];
 }

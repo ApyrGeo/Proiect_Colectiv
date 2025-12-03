@@ -8,10 +8,10 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class ExamService(IExamRepository examRepository, IGradeRepository gradeRepository, IUserRepository userRepository, IValidatorFactory validatorFactory) : IExamService
+public class ExamService(IExamRepository examRepository, ITimetableRepository timetableRepository, IUserRepository userRepository, IValidatorFactory validatorFactory) : IExamService
 {
     private readonly IExamRepository _examRepository = examRepository;
-    private readonly IGradeRepository _gradeRepository = gradeRepository;
+    private readonly ITimetableRepository _timetableRepository = timetableRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
     private readonly ILog _logger = LogManager.GetLogger(typeof(ExamService));
@@ -19,7 +19,7 @@ public class ExamService(IExamRepository examRepository, IGradeRepository gradeR
     public async Task<List<ExamEntryResponseDTO>> GetExamsBySubjectId(int subjectId)
     {
         _logger.Info($"Fetching exams for subject ID: {subjectId}");
-        var _ = await _gradeRepository.GetSubjectById(subjectId)
+        var _ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
             ?? throw new NotFoundException("Subject not found");
 
         return await _examRepository.GetExamsBySubjectId(subjectId);

@@ -11,10 +11,11 @@ public class ExamDataSeeder(AcademicAppContext context)
 
     public async Task SeedAsync()
     {
+        await AssignHolderTeachersAsync();
+
         if (await _context.ExamEntries.AnyAsync())
             return;
 
-        await AssignHolderTeachersAsync();
 
         await SeedExamEntriesAsync();
     }
@@ -23,13 +24,22 @@ public class ExamDataSeeder(AcademicAppContext context)
     {
         var subjectsWithoutHolder = await _context.Subjects
             .Where(s => s.HolderTeacher == null)
+            .Include(s => s.Contracts)
+                .ThenInclude(c => c.Semester)
+                    .ThenInclude(sem => sem.PromotionYear)
+                        .ThenInclude(py => py.Promotion)
+                            .ThenInclude(p => p.Specialisation)
+                                .ThenInclude(sp => sp.Faculty)
             .ToListAsync();
 
         if (subjectsWithoutHolder.Count == 0)
             return;
 
+        // Get teachers that currently have no held subjects
         var teachersWithoutSubject = await _context.Teachers
-            .Where(t => t.HeldSubjectId == null)
+            .Include(t => t.Faculty)
+            .Include(t => t.HeldSubjects)
+            .Where(t => !t.HeldSubjects.Any())
             .ToListAsync();
 
         if (teachersWithoutSubject.Count == 0)
@@ -37,12 +47,24 @@ public class ExamDataSeeder(AcademicAppContext context)
 
         foreach (var subject in subjectsWithoutHolder)
         {
-            var availableTeacher = teachersWithoutSubject.FirstOrDefault();
+            // Determine faculty from subject's first contract (if available)
+            var contract = subject.Contracts?.FirstOrDefault();
+            var facultyId = contract?.Semester?.PromotionYear?.Promotion?.Specialisation?.Faculty?.Id;
+
+            // Prefer a teacher from the same faculty, fallback to any available teacher
+            var availableTeacher = teachersWithoutSubject.FirstOrDefault(t => t.FacultyId == facultyId)
+                                    ?? teachersWithoutSubject.FirstOrDefault();
 
             if (availableTeacher == null)
                 break;
 
-            availableTeacher.HeldSubjectId = subject.Id;
+            // Add subject to teacher's held subjects
+            availableTeacher.HeldSubjects.Add(subject);
+
+            // Set both sides of the relationship for consistency
+            subject.HolderTeacher = availableTeacher;
+
+            // Remove teacher from pool so each teacher gets only ONE subject
             teachersWithoutSubject.Remove(availableTeacher);
         }
 

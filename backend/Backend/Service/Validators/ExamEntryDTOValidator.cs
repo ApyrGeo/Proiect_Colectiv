@@ -11,7 +11,7 @@ namespace TrackForUBB.Service.Validators;
 
 public class ExamEntryDTOValidator : AbstractValidator<ExamEntryPutDTO>
 {
-    public ExamEntryDTOValidator(ITimetableRepository timetableRepository, IGradeRepository gradeRepository, IAcademicRepository academicRepository, IExamRepository examRepository)
+    public ExamEntryDTOValidator(ITimetableRepository timetableRepository, IAcademicRepository academicRepository, IExamRepository examRepository)
     {
         RuleFor(x => x.Date)
             .NotNull()
@@ -55,7 +55,7 @@ public class ExamEntryDTOValidator : AbstractValidator<ExamEntryPutDTO>
         RuleFor(x => x.SubjectId)
             .MustAsync(async (subjectId, cancellation) =>
             {
-                var subject = await gradeRepository.GetSubjectById(subjectId);
+                var subject = await timetableRepository.GetSubjectByIdAsync(subjectId);
                 return subject != null;
             }).WithMessage("The specified Subject does not exist.");
 
