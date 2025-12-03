@@ -212,7 +212,18 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
 		return _mapper.Map<SubjectResponseDTO>(subject);
 	}
-    
+
+    public async Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherIdAsync(int teacherId)
+    {
+        _logger.InfoFormat("Fetching subjects held by teacher with ID: {0}", teacherId);
+        return await _context.Subjects
+            .Include(s => s.HolderTeacher)
+                .ThenInclude(ht => ht.User)
+            .Where(s => s.HolderTeacher.User.Id == teacherId)
+            .Select(subject => _mapper.Map<SubjectResponseDTO>(subject))
+            .FirstOrDefaultAsync();
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

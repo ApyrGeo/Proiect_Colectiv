@@ -17,4 +17,5 @@ public interface ITimetableRepository
     Task<HourResponseDTO> AddHourAsync(HourPostDTO hour);
     Task SaveChangesAsync();
     Task<List<LocationWithClassroomsResponseDTO>> GetAllLocationsAsync();
+    Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherIdAsync(int teacherId);
 }

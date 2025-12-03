@@ -38,6 +38,16 @@ public class TimetableController(ITimetableService service) : ControllerBase
         return CreatedAtAction(nameof(GetSubjectById), new { subjectId = createdSubject.Id }, createdSubject);
     }
 
+    [HttpGet("subjects/holder-teacher/{teacherId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<SubjectResponseDTO>> GetSubjectsByHolderTeacherId([FromRoute] int teacherId)
+    {
+        _logger.InfoFormat("Fetching subjects held by teacher with id {0}", teacherId);
+        var subject = await _service.GetSubjectsByHolderTeacherId(teacherId);
+        return Ok(subject);
+    }
+
     [HttpGet("locations/{locationId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
