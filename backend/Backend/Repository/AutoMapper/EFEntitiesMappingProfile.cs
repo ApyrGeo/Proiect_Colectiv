@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
@@ -43,6 +43,7 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<GoogleMapsData, GoogleMapsDataResponseDTO>().ReverseMap();
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
+        CreateMap<Location, LocationWithClassroomsResponseDTO>();
         CreateMap<LocationPostDTO, Location>();
         
         CreateMap<Grade, GradeResponseDTO>()

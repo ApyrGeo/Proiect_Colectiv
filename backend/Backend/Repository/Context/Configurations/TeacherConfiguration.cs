@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TrackForUBB.Repository.EFEntities;
 
@@ -19,5 +19,9 @@ public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
             .WithMany(x => x.Teachers)
             .HasForeignKey(x => x.FacultyId)
             .IsRequired();
+
+        builder.HasOne(t => t.HeldSubject)
+            .WithOne(hs => hs.HolderTeacher)
+            .HasForeignKey<Teacher>(t => t.HeldSubjectId);
     }
 }

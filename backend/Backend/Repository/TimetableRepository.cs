@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -56,6 +56,15 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
 		return _mapper.Map<SubjectResponseDTO>(entity);
 	}
+
+    public Task<List<LocationWithClassroomsResponseDTO>> GetAllLocationsAsync()
+    {
+        _logger.Info("Fetching all locations");
+        return _context.Locations
+            .Include(x => x.Classrooms)
+            .Select(location => _mapper.Map<LocationWithClassroomsResponseDTO>(location))
+            .ToListAsync();
+    }
 
     public async Task<ClassroomResponseDTO?> GetClassroomByIdAsync(int id)
     {

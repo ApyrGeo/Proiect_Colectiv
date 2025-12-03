@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Service.Interfaces;
@@ -16,4 +16,5 @@ public interface ITimetableRepository
     Task<HourResponseDTO?> GetHourByIdAsync(int id);
     Task<HourResponseDTO> AddHourAsync(HourPostDTO hour);
     Task SaveChangesAsync();
+    Task<List<LocationWithClassroomsResponseDTO>> GetAllLocationsAsync();
 }

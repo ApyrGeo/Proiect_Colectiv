@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -48,6 +48,18 @@ public class TimetableController(ITimetableService service) : ControllerBase
         var location = await _service.GetLocationById(locationId);
 
         return Ok(location);
+    }
+
+    [HttpGet("locations")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<List<LocationWithClassroomsResponseDTO>>> GetLocations()
+    {
+        _logger.Info("Fetching all locations");
+
+        var locations = await _service.GetAllLocations();
+
+        return Ok(locations);
     }
 
     [HttpPost("locations")]

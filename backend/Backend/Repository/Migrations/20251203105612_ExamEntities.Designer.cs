@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrackForUBB.Repository.Context;
@@ -11,9 +12,11 @@ using TrackForUBB.Repository.Context;
 namespace TrackForUBB.Repository.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
-    partial class AcademicAppContextModelSnapshot : ModelSnapshot
+    [Migration("20251203105612_ExamEntities")]
+    partial class ExamEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,13 +117,13 @@ namespace TrackForUBB.Repository.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ClassroomId")
+                    b.Property<int>("ClassroomId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Duration")
+                    b.Property<int>("Duration")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("ExamDate")
+                    b.Property<DateTime>("ExamDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("StudentGroupId")
@@ -577,7 +580,9 @@ namespace TrackForUBB.Repository.Migrations
                 {
                     b.HasOne("TrackForUBB.Repository.EFEntities.Classroom", "Classroom")
                         .WithMany("RegisteredExams")
-                        .HasForeignKey("ClassroomId");
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TrackForUBB.Repository.EFEntities.StudentGroup", "StudentGroup")
                         .WithMany("RegisteredExams")

@@ -67,6 +67,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAcademicRepository, AcademicRepository>();
 builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
 
 //helpers
 builder.Services.Configure<PasswordHasherOptions>(
@@ -95,6 +96,7 @@ builder.Services
     .Configure<PdfConverterConfiguration>(builder.Configuration.GetSection("PdfConverter"))
     .AddSingleton(resolver => resolver.GetRequiredService<IOptions<PdfConverterConfiguration>>().Value)
     ;
+builder.Services.AddScoped<IExamService, ExamService>();
 
 
 //data seeders
@@ -106,6 +108,7 @@ builder.Services.AddScoped<SubjectDataSeeder>();
 builder.Services.AddScoped<HourDataSeeder>();
 builder.Services.AddScoped<GradesDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
+builder.Services.AddScoped<ExamDataSeeder>();
 
 var app = builder.Build();
 

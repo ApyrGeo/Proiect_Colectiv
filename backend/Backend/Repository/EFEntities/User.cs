@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.Repository.EFEntities;
 

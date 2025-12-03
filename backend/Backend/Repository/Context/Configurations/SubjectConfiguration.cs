@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.EFEntities;
@@ -20,5 +20,10 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
 
         builder.HasMany(s => s.Contracts)
             .WithMany(c => c.Subjects);
+
+        builder.HasOne(s => s.HolderTeacher)
+            .WithOne(t => t.HeldSubject)
+            .HasForeignKey<Teacher>(t => t.HeldSubjectId)
+            .IsRequired(false);
     }
 }
