@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -40,6 +40,16 @@ public class TimetableController(ITimetableService service) : ControllerBase
         return CreatedAtAction(nameof(GetSubjectById), new { subjectId = createdSubject.Id }, createdSubject);
     }
 
+    [HttpGet("subjects/holder-teacher/{teacherId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<SubjectResponseDTO>> GetSubjectsByHolderTeacherId([FromRoute] int teacherId)
+    {
+        _logger.InfoFormat("Fetching subjects held by teacher with id {0}", teacherId);
+        var subject = await _service.GetSubjectsByHolderTeacherId(teacherId);
+        return Ok(subject);
+    }
+
     [HttpGet("locations/{locationId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
@@ -50,6 +60,18 @@ public class TimetableController(ITimetableService service) : ControllerBase
         var location = await _service.GetLocationById(locationId);
 
         return Ok(location);
+    }
+
+    [HttpGet("locations")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<List<LocationWithClassroomsResponseDTO>>> GetLocations()
+    {
+        _logger.Info("Fetching all locations");
+
+        var locations = await _service.GetAllLocations();
+
+        return Ok(locations);
     }
 
     [HttpPost("locations")]

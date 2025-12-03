@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Repository.Context;
@@ -10,63 +10,63 @@ namespace TrackForUBB.Repository;
 public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IAcademicRepository
 {
     private readonly AcademicAppContext _context = context;
-	private readonly IMapper _mapper = mapper;
+    private readonly IMapper _mapper = mapper;
 
-	public async Task<EnrollmentResponseDTO> AddEnrollmentAsync(EnrollmentPostDTO enrollment)
+    public async Task<EnrollmentResponseDTO> AddEnrollmentAsync(EnrollmentPostDTO enrollment)
     {
         var entity = _mapper.Map<Enrollment>(enrollment);
-		await _context.Enrollments.AddAsync(entity);
+        await _context.Enrollments.AddAsync(entity);
 
         return _mapper.Map<EnrollmentResponseDTO>(entity);
     }
 
     public async Task<FacultyResponseDTO> AddFacultyAsync(FacultyPostDTO faculty)
     {
-		var entity = _mapper.Map<Faculty>(faculty);
-		await _context.Faculties.AddAsync(entity);
+        var entity = _mapper.Map<Faculty>(faculty);
+        await _context.Faculties.AddAsync(entity);
 
         return _mapper.Map<FacultyResponseDTO>(entity);
     }
 
     public async Task<StudentGroupResponseDTO> AddGroupAsync(StudentGroupPostDTO studentGroup)
     {
-		var entity = _mapper.Map<StudentGroup>(studentGroup);
-		await _context.Groups.AddAsync(entity);
+        var entity = _mapper.Map<StudentGroup>(studentGroup);
+        await _context.Groups.AddAsync(entity);
 
         return _mapper.Map<StudentGroupResponseDTO>(entity);
-	}
+    }
 
     public async Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion)
     {
-		var entity = _mapper.Map<Promotion>(promotion);
-		await _context.Promotions.AddAsync(entity);
+        var entity = _mapper.Map<Promotion>(promotion);
+        await _context.Promotions.AddAsync(entity);
 
         return _mapper.Map<PromotionResponseDTO>(entity);
-	}
+    }
 
     public async Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation)
     {
-		var entity = _mapper.Map<Specialisation>(specialisation);
-		await _context.Specialisations.AddAsync(entity);
+        var entity = _mapper.Map<Specialisation>(specialisation);
+        await _context.Specialisations.AddAsync(entity);
 
-		return _mapper.Map<SpecialisationResponseDTO>(entity);
-	}
+        return _mapper.Map<SpecialisationResponseDTO>(entity);
+    }
 
     public async Task<StudentSubGroupResponseDTO> AddSubGroupAsync(StudentSubGroupPostDTO studentSubGroup)
     {
-		var entity = _mapper.Map<StudentSubGroup>(studentSubGroup);
-		await _context.SubGroups.AddAsync(entity);
+        var entity = _mapper.Map<StudentSubGroup>(studentSubGroup);
+        await _context.SubGroups.AddAsync(entity);
 
-		return _mapper.Map<StudentSubGroupResponseDTO>(entity);
-	}
+        return _mapper.Map<StudentSubGroupResponseDTO>(entity);
+    }
 
     public async Task<TeacherResponseDTO> AddTeacherAsync(TeacherPostDTO teacher)
     {
-		var entity = _mapper.Map<Teacher>(teacher);
-		await _context.Teachers.AddAsync(entity);
+        var entity = _mapper.Map<Teacher>(teacher);
+        await _context.Teachers.AddAsync(entity);
 
-		return _mapper.Map<TeacherResponseDTO>(entity);
-	}
+        return _mapper.Map<TeacherResponseDTO>(entity);
+    }
 
     public async Task<TeacherResponseDTO?> GetTeacherById(int id)
     {
@@ -91,8 +91,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Where(e => e.UserId == userId)
             .ToListAsync();
 
-		return _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
-	}
+        return _mapper.Map<List<EnrollmentResponseDTO>>(enrollments);
+    }
 
     public async Task<FacultyResponseDTO?> GetFacultyByIdAsync(int id)
     {
@@ -100,15 +100,15 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Include(f => f.Specialisations)
             .SingleOrDefaultAsync(f => f.Id == id);
 
-		return _mapper.Map<FacultyResponseDTO>(faculty);
-	}
+        return _mapper.Map<FacultyResponseDTO>(faculty);
+    }
 
     public async Task<FacultyResponseDTO?> GetFacultyByNameAsync(string name)
     {
         var faculty = await _context.Faculties.FirstOrDefaultAsync(f => f.Name == name);
 
-		return _mapper.Map<FacultyResponseDTO>(faculty);
-	}
+        return _mapper.Map<FacultyResponseDTO>(faculty);
+    }
 
     public async Task<StudentGroupResponseDTO?> GetGroupByIdAsync(int id)
     {
@@ -119,8 +119,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
                     .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(g => g.Id == id);
 
-		return _mapper.Map<StudentGroupResponseDTO>(studentGroup);
-	}
+        return _mapper.Map<StudentGroupResponseDTO>(studentGroup);
+    }
 
     public async Task<PromotionResponseDTO?> GetPromotionByIdAsync(int id)
     {
@@ -130,8 +130,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
                 .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(gy => gy.Id == id);
 
-		return _mapper.Map<PromotionResponseDTO>(promotion);
-	}
+        return _mapper.Map<PromotionResponseDTO>(promotion);
+    }
 
     public async Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id)
     {
@@ -140,10 +140,10 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
              .Include(s => s.Promotions)
              .FirstOrDefaultAsync(s => s.Id == id);
 
-		return _mapper.Map<SpecialisationResponseDTO>(specialisation);
-	}
+        return _mapper.Map<SpecialisationResponseDTO>(specialisation);
+    }
 
-	public async Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id)
+    public async Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id)
     {
         var studentSubGroup = await _context.SubGroups
             .Include(sg => sg.StudentGroup)
@@ -153,36 +153,98 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Include(sg => sg.Enrollments)
             .FirstOrDefaultAsync(sg => sg.Id == id);
 
-		return _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
-	}
+        return _mapper.Map<StudentSubGroupResponseDTO>(studentSubGroup);
+    }
 
-	public async Task SaveChangesAsync()
+    public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
     }
 
     public async Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId)
     {
-       var enrollment = await _context.Enrollments.Where(e => e.Id == enrollmentId)
-            .Include(e => e.User)
-            .Include(e => e.SubGroup)
-                .ThenInclude(sg => sg.StudentGroup)
-                    .ThenInclude(g => g.Promotion)
-                        .ThenInclude(gy => gy.Specialisation)
-                            .ThenInclude(s => s.Faculty)
-            .FirstOrDefaultAsync();
+        var enrollment = await _context.Enrollments.Where(e => e.Id == enrollmentId)
+             .Include(e => e.User)
+             .Include(e => e.SubGroup)
+                 .ThenInclude(sg => sg.StudentGroup)
+                     .ThenInclude(g => g.Promotion)
+                         .ThenInclude(gy => gy.Specialisation)
+                             .ThenInclude(s => s.Faculty)
+             .FirstOrDefaultAsync();
         return _mapper.Map<EnrollmentResponseDTO>(enrollment);
-	}
+    }
 
     public async Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId)
     {
-	    var semester= await _context.PromotionSemesters.Where(p => p.Id == semesterId)
-		    .Include(s=>s.PromotionYear)
-				.ThenInclude(g => g.Promotion)
-					.ThenInclude(gy => gy.Specialisation)
-						.ThenInclude(s => s.Faculty)
-		    .FirstOrDefaultAsync();
+        var semester = await _context.PromotionSemesters.Where(p => p.Id == semesterId)
+            .Include(s => s.PromotionYear)
+                .ThenInclude(g => g.Promotion)
+                    .ThenInclude(gy => gy.Specialisation)
+                        .ThenInclude(s => s.Faculty)
+            .FirstOrDefaultAsync();
 
-	    return _mapper.Map<PromotionSemesterResponseDTO>(semester);
+        return _mapper.Map<PromotionSemesterResponseDTO>(semester);
+    }
+
+    public async Task<List<StudentGroupResponseDTO>> GetGroupsEnrolledToSubjectOwnedByTeacher(int teacherId)
+    {
+        var teacher = await _context.Teachers
+            .Include(t => t.HeldSubjects)
+            .FirstOrDefaultAsync(t => t.UserId == teacherId);
+
+        if (teacher == null)
+            return [];
+
+        var subjectIds = teacher.HeldSubjects?.Select(s => s.Id).ToList() ?? new List<int>();
+        if (!subjectIds.Any())
+            return [];
+
+        var subjectEnrollmentCounts = await _context.Subjects
+            .Where(s => subjectIds.Contains(s.Id))
+            .SelectMany(s => s.Contracts)
+            .Select(c => c.Enrollment)
+            .Where(e => e != null)
+            .GroupBy(e => e.SubGroup.StudentGroupId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+        if (subjectEnrollmentCounts.Count == 0)
+            return [];
+
+        var studentGroupIds = subjectEnrollmentCounts.Keys.ToList();
+
+        var totalEnrollmentCounts = await _context.Groups
+            .Where(g => studentGroupIds.Contains(g.Id))
+            .Include(g => g.StudentSubGroups)
+                .ThenInclude(sg => sg.Enrollments)
+            .ToDictionaryAsync(
+                g => g.Id,
+                g => g.StudentSubGroups.Sum(sg => sg.Enrollments.Count)
+            );
+
+        const double thresholdFraction = 0.1;
+
+        var filteredGroupIds = subjectEnrollmentCounts
+            .Where(kvp =>
+            {
+                var groupId = kvp.Key;
+                var subjectCount = kvp.Value;
+                var total = totalEnrollmentCounts.GetValueOrDefault(groupId, 0);
+                return total > 0 && (double)subjectCount / total > thresholdFraction;
+            })
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (!filteredGroupIds.Any())
+            return [];
+
+        var filteredGroups = await _context.Groups
+            .Where(g => filteredGroupIds.Contains(g.Id))
+            .Include(g => g.StudentSubGroups)
+            .Include(g => g.Promotion)
+                .ThenInclude(p => p.Specialisation)
+                    .ThenInclude(s => s.Faculty)
+            .ToListAsync();
+
+        return _mapper.Map<List<StudentGroupResponseDTO>>(filteredGroups);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrackForUBB.Repository.Context;
@@ -11,9 +12,11 @@ using TrackForUBB.Repository.Context;
 namespace TrackForUBB.Repository.Migrations
 {
     [DbContext(typeof(AcademicAppContext))]
-    partial class AcademicAppContextModelSnapshot : ModelSnapshot
+    [Migration("20251203114552_AddSubjectHolderTeacherRelationship")]
+    partial class AddSubjectHolderTeacherRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -420,9 +423,6 @@ namespace TrackForUBB.Repository.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("HolderTeacherId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -432,8 +432,6 @@ namespace TrackForUBB.Repository.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HolderTeacherId");
 
                     b.ToTable("Subjects");
                 });
@@ -449,12 +447,18 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int>("FacultyId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("HeldSubjectId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FacultyId");
+
+                    b.HasIndex("HeldSubjectId")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -774,15 +778,6 @@ namespace TrackForUBB.Repository.Migrations
                     b.Navigation("StudentGroup");
                 });
 
-            modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Subject", b =>
-                {
-                    b.HasOne("TrackForUBB.Repository.EFEntities.Teacher", "HolderTeacher")
-                        .WithMany("HeldSubjects")
-                        .HasForeignKey("HolderTeacherId");
-
-                    b.Navigation("HolderTeacher");
-                });
-
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Teacher", b =>
                 {
                     b.HasOne("TrackForUBB.Repository.EFEntities.Faculty", "Faculty")
@@ -791,6 +786,10 @@ namespace TrackForUBB.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TrackForUBB.Repository.EFEntities.Subject", "HeldSubject")
+                        .WithOne("HolderTeacher")
+                        .HasForeignKey("TrackForUBB.Repository.EFEntities.Teacher", "HeldSubjectId");
+
                     b.HasOne("TrackForUBB.Repository.EFEntities.User", "User")
                         .WithOne()
                         .HasForeignKey("TrackForUBB.Repository.EFEntities.Teacher", "UserId")
@@ -798,6 +797,8 @@ namespace TrackForUBB.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("Faculty");
+
+                    b.Navigation("HeldSubject");
 
                     b.Navigation("User");
                 });
@@ -870,6 +871,8 @@ namespace TrackForUBB.Repository.Migrations
                 {
                     b.Navigation("Grades");
 
+                    b.Navigation("HolderTeacher");
+
                     b.Navigation("Hours");
 
                     b.Navigation("RegisteredExams");
@@ -877,8 +880,6 @@ namespace TrackForUBB.Repository.Migrations
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Teacher", b =>
                 {
-                    b.Navigation("HeldSubjects");
-
                     b.Navigation("Hours");
                 });
 

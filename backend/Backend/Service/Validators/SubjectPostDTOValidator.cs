@@ -1,13 +1,14 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using FluentValidation;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.Service.Validators;
 
 public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
 {
-    public SubjectPostDTOValidator(IAcademicRepository academicRepository)
+    public SubjectPostDTOValidator(IAcademicRepository academicRepository, IUserRepository userRepository)
     {
         RuleFor(f => f.Name)
             .NotEmpty().WithMessage("Subject name is required.")
@@ -24,5 +25,14 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
                 var groupYear = await academicRepository.GetPromotionByIdAsync(groupYearId);
                 return groupYear != null;
             }).WithMessage("The specified GroupYearId does not exist.");
+
+        RuleFor(f => f.HolderTeacherId)
+            .NotEmpty()
+            .WithMessage("HolderTeacherId is required.")
+            .MustAsync(async (holderTeacherId, cancellation) =>
+            {
+                var teacher = await userRepository.GetByIdAsync(holderTeacherId);
+                return teacher != null && Enum.TryParse(teacher.Role, out UserRole role) && role == UserRole.Teacher;
+            }).WithMessage("The specified HolderTeacherId does not exist.");
     }
 }

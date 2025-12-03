@@ -17,12 +17,13 @@ public class TimetableServiceTests
     private readonly Mock<ITimetableRepository> _mockRepository = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
+    private readonly Mock<IUserRepository> _mockUserRepository = new();
 
     private readonly TimetableService _service;
 
     public TimetableServiceTests()
     {
-        var subjectValidator = new SubjectPostDTOValidator(_mockAcademicRepository.Object);
+        var subjectValidator = new SubjectPostDTOValidator(_mockAcademicRepository.Object, _mockUserRepository.Object);
         var classroomValidator = new ClassroomPostDTOValidator(_mockRepository.Object);
         var hourValidator = new HourPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
         var locationValidator = new LocationPostDTOValidator();

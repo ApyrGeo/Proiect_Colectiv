@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
@@ -314,5 +314,18 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         var serialized = serializer.SerializeToString(calendar) ?? string.Empty;
 
         return Encoding.UTF8.GetBytes(serialized);
+    }
+
+    public Task<List<LocationWithClassroomsResponseDTO>> GetAllLocations()
+    {
+        _logger.Info("Fetching all locations");
+        return _timetableRepository.GetAllLocationsAsync();
+    }
+
+    public async Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherId(int teacherId)
+    {
+        _logger.InfoFormat("Trying to retrieve subjects held by teacher with id {0}", JsonSerializer.Serialize(teacherId));
+
+        return await _timetableRepository.GetSubjectsByHolderTeacherIdAsync(teacherId);
     }
 }

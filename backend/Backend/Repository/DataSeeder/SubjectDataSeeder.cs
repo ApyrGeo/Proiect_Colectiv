@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.EFEntities;
 
@@ -149,7 +149,8 @@ public class SubjectDataSeeder(AcademicAppContext context)
 					{
 						subjectsToAdd.Add(new Subject
 						{
-							Name = subjectName,
+                            HolderTeacher = null,
+                            Name = subjectName,
 							NumberOfCredits = _random.Next(3, 7)
 						});
 					}

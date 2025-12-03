@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller.Interfaces;
@@ -15,4 +15,6 @@ public interface ITimetableService
     Task<HourResponseDTO> GetHourById(int hourId);
     Task<TimetableResponseDTO> GetHourByFilter(HourFilter filter);
     Task<byte[]> GenerateIcs(HourFilter filter);
+    Task<List<LocationWithClassroomsResponseDTO>> GetAllLocations();
+    Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherId(int teacherId);
 }

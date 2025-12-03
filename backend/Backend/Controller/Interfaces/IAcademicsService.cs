@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Controller.Interfaces;
 
@@ -18,5 +18,6 @@ public interface IAcademicsService
     Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId);
     Task<List<EnrollmentResponseDTO>> GetUserEnrollments(int userId);
     Task<TeacherResponseDTO> GetTeacherById(int id);
-    Task<EnrollmentResponseDTO> GetEnrollmentById(int enrollmentId);
+    Task<EnrollmentResponseDTO?> GetEnrollmentById(int enrollmentId);
+    Task<List<StudentGroupResponseDTO>> GetGroupsEnrolledToSubjectOwnedByTeacher(int teacherId);
 }
