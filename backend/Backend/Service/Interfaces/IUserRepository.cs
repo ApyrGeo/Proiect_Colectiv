@@ -9,4 +9,6 @@ public interface IUserRepository
     Task SaveChangesAsync();
     Task<List<UserResponseDTO>> GetAll();
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
+    Task<UserProfileResponseDTO?> GetProfileByIdAsync(int id);
+    Task<UserResponseDTO> UpdateAsync(int id, UserPostDTO user);
 }

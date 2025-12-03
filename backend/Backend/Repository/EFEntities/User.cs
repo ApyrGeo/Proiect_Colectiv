@@ -11,6 +11,6 @@ public class User
     public required string Email { get; set; }
     public required string Password { get; set; }
     public required UserRole Role { get; set; }
-
+    public byte[]? Signature { get; set; }
     public List<Enrollment> Enrollments { get; set; } = [];
 }

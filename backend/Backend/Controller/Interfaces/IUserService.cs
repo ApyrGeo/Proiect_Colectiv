@@ -8,4 +8,6 @@ public interface IUserService
     Task<List<UserResponseDTO>> GetAllUser();
     Task<UserResponseDTO> GetUserById(int id);
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
+    Task<UserProfileResponseDTO> GetUserProfileAsync(int userId);
+    Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPostDTO dto);
 }

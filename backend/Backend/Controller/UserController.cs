@@ -51,4 +51,23 @@ public class UserController(IUserService service) : ControllerBase
         List<SpecialisationResponseDTO> specialisations = await _service.GetUserEnrolledSpecialisations(userId);
         return Ok(specialisations);
     }
+    
+    [HttpGet("{userId}/profile")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<UserProfileResponseDTO>> GetProfile(int userId)
+    {
+        _logger.InfoFormat("Received request for user with ID: {0}", userId);
+        var profile = await _service.GetUserProfileAsync(userId);
+        return Ok(profile);
+    }
+
+    [HttpPut("{userId}/profile")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(422)]
+    public async Task<IActionResult> UpdateProfile(int userId,[FromBody] UserPostDTO dto)
+    {
+        var result = await _service.UpdateUserProfileAsync(userId, dto);
+        return Ok(result);
+    }
 }
