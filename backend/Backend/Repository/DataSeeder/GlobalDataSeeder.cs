@@ -8,7 +8,7 @@ public class GlobalDataSeeder(
 	SubjectDataSeeder subjectDataSeeder,
 	HourDataSeeder hourDataSeeder,
 	GradesDataSeeder gradesDataSeeder,
-    ExamDataSeeder examDataSeeder
+    ExamDataSeeder examDataSeeder,
     MicrosoftEntraUserDataSeeder microsoftEntraUserDataSeeder
 )
 {

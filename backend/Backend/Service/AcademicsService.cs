@@ -243,7 +243,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
 	}
 
-    public async Task<EnrollmentResponseDTO> GetEnrollmentById(int enrollmentId)
+    public async Task<EnrollmentResponseDTO?> GetEnrollmentById(int enrollmentId)
     {
         _logger.InfoFormat("Trying to retrieve enrollment with ID {0}", enrollmentId);
         return await _academicRepository.GetEnrollmentByIdAsync(enrollmentId)

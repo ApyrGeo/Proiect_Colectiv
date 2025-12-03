@@ -2,6 +2,7 @@ using log4net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using TrackForUBB.Domain.Enums;
 using TrackForUBB.Repository.Context;
 using EFUser = TrackForUBB.Repository.EFEntities.User;
 using EntraUser = Microsoft.Graph.Models.User;
@@ -16,7 +17,7 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
     private async Task<List<EFUser>> GetRandomStudents()
     {
         return await _context.Users
-            .Where(u => u.Enrollments.Any() && !_context.Teachers.Any(t => t.UserId == u.Id))
+            .Where(u => u.Enrollments.Any() && !_context.Teachers.Any(t => t.UserId == u.Id) && u.Role == UserRole.Student)
             .OrderBy(x => Guid.NewGuid())
             .Take(5)
             .ToListAsync();
@@ -25,7 +26,7 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
     private async Task<List<EFUser>> GetRandomTeachers()
     {
         return await _context.Users
-            .Where(u => !u.Enrollments.Any() && _context.Teachers.Any(t => t.UserId == u.Id))
+            .Where(u => !u.Enrollments.Any() && _context.Teachers.Any(t => t.UserId == u.Id) && u.Role == UserRole.Teacher)
             .OrderBy(x => Guid.NewGuid())
             .Take(5)
             .ToListAsync();
@@ -46,6 +47,19 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
         }
 
         var students = await GetRandomStudents();
+        var teachers = await GetRandomTeachers();
+
+        if (students.Any(x => x.FirstName == "" || x.LastName == ""))
+        {
+            _logger.Warn("Some students have missing first name or last name. Skipping seeding.");
+            return;
+        }
+
+        if (teachers.Any(x => x.FirstName == "" || x.LastName == ""))
+        {
+            _logger.Warn("Some teachers have missing first name or last name. Skipping seeding.");
+            return;
+        }
 
         foreach (var student in students)
         {
@@ -69,8 +83,6 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
                 student.Owner = Guid.Parse(result.Id);
             }
         }
-
-        var teachers = await GetRandomTeachers();
 
         foreach (var teacher in teachers)
         {
