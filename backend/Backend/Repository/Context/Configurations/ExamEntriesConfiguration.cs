@@ -12,18 +12,18 @@ public class ExamEntriesConfiguration : IEntityTypeConfiguration<ExamEntry>
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.ExamDate)
-               .IsRequired(false) // Allow null
+               .IsRequired(false) 
                .HasConversion(new ValueConverter<DateTime?, DateTime?>(
                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null,
                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null));
 
         builder.Property(e => e.Duration)
-            .IsRequired(false); // Allow null
+            .IsRequired(false); 
             
         builder.HasOne(e => e.Classroom)
                .WithMany(c => c.RegisteredExams)
                .HasForeignKey(e => e.ClassroomId)
-               .IsRequired(false); // Allow null
+               .IsRequired(false); 
 
         builder.HasOne(e => e.Subject)
                .WithMany(s => s.RegisteredExams)

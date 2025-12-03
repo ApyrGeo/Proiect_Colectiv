@@ -11,12 +11,21 @@ public class ExamController(IExamService examService) : ControllerBase
 {
     private readonly IExamService _examService = examService;
 
-    [HttpGet]
+    [HttpGet("subject/{subjectId}")]
     [ProducesResponseType(404)]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<List<ExamEntryResponseDTO>>> GetExams([FromQuery] int subjectId)
+    public async Task<ActionResult<List<ExamEntryResponseDTO>>> GetExamsForTeacher([FromRoute] int subjectId)
     {
         var exams = await _examService.GetExamsBySubjectId(subjectId);
+        return Ok(exams);
+    }
+
+    [HttpGet("student/{studentId}")]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<ExamEntryForStudentDTO>>> GetExamsForStudent([FromRoute] int studentId)
+    {
+        var exams = await _examService.GetStudentExamsByStudentId(studentId);
         return Ok(exams);
     }
 

@@ -10,5 +10,6 @@ namespace TrackForUBB.Service.Interfaces;
 public interface IExamRepository
 {
     Task<List<ExamEntryResponseDTO>> GetExamsBySubjectId(int subjectId);
-   Task<List<ExamEntryResponseDTO>> UpdateExamEntries(List<ExamEntryPutDTO> examEntries);
+    Task<List<ExamEntryForStudentDTO>> GetStudentExamsByStudentId(int studentId);
+    Task<List<ExamEntryResponseDTO>> UpdateExamEntries(List<ExamEntryPutDTO> examEntries);
 }

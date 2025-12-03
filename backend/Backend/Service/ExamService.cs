@@ -1,4 +1,5 @@
 using FluentValidation;
+using log4net;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
@@ -7,22 +8,36 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class ExamService(IExamRepository examRepository, IGradeRepository gradeRepository, IValidatorFactory validatorFactory) : IExamService
+public class ExamService(IExamRepository examRepository, IGradeRepository gradeRepository, IUserRepository userRepository, IValidatorFactory validatorFactory) : IExamService
 {
     private readonly IExamRepository _examRepository = examRepository;
     private readonly IGradeRepository _gradeRepository = gradeRepository;
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(ExamService));
 
     public async Task<List<ExamEntryResponseDTO>> GetExamsBySubjectId(int subjectId)
     {
+        _logger.Info($"Fetching exams for subject ID: {subjectId}");
         var _ = await _gradeRepository.GetSubjectById(subjectId)
             ?? throw new NotFoundException("Subject not found");
 
         return await _examRepository.GetExamsBySubjectId(subjectId);
     }
 
+    public async Task<List<ExamEntryForStudentDTO>> GetStudentExamsByStudentId(int studentId)
+    {
+        _logger.Info($"Fetching exams for student ID: {studentId}");
+
+        var _ = await _userRepository.GetByIdAsync(studentId)
+            ?? throw new NotFoundException("Student not found");
+
+        return await _examRepository.GetStudentExamsByStudentId(studentId);
+    }
+
     public async Task<List<ExamEntryResponseDTO>> UpdateExamEntries(List<ExamEntryPutDTO> examEntries)
     {
+        _logger.Info("Updating exam entries");
         var validator = _validatorFactory.Get<ExamEntryPutDTO>();
         int index = 0;
         foreach (var examEntry in examEntries)
