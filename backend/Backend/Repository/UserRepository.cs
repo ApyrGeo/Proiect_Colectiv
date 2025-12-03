@@ -41,6 +41,29 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         return _mapper.Map<UserResponseDTO>(user);
     }
+    
+    public async Task<UserProfileResponseDTO?> GetProfileByIdAsync(int id)
+    {
+        _logger.InfoFormat("Fetching user by ID: {0}", id);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        return _mapper.Map<UserProfileResponseDTO>(user);
+    }
+
+    public async Task<UserResponseDTO> UpdateAsync(int id ,UserPostDTO user)
+    {
+        _logger.InfoFormat("Updating user with email: {0}", user.Email);
+        var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        _mapper.Map(user, entity);
+        
+        if (!string.IsNullOrEmpty(user.SignatureBase64))
+            entity.Signature = Convert.FromBase64String(user.SignatureBase64);
+
+        _context.Users.Update(entity);
+
+        return _mapper.Map<UserResponseDTO>(entity);
+    }
 
     public async Task SaveChangesAsync()
     {

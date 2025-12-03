@@ -10,7 +10,8 @@ public class EFEntitiesMappingProfile : Profile
     public EFEntitiesMappingProfile()
     {
         CreateMap<User, UserResponseDTO>().ReverseMap();
-        CreateMap<UserPostDTO, User>();
+        CreateMap<UserPostDTO, User>()
+            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
         CreateMap<EnrollmentPostDTO, Enrollment>();
@@ -52,6 +53,10 @@ public class EFEntitiesMappingProfile : Profile
         
         CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
 
+        CreateMap<User, UserProfileResponseDTO>()
+            .ForMember(dest => dest.SignatureUrl,
+                opt => opt.MapFrom(src => src.Signature != null ? Convert.ToBase64String(src.Signature) : null));
+        
         CreateMap<Hour, HourResponseDTO>()
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
