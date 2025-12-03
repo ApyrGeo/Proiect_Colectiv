@@ -1,27 +1,29 @@
-using TrackForUBB.Repository.Context;
-using TrackForUBB.Service.Interfaces;
-using TrackForUBB.Repository;
-using TrackForUBB.Service.Validators;
+using Azure.Identity;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
-using TrackForUBB.Service;
-using TrackForUBB.Service.EmailService.Interfaces;
-using TrackForUBB.Service.EmailService.Configuration;
-using TrackForUBB.Service.EmailService.Providers;
-using TrackForUBB.Service.PdfGeneration;
-using TrackForUBB.Domain.Security;
-using TrackForUBB.Repository.DataSeeder;
-using TrackForUBB.Controller.Middlewares;
-using TrackForUBB.Controller.Security;
-using TrackForUBB.Repository.AutoMapper;
-using TrackForUBB.Controller.Interfaces;
-using TrackForUBB.Service.Contracts;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
+using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Controller.Middlewares;
+using TrackForUBB.Controller.Security;
+using TrackForUBB.Domain.Security;
+using TrackForUBB.Repository;
+using TrackForUBB.Repository.AutoMapper;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.DataSeeder;
+using TrackForUBB.Service;
+using TrackForUBB.Service.Contracts;
+using TrackForUBB.Service.EmailService.Configuration;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.EmailService.Providers;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.PdfGeneration;
+using TrackForUBB.Service.Validators;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +93,25 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
+builder.Services.AddSingleton<GraphServiceClient>(sp =>
+{
+    var config = builder.Configuration.GetSection("Graph");
+
+    var tenantId = config["TenantId"];
+    var clientId = config["ClientId"];
+    var clientSecret = config["ClientSecret"];
+
+    var options = new ClientSecretCredentialOptions
+    {
+        AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+    };
+
+    var clientSecretCredential = new ClientSecretCredential(
+        tenantId, clientId, clientSecret, options);
+
+    return new GraphServiceClient(clientSecretCredential, ["https://graph.microsoft.com/.default"]);
+});
+
 //database
 builder.Services.AddDbContext<AcademicAppContext>((sp, options) =>
 {
@@ -144,9 +165,7 @@ builder.Services
     .AddSingleton<IPdfGenerator, PdfGenerator>()
     .AddSingleton<IXmlTemplateFiller, XmlTemplateFiller>()
     .Configure<PdfConverterConfiguration>(builder.Configuration.GetSection("PdfConverter"))
-    .AddSingleton(resolver => resolver.GetRequiredService<IOptions<PdfConverterConfiguration>>().Value)
-    ;
-
+    .AddSingleton(resolver => resolver.GetRequiredService<IOptions<PdfConverterConfiguration>>().Value);
 
 //data seeders
 builder.Services.AddScoped<UniversityDataSeeder>();
@@ -156,6 +175,7 @@ builder.Services.AddScoped<TeacherDataSeeder>();
 builder.Services.AddScoped<SubjectDataSeeder>();
 builder.Services.AddScoped<HourDataSeeder>();
 builder.Services.AddScoped<GradesDataSeeder>();
+builder.Services.AddScoped<MicrosoftEntraUserDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
 
 var app = builder.Build();
