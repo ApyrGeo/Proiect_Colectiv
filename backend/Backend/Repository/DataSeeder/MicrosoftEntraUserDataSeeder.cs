@@ -1,18 +1,22 @@
 using log4net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.Context;
 using EFUser = TrackForUBB.Repository.EFEntities.User;
 using EntraUser = Microsoft.Graph.Models.User;
 
 namespace TrackForUBB.Repository.DataSeeder;
-public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServiceClient graph)
+public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServiceClient graph, IConfiguration config)
 {
+    private readonly ILog _logger = LogManager.GetLogger(typeof(MicrosoftEntraUserDataSeeder));
+
     private readonly AcademicAppContext _context = context;
     private readonly GraphServiceClient _graph = graph;
-    private readonly ILog _logger = LogManager.GetLogger(typeof(MicrosoftEntraUserDataSeeder));
+    private readonly IConfiguration _config = config;
 
     private async Task<List<EFUser>> GetRandomStudents()
     {
@@ -46,56 +50,71 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
             return;
         }
 
+        var resourceId = _config["AzureAd:ResourceId"];
+        var studentRoleId = _config["AzureAd:AppRoles:Student"];
+        var teacherRoleId = _config["AzureAd:AppRoles:Teacher"];
+        var defaultPassword = _config["EntraUserDefaultPassword"];
+
+        if (resourceId == null || studentRoleId == null || teacherRoleId == null || defaultPassword == null)
+        {
+            _logger.Error("Missing configuration for Entra user seeding.");
+            return;
+        }
+
         var students = await GetRandomStudents();
         var teachers = await GetRandomTeachers();
 
-        if (students.Any(x => x.FirstName == "" || x.LastName == ""))
-        {
-            _logger.Warn("Some students have missing first name or last name. Skipping seeding.");
-            return;
-        }
-
-        if (teachers.Any(x => x.FirstName == "" || x.LastName == ""))
-        {
-            _logger.Warn("Some teachers have missing first name or last name. Skipping seeding.");
-            return;
-        }
-
         foreach (var student in students)
         {
-            var requestBody = new EntraUser
+            var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{student.FirstName}.{student.LastName}".ToLowerInvariant());
+            var userPrincipal = $"{mailNick}@trackforubb.onmicrosoft.com";
+
+            var entraUserRequestBody = new EntraUser
             {
                 AccountEnabled = true,
-                DisplayName = $"{student.LastName} {student.FirstName}",
-                MailNickname = $"{student.LastName}.{student.FirstName}",
-                UserPrincipalName = $"{student.FirstName}.{student.LastName}@trackforubb.onmicrosoft.com",
+                DisplayName = $"{student.FirstName} {student.LastName}",
+                MailNickname = mailNick,
+                UserPrincipalName = userPrincipal,
                 PasswordProfile = new PasswordProfile
                 {
                     ForceChangePasswordNextSignIn = true,
-                    Password = "Parola1234!",
+                    Password = defaultPassword,
                 },
             };
 
-            var result = await _graph.Users.PostAsync(requestBody);
+            var result = await _graph.Users.PostAsync(entraUserRequestBody);
 
             if (result != null && result.Id != null)
             {
                 student.Owner = Guid.Parse(result.Id);
+
+                var appRoleAssigmentRequestBody = new AppRoleAssignment
+                {
+                    PrincipalId = student.Owner,
+                    ResourceId = Guid.Parse(resourceId),
+                    AppRoleId = Guid.Parse(studentRoleId),
+                };
+
+                await _graph.Users[$"{student.Owner}"].AppRoleAssignments.PostAsync(appRoleAssigmentRequestBody);
+
             }
         }
 
         foreach (var teacher in teachers)
         {
+            var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{teacher.FirstName}.{teacher.LastName}".ToLowerInvariant());
+            var userPrincipal = $"{mailNick}@trackforubb.onmicrosoft.com";
+
             var requestBody = new EntraUser
             {
                 AccountEnabled = true,
-                DisplayName = $"{teacher.LastName} {teacher.FirstName}",
-                MailNickname = $"{teacher.LastName}.{teacher.FirstName}",
-                UserPrincipalName = $"{teacher.FirstName}.{teacher.LastName}@trackforubb.onmicrosoft.com",
+                DisplayName = $"{teacher.FirstName} {teacher.LastName}",
+                MailNickname = mailNick,
+                UserPrincipalName = userPrincipal,
                 PasswordProfile = new PasswordProfile
                 {
                     ForceChangePasswordNextSignIn = true,
-                    Password = "Parola1234!",
+                    Password = defaultPassword,
                 },
             };
 
@@ -104,6 +123,15 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
             if (result != null && result.Id != null)
             {
                 teacher.Owner = Guid.Parse(result.Id);
+
+                var appRoleAssigmentRequestBody = new AppRoleAssignment
+                {
+                    PrincipalId = teacher.Owner,
+                    ResourceId = Guid.Parse(resourceId),
+                    AppRoleId = Guid.Parse(teacherRoleId),
+                };
+
+                await _graph.Users[$"{teacher.Owner}"].AppRoleAssignments.PostAsync(appRoleAssigmentRequestBody);
             }
         }
 
