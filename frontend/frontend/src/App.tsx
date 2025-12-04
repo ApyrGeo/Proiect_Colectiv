@@ -12,6 +12,9 @@ import { Toaster } from "react-hot-toast";
 
 import "../i18n.ts";
 import Homepage from "./homepage/HomePage.tsx";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import SignOutButton from "./auth/components/SignOutButton.tsx";
+import SignInButton from "./auth/components/SignInButton.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -23,6 +26,19 @@ const App = () => {
       <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
       <div className={`app-content`}>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <AuthenticatedTemplate>
+              <p>This will only render if a user is signed-in.</p>
+              <SignOutButton />
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+              <p>This will only render if a user is not signed-in.</p>
+              <SignInButton />
+            </UnauthenticatedTemplate>
+          </div>
+        </div>
+
         <Routes>
           <Route path="/" Component={Homepage} />
           <Route path={"/home"} Component={Homepage} />

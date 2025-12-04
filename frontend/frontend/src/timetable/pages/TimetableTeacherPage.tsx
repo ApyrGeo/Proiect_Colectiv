@@ -2,8 +2,8 @@ import Timetable from "../components/Timetable.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import type { TeacherProps } from "../props.ts";
 import { useEffect, useState } from "react";
-import { getTeacher } from "../TimetableApi.ts";
 import { useTranslation } from "react-i18next";
+import useTimetableApi from "../useTimetableApi.ts";
 
 const TimetableTeacherPage: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherProps | null>(null);
@@ -13,6 +13,8 @@ const TimetableTeacherPage: React.FC = () => {
   const params = useParams();
 
   const { t } = useTranslation();
+
+  const { getTeacher } = useTimetableApi();
 
   const handleBack = () => {
     navigate("/timetable");

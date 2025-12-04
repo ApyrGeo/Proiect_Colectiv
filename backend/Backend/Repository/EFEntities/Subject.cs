@@ -1,4 +1,4 @@
-﻿namespace TrackForUBB.Repository.EFEntities;
+namespace TrackForUBB.Repository.EFEntities;
 
 public class Subject
 {
@@ -10,4 +10,8 @@ public class Subject
     public List<Grade> Grades { get; set; } = [];
     
     public List<Contract> Contracts { get; set; } = [];
+
+    public int? HolderTeacherId { get; set; }
+    public Teacher? HolderTeacher { get; set; }
+    public List<ExamEntry> RegisteredExams { get; set; } = [];
 }

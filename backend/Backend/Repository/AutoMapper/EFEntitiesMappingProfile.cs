@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
@@ -43,6 +43,7 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<GoogleMapsData, GoogleMapsDataResponseDTO>().ReverseMap();
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
+        CreateMap<Location, LocationWithClassroomsResponseDTO>();
         CreateMap<LocationPostDTO, Location>();
         
         CreateMap<Grade, GradeResponseDTO>()
@@ -72,5 +73,24 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(x => x.Day, o => o.MapFrom(s => Enum.Parse<HourDay>(s.Day!)))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => Enum.Parse<HourFrequency>(s.Frequency!)))
             .ForMember(x => x.Category, o => o.MapFrom(s => Enum.Parse<HourCategory>(s.Category!)));
+
+
+        CreateMap<ExamEntry, ExamEntryResponseDTO>()
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.ExamDate ?? DateTime.MinValue))
+            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration ?? 0))
+            .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
+            .ForMember(dest => dest.Classroom, opt => opt.MapFrom(src => src.Classroom))
+            .ForMember(dest => dest.StudentGroup, opt => opt.MapFrom(src => src.StudentGroup));
+
+        CreateMap<ExamEntryPutDTO, ExamEntry>()
+           .ForMember(dest => dest.ExamDate, opt => opt.MapFrom(src => src.Date))
+           .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+           .ForMember(dest => dest.ClassroomId, opt => opt.MapFrom(src => src.ClassroomId))
+           .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
+           .ForMember(dest => dest.StudentGroupId, opt => opt.MapFrom(src => src.StudentGroupId))
+           .ForMember(dest => dest.Classroom, opt => opt.Ignore())
+           .ForMember(dest => dest.Subject, opt => opt.Ignore())
+           .ForMember(dest => dest.StudentGroup, opt => opt.Ignore())
+           .ForMember(dest => dest.Id, opt => opt.Ignore());
     }
 }

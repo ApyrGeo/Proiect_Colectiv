@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -56,6 +56,15 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
 		return _mapper.Map<SubjectResponseDTO>(entity);
 	}
+
+    public Task<List<LocationWithClassroomsResponseDTO>> GetAllLocationsAsync()
+    {
+        _logger.Info("Fetching all locations");
+        return _context.Locations
+            .Include(x => x.Classrooms)
+            .Select(location => _mapper.Map<LocationWithClassroomsResponseDTO>(location))
+            .ToListAsync();
+    }
 
     public async Task<ClassroomResponseDTO?> GetClassroomByIdAsync(int id)
     {
@@ -203,7 +212,18 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
 		return _mapper.Map<SubjectResponseDTO>(subject);
 	}
-    
+
+    public async Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherIdAsync(int teacherId)
+    {
+        _logger.InfoFormat("Fetching subjects held by teacher with ID: {0}", teacherId);
+        return await _context.Subjects
+            .Include(s => s.HolderTeacher)
+                .ThenInclude(ht => ht.User)
+            .Where(s => s.HolderTeacher.User.Id == teacherId)
+            .Select(subject => _mapper.Map<SubjectResponseDTO>(subject))
+            .FirstOrDefaultAsync();
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

@@ -2,18 +2,8 @@ import React, { useEffect, useState } from "react";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
 import Hour from "./Hour.tsx";
 import "../timetable.css";
-import {
-  getClassroomHours,
-  getFacultyHours,
-  getGroupYearHours,
-  getHours,
-  getSpecialisationHours,
-  getSubjectHours,
-  getTeacherHours,
-  getUserCurrentWeekHours,
-  getUserHours,
-} from "../TimetableApi.ts";
 import { useTranslation } from "react-i18next";
+import useTimetableApi from "../useTimetableApi.ts";
 
 export type TimetableProps = {
   userId?: number;
@@ -34,6 +24,8 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   const [hours, setHours] = useState<HourProps[]>([]);
   const [fetchError, setFetchError] = useState<Error | null>(null);
 
+  const functions = useTimetableApi();
+
   const { t } = useTranslation();
 
   const sendLocationsToMaps = (hours: HourProps[]) => {
@@ -49,16 +41,16 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   const getFetchFunc = () => {
-    if (props.userId && !props.currentWeekOnly) return getUserHours(props.userId);
-    if (props.userId && props.currentWeekOnly) return getUserCurrentWeekHours(props.userId);
-    if (props.groupYearId) return getGroupYearHours(props.groupYearId);
-    if (props.facultyId) return getFacultyHours(props.facultyId);
-    if (props.teacherId) return getTeacherHours(props.teacherId);
-    if (props.specialisationId) return getSpecialisationHours(props.specialisationId);
-    if (props.classroomId) return getClassroomHours(props.classroomId);
-    if (props.subjectId) return getSubjectHours(props.subjectId);
+    if (props.userId && !props.currentWeekOnly) return functions.getUserHours(props.userId);
+    if (props.userId && props.currentWeekOnly) return functions.getUserCurrentWeekHours(props.userId);
+    if (props.groupYearId) return functions.getGroupYearHours(props.groupYearId);
+    if (props.facultyId) return functions.getFacultyHours(props.facultyId);
+    if (props.teacherId) return functions.getTeacherHours(props.teacherId);
+    if (props.specialisationId) return functions.getSpecialisationHours(props.specialisationId);
+    if (props.classroomId) return functions.getClassroomHours(props.classroomId);
+    if (props.subjectId) return functions.getSubjectHours(props.subjectId);
 
-    return getHours();
+    return functions.getHours();
   };
 
   useEffect(() => {
