@@ -196,7 +196,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             return [];
 
         var subjectIds = teacher.HeldSubjects?.Select(s => s.Id).ToList() ?? new List<int>();
-        if (!subjectIds.Any())
+        if (subjectIds.Count == 0)
             return [];
 
         var subjectEnrollmentCounts = await _context.Subjects

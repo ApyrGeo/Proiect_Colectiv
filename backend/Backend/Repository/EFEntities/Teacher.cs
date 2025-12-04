@@ -9,5 +9,5 @@ public class Teacher
     public required Faculty Faculty { get; set; }
     public List<Hour> Hours { get; set; } = [];
 
-    public List<Subject>? HeldSubjects { get; set; } = [];
+    public List<Subject> HeldSubjects { get; set; } = [];
 }

@@ -76,8 +76,8 @@ public class EFEntitiesMappingProfile : Profile
 
 
         CreateMap<ExamEntry, ExamEntryResponseDTO>()
-            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.ExamDate ?? DateTime.MinValue))
-            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration ?? 0))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.ExamDate ?? null))
+            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration ?? null))
             .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
             .ForMember(dest => dest.Classroom, opt => opt.MapFrom(src => src.Classroom))
             .ForMember(dest => dest.StudentGroup, opt => opt.MapFrom(src => src.StudentGroup));
@@ -87,10 +87,6 @@ public class EFEntitiesMappingProfile : Profile
            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
            .ForMember(dest => dest.ClassroomId, opt => opt.MapFrom(src => src.ClassroomId))
            .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
-           .ForMember(dest => dest.StudentGroupId, opt => opt.MapFrom(src => src.StudentGroupId))
-           .ForMember(dest => dest.Classroom, opt => opt.Ignore())
-           .ForMember(dest => dest.Subject, opt => opt.Ignore())
-           .ForMember(dest => dest.StudentGroup, opt => opt.Ignore())
-           .ForMember(dest => dest.Id, opt => opt.Ignore());
+           .ForMember(dest => dest.StudentGroupId, opt => opt.MapFrom(src => src.StudentGroupId));
     }
 }

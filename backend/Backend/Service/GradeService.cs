@@ -35,7 +35,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         var teacher = await _userRepository.GetByIdAsync(teacherId)
                 ?? throw new NotFoundException("Teacher not found.");
         
-        if (teacher.Role != UserRole.Teacher.ToString())
+        if (teacher.Role != UserRole.Teacher)
         {
             throw new UnauthorizedAccessException("Only teachers can add grades.");
         }

@@ -33,15 +33,16 @@ public class ExamEntryDTOValidator : AbstractValidator<ExamEntryPutDTO>
                 if (classroom == null) return true; 
 
                 var allExams = await examRepository.GetExamsBySubjectId(dto.SubjectId);
-                var classroomExams = allExams.Where(e => e.Classroom.Id == dto.ClassroomId).ToList();
+                var classroomExams = allExams.Where(e => e.Classroom?.Id == dto.ClassroomId).ToList();
 
                 var newExamStart = dto.Date;
                 var newExamEnd = dto.Date.AddMinutes(dto.Duration);
 
                 foreach (var exam in classroomExams)
                 {
+                    if (exam.Date == null || exam.Duration == null) continue;
                     var existingExamStart = exam.Date;
-                    var existingExamEnd = exam.Date.AddMinutes(exam.Duration);
+                    var existingExamEnd = exam.Date?.AddMinutes((double) exam.Duration);
 
                     if (newExamStart < existingExamEnd && newExamEnd > existingExamStart)
                     {
