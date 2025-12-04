@@ -52,6 +52,8 @@ i18n.use(initReactI18next).init({
         YearOfStudy: "Year of Study",
         Semester: "Semester",
         AverageScore: "Average score",
+        Welcome: "Welcome to",
+        Paragraf: "Your college timetable app.",
       },
     },
     ro: {
@@ -98,6 +100,8 @@ i18n.use(initReactI18next).init({
         YearOfStudy: "An de Studiu",
         Semester: "Semestru",
         AverageScore: "Scor mediu",
+        Welcome: "Bine ați venit la",
+        Paragraf: "Aplicația ta de orare pentru facultate.",
       },
     },
     hu: {
@@ -144,6 +148,8 @@ i18n.use(initReactI18next).init({
         YearOfStudy: "Tanulmányi év",
         Semester: "Félév",
         AverageScore: "Átlagos pontszám",
+        Welcome: "Üdvözöljük a",
+        Paragraf: "Az egyetemi órarend alkalmazásod.",
       },
     },
     de: {
@@ -190,6 +196,8 @@ i18n.use(initReactI18next).init({
         YearOfStudy: "Studienjahr",
         Semester: "Semester",
         AverageScore: "Durchschnittsnote",
+        Welcome: "Willkommen bei",
+        Paragraf: "Deine App für den Stundenplan deines Colleges.",
       },
     },
   },

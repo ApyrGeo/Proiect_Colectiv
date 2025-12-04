@@ -11,6 +11,7 @@ import ProfilePage from "./profile/pages/ProfilePage.tsx";
 import { Toaster } from "react-hot-toast";
 
 import "../i18n.ts";
+import Homepage from "./homepage/HomePage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -23,6 +24,8 @@ const App = () => {
 
       <div className={`app-content`}>
         <Routes>
+          <Route path="/" Component={Homepage} />
+          <Route path={"/home"} Component={Homepage} />
           <Route path={"/grades"} Component={GradesPage} />
           <Route path={"/timetable"} Component={TimetablePage} />
           <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
@@ -36,4 +39,3 @@ const App = () => {
 };
 
 export default App;
-
