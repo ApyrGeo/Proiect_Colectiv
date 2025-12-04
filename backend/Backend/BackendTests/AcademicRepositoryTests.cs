@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using TrackForUBB.Domain.DTOs;
@@ -142,8 +142,7 @@ public class AcademicRepositoryTests : IDisposable
             LastName = lastName,
             Email = $"{firstName}@mail.com",
             PhoneNumber = "+40988301069",
-            Role = UserRole.Admin,
-            Password = "1234567"
+            Role = UserRole.Admin
         };
         var faculty = new Faculty { Name = "FMI" };
 
@@ -185,8 +184,7 @@ public class AcademicRepositoryTests : IDisposable
             LastName = lastName,
             Email = $"{firstName}@mail.com",
             PhoneNumber = "+40988301069",
-            Role = UserRole.Admin,
-            Password = "1234567"
+            Role = UserRole.Admin
         };
         var teacher = new Teacher { User = user, Faculty = faculty };
 

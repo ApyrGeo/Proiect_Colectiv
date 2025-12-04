@@ -8,7 +8,8 @@ public class GlobalDataSeeder(
 	SubjectDataSeeder subjectDataSeeder,
 	HourDataSeeder hourDataSeeder,
 	GradesDataSeeder gradesDataSeeder,
-    ExamDataSeeder examDataSeeder
+    ExamDataSeeder examDataSeeder,
+    MicrosoftEntraUserDataSeeder microsoftEntraUserDataSeeder
 )
 {
     private readonly UniversityDataSeeder _universityDataSeeder = universityDataSeeder;
@@ -19,6 +20,7 @@ public class GlobalDataSeeder(
     private readonly HourDataSeeder _hourDataSeeder = hourDataSeeder;
     private readonly GradesDataSeeder _gradeDataSeeder = gradesDataSeeder;
     private readonly ExamDataSeeder _examDataSeeder = examDataSeeder;
+    private readonly MicrosoftEntraUserDataSeeder _microsoftEntraUserDataSeeder = microsoftEntraUserDataSeeder;
 
     public async Task SeedAsync()
     {
@@ -30,5 +32,6 @@ public class GlobalDataSeeder(
         await _hourDataSeeder.SeedAsync();
         await _gradeDataSeeder.SeedAsync();
         await _examDataSeeder.SeedAsync();
+        await _microsoftEntraUserDataSeeder.SeedAsync();
     }
 }

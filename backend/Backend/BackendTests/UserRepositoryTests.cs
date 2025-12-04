@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Repository;
@@ -50,7 +50,6 @@ public class UserRepositoryTests : IDisposable
             Email = email,
             FirstName = "Andrei",
             LastName = "Rotaru",
-            Password = "1234",
             PhoneNumber = "+4077",
             Role = UserRole.Student
         });
@@ -81,7 +80,6 @@ public class UserRepositoryTests : IDisposable
             Email = $"user{id}@mail.com",
             FirstName = "Test",
             LastName = "User",
-            Password = "111",
             PhoneNumber = "+400",
             Role = UserRole.Student
         };
@@ -138,7 +136,6 @@ public class UserRepositoryTests : IDisposable
                 Email = "a@a.com",
                 FirstName = "A",
                 LastName = "A",
-                Password = "p",
                 PhoneNumber = "+40779725710",
                 Role = UserRole.Student
             },
@@ -148,7 +145,6 @@ public class UserRepositoryTests : IDisposable
                 Email = "b@b.com",
                 FirstName = "B",
                 LastName = "B",
-                Password = "p",
                 PhoneNumber = "+40779725710",
                 Role = UserRole.Admin
             }

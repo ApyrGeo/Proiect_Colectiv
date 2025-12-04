@@ -296,7 +296,6 @@ public class TimetableServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
             Role = Enum.Parse<UserRole>("Student")
         };
@@ -454,7 +453,6 @@ public class TimetableServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
             Role = Enum.Parse<UserRole>("Student")
         };
@@ -474,7 +472,7 @@ public class TimetableServiceTests
             Email = teacher.User.Email,
             PhoneNumber = teacher.User.PhoneNumber,
             Role = teacher.User.Role.ToString(),
-            Password = teacher.User.Password
+            Password = ""
         };
         var teacherResponse = new TeacherResponseDTO
             { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };

@@ -1,13 +1,16 @@
-using TrackForUBB.Domain.DTOs;
 using log4net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using System.Text.Json;
-using TrackForUBB.Domain.Utils;
 using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class TimetableController(ITimetableService service) : ControllerBase
 {
@@ -17,6 +20,11 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("subjects/{subjectId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize(Roles = UserRolePermission.Student)]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
+        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
+    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
     public async Task<ActionResult<SubjectResponseDTO>> GetSubjectById([FromRoute] int subjectId)
     {
         _logger.InfoFormat("Fetching subject with id {0}", subjectId);
@@ -29,6 +37,11 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("subjects")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Teacher)]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
+        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
+    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
     public async Task<ActionResult<SubjectResponseDTO>> CreateSubject([FromBody] SubjectPostDTO subjectPostDto)
     {
         _logger.InfoFormat("Creating new subject with name {0}", subjectPostDto.Name);

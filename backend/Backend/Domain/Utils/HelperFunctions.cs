@@ -1,4 +1,6 @@
-﻿using TrackForUBB.Domain.Enums;
+using System.Globalization;
+using System.Text;
+using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.Domain.Utils;
 public class HelperFunctions
@@ -20,5 +22,58 @@ public class HelperFunctions
             yearDifference += 1;
 
         return yearDifference;
+    }
+
+    public static string ReplaceRomanianDiacritics(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return input ?? string.Empty;
+        }
+
+        var map = new Dictionary<char, char>
+        {
+            ['Ă'] = 'A',
+            ['ă'] = 'a',
+            ['Â'] = 'A',
+            ['â'] = 'a',
+            ['Î'] = 'I',
+            ['î'] = 'i',
+            ['Ș'] = 'S',
+            ['ș'] = 's',
+            ['Ş'] = 'S',
+            ['ş'] = 's',
+            ['Ț'] = 'T',
+            ['ț'] = 't',
+            ['Ţ'] = 'T',
+            ['ţ'] = 't'
+        };
+
+        var sb = new StringBuilder(input.Length);
+        foreach (var ch in input)
+        {
+            if (map.TryGetValue(ch, out var replacement))
+            {
+                sb.Append(replacement);
+                continue;
+            }
+            
+            sb.Append(ch);
+        }
+
+        var normalized = sb.ToString().Normalize(NormalizationForm.FormD);
+        var clean = new StringBuilder(normalized.Length);
+
+        foreach (var ch in normalized)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                clean.Append(ch);
+            }
+        }
+
+        return clean.ToString().Normalize(NormalizationForm.FormC);
     }
 }
