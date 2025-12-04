@@ -32,7 +32,7 @@ public class GradesController(IGradeService service) : ControllerBase
     public async Task<ActionResult<ScholarshipStatusDTO>> GetUserAverageScoreAndScholarshipStatus([FromQuery] int userId, [FromQuery] int yearOfStudy, [FromQuery] int semester, [FromQuery] string specialisation)
     {
         _logger.Info("Fetching all grades");
-        ScholarshipStatusDTO status = await _service.GetUserAverageScoreAndScholarshipStatusAsync(userId, yearOfStudy, semester, specialisation);
+        var status = await _service.GetUserAverageScoreAndScholarshipStatusAsync(userId, yearOfStudy, semester, specialisation);
         return Ok(status);
     }
 

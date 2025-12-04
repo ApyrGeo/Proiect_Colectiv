@@ -1,4 +1,4 @@
-﻿namespace TrackForUBB.Repository.EFEntities;
+namespace TrackForUBB.Repository.EFEntities;
 
 public class Teacher
 {
@@ -8,4 +8,6 @@ public class Teacher
     public int FacultyId { get; set; }
     public required Faculty Faculty { get; set; }
     public List<Hour> Hours { get; set; } = [];
+
+    public List<Subject>? HeldSubjects { get; set; } = [];
 }

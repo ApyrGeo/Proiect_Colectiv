@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
@@ -189,7 +189,6 @@ public class TimetableRepositoryTests : IDisposable
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john@uni.com",
-                Password = "pass",
                 PhoneNumber = "+40770111222",
                 Role = UserRole.Teacher
             },

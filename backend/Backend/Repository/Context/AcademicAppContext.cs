@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using TrackForUBB.Repository.EFEntities;
 
@@ -22,8 +22,9 @@ public class AcademicAppContext(DbContextOptions<AcademicAppContext> options) : 
     public DbSet<Hour> Hours { get; set; }
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Contract> Contracts { get; set; }
+    public DbSet<ExamEntry> ExamEntries { get; set; }
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
