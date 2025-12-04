@@ -11,6 +11,7 @@ import ProfilePage from "./profile/pages/ProfilePage.tsx";
 import { Toaster } from "react-hot-toast";
 
 import "../i18n.ts";
+import Homepage from "./homepage/HomePage.tsx";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import SignOutButton from "./auth/components/SignOutButton.tsx";
 import SignInButton from "./auth/components/SignInButton.tsx";
@@ -39,6 +40,8 @@ const App = () => {
         </div>
 
         <Routes>
+          <Route path="/" Component={Homepage} />
+          <Route path={"/home"} Component={Homepage} />
           <Route path={"/grades"} Component={GradesPage} />
           <Route path={"/timetable"} Component={TimetablePage} />
           <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />

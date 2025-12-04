@@ -26,7 +26,7 @@ const ProfilePage: React.FC = () => {
       <div className="profile-grid">
         <div className="profile-card">
           <div className="profile-avatar">
-            <img src="../../assets/UBB_Logo.png" alt="UBB LOGO" />
+            <img src="src/assets/UBB_Logo.png" alt="UBB LOGO" />
           </div>
           <h2>Full Name</h2>
         </div>
