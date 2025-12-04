@@ -16,5 +16,6 @@ public interface ITimetableService
     Task<TimetableResponseDTO> GetHourByFilter(HourFilter filter);
     Task<byte[]> GenerateIcs(HourFilter filter);
     Task<List<LocationWithClassroomsResponseDTO>> GetAllLocations();
-    Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherId(int teacherId);
+    Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherId(int teacherId);
+    Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectId(int subjectId);
 }

@@ -322,10 +322,20 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         return _timetableRepository.GetAllLocationsAsync();
     }
 
-    public async Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherId(int teacherId)
+    public async Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherId(int teacherId)
     {
         _logger.InfoFormat("Trying to retrieve subjects held by teacher with id {0}", JsonSerializer.Serialize(teacherId));
 
         return await _timetableRepository.GetSubjectsByHolderTeacherIdAsync(teacherId);
+    }
+
+    public async Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectId(int subjectId)
+    {
+        _logger.InfoFormat("Trying to retrieve groups for subject with id {0}", subjectId);
+
+        var _ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
+            ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
+
+        return await _timetableRepository.GetGroupsBySubjectIdAsync(subjectId);
     }
 }
