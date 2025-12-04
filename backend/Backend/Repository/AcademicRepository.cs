@@ -190,7 +190,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var teacher = await _context.Teachers
             .Include(t => t.HeldSubjects)
-            .FirstOrDefaultAsync(t => t.UserId == teacherId);
+            .FirstOrDefaultAsync(t => t.Id == teacherId);
 
         if (teacher == null)
             return [];

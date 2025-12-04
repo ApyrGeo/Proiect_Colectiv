@@ -219,7 +219,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         return await _context.Subjects
             .Include(s => s.HolderTeacher)
                 .ThenInclude(ht => ht.User)
-            .Where(s => s.HolderTeacher.User.Id == teacherId)
+            .Where(s => s.HolderTeacher.Id == teacherId)
             .Select(subject => _mapper.Map<SubjectResponseDTO>(subject))
             .FirstOrDefaultAsync();
     }
