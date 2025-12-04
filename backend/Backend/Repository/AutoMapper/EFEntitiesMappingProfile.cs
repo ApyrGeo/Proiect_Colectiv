@@ -76,8 +76,8 @@ public class EFEntitiesMappingProfile : Profile
 
 
         CreateMap<ExamEntry, ExamEntryResponseDTO>()
-            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.ExamDate ?? null))
-            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration ?? null))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.ExamDate))
+            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
             .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
             .ForMember(dest => dest.Classroom, opt => opt.MapFrom(src => src.Classroom))
             .ForMember(dest => dest.StudentGroup, opt => opt.MapFrom(src => src.StudentGroup));
