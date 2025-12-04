@@ -69,5 +69,3 @@ export interface StudentExamRowProps {
   locationName: string | null;
   classroomName: string | null;
 }
-
-
