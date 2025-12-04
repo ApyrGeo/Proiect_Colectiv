@@ -1,4 +1,6 @@
-﻿namespace TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+
+namespace TrackForUBB.Domain.DTOs;
 
 public class UserResponseDTO
 {
@@ -8,5 +10,5 @@ public class UserResponseDTO
     public required string PhoneNumber { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }
-    public required string Role { get; set; }
+    public required UserRole Role { get; set; }
 }

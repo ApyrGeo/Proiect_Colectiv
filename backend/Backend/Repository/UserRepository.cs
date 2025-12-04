@@ -94,4 +94,14 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         return _mapper.Map<List<SpecialisationResponseDTO>>(specialisations);
     }
+
+    public async Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId)
+    {
+        _logger.InfoFormat("Fetching teacher by ID: {0}", teacherId);
+        var teacher = await _context.Teachers
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Id == teacherId);
+
+        return _mapper.Map<TeacherResponseDTO>(teacher);
+    }
 }

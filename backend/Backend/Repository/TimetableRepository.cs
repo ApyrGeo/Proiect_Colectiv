@@ -77,6 +77,59 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 		return _mapper.Map<ClassroomResponseDTO>(classroom);
 	}
 
+    public async Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectIdAsync(int subjectId)
+    {
+        _logger.InfoFormat("Fetching groups by subject ID: {0}", subjectId);
+
+        var subjectEnrollmentCounts = await _context.Subjects
+            .Where(s => s.Id == subjectId)
+            .SelectMany(s => s.Contracts)
+            .Select(c => c.Enrollment)
+            .Where(e => e != null)
+            .GroupBy(e => e.SubGroup.StudentGroupId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+        if (subjectEnrollmentCounts.Count == 0)
+            return [];
+
+        var studentGroupIds = subjectEnrollmentCounts.Keys.ToList();
+
+        var totalEnrollmentCounts = await _context.Groups
+            .Where(g => studentGroupIds.Contains(g.Id))
+            .Include(g => g.StudentSubGroups)
+                .ThenInclude(sg => sg.Enrollments)
+            .ToDictionaryAsync(
+                g => g.Id,
+                g => g.StudentSubGroups.Sum(sg => sg.Enrollments.Count)
+            );
+
+        const double thresholdFraction = 0.1;
+
+        var filteredGroupIds = subjectEnrollmentCounts
+            .Where(kvp =>
+            {
+                var groupId = kvp.Key;
+                var subjectCount = kvp.Value;
+                var total = totalEnrollmentCounts.GetValueOrDefault(groupId, 0);
+                return total > 0 && (double)subjectCount / total > thresholdFraction;
+            })
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (!filteredGroupIds.Any())
+            return [];
+
+        var filteredGroups = await _context.Groups
+            .Where(g => filteredGroupIds.Contains(g.Id))
+            .Include(g => g.StudentSubGroups)
+            .Include(g => g.Promotion)
+                .ThenInclude(p => p.Specialisation)
+                    .ThenInclude(s => s.Faculty)
+            .ToListAsync();
+
+        return _mapper.Map<List<StudentGroupResponseDTO>>(filteredGroups);
+    }
+
     public async Task<HourResponseDTO?> GetHourByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching hours by ID: {0}", id);
@@ -213,15 +266,15 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 		return _mapper.Map<SubjectResponseDTO>(subject);
 	}
 
-    public async Task<SubjectResponseDTO?> GetSubjectsByHolderTeacherIdAsync(int teacherId)
+    public async Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherIdAsync(int teacherId)
     {
         _logger.InfoFormat("Fetching subjects held by teacher with ID: {0}", teacherId);
         return await _context.Subjects
             .Include(s => s.HolderTeacher)
                 .ThenInclude(ht => ht.User)
-            .Where(s => s.HolderTeacher.User.Id == teacherId)
+            .Where(s => s.HolderTeacher.Id == teacherId)
             .Select(subject => _mapper.Map<SubjectResponseDTO>(subject))
-            .FirstOrDefaultAsync();
+            .ToListAsync();
     }
 
     public async Task SaveChangesAsync()

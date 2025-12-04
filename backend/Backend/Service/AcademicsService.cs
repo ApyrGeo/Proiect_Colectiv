@@ -249,19 +249,4 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return await _academicRepository.GetEnrollmentByIdAsync(enrollmentId)
             ?? throw new NotFoundException($"Enrollment with ID {enrollmentId} not found.");
 	}
-
-    public async Task<List<StudentGroupResponseDTO>> GetGroupsEnrolledToSubjectOwnedByTeacher(int teacherId)
-    {
-        _logger.InfoFormat("Trying to retrieve student sub-groups for teacher with ID {0}", teacherId);
-
-        var user = await _userRepository.GetByIdAsync(teacherId)
-            ?? throw new NotFoundException($"Teacher with ID {teacherId} not found.");
-
-        if(Enum.TryParse(user.Role.ToString(), out UserRole role) && role != UserRole.Teacher)
-        {
-            throw new EntityValidationException($"User with ID {teacherId} is not a teacher.");
-        }
-
-        return await _academicRepository.GetGroupsEnrolledToSubjectOwnedByTeacher(teacherId);
-    }
 }

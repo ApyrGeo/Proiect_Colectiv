@@ -54,11 +54,21 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("subjects/holder-teacher/{teacherId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<SubjectResponseDTO>> GetSubjectsByHolderTeacherId([FromRoute] int teacherId)
+    public async Task<ActionResult<List<SubjectResponseDTO>>> GetSubjectsByHolderTeacherId([FromRoute] int teacherId)
     {
         _logger.InfoFormat("Fetching subjects held by teacher with id {0}", teacherId);
         var subject = await _service.GetSubjectsByHolderTeacherId(teacherId);
         return Ok(subject);
+    }
+
+    [HttpGet("subjects/{subjectId}/groups")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<List<StudentGroupResponseDTO>>> GetSubGroupsBySubjectId([FromRoute] int subjectId)
+    {
+        _logger.InfoFormat("Fetching groups for subject with id {0}", subjectId);
+        var groups = await _service.GetGroupsBySubjectId(subjectId);
+        return Ok(groups);
     }
 
     [HttpGet("locations/{locationId}")]

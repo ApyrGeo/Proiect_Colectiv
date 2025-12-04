@@ -32,7 +32,7 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
             .MustAsync(async (holderTeacherId, cancellation) =>
             {
                 var teacher = await userRepository.GetByIdAsync(holderTeacherId);
-                return teacher != null && Enum.TryParse(teacher.Role, out UserRole role) && role == UserRole.Teacher;
+                return teacher != null && teacher.Role == UserRole.Teacher;
             }).WithMessage("The specified HolderTeacherId does not exist.");
     }
 }
