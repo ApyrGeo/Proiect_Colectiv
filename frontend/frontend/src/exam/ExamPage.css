@@ -1,0 +1,25 @@
+.exam-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 40px;
+  font-family: Arial, sans-serif;
+}
+
+.exam-table {
+  border-collapse: collapse;
+  width: 80%;
+  max-width: 800px;
+  text-align: left;
+}
+
+.exam-table th,
+.exam-table td {
+  border: 1px solid #ccc;
+  padding: 12px;
+}
+
+.exam-table select {
+  width: 100%;
+  padding: 6px;
+}
