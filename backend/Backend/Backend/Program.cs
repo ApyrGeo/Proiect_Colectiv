@@ -182,6 +182,22 @@ builder.Services.AddScoped<MicrosoftEntraUserDataSeeder>();
 builder.Services.AddScoped<GlobalDataSeeder>();
 builder.Services.AddScoped<ExamDataSeeder>();
 
+
+// https://learn.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-9.0
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy  =>
+        {
+            var feUrl = builder.Configuration.GetValue<string>("Email:BaseUrl");
+            policy
+                .WithOrigins(feUrl)
+                .AllowAnyHeader()
+                ;
+        });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -199,6 +215,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
