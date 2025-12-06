@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
 import { EventType, InteractionRequiredAuthError, InteractionStatus, type AccountInfo } from "@azure/msal-browser";
 import { loginRequest } from "../authConfig";
+import type { UserInfo } from "../../core/props.ts";
 
 type Waiter = (token: string | null) => void;
 
@@ -42,6 +43,14 @@ const useAuth = () => {
       tokenWaitersRef.current.push(resolve);
     });
   }, [accessToken, activeAccount]);
+
+  const defaultUserInfo: UserInfo = {
+    userId: 21746,
+    userRole: "Student",
+    groupYearId: 47,
+    specialisationId: 2,
+    facultyId: 3,
+  };
 
   const acquireToken = useCallback(async () => {
     let acct = activeAccount;
@@ -119,7 +128,12 @@ const useAuth = () => {
     }
   }, [accessToken, resolveWaiters]);
 
-  return { accessToken, loading, error, activeAccount, waitForAccessToken };
+  const role = activeAccount?.idTokenClaims?.roles?.at(0);
+  if (role && role in ["Student", "Teacher", "Admin"]) {
+    defaultUserInfo.userRole = role;
+  }
+
+  return { accessToken, loading, error, activeAccount, waitForAccessToken, userInfo: defaultUserInfo };
 };
 
 export default useAuth;

@@ -5,6 +5,7 @@ import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.
 import { faqsTimetable } from "../../faq/FAQData.ts";
 import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { useTranslation } from "react-i18next";
+import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -14,14 +15,7 @@ const defaultSelectedLocations: SelectedLocationsProps = {
 const TimetablePage: React.FC = () => {
   const { t } = useTranslation();
 
-  //TODO temporary user info, to be loaded from auth context
-  //groupYear, spec, faculty invalid example id's
-  const userInfo = {
-    id: 21004,
-    groupYear: 47,
-    spec: 2,
-    faculty: 3,
-  };
+  const { userInfo } = useAuthContext();
 
   const [selectedFilter, setSelectedFilter] = useState<string>("personal");
   const [selectedFreq, setSelectedFreq] = useState<string>("all");
@@ -224,7 +218,7 @@ const TimetablePage: React.FC = () => {
         </div>
         {selectedFilter == "personal" && !activeHours && (
           <Timetable
-            userId={userInfo.id}
+            userId={userInfo.userId}
             filterFn={getFreqFilter()}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
@@ -233,7 +227,7 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "personal" && activeHours && (
           <Timetable
-            userId={userInfo.id}
+            userId={userInfo.userId}
             currentWeekOnly={true}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
@@ -242,20 +236,20 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "group" && (
           <Timetable
-            groupYearId={userInfo.groupYear}
+            groupYearId={userInfo.groupYearId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "specialisation" && (
           <Timetable
-            specialisationId={userInfo.spec}
+            specialisationId={userInfo.specialisationId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "faculty" && (
-          <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} selectedLocations={selectedLocations} />
+          <Timetable facultyId={userInfo.facultyId} filterFn={getFreqFilter()} selectedLocations={selectedLocations} />
         )}
       </div>
 

@@ -7,3 +7,11 @@ export interface UserProps {
   password: string;
   role: string;
 }
+
+export type UserInfo = {
+  userId: number;
+  userRole: string;
+  groupYearId?: number;
+  facultyId?: number;
+  specialisationId?: number;
+};
