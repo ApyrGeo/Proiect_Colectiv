@@ -18,8 +18,6 @@ public class PdfConverter(PdfConverterConfiguration config) : IPdfConverter
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
             },
         };
 

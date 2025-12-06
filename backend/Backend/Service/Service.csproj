@@ -33,4 +33,7 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Contracts/ContractStudii.ro.odt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

@@ -8,13 +8,15 @@ namespace TrackForUBB.Service.Contracts;
 public class ContractService(
     IPdfGenerator pdfGenerator,
     IContractUnitOfWork contractUoW,
-    IMapper mapper
+    IMapper mapper,
+    PdfConverterConfiguration pdfConfig
 ) : IContractService
 {
     public async Task<byte[]> GenerateContract(int userId)
     {
         var model = await CreateModel(userId);
-        return await pdfGenerator.Generate("../Service/Contracts/ContractStudii.ro.odt", model);
+        var path = Path.Combine(pdfConfig.ContractsPath, "ContractStudii.ro.odt");
+        return await pdfGenerator.Generate(path, model);
     }
 
     private async Task<ContractViewModel> CreateModel(int userId)
