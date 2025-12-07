@@ -277,9 +277,10 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "111222ppa",
+           
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -299,9 +300,9 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "111222ppa",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner = ""
         };
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
@@ -331,9 +332,9 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "111222ppa",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -372,9 +373,9 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Teacher"
+            Role = UserRole.Teacher,
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
@@ -580,9 +581,9 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "111222ppa",
             PhoneNumber = "+40777301089",
-            Role = "Admin"
+            Role = UserRole.Admin,
+            Owner = ""
         };
 
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = "234/1" };
@@ -652,9 +653,9 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "",
             PhoneNumber = "+40777301089",
-            Role = "Teacher"
+            Role = UserRole.Teacher,
+            Owner = ""
         };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };
 

@@ -1,8 +1,10 @@
-﻿using TrackForUBB.Domain.DTOs;
+﻿using Microsoft.Extensions.Configuration;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service;
 using TrackForUBB.Service.Validators;
 using Moq;
+using TrackForUBB.Domain.Enums;
 using Xunit;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using TrackForUBB.Service.EmailService.Interfaces;
@@ -18,6 +20,7 @@ public class UserServiceTests
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
+    private readonly Mock<IConfiguration> conf = new();
 
     public UserServiceTests()
     {
@@ -29,7 +32,7 @@ public class UserServiceTests
         _validatorFactory = mockValidatorFactory.Object;
 
         _userService = new UserService(_mockUserRepository.Object, _validatorFactory,
-            _mockPasswordHasher.Object, _mockEmailProvider.Object);
+            _mockPasswordHasher.Object, _mockEmailProvider.Object,conf.Object);
     }
 
     [Theory]
@@ -55,8 +58,8 @@ public class UserServiceTests
             LastName = lastName,
             Email = email,
             PhoneNumber = phone,
-            Password = password,
-            Role = role
+            Role = Enum.Parse<UserRole>(role),
+            Owner = ""
         };
 
 
@@ -118,8 +121,8 @@ public class UserServiceTests
             LastName = lastName,
             PhoneNumber = phone,
             Email = email,
-            Password = password,
-            Role = role
+            Role = Enum.Parse<UserRole>(role),
+            Owner=""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(userDto);

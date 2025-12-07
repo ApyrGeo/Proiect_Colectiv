@@ -48,14 +48,6 @@ public class TimetableServiceTests
     [InlineData("FP", 5, 2)]
     public async Task CreateSubjectValidData(string name, int credits, int groupYearId)
     {
-        var postDto = new SubjectPostDTO
-        {
-            Name = name,
-            NumberOfCredits = credits,
-            GroupYearId = groupYearId
-        };
-
-
         var promotionResponseDTO = new PromotionResponseDTO
         {
             Id = groupYearId,
@@ -66,7 +58,41 @@ public class TimetableServiceTests
         _mockAcademicRepository
             .Setup(r => r.GetPromotionByIdAsync(groupYearId))
             .ReturnsAsync(promotionResponseDTO);
+        
+        var teacherUser = new UserResponseDTO
+        {
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Role = UserRole.Teacher,
+            PhoneNumber = "+40777301089",
+            Owner = ""
+        };
+        
+        _mockUserRepository
+            .Setup(r => r.GetByIdAsync(teacherUser.Id))
+            .ReturnsAsync(teacherUser);
+        
+       
+        var postDto = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = credits,
+            GroupYearId = groupYearId,
+            HolderTeacherId = teacherUser.Id
+        };
+        
+        _mockRepository.Setup(r => r.AddSubjectAsync(postDto))
+            .ReturnsAsync(new SubjectResponseDTO
+            {
+                Id = 1,
+                Name = name,
+                NumberOfCredits = credits
+            });
 
+        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+        
         var responseDto = new SubjectResponseDTO
         {
             Id = 1,
@@ -211,6 +237,7 @@ public class TimetableServiceTests
         {
             Id = 1,
             Name = name,
+            LocationId = locationId
         };
 
         _mockRepository.Setup(r => r.GetLocationByIdAsync(locationId))
@@ -286,7 +313,7 @@ public class TimetableServiceTests
 
 
         var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
-        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101" };
+        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101",LocationId = location.Id};
         _mockRepository
             .Setup(r => r.GetClassroomByIdAsync(classroom.Id))
             .ReturnsAsync(classroom);
@@ -297,7 +324,7 @@ public class TimetableServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
-            Role = Enum.Parse<UserRole>("Student")
+            Role =UserRole.Teacher
         };
         var userResponse = new UserResponseDTO
         {
@@ -305,9 +332,9 @@ public class TimetableServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Teacher,
+            Owner = ""
         };
         var teacher = new TeacherResponseDTO { Id = 1, UserId = user.Id, FacultyId = faculty.Id, User = userResponse };
         _mockAcademicRepository
@@ -318,7 +345,7 @@ public class TimetableServiceTests
         var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var locationResponse = new LocationResponseDTO
             { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
-        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
+        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name,LocationId = locationResponse.Id };
         var subjectResponse = new SubjectResponseDTO
             { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
         var teacherResponse = new TeacherResponseDTO
@@ -382,7 +409,7 @@ public class TimetableServiceTests
     {
         var location = new Location { Id = 1, Name = locName, Address = address };
         var classroom = new Classroom { Id = id, Name = name, Location = location };
-        var response = new ClassroomResponseDTO { Id = id, Name = name };
+        var response = new ClassroomResponseDTO { Id = id, Name = name, LocationId = location.Id };
 
         _mockRepository.Setup(r => r.GetClassroomByIdAsync(id)).ReturnsAsync(response);
 
@@ -461,7 +488,7 @@ public class TimetableServiceTests
         var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var locationResponse = new LocationResponseDTO
             { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
-        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
+        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name, LocationId = locationResponse.Id};
         var subjectResponse = new SubjectResponseDTO
             { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
         var userResponse = new UserResponseDTO
@@ -471,8 +498,8 @@ public class TimetableServiceTests
             LastName = teacher.User.LastName,
             Email = teacher.User.Email,
             PhoneNumber = teacher.User.PhoneNumber,
-            Role = teacher.User.Role.ToString(),
-            Password = ""
+            Role = teacher.User.Role,
+            Owner = ""
         };
         var teacherResponse = new TeacherResponseDTO
             { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
@@ -539,16 +566,16 @@ public class TimetableServiceTests
         var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var locationResponse = new LocationResponseDTO
             { Id = 1, Name = "Marasti", Address = "Groapa", GoogleMapsData = googleData };
-        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101" };
+        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101", LocationId = locationResponse.Id };
         var user = new UserResponseDTO
         {
             Id = 1,
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "111222ppa",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner = ""
         };
         var teacher = new TeacherResponseDTO { Id = 1, User = user, FacultyId = faculty.Id, UserId = userId };
         _mockAcademicRepository.Setup(r => r.GetEnrollmentsByUserId(userId))

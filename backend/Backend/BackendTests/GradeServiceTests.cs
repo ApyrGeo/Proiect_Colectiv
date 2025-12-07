@@ -60,9 +60,9 @@ public class GradeServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Teacher"
+            Role = UserRole.Teacher,
+            Owner=""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacherId))
@@ -91,9 +91,9 @@ public class GradeServiceTests
             FirstName = "Gigel",
             LastName = "Popescu",
             Email = "gigel@student.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner=""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -175,16 +175,16 @@ public class GradeServiceTests
             FirstName = "Test",
             LastName = "Teacher",
             Email = "t@test.com",
-            Password = "pass",
             PhoneNumber = "+40123456789",
-            Role = teacherId == 1 ? "Teacher" : "Student"
+            Role = teacherId == 1 ? UserRole.Teacher : UserRole.Student,
+            Owner=""
         };
 
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(teacherId))
             .ReturnsAsync(teacher);
 
-        if (teacher.Role != "Teacher")
+        if (teacher.Role != UserRole.Teacher)
         {
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
                 _service.CreateGrade(teacherId, postDto));
@@ -242,9 +242,9 @@ public class GradeServiceTests
             FirstName = "Gigel",
             LastName = "Popescu",
             Email = "gigel@student.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner=""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -297,9 +297,9 @@ public class GradeServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Teacher"
+            Role = UserRole.Teacher,
+            Owner=""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacher.Id))
@@ -326,9 +326,9 @@ public class GradeServiceTests
             FirstName = "Gigel",
             LastName = "Popescu",
             Email = "gigel@student.com",
-            Password = "TestPassword",
             PhoneNumber = "+40777301089",
-            Role = "Student"
+            Role = UserRole.Student,
+            Owner=""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
