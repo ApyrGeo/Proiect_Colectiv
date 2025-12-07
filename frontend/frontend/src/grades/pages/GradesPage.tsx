@@ -8,8 +8,7 @@ import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { faqsGrades } from "../../faq/FAQData.ts";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-
-const USER_ID = 27273;
+import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const GradesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -22,11 +21,13 @@ const GradesPage: React.FC = () => {
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const { userInfo } = useAuthContext();
+
   // Fetch specializations la mount
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {
-        const specs = await fetchUserSpecializations(USER_ID);
+        const specs = await fetchUserSpecializations(userInfo.userId);
         setSpecializations(specs);
       } catch (err) {
         const e = err as Error;
@@ -46,7 +47,7 @@ const GradesPage: React.FC = () => {
     if (spec && year && sem) {
       (async () => {
         try {
-          const stat = await fetchStatusForUser(USER_ID, spec, year, sem);
+          const stat = await fetchStatusForUser(userInfo.userId, spec, year, sem);
           setStatus(stat);
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
@@ -61,7 +62,7 @@ const GradesPage: React.FC = () => {
     // Fetch grades
     (async () => {
       try {
-        const result = await fetchGradesForUser(USER_ID, spec, year, sem);
+        const result = await fetchGradesForUser(userInfo.userId, spec, year, sem);
         setGrades(result);
         setError(null);
       } catch (err) {
