@@ -32,6 +32,12 @@ type ContractAPICall = StudyContractCall;
 
 export const exampleStructures: ContractStructure[] = [
   {
+    title: "Study Contract",
+    fields: [],
+    signature: false,
+    apiCall: getStudyContract,
+  },
+  {
     title: "My Contract 1",
     fields: [
       { name: "full-name", label: "Full name", category: FieldCategory.TEXT },
@@ -52,11 +58,5 @@ export const exampleStructures: ContractStructure[] = [
       { name: "agree", label: "I agree to the Terms and Conditions", category: FieldCategory.CHECKBOX },
     ],
     signature: true,
-  },
-  {
-    title: "Study Contract",
-    fields: [],
-    signature: false,
-    apiCall: getStudyContract,
   },
 ];
