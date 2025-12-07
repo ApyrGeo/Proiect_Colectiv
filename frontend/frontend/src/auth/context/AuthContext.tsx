@@ -6,7 +6,7 @@ export type AuthContextType = {
   activeAccount: AccountInfo | null;
   loading: boolean;
   error: unknown | null;
-  acquireToken: () => Promise<string | null>;
+  waitForAccessToken: () => Promise<string | null>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
