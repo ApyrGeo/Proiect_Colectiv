@@ -100,4 +100,12 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         return _mapper.Map<TeacherResponseDTO>(teacher);
     }
+
+    public async Task<UserResponseDTO?> GetByOwnerIdAsync(Guid ownerId)
+    {
+        _logger.InfoFormat("Fetching user by owner ID: {0}", ownerId);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Owner == ownerId);
+
+        return _mapper.Map<UserResponseDTO>(user);
+    }
 }

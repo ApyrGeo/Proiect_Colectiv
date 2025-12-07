@@ -1,7 +1,10 @@
-using TrackForUBB.Domain.DTOs;
 using log4net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
+using System.Text.Json;
 using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Controller;
 
@@ -11,6 +14,18 @@ public class UserController(IUserService service) : ControllerBase
 {
     private readonly IUserService _service = service;
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserController));
+
+    private Guid GetLoggedUserId()
+    {
+        Guid userId;
+
+        if (!Guid.TryParse(HttpContext.User.GetObjectId(), out userId))
+        {
+            throw new Exception("User ID is not valid.");
+        }
+
+        return userId;
+    }
 
     [HttpGet]
     [ProducesResponseType(200)]
@@ -67,7 +82,23 @@ public class UserController(IUserService service) : ControllerBase
     [ProducesResponseType(422)]
     public async Task<IActionResult> UpdateProfile(int userId,[FromBody] UserPutDTO dto)
     {
+        _logger.InfoFormat("Received request for user with ID: {0}, and body: {1}", userId, JsonSerializer.Serialize(dto));
         var result = await _service.UpdateUserProfileAsync(userId, dto);
+
+        return Ok(result);
+    }
+
+    [HttpGet("/logged-user")]
+    [Authorize]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<UserResponseDTO>> GetLoggedUser()
+    {
+        var ownerId = GetLoggedUserId();
+        _logger.InfoFormat("Received request for user with jwt ID: {0}", ownerId);
+
+        var result = await _service.GetLoggedUserAsync(ownerId);
+
         return Ok(result);
     }
 }

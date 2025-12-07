@@ -107,4 +107,11 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
 
         return updatedUserDTO;
     }
+
+    public async Task<UserResponseDTO> GetLoggedUserAsync(Guid ownerId)
+    {
+        _logger.InfoFormat("Getting user by owner ID: {0}", ownerId);
+        var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
+        return userDTO;
+    }
 }

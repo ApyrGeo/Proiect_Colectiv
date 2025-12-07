@@ -12,4 +12,5 @@ public interface IUserRepository
     Task<UserProfileResponseDTO?> GetProfileByIdAsync(int id);
     Task<UserResponseDTO> UpdateAsync(int id, UserPutDTO user);
     Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId);
+    Task<UserResponseDTO?> GetByOwnerIdAsync(Guid ownerId);
 }
