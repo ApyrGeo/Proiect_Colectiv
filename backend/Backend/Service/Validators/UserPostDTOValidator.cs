@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using FluentValidation;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Domain.Enums;
@@ -52,23 +52,5 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
                 .NotNull()
                 .NotEmpty().WithMessage("Role is required.")
                 .IsEnumName(typeof(UserRole)).WithMessage($"User role string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(UserRole)))}.");
-                
-        
-        RuleSet("Update",(() =>
-        {
-            RuleFor(user => user.PhoneNumber)
-                .NotNull()
-                .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User phone number must not exceed {Constants.DefaultStringMaxLenght} characters.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
-
-       
-            RuleFor(user => user.Password)
-                .NotNull()
-                .MaximumLength(Constants.ExtendedStringMaxLenght).WithMessage($"User password must not exceed {Constants.ExtendedStringMaxLenght} characters.")
-                .MinimumLength(8).WithMessage("Password must be at least 8 characters long.");
-            
-        }));
-        
-        
     }
 }

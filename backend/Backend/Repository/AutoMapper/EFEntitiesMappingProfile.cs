@@ -9,7 +9,13 @@ public class EFEntitiesMappingProfile : Profile
 {
     public EFEntitiesMappingProfile()
     {
-        CreateMap<User, UserResponseDTO>().ReverseMap();
+        CreateMap<User, UserResponseDTO>()
+            .ForMember(dest => dest.Owner,
+                opt => opt.MapFrom(src => src.Owner.HasValue ? src.Owner.Value.ToString() : string.Empty))
+            .ReverseMap()
+            .ForMember(dest => dest.Owner,
+                opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)));
+
         CreateMap<UserPostDTO, User>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
@@ -56,8 +62,10 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<User, UserProfileResponseDTO>()
             .ForMember(dest => dest.SignatureUrl,
-                opt => opt.MapFrom(src => src.Signature != null ? Convert.ToBase64String(src.Signature) : null));
-        
+                opt => opt.MapFrom(src => src.Signature != null ? Convert.ToBase64String(src.Signature) : null))
+            .ForMember(dest => dest.Owner,
+                opt => opt.MapFrom(src => src.Owner.HasValue ? src.Owner.Value.ToString() : string.Empty));
+
         CreateMap<Hour, HourResponseDTO>()
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
