@@ -2,12 +2,15 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { Point, SignatureHandle } from "../props.ts";
 
 import "../profile.css";
+import { useTranslation } from "react-i18next";
 
 const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?: number }>(
   ({ className, strokeWidth = 2 }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const strokesRef = useRef<Point[][]>([]);
     const drawing = useRef(false);
+
+    const { t } = useTranslation();
 
     const resizeCanvas = () => {
       const canvas = canvasRef.current;
@@ -41,7 +44,7 @@ const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?
       // style
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.strokeStyle = "#111"; // dark on light; your CSS can invert
+      ctx.strokeStyle = "#fff"; // dark on light; your CSS can invert
       ctx.lineWidth = strokeWidth;
       // draw strokes
       for (const stroke of strokesRef.current) {
@@ -110,10 +113,10 @@ const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?
         />
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <button type="button" onClick={clear}>
-            Clear
+            {t("Clear")}
           </button>
           <button type="button" onClick={undo}>
-            Undo
+            {t("Undo")}
           </button>
         </div>
       </div>

@@ -125,6 +125,11 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   return (
     <>
       <div className={`app-sidebar ${isMinified ? "minified" : ""}`}>
+        <div className="menu-item menu-profile">
+          <NavLink to="/" className="menu-profile-link">
+            <div className="menu-profile-cover with-shadow"></div>
+          </NavLink>
+        </div>
         <div className="app-sidebar-minify-btn-container">
           <button
             className="app-sidebar-minify-btn"
