@@ -123,7 +123,7 @@ const useTimetableApi = () => {
 
   const getSubject = useCallback(
     async (subjectId: number) => {
-      const response = await axios.get<SubjectProps>(`${academicsUrl}/subjects/${subjectId}`);
+      const response = await axios.get<SubjectProps>(`${timetableUrl}/subjects/${subjectId}`);
       return response.data;
     },
     [axios]
@@ -131,7 +131,7 @@ const useTimetableApi = () => {
 
   const getClassroom = useCallback(
     async (classroomId: number) => {
-      const response = await axios.get<ClassroomProps>(`${academicsUrl}/classrooms/${classroomId}`);
+      const response = await axios.get<ClassroomProps>(`${timetableUrl}/classrooms/${classroomId}`);
       return response.data;
     },
     [axios]
