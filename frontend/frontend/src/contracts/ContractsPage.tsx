@@ -2,16 +2,19 @@ import { exampleStructures, FieldCategory } from "./contractStructures.ts";
 import { useRef, useState } from "react";
 import "./contracts.css";
 import SignatureCanvas from "react-signature-canvas";
+import useContractApi from "./useContractApi.ts";
 
 const ContractsPage: React.FC = () => {
   // TODO remove hard coded user id
-  const userId = 6;
+  const userId = 21005;
+
+  const { getStudyContract } = useContractApi();
 
   const contractStructures = exampleStructures;
 
   const [selectedContract, setSelectedContract] = useState(0);
 
-  const [generatedContracts, setGeneratedContracts] = useState<Map<number, string>>(new Map());
+  const [generatedContract, setGeneratedContract] = useState<string>("");
 
   const sigCanvas = useRef<SignatureCanvas>(null);
 
@@ -23,21 +26,17 @@ const ContractsPage: React.FC = () => {
     console.log(formData);
     if (contractStructures[selectedContract].signature && sigCanvas.current) console.log(sigCanvas.current.toDataURL());
 
-    if (contractStructures[selectedContract].apiCall) {
-      contractStructures[selectedContract]
-        .apiCall(userId)
-        .then((href) => {
-          const map = generatedContracts;
-          map.set(selectedContract, href);
-          setGeneratedContracts(map);
-        })
-        .catch((error) => {
-          console.log(error as Error);
-          const map = generatedContracts;
-          map.set(selectedContract, "error");
-          setGeneratedContracts(map);
-        });
-    }
+    getStudyContract(userId)
+      .then((response) => {
+        const data = new Blob([response]);
+        const url = window.URL.createObjectURL(data);
+
+        setGeneratedContract(url);
+      })
+      .catch((error) => {
+        console.log(error as Error);
+        setGeneratedContract("error");
+      });
   };
 
   return (
@@ -82,9 +81,11 @@ const ContractsPage: React.FC = () => {
           </div>
         )}
         <button type="submit">Generate Contract</button>
-        {generatedContracts.has(selectedContract) &&
-          (generatedContracts.get(selectedContract) != "error" ? (
-            <a href={generatedContracts.get(selectedContract)}>Download</a>
+        {generatedContract &&
+          (generatedContract != "error" ? (
+            <a href={generatedContract} download="contract.pdf">
+              Download
+            </a>
           ) : (
             <div>Error generating file</div>
           ))}

@@ -39,6 +39,9 @@
 .contracts-page form button{
     margin: 10px;
 }
+.contracts-page form a{
+  text-align: center;
+}
 
 .sigContainer {
     width: 50%;

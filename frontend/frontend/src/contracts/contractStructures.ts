@@ -1,5 +1,3 @@
-import { getStudyContract } from "./contractAPI.ts";
-
 export enum FieldCategory {
   TEXT = "text",
   DATE = "date",
@@ -35,7 +33,6 @@ export const exampleStructures: ContractStructure[] = [
     title: "Study Contract",
     fields: [],
     signature: false,
-    apiCall: getStudyContract,
   },
   {
     title: "My Contract 1",
