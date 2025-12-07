@@ -18,6 +18,19 @@ const useApiClient = () => {
     []
   );
 
+  const apiPdfClient = useMemo(
+    () =>
+      axios.create({
+        baseURL: baseUrl,
+        responseType: "arraybuffer",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/pdf",
+        },
+      }),
+    []
+  );
+
   useEffect(() => {
     const responseInterceptor = apiClient.interceptors.response.use(
       (response) => response,
@@ -58,7 +71,7 @@ const useApiClient = () => {
     };
   }, [accessToken, apiClient, waitForAccessToken]);
 
-  return { axios: apiClient };
+  return { axios: apiClient, axiosPdf: apiPdfClient };
 };
 
 export default useApiClient;
