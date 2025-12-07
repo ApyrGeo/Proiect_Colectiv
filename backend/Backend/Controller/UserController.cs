@@ -17,9 +17,7 @@ public class UserController(IUserService service) : ControllerBase
 
     private Guid GetLoggedUserId()
     {
-        Guid userId;
-
-        if (!Guid.TryParse(HttpContext.User.GetObjectId(), out userId))
+        if (!Guid.TryParse(HttpContext.User.GetObjectId(), out var userId))
         {
             throw new Exception("User ID is not valid.");
         }
