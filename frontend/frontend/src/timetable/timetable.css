@@ -120,7 +120,6 @@ th, td {
 }
 
 .timetable-filter input[type=radio] {
-    /*position:absolute;*/
     display: none;
 }
 
