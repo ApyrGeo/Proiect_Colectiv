@@ -51,16 +51,12 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         return _mapper.Map<UserProfileResponseDTO>(user);
     }
 
-    public async Task<UserResponseDTO> UpdateAsync(int id ,UserPostDTO user)
+    public async Task<UserResponseDTO> UpdateAsync(int id , UserPutDTO user)
     {
-        _logger.InfoFormat("Updating user with email: {0}", user.Email);
+        _logger.InfoFormat("Updating user with id: {0}", user.Id);
         var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        _mapper.Map(user, entity);
-        
-        if (!string.IsNullOrEmpty(user.SignatureBase64))
-            entity.Signature = Convert.FromBase64String(user.SignatureBase64);
 
-        _context.Users.Update(entity);
+        entity!.Signature = user.Signature;
 
         return _mapper.Map<UserResponseDTO>(entity);
     }

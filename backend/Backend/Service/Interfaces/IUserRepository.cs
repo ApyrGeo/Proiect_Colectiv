@@ -10,6 +10,6 @@ public interface IUserRepository
     Task<List<UserResponseDTO>> GetAll();
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
     Task<UserProfileResponseDTO?> GetProfileByIdAsync(int id);
-    Task<UserResponseDTO> UpdateAsync(int id, UserPostDTO user);
+    Task<UserResponseDTO> UpdateAsync(int id, UserPutDTO user);
     Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId);
 }

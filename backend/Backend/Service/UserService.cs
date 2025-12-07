@@ -1,28 +1,26 @@
-using AutoMapper;
+using log4net;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json;
+using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
-using log4net;
-using TrackForUBB.Service.Interfaces;
-using TrackForUBB.Service.Utils;
-using System.Text.Json;
-using FluentValidation;
-using FluentValidation.Internal;
-using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Domain.Security;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Models;
-using TrackForUBB.Domain.Security;
-using TrackForUBB.Controller.Interfaces;
-using TrackForUBB.Service.Validators;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Utils;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class UserService(IUserRepository userRepository, IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, IEmailProvider emailProvider) : IUserService
+public class UserService(IUserRepository userRepository, IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, IEmailProvider emailProvider, IConfiguration config) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IValidatorFactory _validator = validator;
     private readonly IAdapterPasswordHasher<UserPostDTO> _passwordHasher = passwordHasher;
     private readonly IEmailProvider _emailProvider = emailProvider;
+    private readonly IConfiguration _config = config;
 
     public async Task<UserResponseDTO> CreateUser(UserPostDTO userDTO)
     {
@@ -50,7 +48,7 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
 
     private async Task SendWelcomeEmail(UserResponseDTO user)
     {
-        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = user.Password! };
+        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName!, LastName = user.LastName!, Password = _config["EntraUserDefaultPassword"]! };
         await _emailProvider.SendCreateAccountEmailAsync(user.Email!, userEmailModel);
     }
 
@@ -87,34 +85,26 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
         return userDTO;
     }
 
-    public async Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPostDTO dto)
-    {
-
-        var existingUser = await _userRepository.GetProfileByIdAsync(userId);
-        if (existingUser == null)
-        {
-            throw new NotFoundException($"User with ID {userId} not found.");
-        }
-        if (string.IsNullOrEmpty(dto.Password))
-            dto.Password= existingUser.Password;
-
-        if (string.IsNullOrEmpty(dto.PhoneNumber))
-            dto.PhoneNumber = existingUser.PhoneNumber ;
-        
-        dto.Password = _passwordHasher.HashPassword(dto, dto.Password!);
-        
+    public async Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPutDTO dto)
+    { 
         _logger.InfoFormat("Validating request data");
-        var validator = _validator.Get<UserPostDTO>();
-        var result = await validator.ValidateAsync(dto,(Action<ValidationStrategy<UserPostDTO>>)(opts => opts.IncludeRuleSets("Update")));
+
+        var validator = _validator.Get<UserPutDTO>();
+        var result = await validator.ValidateAsync(dto);
+
         if (!result.IsValid)
         {
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(result.Errors));
         }
-        
-        var updatedUserDTO = await _userRepository.UpdateAsync(userId,dto);
+
+        if (userId != dto.Id)
+        {
+            throw new EntityValidationException(["User ID mismatch between route and payload."]);
+        }
+
+        var updatedUserDTO = await _userRepository.UpdateAsync(userId, dto);
         await _userRepository.SaveChangesAsync();
 
         return updatedUserDTO;
-
     }
 }

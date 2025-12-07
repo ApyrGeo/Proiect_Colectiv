@@ -65,7 +65,7 @@ public class UserController(IUserService service) : ControllerBase
     [HttpPut("{userId}/profile")]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
-    public async Task<IActionResult> UpdateProfile(int userId,[FromBody] UserPostDTO dto)
+    public async Task<IActionResult> UpdateProfile(int userId,[FromBody] UserPutDTO dto)
     {
         var result = await _service.UpdateUserProfileAsync(userId, dto);
         return Ok(result);
