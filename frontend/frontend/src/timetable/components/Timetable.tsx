@@ -54,12 +54,15 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   useEffect(() => {
-    if (!props.selectedLocations) return;
-    if (props.selectedLocations.currentLocation !== null) return;
+    if (!props.classroomId && !props.subjectId && !props.teacherId) {
+      if (!props.selectedLocations) return;
+      if (props.selectedLocations.currentLocation !== null) return;
+    }
     if (fetchError) return;
 
     getFetchFunc()
       .then((res) => {
+        console.log(res.hours);
         setHours(res.hours);
         sendLocationsToMaps(res.hours);
       })
