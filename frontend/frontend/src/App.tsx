@@ -1,6 +1,6 @@
 import "./App.css";
 import Sidebar from "./sidebar/Sidebar.tsx";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import GradesPage from "./grades/pages/GradesPage.tsx";
 import TimetablePage from "./timetable/pages/TimetablePage.tsx";
@@ -17,6 +17,7 @@ import SignOutButton from "./auth/components/SignOutButton.tsx";
 import SignInButton from "./auth/components/SignInButton.tsx";
 import FAQPopup from "./faq/components/FAQPopup.tsx";
 import { faqsTimetable } from "./faq/FAQData.ts";
+import ContractsPage from "./contracts/ContractsPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -49,6 +50,7 @@ const App = () => {
           <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
           <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
           <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
+          <Route path={"/contracts"} Component={ContractsPage}></Route>
           <Route path={"/profile"} Component={ProfilePage} />
         </Routes>
 

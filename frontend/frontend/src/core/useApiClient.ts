@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useAuthContext } from "../auth/context/AuthContext";
 
 const useApiClient = () => {
-  const { accessToken, activeAccount } = useAuthContext();
+  const { accessToken, waitForAccessToken } = useAuthContext();
 
   const apiClient = useMemo(
     () =>
@@ -13,6 +13,19 @@ const useApiClient = () => {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": host,
+        },
+      }),
+    []
+  );
+
+  const apiPdfClient = useMemo(
+    () =>
+      axios.create({
+        baseURL: baseUrl,
+        responseType: "arraybuffer",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/pdf",
         },
       }),
     []
@@ -35,22 +48,30 @@ const useApiClient = () => {
     return () => {
       apiClient.interceptors.response.eject(responseInterceptor);
     };
-  }, []);
+  }, [apiClient]);
 
   useEffect(() => {
-    const reqInterceptor = apiClient.interceptors.request.use((config) => {
-      if (activeAccount && accessToken) {
+    const reqInterceptor = apiClient.interceptors.request.use(async (config) => {
+      if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
       }
+
+      const token = await waitForAccessToken();
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
       return config;
     });
 
     return () => {
       apiClient.interceptors.request.eject(reqInterceptor);
     };
-  }, [accessToken, activeAccount]);
+  }, [accessToken, apiClient, waitForAccessToken]);
 
-  return { axios: apiClient };
+  return { axios: apiClient, axiosPdf: apiPdfClient };
 };
 
 export default useApiClient;
