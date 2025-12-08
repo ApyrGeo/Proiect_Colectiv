@@ -1,22 +1,9 @@
-import useApiClient from "../core/useApiClient.ts";
-import { useCallback } from "react";
-import type { HourPropsDto } from "../timetable/props.ts";
-
-const ProfileApi = () => {
-  const { axios } = useApiClient();
-
-  const profileUrl = "/api/User";
-  const getProfile = useCallback(async () => {
-    const response = await axios.get<HourPropsDto>(`${profileUrl}/hours`);
-    return response.data;
-  }, [axios]);
-};
 import { baseUrl } from "../core/index.ts";
-import type { UserProfileResponse } from "./props.ts";
+import type { Profile } from "./props.ts";
 
 const USER_API_URL = `${baseUrl}/api/User`;
 
-export const fetchUserProfile = async (userId: number): Promise<UserProfileResponse> => {
+export const fetchUserProfile = async (userId: number): Promise<Profile> => {
   const response = await fetch(`${USER_API_URL}/${userId}/profile`);
 
   if (!response.ok) {
