@@ -10,7 +10,7 @@ type HourFilter = {
   facultyId?: number;
   specialisationId?: number;
   groupYearId?: number;
-  currentWeekOnly?: boolean;
+  currentWeekTimetable?: boolean;
   semesterNumber?: number;
 };
 
@@ -38,7 +38,7 @@ const useTimetableApi = () => {
 
   const getUserCurrentWeekHours = useCallback(
     async (userId: number) => {
-      const params: HourFilter = { userId, currentWeekOnly: true };
+      const params: HourFilter = { userId, currentWeekTimetable: true };
       const response = await axios.get<HourPropsDto>(`${timetableUrl}/hours`, {
         params,
       });
