@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
-import type {Location, ClassroomDetails, Teacher, StudentGroup, Subject, Exam, Enrollment, User} from "./props";
+import type { LocationProps, TeacherProps, StudentGroupProps, SubjectProps, ExamProps, UserProps } from "./props";
 
 const useExamApi = () => {
   const { axios } = useApiClient();
@@ -12,14 +12,13 @@ const useExamApi = () => {
 
   // 📌 Obține locații
   const getLocations = useCallback(async () => {
-    const response = await axios.get<Location[]>(`${timetableUrl}/locations`);
+    const response = await axios.get<LocationProps[]>(`${timetableUrl}/locations`);
     return response.data ?? [];
   }, [axios]);
 
-  // 📌 Detalii clasă
-  const getClassroomDetails = useCallback(
-    async (classroomId: number) => {
-      const response = await axios.get<ClassroomDetails>(`${timetableUrl}/classrooms/${classroomId}`);
+  const getLocation = useCallback(
+    async (locationId: number) => {
+      const response = await axios.get<LocationProps>(`${timetableUrl}/locations/${locationId}`);
       return response.data;
     },
     [axios]
@@ -28,7 +27,7 @@ const useExamApi = () => {
   // 📌 Profesor după ID (404 => null)
   const getTeacherById = useCallback(
     async (teacherId: number) => {
-      const response = await axios.get<Teacher>(`${academicsUrl}/teachers/${teacherId}`);
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teachers/${teacherId}`);
       return response.data;
     },
     [axios]
@@ -36,8 +35,16 @@ const useExamApi = () => {
 
   const getUserById = useCallback(
     async (userId: number) => {
-      const response = await axios.get<User>(`${userUrl}/${userId}`);
+      const response = await axios.get<UserProps>(`${userUrl}/${userId}`);
       return response.data;
+    },
+    [axios]
+  );
+
+  const getTeacherbyUserId = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teacher/user/${userId}`);
+      return response.data ?? [];
     },
     [axios]
   );
@@ -45,7 +52,7 @@ const useExamApi = () => {
   // 📌 Grupuri la o materie
   const getStudentGroupsBySubject = useCallback(
     async (subjectId: number) => {
-      const response = await axios.get<StudentGroup[]>(`${timetableUrl}/subjects/${subjectId}/groups`);
+      const response = await axios.get<StudentGroupProps[]>(`${timetableUrl}/subjects/${subjectId}/groups`);
       return response.data ?? [];
     },
     [axios]
@@ -54,7 +61,7 @@ const useExamApi = () => {
   // 📌 Materii predate de profesor
   const getSubjectsByTeacher = useCallback(
     async (teacherId: number) => {
-      const response = await axios.get<Subject[]>(`${timetableUrl}/subjects/holder-teacher/${teacherId}`);
+      const response = await axios.get<SubjectProps[]>(`${timetableUrl}/subjects/holder-teacher/${teacherId}`);
       return response.data ?? [];
     },
     [axios]
@@ -63,7 +70,15 @@ const useExamApi = () => {
   // 📌 Examene pentru o materie
   const getExamsBySubject = useCallback(
     async (subjectId: number) => {
-      const response = await axios.get<Exam[]>(`${examUrl}/subject/${subjectId}`);
+      const response = await axios.get<ExamProps[]>(`${examUrl}/subject/${subjectId}`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  const getExamsByStudent = useCallback(
+    async (studentId: number) => {
+      const response = await axios.get<ExamProps[]>(`${examUrl}/student/${studentId}`);
       return response.data ?? [];
     },
     [axios]
@@ -79,22 +94,22 @@ const useExamApi = () => {
       subjectId: number;
       studentGroupId: number;
     }) => {
-      console.log(examData);
       const response = await axios.put(`${examUrl}`, [examData]);
-      console.log(response);
       return response.data;
     },
     [axios]
   );
   return {
     getLocations,
-    getClassroomDetails,
     getTeacherById,
     getStudentGroupsBySubject,
     getSubjectsByTeacher,
     getExamsBySubject,
     updateExam,
     getUserById,
+    getTeacherbyUserId,
+    getExamsByStudent,
+    getLocation,
   };
 };
 

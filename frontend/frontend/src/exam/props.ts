@@ -1,38 +1,30 @@
-export interface StudentGroup {
+export interface StudentGroupProps {
   id: number;
   name: string;
 }
 
-export interface StudentGroupDetails {
-  id: number;
-  name: string;
-  studentSubGroups: never[];
-}
-
-export interface Subject {
+export interface SubjectProps {
   id: number;
   name: string;
 }
 
-export interface Classroom {
+export interface ClassroomProps {
   id: number;
   name: string;
 }
 
-export interface ClassroomDetails {
-  id: number;
-  name: string;
-  capacity?: number;
-}
-
-export interface Location {
+export interface LocationProps {
   id: number;
   name: string;
   address: string;
-  classrooms: Classroom[];
+  classrooms: ClassroomProps[];
 }
 
-export interface User {
+export interface StudentIdProps {
+  id: number;
+}
+
+export interface UserProps {
   id: number;
   firstName: string;
   lastName: string;
@@ -42,31 +34,40 @@ export interface User {
   role: number;
 }
 
-export interface Teacher {
+export interface TeacherProps {
   id: number;
   userId: number;
-  user: User;
+  user: UserProps;
   facultyId: number;
 }
 
-export interface Exam {
+export interface ExamProps {
   id: number;
   date: string | null;
   duration: number | null;
-  classroom: Classroom | null;
-  subject: Subject;
-  studentGroup: StudentGroup;
+  classroom: ClassroomProps | null;
+  subject: SubjectProps | null;
+  studentGroup: StudentGroupProps | null;
 }
 
-export interface Enrollment {
-  id: number;
-  userId: number;
-  user: User;
-  subGroupId: number;
-  subGroup: SubGroup;
-}
-
-export interface SubGroup {
+export interface GroupRowProps {
   id: number;
   name: string;
+  selectedLocationId: number | null;
+  selectedClassroomId: number | null;
+  examDate: string | null;
+  examDuration: number | null;
+  examId: number;
+  selectedGroupId: number | null;
 }
+
+export interface StudentExamRowProps {
+  examId: number;
+  subjectName: string;
+  examDate: string | null;
+  examDuration: number | null;
+  locationName: string | null;
+  classroomName: string | null;
+}
+
+
