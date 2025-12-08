@@ -185,4 +185,14 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 
         return _mapper.Map<PromotionSemesterResponseDTO>(semester);
     }
+
+    public async Task<TeacherResponseDTO?> GetTeacherByUserId(int userId)
+    {
+        var teacher = await _context.Teachers
+            .Include(t => t.User)
+            .Include(t => t.Faculty)
+            .Where(t => t.UserId == userId)
+            .FirstOrDefaultAsync();
+        return _mapper.Map<TeacherResponseDTO>(teacher);
+    }
 }

@@ -249,4 +249,19 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return await _academicRepository.GetEnrollmentByIdAsync(enrollmentId)
             ?? throw new NotFoundException($"Enrollment with ID {enrollmentId} not found.");
 	}
+
+    public async Task<TeacherResponseDTO?> GetTeacherByUserId(int userId)
+    {
+        _logger.InfoFormat("Trying to retrieve teacher for user with ID {0}", userId);
+        var user = await _userRepository.GetByIdAsync(userId)
+            ?? throw new NotFoundException($"User with ID {userId} not found.");
+
+        if(user.Role != UserRole.Teacher)
+        {
+            throw new EntityValidationException($"User with ID {userId} is not a teacher.");
+        }
+
+        return await _academicRepository.GetTeacherByUserId(userId)
+            ?? throw new NotFoundException($"Teacher for user with ID {userId} not found.");
+    }
 }

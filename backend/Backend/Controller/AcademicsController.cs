@@ -60,6 +60,18 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return Ok(teacher);
     }
 
+    [HttpGet("teacher/user/{userId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(422)]
+    public async Task<ActionResult<TeacherResponseDTO>> GetTeacherByUserId([FromRoute] int userId)
+    {
+        _logger.InfoFormat("Fetching teacher for user with ID {0}", userId);
+        var teacher = await _service.GetTeacherByUserId(userId);
+        return Ok(teacher);
+    }
+
+
     [HttpPost("teachers")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
