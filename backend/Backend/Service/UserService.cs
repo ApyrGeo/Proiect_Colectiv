@@ -13,10 +13,11 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class UserService(IUserRepository userRepository, IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, IEmailProvider emailProvider, IConfiguration config) : IUserService
+public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, IEmailProvider emailProvider, IConfiguration config) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IValidatorFactory _validator = validator;
     private readonly IAdapterPasswordHasher<UserPostDTO> _passwordHasher = passwordHasher;
     private readonly IEmailProvider _emailProvider = emailProvider;
@@ -108,10 +109,22 @@ public class UserService(IUserRepository userRepository, IValidatorFactory valid
         return updatedUserDTO;
     }
 
-    public async Task<UserResponseDTO> GetLoggedUserAsync(Guid ownerId)
+    public async Task<LoggedUserResponseDTO> GetLoggedUserAsync(Guid ownerId)
     {
         _logger.InfoFormat("Getting user by owner ID: {0}", ownerId);
+
         var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
-        return userDTO;
+
+        var response = new LoggedUserResponseDTO() { User = userDTO, Enrollemnts = [] };
+        var enrollments = await _academicRepository.GetEnrollmentsByUserId(userDTO.Id);
+
+        foreach (var enrollment in enrollments)
+        {
+            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new NotFoundException($"Enrollemnt with id {enrollment.Id} doesn't have consistent data");
+
+            response.Enrollemnts.Add(loggedUserEnrollment);
+        }
+
+        return response;
     }
 }

@@ -90,7 +90,7 @@ public class UserController(IUserService service) : ControllerBase
     [Authorize]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<UserResponseDTO>> GetLoggedUser()
+    public async Task<ActionResult<LoggedUserResponseDTO>> GetLoggedUser()
     {
         var ownerId = GetLoggedUserId();
         _logger.InfoFormat("Received request for user with jwt ID: {0}", ownerId);

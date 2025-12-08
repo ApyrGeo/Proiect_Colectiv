@@ -23,4 +23,5 @@ public interface IAcademicRepository
     Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId);
     Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId);
     Task<TeacherResponseDTO?> GetTeacherByUserId(int userId);
+    Task<LoggedUserEnrollmentResponseDTO?> GetFacultyByEnrollment(int enrollmentId);
 }
