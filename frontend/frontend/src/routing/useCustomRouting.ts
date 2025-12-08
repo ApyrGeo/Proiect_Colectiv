@@ -1,28 +1,22 @@
 import { useCallback, useMemo } from "react";
-import type { UserInfo } from "../core/props.ts";
+import { type UserProps, UserRole } from "../core/props.ts";
 
 const useCustomRouting = () => {
   const rolePermissions = useMemo(
     () =>
-      new Map<string, string[]>([
-        ["Student", ["grades", "timetable", "profile"]],
-        ["Teacher", ["profile", "grades"]],
-        ["Admin", []],
+      new Map<UserRole, string[]>([
+        [UserRole.STUDENT, ["grades", "timetable", "contracts", "profile"]],
+        [UserRole.TEACHER, ["profile", "grades"]],
+        [UserRole.ADMIN, []],
       ]),
     []
   );
 
   const isRouteAvailable = useCallback(
-    (path: string, userInfo: UserInfo): boolean => {
-      if (!userInfo || !userInfo.userRole) return false;
-
+    (path: string, userProps: UserProps): boolean => {
+      if (!userProps || userProps.role == undefined) return false;
       const page = path.split("/").at(1);
-
-      return !!(
-        page &&
-        rolePermissions.has(userInfo.userRole) &&
-        rolePermissions.get(userInfo.userRole)?.includes(page)
-      );
+      return !!(page && rolePermissions.has(userProps.role) && rolePermissions.get(userProps.role)?.includes(page));
     },
     [rolePermissions]
   );

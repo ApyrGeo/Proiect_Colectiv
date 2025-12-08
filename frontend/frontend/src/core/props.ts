@@ -5,13 +5,11 @@ export interface UserProps {
   phoneNumber: string;
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
 }
 
-export type UserInfo = {
-  userId: number;
-  userRole: string;
-  groupYearId?: number;
-  facultyId?: number;
-  specialisationId?: number;
-};
+export enum UserRole {
+  STUDENT,
+  TEACHER,
+  ADMIN,
+}
