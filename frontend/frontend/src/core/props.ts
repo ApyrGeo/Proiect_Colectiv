@@ -5,5 +5,11 @@ export interface UserProps {
   phoneNumber: string;
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
+}
+
+export enum UserRole {
+  STUDENT,
+  TEACHER,
+  ADMIN,
 }

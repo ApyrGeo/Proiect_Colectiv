@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useMsal } from "@azure/msal-react";
 import { EventType, InteractionRequiredAuthError, InteractionStatus, type AccountInfo } from "@azure/msal-browser";
 import { loginRequest } from "../authConfig";
+import { type UserProps } from "../../core/props.ts";
+import axios from "axios";
+import { baseUrl, host } from "../../core";
 
 type Waiter = (token: string | null) => void;
 
@@ -17,6 +20,20 @@ const useAuth = () => {
 
   const tokenWaitersRef = useRef<Waiter[]>([]);
   const initializedRef = useRef<boolean>(false);
+
+  const [userProps, setUserProps] = useState<UserProps | null>(null);
+
+  const authApiClient = useMemo(
+    () =>
+      axios.create({
+        baseURL: baseUrl,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": host,
+        },
+      }),
+    []
+  );
 
   const resolveWaiters = useCallback((token: string | null) => {
     const waiters = tokenWaitersRef.current.splice(0);
@@ -85,6 +102,32 @@ const useAuth = () => {
   }, [instance, activeAccount, resolveWaiters, accounts]);
 
   useEffect(() => {
+    const reqInterceptor = authApiClient.interceptors.request.use(async (config) => {
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
+      }
+
+      const token = await waitForAccessToken();
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    });
+
+    return () => {
+      authApiClient.interceptors.request.eject(reqInterceptor);
+    };
+  }, [accessToken, authApiClient, waitForAccessToken]);
+
+  const getLoggedInUser = useCallback(async () => {
+    const response = await authApiClient.get<UserProps>("api/User/logged-user");
+    return response.data;
+  }, [authApiClient]);
+
+  useEffect(() => {
     const callbackId = instance.addEventCallback((event) => {
       if (
         event.eventType === EventType.LOGIN_SUCCESS ||
@@ -119,7 +162,15 @@ const useAuth = () => {
     }
   }, [accessToken, resolveWaiters]);
 
-  return { accessToken, loading, error, activeAccount, waitForAccessToken };
+  useEffect(() => {
+    getLoggedInUser().then((res) => {
+      if (!res) return;
+      setUserProps(res);
+      // console.log(res);
+    });
+  }, [accessToken, getLoggedInUser]);
+
+  return { accessToken, loading, error, activeAccount, waitForAccessToken, userProps };
 };
 
 export default useAuth;

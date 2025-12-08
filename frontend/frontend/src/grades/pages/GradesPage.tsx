@@ -6,8 +6,7 @@ import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent
 import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-
-const USER_ID = 27273;
+import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const GradesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -20,11 +19,14 @@ const GradesPage: React.FC = () => {
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const { userProps } = useAuthContext();
+
   // Fetch specializations la mount
   useEffect(() => {
     const fetchSpecializations = async () => {
+      if (!userProps.id) return;
       try {
-        const specs = await fetchUserSpecializations(USER_ID);
+        const specs = await fetchUserSpecializations(userProps.id);
         setSpecializations(specs);
       } catch (err) {
         const e = err as Error;
@@ -32,10 +34,12 @@ const GradesPage: React.FC = () => {
       }
     };
     fetchSpecializations();
-  }, []);
+  }, [userProps.id]);
 
   // Fetch grades și status când se schimbă filtrele
   useEffect(() => {
+    if (!userProps.id) return;
+
     const spec = selectedSpecialization === "" ? null : selectedSpecialization;
     const year = selectedStudyYear === "" ? null : selectedStudyYear;
     const sem = selectedSemester === "" ? null : selectedSemester;
@@ -43,8 +47,9 @@ const GradesPage: React.FC = () => {
     // Fetch status
     if (spec && year && sem) {
       (async () => {
+        if (!userProps.id) return;
         try {
-          const stat = await fetchStatusForUser(USER_ID, spec, year, sem);
+          const stat = await fetchStatusForUser(userProps.id, spec, year, sem);
           setStatus(stat);
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
@@ -58,15 +63,16 @@ const GradesPage: React.FC = () => {
 
     // Fetch grades
     (async () => {
+      if (!userProps.id) return;
       try {
-        const result = await fetchGradesForUser(USER_ID, spec, year, sem);
+        const result = await fetchGradesForUser(userProps.id, spec, year, sem);
         setGrades(result);
         setError(null);
       } catch (err) {
         setError(err as Error);
       }
     })();
-  }, [selectedSpecialization, selectedStudyYear, selectedSemester]);
+  }, [selectedSpecialization, selectedStudyYear, selectedSemester, userProps.id]);
 
   // Toast pentru erori – folosit în useEffect și cu setTimeout pentru siguranță
   useEffect(() => {

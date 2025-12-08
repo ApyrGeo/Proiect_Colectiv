@@ -18,6 +18,7 @@ import SignInButton from "./auth/components/SignInButton.tsx";
 import FAQPopup from "./faq/components/FAQPopup.tsx";
 import { faqsTimetable } from "./faq/FAQData.ts";
 import ContractsPage from "./contracts/ContractsPage.tsx";
+import PrivateRouter from "./routing/PrivateRouter.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -43,15 +44,17 @@ const App = () => {
         </div>
 
         <Routes>
-          <Route path="/" Component={Homepage} />
+          <Route index Component={Homepage} />
           <Route path={"/home"} Component={Homepage} />
-          <Route path={"/grades"} Component={GradesPage} />
-          <Route path={"/timetable"} Component={TimetablePage} />
-          <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
-          <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
-          <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
-          <Route path={"/contracts"} Component={ContractsPage}></Route>
-          <Route path={"/profile"} Component={ProfilePage} />
+          <Route Component={PrivateRouter}>
+            <Route path={"/grades"} Component={GradesPage} />
+            <Route path={"/timetable"} Component={TimetablePage} />
+            <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
+            <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
+            <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
+            <Route path={"/contracts"} Component={ContractsPage} />
+            <Route path={"/profile"} Component={ProfilePage} />
+          </Route>
         </Routes>
 
         <FAQPopup faqs={faqsTimetable} />

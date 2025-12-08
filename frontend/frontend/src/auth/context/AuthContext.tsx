@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { AccountInfo } from "@azure/msal-browser";
+import type { UserProps } from "../../core/props.ts";
 
 export type AuthContextType = {
   accessToken: string | null;
@@ -7,6 +8,7 @@ export type AuthContextType = {
   loading: boolean;
   error: unknown | null;
   waitForAccessToken: () => Promise<string | null>;
+  userProps: UserProps;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);

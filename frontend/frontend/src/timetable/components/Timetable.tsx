@@ -62,7 +62,6 @@ const Timetable: React.FC<TimetableProps> = (props) => {
 
     getFetchFunc()
       .then((res) => {
-        console.log(res.hours);
         setHours(res.hours);
         sendLocationsToMaps(res.hours);
       })

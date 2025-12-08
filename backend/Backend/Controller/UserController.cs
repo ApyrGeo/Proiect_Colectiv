@@ -86,7 +86,7 @@ public class UserController(IUserService service) : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("/logged-user")]
+    [HttpGet("logged-user")]
     [Authorize]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]

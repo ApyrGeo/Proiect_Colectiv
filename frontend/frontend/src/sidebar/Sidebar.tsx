@@ -5,6 +5,8 @@ import type { MenuItem } from "./MenuItem";
 import type { SidebarProps } from "./SidebarProps";
 import "./sidebar.css";
 import { useTranslation } from "react-i18next";
+import { useAuthContext } from "../auth/context/AuthContext.tsx";
+import useCustomRouting from "../routing/useCustomRouting.ts";
 
 const LS_KEY = "app_sidebar_minified";
 
@@ -14,6 +16,9 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const { t, i18n } = useTranslation();
 
   const [menus] = useState<MenuItem[]>(getAppMenus);
+
+  const { userProps } = useAuthContext();
+  const { isRouteAvailable } = useCustomRouting();
 
   const readInitialMinified = () => {
     try {
@@ -143,69 +148,71 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
         <div className="app-sidebar-content">
           {menus.map((section, sectionIndex) => (
             <div key={sectionIndex} className="menu">
-              {section.submenu?.map((item) => {
-                const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
+              {section.submenu
+                ?.filter((m) => !m.url || isRouteAvailable(m.url, userProps))
+                ?.map((item) => {
+                  const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
 
-                return (
-                  <div
-                    key={item.id ?? item.title}
-                    className={`menu-item ${item.submenu ? "has-sub" : ""} ${
-                      expanded === item.title ? "expand active" : active ? "active" : ""
-                    }`}
-                    onMouseEnter={(e) => handleMouseEnter(e, item)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    {item.submenu ? (
-                      <a
-                        href="#!"
-                        className={`menu-link ${isChildActive(item) ? "active-link" : ""}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleSubmenu(item.title);
-                        }}
-                      >
-                        <span className="menu-icon">{item.icon}</span>
-                        {!isMinified && <span className="menu-text">{item.title}</span>}
-                        {!isMinified && item.submenu && (
-                          <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
-                        )}
-                      </a>
-                    ) : (
-                      <NavLink
-                        to={item.url ?? "#"}
-                        className={({ isActive }) =>
-                          `menu-link ${isActive || isActiveUrl(item.url) ? "active-link" : ""}`
-                        }
-                        onClick={() => {
-                          setHoveredMenu(null);
-                        }}
-                      >
-                        <span className="menu-icon">{item.icon}</span>
-                        {!isMinified && <span className="menu-text">{t(item.title)}</span>}
-                      </NavLink>
-                    )}
+                  return (
+                    <div
+                      key={item.id ?? item.title}
+                      className={`menu-item ${item.submenu ? "has-sub" : ""} ${
+                        expanded === item.title ? "expand active" : active ? "active" : ""
+                      }`}
+                      onMouseEnter={(e) => handleMouseEnter(e, item)}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {item.submenu ? (
+                        <a
+                          href="#!"
+                          className={`menu-link ${isChildActive(item) ? "active-link" : ""}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleSubmenu(item.title);
+                          }}
+                        >
+                          <span className="menu-icon">{item.icon}</span>
+                          {!isMinified && <span className="menu-text">{item.title}</span>}
+                          {!isMinified && item.submenu && (
+                            <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
+                          )}
+                        </a>
+                      ) : (
+                        <NavLink
+                          to={item.url ?? "#"}
+                          className={({ isActive }) =>
+                            `menu-link ${isActive || isActiveUrl(item.url) ? "active-link" : ""}`
+                          }
+                          onClick={() => {
+                            setHoveredMenu(null);
+                          }}
+                        >
+                          <span className="menu-icon">{item.icon}</span>
+                          {!isMinified && <span className="menu-text">{t(item.title)}</span>}
+                        </NavLink>
+                      )}
 
-                    {item.submenu && expanded === item.title && (
-                      <div className="menu-submenu" aria-hidden={isMinified}>
-                        {item.submenu.map((sub) => (
-                          <NavLink
-                            key={sub.id ?? sub.title}
-                            to={sub.url ?? "#"}
-                            className={({ isActive }) =>
-                              `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
-                            }
-                            onClick={() => {
-                              setHoveredMenu(null);
-                            }}
-                          >
-                            {sub.title}
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {item.submenu && expanded === item.title && (
+                        <div className="menu-submenu" aria-hidden={isMinified}>
+                          {item.submenu.map((sub) => (
+                            <NavLink
+                              key={sub.id ?? sub.title}
+                              to={sub.url ?? "#"}
+                              className={({ isActive }) =>
+                                `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
+                              }
+                              onClick={() => {
+                                setHoveredMenu(null);
+                              }}
+                            >
+                              {sub.title}
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           ))}
 
