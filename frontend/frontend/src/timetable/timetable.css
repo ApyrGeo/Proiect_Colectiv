@@ -1,80 +1,98 @@
-:root{
-    --timetable-border-color: #737373;
-    --timetable-table-color: #1f233c;
-    --timetable-highlight-color: #436393;
-    --timetable-text-color: #FFFFFF;
-    --timetable-text-highlight-color: #2e2e2e;
-    --timetable-disabled-color: #606060;
-    --timetable-header-color: #333333;
-    --timetable-border-radius: 7px;
-    --timetable-button-color: #2c3440;
-    --timetable-transition-time: 0.2s;
-    --timetable-next-hour-color: #607395;
-    --timetable-current-hour-color: #466fb3;
+:root {
+  --timetable-border-radius: 7px;
+
+  --timetable-border-color: rgba(220, 227, 235, 0.1);
+  --timetable-table-color: var(--surface);
+  --timetable-header-color: #0F1828;
+  --timetable-row-even: #1C2F4A;
+  --timetable-row-odd:  #152238;
+
+  --timetable-text-color: var(--text-light);
+  --timetable-text-muted: rgba(255,255,255,0.55);
+
+  --timetable-highlight-color: rgba(0, 84, 164, 0.22);
+  --timetable-current-hour-color: rgba(0, 84, 164, 0.35);
+  --timetable-next-hour-color: rgba(0, 84, 164, 0.18);
+
+  --timetable-button-color: var(--surface-light);
+  --timetable-disabled-color: rgba(255,255,255,0.25);
+  --timetable-text-highlight-color: #8ABEFF;
+
+  --timetable-transition-time: 0.2s;
 }
 
-.container{
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    margin: 0;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin: 0;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
 }
 
 .timetable-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .timetable {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-radius: var(--timetable-border-radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--timetable-border-radius);
 }
 
+
 .timetable table {
-    display: inline-table;
-    border: var(--timetable-border-color) solid 2px;
-    background-color: var(--timetable-table-color);
-    border-radius: var(--timetable-border-radius);
-    border-spacing: 0;
+  display: inline-table;
+  border: 1px solid var(--timetable-border-color);
+  background-color: var(--timetable-table-color);
+  border-radius: var(--timetable-border-radius);
+  border-spacing: 0;
+  color: var(--timetable-text-color);
+}
+
+th, td {
+  padding: 10px;
+  border-radius: 0;
+}
+
+td{
+  text-align: center;
 }
 
 .timetable tr{
     border-radius: var(--timetable-border-radius);
 }
 
-th, td {
-    padding: 10px;
-    margin: 0;
-    border-radius: var(--timetable-border-radius);
+.timetable-header {
+  background: var(--timetable-header-color);
+  color: var(--text-light);
+  font-weight: 600;
 }
 
-.timetable-header{
-    background-color: var(--timetable-header-color);
-}
-
-.timetable-row{
-    background-color: var(--timetable-table-color);
-}
-
-.timetable-row-next{
-    background-color: var(--timetable-next-hour-color);
+.timetable-row-next {
+  background-color: var(--timetable-next-hour-color);
 }
 
 .timetable-row-current{
     background-color: var(--timetable-current-hour-color);
 }
 
-.timetable-row:hover{
-    background-color: var(--timetable-highlight-color);
-    transition: background-color var(--timetable-transition-time);
+.timetable-row:nth-child(odd) {
+  background-color: var(--timetable-row-odd);
+}
+
+.timetable-row:nth-child(even) {
+  background-color: var(--timetable-row-even);
+}
+
+.timetable-row:hover {
+  background-color: var(--timetable-highlight-color);
+  transition: background-color var(--timetable-transition-time);
 }
 
 .timetable-filter {
@@ -86,42 +104,40 @@ th, td {
     margin-bottom: 5px;
 }
 
-.timetable-filter label:has(input[type=radio]) {
-    margin-right: 3px;
-    margin-bottom: 7px;
-    padding: 5px 20px;
-    font-size: large;
-    border: solid 2px var(--timetable-button-color);
-    border-radius: var(--timetable-border-radius);
-    background: var(--timetable-button-color);
+.timetable-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-self: flex-start;
+  margin-bottom: 5px;
+  gap: 8px;
 }
 
-.timetable-filter label:has(input[type=checkbox]) {
-    margin-right: 3px;
-    margin-bottom: 0;
-    margin-top: 5px;
-    font-size: large;
+.timetable-filter label:has(input[type=radio]) {
+  background: var(--timetable-button-color);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 6px 18px;
+  border-radius: var(--timetable-border-radius);
+  font-size: 15px;
+  color: var(--accent-light);
 }
 
 .timetable-filter label:has(input[type=radio]:checked) {
-    background: var(--timetable-highlight-color);
-    border-color: var(--timetable-highlight-color);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
 }
 
 .timetable-filter label:has(input[type=radio]:disabled) {
-    background: var(--timetable-text-highlight-color);
-    border-color: var(--timetable-disabled-color);
-    color: var(--timetable-disabled-color);
-}
-
-.timetable-filter label:has(input[type=radio]:hover) {
-    border-color: var(--timetable-border-color);
-    transition: border-color var(--timetable-transition-time);
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--timetable-disabled-color);
 }
 
 .timetable-filter input[type=radio] {
     display: none;
 }
+
 
 .timetable-button {
     border: none;
@@ -132,25 +148,27 @@ th, td {
 .timetable-button:hover {
     color: var(--timetable-text-highlight-color);
     transition: color var(--timetable-transition-time);
+    cursor: pointer;
 }
 
 .timetable-title {
-    color: var(--timetable-text-color);
-    margin: 20px;
-    font-size: xx-large;
+  color: var(--text-light);
+  margin: 20px;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .timetable-back-button {
-    margin-right: 10px;
-    margin-bottom: 20px;
-    font-size: medium;
-    border: solid 2px var(--timetable-button-color);
-    border-radius: var(--timetable-border-radius);
-    background: var(--timetable-button-color);
-    align-self: flex-start;
+  background: var(--surface-light);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-light);
+  padding: 6px 14px;
+  border-radius: var(--timetable-border-radius);
+  margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .timetable-back-button:hover {
-    border-color: var(--timetable-border-color);
-
+  background: var(--primary);
+  border-color: var(--primary);
 }

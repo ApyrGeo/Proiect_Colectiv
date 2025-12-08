@@ -15,6 +15,15 @@
     --sidebar-width: 200px;
     --sidebar-width-min: 60px;
     --current-sidebar-width: var(--sidebar-width);
+
+  --primary: #0054A4;
+  --background: #0A1A2F;
+  --accent: #DCE3EB;
+  --surface: #152238;
+  --text-light:   #F2F5F7;
+  --success:      #2ECC71;
+  --accent-light: #DCE3EB;
+  --surface-light: #1C2F4A;
 }
 
 .app-content {
@@ -39,4 +48,9 @@
   button {
     background-color: #f9f9f9;
   }
+}
+
+html, body {
+  background: var(--background) !important;
+  color: var(--text-light);
 }

@@ -4,16 +4,6 @@ export function getAppMenus() {
       title: "Navigation",
       submenu: [
         {
-          title: "Submenu ex",
-          icon: "🧰",
-          submenu: [
-            { title: "Ex1", url: "/ex1" },
-            { title: "Ex2", url: "/ex2" },
-            { title: "Ex3", url: "/ex3" },
-            { title: "Ex4", url: "/ex4" },
-          ],
-        },
-        {
           title: "Timetable",
           icon: "📆",
           url: "/timetable",

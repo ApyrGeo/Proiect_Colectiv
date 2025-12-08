@@ -4,8 +4,6 @@ import { fetchUserSpecializations, fetchStatusForUser, fetchGradesForUser } from
 import GradeItem from "../components/GradeItem.tsx";
 import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent.tsx";
 import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
-import FAQPopup from "../../faq/components/FAQPopup.tsx";
-import { faqsGrades } from "../../faq/FAQData.ts";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
@@ -132,7 +130,6 @@ const GradesPage: React.FC = () => {
       </div>
 
       {status && <ScholarshipStatusComponent status={status} />}
-      <FAQPopup faqs={faqsGrades} />
     </div>
   );
 };

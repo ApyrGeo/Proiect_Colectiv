@@ -282,7 +282,6 @@ const TimetablePage: React.FC = () => {
           </button>
         )}
       </div>
-      <FAQPopup faqs={faqsTimetable} />
     </div>
   );
 };
