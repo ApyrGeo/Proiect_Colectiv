@@ -13,6 +13,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const [updateList, setUpdateList] = useState<GroupRowProps[]>([]);
 
+  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [loadingGroups, setLoadingGroups] = useState(false);
+
   useEffect(() => {
     const loadData = async () => {
       const locs = await getLocations();
@@ -20,6 +23,7 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
 
       const subjects = await getSubjectsByTeacher(id);
       setTeacherSubjects(subjects);
+      setLoadingInitial(false);
     };
     loadData();
   }, [id]);
@@ -43,6 +47,8 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
 
   const handleSubjectSelect = async (subjectId: number) => {
     setSelectedSubjectId(subjectId);
+    setLoadingGroups(true);
+    setGroups([]); // ascunde vechea tabelă în timpul încărcării
 
     const groupsFromApi = await getExamsBySubject(subjectId);
     const exams = await getExamsBySubject(subjectId);
@@ -70,6 +76,7 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
 
     setGroups(mappedGroups);
     setOriginalGroups(mappedGroups);
+    setLoadingGroups(false);
   };
 
   const addToUpdateList = (group: GroupRowProps) => {
@@ -178,6 +185,24 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const locationWidth = getMaxLocationWidth();
   const classroomWidth = getMaxClassroomWidth();
 
+  function BigSpinner() {
+    return <h2 className="loading-center">🌀 Se încarcă datele...</h2>;
+  }
+
+  if (loadingInitial) {
+    return <BigSpinner />;
+  }
+
+  function Glimmer() {
+    return (
+      <div className="glimmer-panel">
+        <div className="glimmer-line" />
+        <div className="glimmer-line" />
+        <div className="glimmer-line" />
+      </div>
+    );
+  }
+
   return (
     <div className="exam-page-container">
       <h2>
@@ -193,7 +218,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
         ))}
       </select>
 
-      {groups.length > 0 && (
+      {loadingGroups && <Glimmer />}
+
+      {!loadingGroups && groups.length > 0 && (
         <table className="exam-table">
           <thead>
             <tr>

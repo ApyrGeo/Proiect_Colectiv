@@ -3,7 +3,7 @@
   max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
-  background-color: #2c3440;
+  background-color: #152238;
   border-radius: 12px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -22,7 +22,7 @@
   border-radius: 6px;
   border: 1px solid #60728c;
   font-size: 1rem;
-  background-color: #242424;
+  background-color: #152238;
   transition: border-color 0.2s;
 }
 
@@ -35,7 +35,7 @@
 .exam-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #2c3440;
+  background-color: #0a1a2f;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -47,7 +47,7 @@
 }
 
 .exam-table th {
-  background-color: #242424;
+  background-color: #0a1a2f;
   color: #ffffff;
   font-weight: 500;
   font-size: 0.95rem;
