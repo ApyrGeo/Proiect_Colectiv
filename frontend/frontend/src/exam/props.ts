@@ -51,9 +51,22 @@ export interface Teacher {
 
 export interface Exam {
   id: number;
-  date: string;
-  duration: number;
+  date: string | null;
+  duration: number | null;
   classroom: Classroom | null;
   subject: Subject;
   studentGroup: StudentGroup;
+}
+
+export interface Enrollment {
+  id: number;
+  userId: number;
+  user: User;
+  subGroupId: number;
+  subGroup: SubGroup;
+}
+
+export interface SubGroup {
+  id: number;
+  name: string;
 }

@@ -1,61 +1,101 @@
-import type { Location, ClassroomDetails, Teacher, StudentGroup } from "./props";
-import { baseUrl } from "../core/index.ts";
+import { useCallback } from "react";
+import useApiClient from "../core/useApiClient";
+import type {Location, ClassroomDetails, Teacher, StudentGroup, Subject, Exam, Enrollment, User} from "./props";
 
-// Obține locații folosind token-ul deja obținut
-export const getLocations = async (accessToken: string | null): Promise<Location[]> => {
-  if (!accessToken) throw new Error("Nu există token de autentificare MSAL");
+const useExamApi = () => {
+  const { axios } = useApiClient();
 
-  const response = await fetch(`${baseUrl}/api/Timetable/locations`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const timetableUrl = "/api/Timetable";
+  const academicsUrl = "/api/Academics";
+  const examUrl = "/api/Exam";
+  const userUrl = "/api/User";
 
-  if (!response.ok) throw new Error(`Failed to fetch locations: ${response.status}`);
-  const data: Location[] = await response.json();
-  return Array.isArray(data) ? data : [];
+  // 📌 Obține locații
+  const getLocations = useCallback(async () => {
+    const response = await axios.get<Location[]>(`${timetableUrl}/locations`);
+    return response.data ?? [];
+  }, [axios]);
+
+  // 📌 Detalii clasă
+  const getClassroomDetails = useCallback(
+    async (classroomId: number) => {
+      const response = await axios.get<ClassroomDetails>(`${timetableUrl}/classrooms/${classroomId}`);
+      return response.data;
+    },
+    [axios]
+  );
+
+  // 📌 Profesor după ID (404 => null)
+  const getTeacherById = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<Teacher>(`${academicsUrl}/teachers/${teacherId}`);
+      return response.data;
+    },
+    [axios]
+  );
+
+  const getUserById = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<User>(`${userUrl}/${userId}`);
+      return response.data;
+    },
+    [axios]
+  );
+
+  // 📌 Grupuri la o materie
+  const getStudentGroupsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get<StudentGroup[]>(`${timetableUrl}/subjects/${subjectId}/groups`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  // 📌 Materii predate de profesor
+  const getSubjectsByTeacher = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<Subject[]>(`${timetableUrl}/subjects/holder-teacher/${teacherId}`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  // 📌 Examene pentru o materie
+  const getExamsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get<Exam[]>(`${examUrl}/subject/${subjectId}`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  // 📌 Update exam
+  const updateExam = useCallback(
+    async (examData: {
+      id: number;
+      date: string;
+      duration: number;
+      classroomId: number;
+      subjectId: number;
+      studentGroupId: number;
+    }) => {
+      console.log(examData);
+      const response = await axios.put(`${examUrl}`, [examData]);
+      console.log(response);
+      return response.data;
+    },
+    [axios]
+  );
+  return {
+    getLocations,
+    getClassroomDetails,
+    getTeacherById,
+    getStudentGroupsBySubject,
+    getSubjectsByTeacher,
+    getExamsBySubject,
+    updateExam,
+    getUserById,
+  };
 };
 
-// Obține detalii despre o clasă
-export const getClassroomDetails = async (
-  accessToken: string | null,
-  classroomId: number
-): Promise<ClassroomDetails> => {
-  if (!accessToken) throw new Error("Nu există token de autentificare MSAL");
-
-  const response = await fetch(`${baseUrl}/api/Timetable/classrooms/${classroomId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (!response.ok) throw new Error(`Failed to fetch classroom details: ${response.status}`);
-  const data: ClassroomDetails = await response.json();
-  return data;
-};
-
-// Verifică dacă utilizatorul este profesor
-export const getTeacherById = async (accessToken: string | null, teacherId: number): Promise<Teacher | null> => {
-  if (!accessToken) throw new Error("Nu există token de autentificare MSAL");
-
-  const response = await fetch(`${baseUrl}/api/Academics/teachers/${teacherId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (response.status === 404) return null; // nu e profesor
-  if (!response.ok) throw new Error(`Failed to fetch teacher info: ${response.status}`);
-
-  const data: Teacher = await response.json();
-  return data;
-};
-
-export const getStudentGroupsByTeacher = async (
-  accessToken: string | null,
-  teacherId: number
-): Promise<StudentGroup[]> => {
-  if (!accessToken) throw new Error("Nu există token de autentificare MSAL");
-
-  const response = await fetch(`${baseUrl}/api/Academics/student-groups/teachers/${teacherId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (!response.ok) throw new Error(`Failed to fetch student groups: ${response.status}`);
-  const data: StudentGroup[] = await response.json();
-  return Array.isArray(data) ? data : [];
-};
+export default useExamApi;

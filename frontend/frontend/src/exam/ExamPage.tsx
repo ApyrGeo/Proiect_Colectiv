@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import {getLocations, getStudentGroupsByTeacher, getTeacherById} from "./ExamApi";
-import type { Location, Classroom, Teacher } from "./props";
-import { useAuthContext } from "../auth/context/AuthContext.tsx";
+import React, { useState } from "react";
+import useExamApi from "../exam/ExamApi.ts";
+import type { Location, Teacher } from "./props";
 import "./ExamPage.css";
 
 interface GroupRow {
@@ -9,78 +8,125 @@ interface GroupRow {
   name: string;
   selectedLocationId: number | null;
   selectedClassroomId: number | null;
+  examDate: string | null;
+  examDuration: number | null;
+  examId: number;
+  selectedGroupId: number | null;
 }
 
 const ExamPage: React.FC = () => {
-  const { accessToken, acquireToken, loading: authLoading } = useAuthContext();
+  const { getLocations, getSubjectsByTeacher, getExamsBySubject, updateExam, getUserById } = useExamApi();
+
   const [locations, setLocations] = useState<Location[]>([]);
   const [groups, setGroups] = useState<GroupRow[]>([]);
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [teacherIdInput, setTeacherIdInput] = useState<number | "">("");
+  const [teacherSubjects, setTeacherSubjects] = useState<any[]>([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [updateList, setUpdateList] = useState<GroupRow[]>([]);
 
-  // Inițializare grupuri
-  useEffect(() => {
-    const initialGroups: GroupRow[] = [
-      { id: 1, name: "Grupa 1", selectedLocationId: null, selectedClassroomId: null },
-      { id: 2, name: "Grupa 2", selectedLocationId: null, selectedClassroomId: null },
-      { id: 3, name: "Grupa 3", selectedLocationId: null, selectedClassroomId: null },
-      { id: 4, name: "Grupa 4", selectedLocationId: null, selectedClassroomId: null },
-      { id: 5, name: "Grupa 5", selectedLocationId: null, selectedClassroomId: null },
-    ];
-    setGroups(initialGroups);
-  }, []);
-
-  // Fetch locații
   const fetchLocationsData = async () => {
-    setLoading(true);
-    try {
-      let token = accessToken;
-      if (!token) token = await acquireToken();
-      if (!token) return;
+    const locs = await getLocations();
+    setLocations(locs);
+  };
 
-      const locs = await getLocations(token);
-      setLocations(Array.isArray(locs) ? locs : []);
-    } catch (err) {
-      console.error("Eroare la încărcarea locațiilor:", err);
-      setLocations([]);
+  const addToUpdateList = (group: GroupRow) => {
+    setUpdateList((prev) => {
+      const exists = prev.find((g) => g.id === group.id);
+      if (exists) {
+        // înlocuiește grupul existent
+        return prev.map((g) => (g.id === group.id ? group : g));
+      }
+      return [...prev, group];
+    });
+  };
+
+  const getMaxLocationWidth = () => {
+    const maxLength = Math.max(...locations.map((l) => l.name.length), 0);
+    return maxLength * 8 + 20; // aproximativ 8px per caracter + padding
+  };
+
+  const getMaxClassroomWidth = () => {
+    let maxLength = 0;
+    groups.forEach((g) => {
+      const selectedLocation = locations.find((l) => l.id === g.selectedLocationId);
+      const classroomOptions = selectedLocation?.classrooms || [];
+      classroomOptions.forEach((c) => {
+        if (c.name.length > maxLength) maxLength = c.name.length;
+      });
+    });
+    return maxLength * 35 + 20;
+  };
+
+  const handleCheckUser = async () => {
+    if (teacherIdInput === "") return;
+    setLoading(true);
+
+    try {
+      const user = await getUserById(Number(teacherIdInput));
+
+      if (user.role === 1) {
+        // e profesor
+        alert("Acesta este un teacher!");
+        // setTeacher(user);
+        // await fetchLocationsData();
+        // const subjects = await getSubjectsByTeacher(user.id);
+        // setTeacherSubjects(subjects);
+        // setGroups([]);
+        // setSelectedSubjectId(null);
+      } else if (user.role === 0) {
+        // e student
+        alert("Acesta este un student!");
+        setTeacher(null);
+      } else {
+        alert("ID invalid!");
+        setTeacher(null);
+      }
+    } catch (err: never) {
+      if (err.response && err.response.status === 404) {
+        alert("ID invalid!");
+      } else {
+        console.error(err);
+      }
+      setTeacher(null);
     } finally {
       setLoading(false);
     }
   };
-
-  // Verifică dacă e teacher după ID
-  const handleCheckTeacher = async () => {
-    if (teacherIdInput === "") return;
-
+  const handleSubjectSelect = async (subjectId: number) => {
+    setSelectedSubjectId(subjectId);
     setLoading(true);
     try {
-      let token = accessToken;
-      if (!token) token = await acquireToken();
-      if (!token) return;
+      const groupsFromApi = await getExamsBySubject(subjectId);
+      const exams = await getExamsBySubject(subjectId);
 
-      const t = await getTeacherById(token, Number(teacherIdInput));
-      setTeacher(t);
+      const mappedGroups: GroupRow[] = groupsFromApi.map((g) => {
+        const exam = exams.find((e) => e.studentGroup.name === g.studentGroup.name);
 
-      if (t) {
-        await fetchLocationsData();
+        const classroomId = exam?.classroom?.id ?? null;
+        const groupId = exam?.studentGroup?.id ?? null;
+        const locationId = classroomId
+          ? (locations.find((loc) => loc.classrooms.some((c) => c.id === classroomId))?.id ?? null)
+          : null;
 
-        // Fetch student groups pentru profesor
-        const groupsFromApi = await getStudentGroupsByTeacher(token, Number(teacherIdInput));
-        const mappedGroups: GroupRow[] = groupsFromApi.map((g) => ({
+        const examId = exam?.id ?? 0;
+
+        return {
           id: g.id,
-          name: g.name,
-          selectedLocationId: null,
-          selectedClassroomId: null,
-        }));
-        setGroups(mappedGroups);
-      } else {
-        alert("Nu este un profesor valid!");
-        setGroups([]);
-      }
+          name: g.studentGroup.name,
+          selectedLocationId: locationId,
+          selectedClassroomId: classroomId,
+          selectedGroupId: groupId,
+          examDate: exam?.date ? new Date(exam.date).toISOString().slice(0, 16) : "",
+          examDuration: exam?.duration ?? 0,
+          examId: examId,
+        };
+      });
+
+      setGroups(mappedGroups);
     } catch (err) {
-      console.error("Eroare la verificarea profesorului:", err);
-      setTeacher(null);
+      console.error("Eroare la grupuri:", err);
       setGroups([]);
     } finally {
       setLoading(false);
@@ -89,27 +135,97 @@ const ExamPage: React.FC = () => {
 
   const handleLocationChange = (groupId: number, locationId: number) => {
     setGroups((prev) =>
-      prev.map((g) => (g.id === groupId ? { ...g, selectedLocationId: locationId, selectedClassroomId: null } : g))
+      prev.map((g) => {
+        if (g.id === groupId) {
+          const updated = { ...g, selectedLocationId: locationId, selectedClassroomId: null };
+          addToUpdateList(updated); // adăugăm/actualizăm în lista de update
+          return updated;
+        }
+        return g;
+      })
+    );
+  };
+
+  const handleDurationChange = (groupId: number, duration: number | null) => {
+    setGroups((prev) =>
+      prev.map((g) => {
+        if (g.id === groupId) {
+          const updated = { ...g, examDuration: duration };
+          addToUpdateList(updated);
+          return updated;
+        }
+        return g;
+      })
     );
   };
 
   const handleClassroomChange = (groupId: number, classroomId: number) => {
-    setGroups((prev) => prev.map((g) => (g.id === groupId ? { ...g, selectedClassroomId: classroomId } : g)));
+    setGroups((prev) =>
+      prev.map((g) => {
+        if (g.id === groupId) {
+          const updated = { ...g, selectedClassroomId: classroomId };
+          addToUpdateList(updated);
+          return updated;
+        }
+        return g;
+      })
+    );
   };
 
-  if (loading || authLoading) return <p>Se încarcă datele...</p>;
+  const handleExamDateChange = (groupId: number, date: string) => {
+    setGroups((prev) =>
+      prev.map((g) => {
+        if (g.id === groupId) {
+          const updated = { ...g, examDate: date };
+          addToUpdateList(updated);
+          return updated;
+        }
+        return g;
+      })
+    );
+  };
+
+  const handleUpdateAll = async () => {
+    if (!selectedSubjectId) return alert("Selectează materia!");
+
+    try {
+      for (const group of updateList) {
+        if (!group.selectedClassroomId) continue; // sărim dacă nu e selectată clasa
+
+        await updateExam({
+          id: group.examId,
+          date: group.examDate ?? "",
+          duration: group.examDuration ?? 0,
+          classroomId: group.selectedClassroomId,
+          subjectId: selectedSubjectId,
+          studentGroupId: group.selectedGroupId!,
+        });
+      }
+      alert("Update realizat cu succes!");
+      setUpdateList([]); // curățăm lista
+    } catch (err) {
+      console.error(err);
+      alert("Eroare la update!");
+    }
+  };
+
+  if (loading) return <p>Se încarcă datele...</p>;
+
+  const locationWidth = getMaxLocationWidth();
+  const classroomWidth = getMaxClassroomWidth();
 
   return (
     <div className="exam-page-container">
       <h1>Verificare profesor</h1>
+
       <div className="teacher-check">
         <input
           type="number"
-          placeholder="Introduceți ID-ul profesorului"
+          placeholder="Introduceți ID profesor"
           value={teacherIdInput}
           onChange={(e) => setTeacherIdInput(e.target.value === "" ? "" : Number(e.target.value))}
         />
-        <button onClick={handleCheckTeacher}>Verifică</button>
+        <button onClick={handleCheckUser}>Verifică</button>
       </div>
 
       {teacher && (
@@ -117,54 +233,96 @@ const ExamPage: React.FC = () => {
           <h2>
             Profesor: {teacher.user.firstName} {teacher.user.lastName}
           </h2>
-          <table className="exam-table">
-            <thead>
-              <tr>
-                <th>Grupă</th>
-                <th>Locație</th>
-                <th>Clase</th>
-              </tr>
-            </thead>
-            <tbody>
-              {groups.map((group) => {
-                const selectedLocation = locations.find((l) => l.id === group.selectedLocationId);
-                const classroomOptions: Classroom[] = selectedLocation?.classrooms || [];
 
-                return (
-                  <tr key={group.id}>
-                    <td>{group.name}</td>
-                    <td>
-                      <select
-                        value={group.selectedLocationId || ""}
-                        onChange={(e) => handleLocationChange(group.id, Number(e.target.value))}
-                      >
-                        <option value="">Selectează locația</option>
-                        {locations.map((l) => (
-                          <option key={l.id} value={l.id}>
-                            {l.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        value={group.selectedClassroomId || ""}
-                        onChange={(e) => handleClassroomChange(group.id, Number(e.target.value))}
-                        disabled={!selectedLocation}
-                      >
-                        <option value="">Selectează clasa</option>
-                        {classroomOptions.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <select value={selectedSubjectId || ""} onChange={(e) => handleSubjectSelect(Number(e.target.value))}>
+            <option value="">Selectează materia</option>
+            {teacherSubjects.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+
+          {groups.length > 0 && (
+            <table className="exam-table">
+              <thead>
+                <tr>
+                  <th>Grupa</th>
+                  <th>Locația</th>
+                  <th>Clasa</th>
+                  <th>Data examen</th>
+                  <th>Durata (min)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {groups.map((group) => {
+                  const selectedLocation = locations.find((l) => l.id === group.selectedLocationId);
+                  const classroomOptions = selectedLocation?.classrooms || [];
+
+                  return (
+                    <tr key={group.id}>
+                      <td>{group.name}</td>
+
+                      <td>
+                        <select
+                          value={group.selectedLocationId || ""}
+                          onChange={(e) => handleLocationChange(group.id, Number(e.target.value))}
+                          style={{ width: `${locationWidth}px` }}
+                        >
+                          <option value="">Selectează locația</option>
+                          {locations.map((l) => (
+                            <option key={l.id} value={l.id}>
+                              {l.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      <td>
+                        <select
+                          value={group.selectedClassroomId || ""}
+                          onChange={(e) => handleClassroomChange(group.id, Number(e.target.value))}
+                          disabled={!selectedLocation}
+                          style={{ width: `${classroomWidth}px` }}
+                        >
+                          <option value="">Selectează clasa</option>
+                          {classroomOptions.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      <td>
+                        <input
+                          type="datetime-local"
+                          value={group.examDate || ""}
+                          onChange={(e) => handleExamDateChange(group.id, e.target.value)}
+                        />
+                      </td>
+
+                      <td className="duration-col">
+                        <input
+                          type="text"
+                          value={group.examDuration ?? ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (/^\d*$/.test(val)) {
+                              handleDurationChange(group.id, val === "" ? null : Number(val));
+                            }
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+          <div style={{ marginTop: "20px", textAlign: "right" }}>
+            <button onClick={handleUpdateAll}>Update</button>
+          </div>
         </>
       )}
     </div>

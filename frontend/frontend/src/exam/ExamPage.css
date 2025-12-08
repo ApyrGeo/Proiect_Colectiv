@@ -13,13 +13,28 @@
   text-align: left;
 }
 
-.exam-table th,
+.exam-table th {
+  text-align: center;
+}
 .exam-table td {
-  border: 1px solid #ccc;
+  border: none; /* elimină liniile */
   padding: 12px;
 }
 
 .exam-table select {
   width: 100%;
   padding: 6px;
+}
+
+.exam-table input,
+.exam-table select {
+  width: 100%;
+  box-sizing: border-box; /* important pentru bordură */
+  padding: 6px;
+  border: 1px solid #ccc; /* să aibă aceleași bordere */
+}
+
+.exam-table td.duration-col,
+.exam-table th.duration-col {
+  min-width: 120px;
 }
