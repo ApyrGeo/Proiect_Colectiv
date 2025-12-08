@@ -192,7 +192,7 @@ builder.Services.AddCors(options =>
             var feUrl = builder.Configuration.GetValue<string>("Email:BaseUrl");
             policy
                 .WithOrigins(feUrl)
-                .AllowAnyHeader()
+                .AllowAnyHeader().AllowAnyMethod()
                 ;
         });
 });

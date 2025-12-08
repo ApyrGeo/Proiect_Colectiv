@@ -1,38 +1,66 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
+import useUserApi from "../ProfileApi.ts";
+import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const ProfilePage: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [signatureBase64, setSignatureBase64] = useState<string | null>(null);
 
   const { t } = useTranslation();
+  const { userProps } = useAuthContext();
+  const { fetchUserProfile, updateUserSignature } = useUserApi();
 
   const sigRef = useRef<any>(null);
 
+  useEffect(() => {
+    if (!userProps?.id) return;
+
+    const loadProfile = async () => {
+      try {
+        const profile = await fetchUserProfile(userProps.id as number);
+        setFullName(`${profile.firstName} ${profile.lastName}`);
+        setEmail(profile.email);
+        setPhone(profile.phoneNumber ?? "");
+        if (profile.signatureUrl) {
+          setSignatureBase64(profile.signatureUrl);
+          setTimeout(() => {
+            sigRef.current?.fromBase64(profile.signatureUrl);
+          }, 100);
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    };
+
+    loadProfile();
+  }, [userProps?.id]);
+
   const uploadSignature = async () => {
-    console.log("Signature", sigRef.current);
+    if (!userProps?.id) {
+      alert("User not loaded");
+      return;
+    }
+
     const blob: Blob | null = await sigRef.current?.toBlob("image/png", 0.92);
     if (!blob) return alert("No signature drawn");
-    const fd = new FormData();
-    fd.append("signature", blob, `signature-${Date.now()}.png`);
-    console.log("signature", blob);
-    console.log(fd);
-  };
-
-  const saveTest = async () => {
-    const blob = await sigRef.current?.toBlob();
-    if (!blob) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      console.log("BASE64:", reader.result);
+
+    reader.onloadend = async () => {
+      const base64 = (reader.result as string).split(",")[1];
+
+      await updateUserSignature(userProps.id as number, base64);
+      setSignatureBase64(base64);
+      alert("Signature saved");
     };
+
     reader.readAsDataURL(blob);
   };
-
   return (
     <div className="profile-page">
       <h1 className="profile-title">{t("ProfileSettings")}</h1>
@@ -43,7 +71,7 @@ const ProfilePage: React.FC = () => {
           <div className="profile-avatar">
             <img src="src/assets/UBB_Logo.png" alt="UBB LOGO" />
           </div>
-          <h2>Full Name</h2>
+          <h2>{fullName}</h2>
         </div>
 
         <div className="profile-form">
@@ -69,8 +97,11 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
+
           <div className="button-container">
-            <button className="btn-save" onClick={saveTest}>{t("SaveChanges")}</button>
+            <button className="btn-save" onClick={uploadSignature}>
+              Save Changes
+            </button>
           </div>
         </div>
       </div>
