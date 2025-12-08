@@ -9,6 +9,7 @@ export type AuthContextType = {
   error: unknown | null;
   waitForAccessToken: () => Promise<string | null>;
   userProps: UserProps;
+  isFullfilled: boolean
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);

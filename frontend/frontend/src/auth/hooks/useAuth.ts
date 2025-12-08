@@ -17,6 +17,7 @@ const useAuth = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [error, setError] = useState<unknown | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isFullfilled, setFullfilled] = useState(false);
 
   const tokenWaitersRef = useRef<Waiter[]>([]);
   const initializedRef = useRef<boolean>(false);
@@ -44,6 +45,9 @@ const useAuth = () => {
         console.error("waiter resolver threw", e);
       }
     });
+
+    if (!token)
+      setFullfilled(true);
   }, []);
 
   const waitForAccessToken = useCallback((): Promise<string | null> => {
@@ -163,14 +167,19 @@ const useAuth = () => {
   }, [accessToken, resolveWaiters]);
 
   useEffect(() => {
-    getLoggedInUser().then((res) => {
-      if (!res) return;
-      setUserProps(res);
-      // console.log(res);
-    });
+    if (!accessToken)
+      return
+    getLoggedInUser()
+      .then((res) => {
+        if (!res) return;
+        setUserProps(res);
+        // console.log(res);
+      }).finally(() => {
+        setFullfilled(true);
+      });
   }, [accessToken, getLoggedInUser]);
 
-  return { accessToken, loading, error, activeAccount, waitForAccessToken, userProps };
+  return { accessToken, loading, error, activeAccount, waitForAccessToken, userProps, isFullfilled };
 };
 
 export default useAuth;

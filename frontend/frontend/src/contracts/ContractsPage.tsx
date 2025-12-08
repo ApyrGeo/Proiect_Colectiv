@@ -14,7 +14,7 @@ const ContractsPage: React.FC = () => {
 
   const [selectedContract, setSelectedContract] = useState(0);
 
-  const [generatedContract, setGeneratedContract] = useState<string>("");
+  const [isError, setIsError] = useState(false);
 
   const sigCanvas = useRef<SignatureCanvas>(null);
 
@@ -31,11 +31,17 @@ const ContractsPage: React.FC = () => {
         const data = new Blob([response]);
         const url = window.URL.createObjectURL(data);
 
-        setGeneratedContract(url);
+        const link = document.createElement("a");
+        link.id = 'some-link';
+        link.href = url;
+        link.download = "contract.pdf";
+        link.click();
+
+        window.URL.revokeObjectURL(url)
       })
       .catch((error) => {
         console.log(error as Error);
-        setGeneratedContract("error");
+        setIsError(true);
       });
   };
 
@@ -81,14 +87,7 @@ const ContractsPage: React.FC = () => {
           </div>
         )}
         <button type="submit">Generate Contract</button>
-        {generatedContract &&
-          (generatedContract != "error" ? (
-            <a href={generatedContract} download="contract.pdf">
-              Download
-            </a>
-          ) : (
-            <div>Error generating file</div>
-          ))}
+        {isError && <div>Error generating file</div>}
       </form>
     </div>
   );

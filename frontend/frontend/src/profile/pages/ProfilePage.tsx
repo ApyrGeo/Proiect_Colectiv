@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
+import logoUrl from '/src/assets/UBB_Logo.png'
 
 const ProfilePage: React.FC = () => {
   const [fullName, setFullName] = useState("");
@@ -41,7 +42,7 @@ const ProfilePage: React.FC = () => {
       <div className="profile-grid">
         <div className="profile-card">
           <div className="profile-avatar">
-            <img src="src/assets/UBB_Logo.png" alt="UBB LOGO" />
+            <img src={logoUrl} alt="UBB LOGO" />
           </div>
           <h2>Full Name</h2>
         </div>
