@@ -10,5 +10,5 @@ public interface IUserService
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
     Task<UserProfileResponseDTO> GetUserProfileAsync(int userId);
     Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPutDTO dto);
-    Task<UserResponseDTO> GetLoggedUserAsync(Guid ownerId);
+    Task<LoggedUserResponseDTO> GetLoggedUserAsync(Guid ownerId);
 }
