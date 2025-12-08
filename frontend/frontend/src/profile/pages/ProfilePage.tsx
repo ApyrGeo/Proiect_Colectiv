@@ -1,7 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect} from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
+import { fetchUserProfile, updateUserSignature } from "../ProfileApi.ts";
+
 
 const ProfilePage: React.FC = () => {
   const [fullName, setFullName] = useState("");
@@ -12,24 +14,34 @@ const ProfilePage: React.FC = () => {
 
   const sigRef = useRef<any>(null);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profile = await fetchUserProfile(USER_ID);
+
+        setFullName(`${profile.firstName} ${profile.lastName}`);
+        setEmail(profile.email);
+        setPhone(profile.phoneNumber ?? "");
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
   const uploadSignature = async () => {
-    console.log("Signature", sigRef.current);
     const blob: Blob | null = await sigRef.current?.toBlob("image/png", 0.92);
     if (!blob) return alert("No signature drawn");
-    const fd = new FormData();
-    fd.append("signature", blob, `signature-${Date.now()}.png`);
-    console.log("signature", blob);
-    console.log(fd);
-  };
-
-  const saveTest = async () => {
-    const blob = await sigRef.current?.toBlob();
-    if (!blob) return;
-
     const reader = new FileReader();
-    reader.onloadend = () => {
-      console.log("BASE64:", reader.result);
+
+    reader.onloadend = async () => {
+      const base64 = (reader.result as string).split(",")[1];
+
+      await updateUserSignature(USER_ID, base64);
+      alert("Signature saved");
     };
+
     reader.readAsDataURL(blob);
   };
 
@@ -70,7 +82,9 @@ const ProfilePage: React.FC = () => {
           </div>
 
           <div className="button-container">
-            <button className="btn-save" onClick={saveTest}>{t("SaveChanges")}</button>
+            <button className="btn-save" onClick={uploadSignature}>
+              Save Changes
+            </button>
           </div>
         </div>
       </div>
