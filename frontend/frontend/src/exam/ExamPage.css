@@ -126,3 +126,8 @@
     font-size: 0.85rem;
   }
 }
+
+.classroom-select {
+  width: 200px; /* ajustează după nevoie */
+  padding: 4px 8px;
+}
