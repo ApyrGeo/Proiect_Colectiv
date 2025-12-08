@@ -14,7 +14,7 @@ export const fetchUserProfile = async (userId: number): Promise<Profile> => {
 };
 
 export const updateUserSignature = async (userId: number, signatureBase64: string) => {
-  const response = await fetch(`${USER_API_URL}/${userId}/profile/signature`, {
+  const response = await fetch(`${USER_API_URL}/${userId}/profile`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
