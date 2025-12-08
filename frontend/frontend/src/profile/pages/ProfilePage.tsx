@@ -2,16 +2,18 @@ import React, { useRef, useState, useEffect } from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
-import { fetchUserProfile, updateUserSignature } from "../ProfileApi.ts";
+import useUserApi from "../ProfileApi.ts";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const ProfilePage: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [signatureBase64, setSignatureBase64] = useState<string | null>(null);
 
   const { t } = useTranslation();
   const { userProps } = useAuthContext();
+  const { fetchUserProfile, updateUserSignature } = useUserApi();
 
   const sigRef = useRef<any>(null);
 
@@ -24,6 +26,12 @@ const ProfilePage: React.FC = () => {
         setFullName(`${profile.firstName} ${profile.lastName}`);
         setEmail(profile.email);
         setPhone(profile.phoneNumber ?? "");
+        if (profile.signatureUrl) {
+          setSignatureBase64(profile.signatureUrl);
+          setTimeout(() => {
+            sigRef.current?.fromBase64(profile.signatureUrl);
+          }, 100);
+        }
       } catch (err) {
         console.error("Failed to load profile", err);
       }
@@ -47,6 +55,7 @@ const ProfilePage: React.FC = () => {
       const base64 = (reader.result as string).split(",")[1];
 
       await updateUserSignature(userProps.id as number, base64);
+      setSignatureBase64(base64);
       alert("Signature saved");
     };
 
@@ -62,7 +71,7 @@ const ProfilePage: React.FC = () => {
           <div className="profile-avatar">
             <img src="src/assets/UBB_Logo.png" alt="UBB LOGO" />
           </div>
-          <h2>Full Name</h2>
+          <h2>{fullName}</h2>
         </div>
 
         <div className="profile-form">
@@ -87,6 +96,7 @@ const ProfilePage: React.FC = () => {
               <Signature ref={sigRef} />
             </div>
           </div>
+
 
           <div className="button-container">
             <button className="btn-save" onClick={uploadSignature}>
