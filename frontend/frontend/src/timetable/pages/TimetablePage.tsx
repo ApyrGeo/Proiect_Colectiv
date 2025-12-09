@@ -121,6 +121,8 @@ const TimetablePage: React.FC = () => {
     setSelectedFreq(event.target.value);
   };
 
+  console.log(userProps);
+  console.log(userEnrollments);
   if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
   return (
@@ -236,7 +238,7 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "group" && (
           <Timetable
-            groupYearId={userEnrollments[0].groupId}
+            groupYearId={userEnrollments[0].promotionId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
