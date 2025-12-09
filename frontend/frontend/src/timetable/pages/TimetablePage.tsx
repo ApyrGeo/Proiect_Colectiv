@@ -126,9 +126,6 @@ const TimetablePage: React.FC = () => {
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
-
-  console.log(userProps);
-  console.log(userEnrollments);
   if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
   return (
