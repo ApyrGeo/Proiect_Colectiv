@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuthContext } from "../auth/context/AuthContext.tsx";
 import useCustomRouting from "./useCustomRouting.ts";
 import { useNavigate } from "react-router";
@@ -11,8 +11,8 @@ const PrivateRouter = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isFullfilled || !userProps) return;
-    if (!activeAccount || !isRouteAvailable(location.pathname, userProps)) navigate("/");
+    if (!isFullfilled) return;
+    if (!activeAccount || !userProps || !isRouteAvailable(location.pathname, userProps)) navigate("/");
   }, [isFullfilled, userProps, activeAccount]);
 
   return <Outlet />;
