@@ -116,22 +116,12 @@ const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?
         img.onload = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
-          const scale = Math.min(
-            canvas.width / img.width,
-            canvas.height / img.height
-          );
+          const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
 
           const x = (canvas.width - img.width * scale) / 2;
           const y = (canvas.height - img.height * scale) / 2;
 
-          ctx.drawImage(
-            img,
-            x,
-            y,
-            img.width * scale,
-            img.height * scale
-          );
+          ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
         };
 
         img.src = `data:image/png;base64,${base64}`;

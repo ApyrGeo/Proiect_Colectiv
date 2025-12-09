@@ -4,6 +4,7 @@ import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
 import { useTranslation } from "react-i18next";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
+import Circular from "../../components/loading/Circular.tsx";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -20,8 +21,8 @@ const TimetablePage: React.FC = () => {
   const [activeHours, setActiveHours] = useState<boolean>(true);
   const [locations, setLocations] = useState<LocationProps[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
-
   const [selectedEnrollment, setSelectedEnrollment] = useState(0);
+  const [isLoadingTimetable, setIsLoadingTimetable] = useState<boolean>(false);
 
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);
@@ -232,6 +233,7 @@ const TimetablePage: React.FC = () => {
             {t("SecondWeek")}
           </label>
         </div>
+
         {selectedFilter == "personal" && !activeHours && (
           <Timetable
             userId={userProps.id}
@@ -239,6 +241,7 @@ const TimetablePage: React.FC = () => {
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
             selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
         {selectedFilter == "personal" && activeHours && (
@@ -248,6 +251,7 @@ const TimetablePage: React.FC = () => {
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
             selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
         {selectedFilter == "group" && (
@@ -255,6 +259,7 @@ const TimetablePage: React.FC = () => {
             groupYearId={userEnrollments[selectedEnrollment].promotionId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
         {selectedFilter == "specialisation" && (
@@ -262,6 +267,7 @@ const TimetablePage: React.FC = () => {
             specialisationId={userEnrollments[selectedEnrollment].specializationId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
         {selectedFilter == "faculty" && (
@@ -269,33 +275,44 @@ const TimetablePage: React.FC = () => {
             facultyId={userEnrollments[selectedEnrollment].facultyId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
       </div>
 
-      <GoogleMapsComponent locations={locations} />
+      {isLoadingTimetable ? (
+        <Circular />
+      ) : (
+        <>
+          <GoogleMapsComponent locations={locations} />
 
-      <div ref={sectionNavigationButtonsRef}>
-        {selectedLocations.currentLocation && (
-          <button
-            className="timetable-back-button"
-            onClick={handleNavigateFromCurrentLocation}
-            title="Open Google Maps"
-          >
-            {t("SeeRoutesTo")} {selectedLocations.currentLocation.name}
-          </button>
-        )}
-        {selectedLocations.currentLocation && selectedLocations.nextLocation && (
-          <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
-            {t("SeeRoutesBetween")} {selectedLocations.currentLocation.name} & {selectedLocations.nextLocation.name}
-          </button>
-        )}
-        {selectedLocations.currentLocation && (
-          <button className="timetable-back-button" onClick={handleCancelSelection} title="Open Google Maps">
-            {t("CancelSelection")}
-          </button>
-        )}
-      </div>
+          <div ref={sectionNavigationButtonsRef}>
+            {selectedLocations.currentLocation && (
+              <button
+                className="timetable-back-button"
+                onClick={handleNavigateFromCurrentLocation}
+                title="Open Google Maps"
+              >
+                {t("SeeRoutesTo")} {selectedLocations.currentLocation.name}
+              </button>
+            )}
+            {selectedLocations.currentLocation && selectedLocations.nextLocation && (
+              <button
+                className="timetable-back-button"
+                onClick={handleNavigateBetweenLocations}
+                title="Open Google Maps"
+              >
+                {t("SeeRoutesBetween")} {selectedLocations.currentLocation.name} & {selectedLocations.nextLocation.name}
+              </button>
+            )}
+            {selectedLocations.currentLocation && (
+              <button className="timetable-back-button" onClick={handleCancelSelection} title="Open Google Maps">
+                {t("CancelSelection")}
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

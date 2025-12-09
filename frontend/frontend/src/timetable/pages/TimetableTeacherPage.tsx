@@ -36,7 +36,7 @@ const TimetableTeacherPage: React.FC = () => {
     <>
       <div className={"timetable-page"}>
         {teacher && (
-          <>
+          <div className="container">
             <div className={"timetable-title"}>
               {t("Professor")}: {teacher.user.lastName + " " + teacher.user.firstName}
             </div>
@@ -44,7 +44,7 @@ const TimetableTeacherPage: React.FC = () => {
               {t("Back")}
             </button>
             <Timetable teacherId={teacher.id}></Timetable>
-          </>
+          </div>
         )}
         {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
         {!teacher && !fetchError && <div>{t("Loading")}</div>}

@@ -2,20 +2,22 @@ import React, { useRef, useState, useEffect } from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
-import logoUrl from '/src/assets/UBB_Logo.png'
+import logoUrl from "/src/assets/UBB_Logo.png";
 import useUserApi from "../ProfileApi.ts";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
+import toast from "react-hot-toast";
 
 const ProfilePage: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [signatureBase64, setSignatureBase64] = useState<string | null>(null);
+  const [, setSignatureBase64] = useState<string | null>(null);
 
   const { t } = useTranslation();
   const { userProps } = useAuthContext();
   const { fetchUserProfile, updateUserSignature } = useUserApi();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sigRef = useRef<any>(null);
 
   useEffect(() => {
@@ -34,6 +36,7 @@ const ProfilePage: React.FC = () => {
           }, 100);
         }
       } catch (err) {
+        toast.error(t("Error_loading_profile"));
         console.error("Failed to load profile", err);
       }
     };
@@ -43,12 +46,15 @@ const ProfilePage: React.FC = () => {
 
   const uploadSignature = async () => {
     if (!userProps?.id) {
-      alert("User not loaded");
+      toast.error(t("User_not_loaded"));
       return;
     }
 
     const blob: Blob | null = await sigRef.current?.toBlob("image/png", 0.92);
-    if (!blob) return alert("No signature drawn");
+    if (!blob) {
+      toast.error(t("No_signature_to_save"));
+      return;
+    }
 
     const reader = new FileReader();
 
@@ -57,7 +63,7 @@ const ProfilePage: React.FC = () => {
 
       await updateUserSignature(userProps.id as number, base64);
       setSignatureBase64(base64);
-      alert("Signature saved");
+      toast.success(t("Signature_saved_successfully"));
     };
 
     reader.readAsDataURL(blob);
@@ -97,7 +103,6 @@ const ProfilePage: React.FC = () => {
               <Signature ref={sigRef} />
             </div>
           </div>
-
 
           <div className="button-container">
             <button className="btn-save" onClick={uploadSignature}>

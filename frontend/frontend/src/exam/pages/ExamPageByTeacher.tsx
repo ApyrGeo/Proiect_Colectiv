@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
 import useExamApi from "../ExamApi.ts";
-import type { TeacherProps, LocationProps, GroupRowProps } from "../props.ts";
+import type { TeacherProps, LocationProps, GroupRowProps, ExamProps } from "../props.ts";
 import "../ExamPage.css";
+import Glimmer from "../../components/loading/Glimmer.tsx";
+import toast from "react-hot-toast";
+import { t } from "i18next";
 
 const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const { getLocations, getSubjectsByTeacher, getExamsBySubject, updateExam } = useExamApi();
 
   const [locations, setLocations] = useState<LocationProps[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [teacherSubjects, setTeacherSubjects] = useState<any[]>([]);
   const [groups, setGroups] = useState<GroupRowProps[]>([]);
   const [originalGroups, setOriginalGroups] = useState<GroupRowProps[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const [updateList, setUpdateList] = useState<GroupRowProps[]>([]);
-
-  const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadingGroups, setLoadingGroups] = useState(false);
 
   useEffect(() => {
@@ -23,10 +25,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
 
       const subjects = await getSubjectsByTeacher(id);
       setTeacherSubjects(subjects);
-      setLoadingInitial(false);
     };
     loadData();
-  }, [id]);
+  }, [getLocations, getSubjectsByTeacher, id]);
 
   const getMaxLocationWidth = () => {
     const maxLength = Math.max(...locations.map((l) => l.name.length), 0);
@@ -53,8 +54,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
     const groupsFromApi = await getExamsBySubject(subjectId);
     const exams = await getExamsBySubject(subjectId);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mappedGroups: GroupRowProps[] = groupsFromApi.map((g: any) => {
-      const exam = exams.find((e: any) => e.studentGroup.name === g.studentGroup.name);
+      const exam = exams.find((e: ExamProps) => e.studentGroup!.name === g.studentGroup.name);
 
       const classroomId = exam?.classroom?.id ?? null;
       const groupId = exam?.studentGroup?.id ?? null;
@@ -156,7 +158,10 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   };
 
   const handleUpdateAll = async () => {
-    if (!selectedSubjectId) return alert("Selectează materia!");
+    if (!selectedSubjectId) {
+      toast.error(t("Select_a_subject"));
+      return;
+    }
 
     console.log("Lista de update înainte de trimis:", updateList);
 
@@ -173,35 +178,15 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
           studentGroupId: group.selectedGroupId!,
         });
       }
-
-      alert("Update realizat cu succes!");
+      toast.success(t("Exams_updated_successfully"));
       setUpdateList([]);
-    } catch (err) {
-      console.error(err);
-      alert("Eroare la update!");
+    } catch {
+      toast.error(t("Error_updating_exams"));
     }
   };
 
   const locationWidth = getMaxLocationWidth();
   const classroomWidth = getMaxClassroomWidth();
-
-  function BigSpinner() {
-    return <h2 className="loading-center">🌀 Se încarcă datele...</h2>;
-  }
-
-  if (loadingInitial) {
-    return <BigSpinner />;
-  }
-
-  function Glimmer() {
-    return (
-      <div className="glimmer-panel">
-        <div className="glimmer-line" />
-        <div className="glimmer-line" />
-        <div className="glimmer-line" />
-      </div>
-    );
-  }
 
   return (
     <div className="exam-page-container">
@@ -220,7 +205,7 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
         ))}
       </select>
 
-      {loadingGroups && <Glimmer />}
+      {loadingGroups && <Glimmer no_lines={10} />}
 
       {!loadingGroups && groups.length > 0 && (
         <table className="exam-table">

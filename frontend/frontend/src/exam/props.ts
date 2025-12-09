@@ -11,6 +11,7 @@ export interface SubjectProps {
 export interface ClassroomProps {
   id: number;
   name: string;
+  locationId: number;
 }
 
 export interface LocationProps {

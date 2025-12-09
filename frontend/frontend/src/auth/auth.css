@@ -1,0 +1,50 @@
+.sign-in-status-card {
+  padding: 16px 20px;
+  background-color: var(--surface);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-height: 80px;
+  gap: 12px;
+  border: 1px solid var(--surface-light);
+}
+
+.sign-in-status-text {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-light);
+}
+
+.sign-in-status-text strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.sign-in-status-icon {
+  margin: 0;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.sign-in-button {
+  padding: 8px 16px;
+  background-color: var(--primary);
+  color: var(--text-light);
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 84, 164, 0.3);
+}
+
+.sign-in-button:hover {
+  background-color: #0066cc;
+  box-shadow: 0 4px 8px rgba(0, 84, 164, 0.4);
+  transform: translateY(-1px);
+}
+
+.sign-in-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 84, 164, 0.3);
+}

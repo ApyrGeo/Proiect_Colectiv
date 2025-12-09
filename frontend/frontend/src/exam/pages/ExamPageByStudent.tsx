@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import useExamApi from "../ExamApi.ts";
-import type { LocationProps, StudentExamRowProps, UserProps } from "../props.ts";
+import type { ExamProps, LocationProps, StudentExamRowProps } from "../props.ts";
 import "../ExamPage.css";
+import Glimmer from "../../components/loading/Glimmer.tsx";
+import { toast } from "react-hot-toast";
+import { t } from "i18next";
 
-const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => {
+interface ExamPageByStudentProps {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
+const ExamPageByStudent: React.FC<ExamPageByStudentProps> = ({ id, firstName, lastName }) => {
   const { getExamsByStudent, getLocations } = useExamApi();
 
   const [examRows, setExamRows] = useState<StudentExamRowProps[]>([]);
@@ -18,9 +27,10 @@ const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => 
       const data = await getExamsByStudent(id);
 
       const mapped: StudentExamRowProps[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.forEach((t: any) => {
-        t.examEntries.forEach((e: any) => {
-          const location = locs.find((l: any) => l.id === e.classroom?.locationId);
+        t.examEntries.forEach((e: ExamProps) => {
+          const location = locs.find((l: LocationProps) => l.id === e.classroom?.locationId);
 
           mapped.push({
             examId: e.id,
@@ -34,8 +44,8 @@ const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => 
       });
 
       setExamRows(mapped);
-    } catch (err) {
-      console.error("Eroare la încărcarea examenelor:", err);
+    } catch {
+      toast.error(t("Error_loading_exams"));
       setExamRows([]);
     } finally {
       setLoadingInitial(false);
@@ -45,23 +55,6 @@ const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => 
   useEffect(() => {
     fetchExams();
   }, [id]);
-
-  // Loader pentru încărcarea inițială
-  function BigSpinner() {
-    return <h2 className="loading-center">🌀 Se încarcă datele...</h2>;
-  }
-
-  function Glimmer() {
-    return (
-      <div className="glimmer-panel">
-        <div className="glimmer-line" />
-        <div className="glimmer-line" />
-        <div className="glimmer-line" />
-      </div>
-    );
-  }
-
-  if (loadingInitial) return <BigSpinner />;
 
   const getMaxLocationWidth = () => {
     const maxLength = Math.max(...locations.map((l) => l.name.length), 0);
@@ -85,7 +78,7 @@ const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => 
         Student: {firstName} {lastName}
       </h2>
 
-      {!examRows.length && <Glimmer />}
+      {loadingInitial && Glimmer({ no_lines: 5 })}
 
       {examRows.length > 0 && (
         <table className="exam-table">

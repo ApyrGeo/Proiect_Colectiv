@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 import "./contracts.css";
 import SignatureCanvas from "react-signature-canvas";
 import useContractApi from "./useContractApi.ts";
+import { toast } from "react-hot-toast";
+import { t } from "i18next";
 
 const ContractsPage: React.FC = () => {
   // TODO remove hard coded user id
@@ -14,7 +16,7 @@ const ContractsPage: React.FC = () => {
 
   const [selectedContract, setSelectedContract] = useState(0);
 
-  const [isError, setIsError] = useState(false);
+  const [, setIsError] = useState(false);
 
   const sigCanvas = useRef<SignatureCanvas>(null);
 
@@ -32,15 +34,17 @@ const ContractsPage: React.FC = () => {
         const url = window.URL.createObjectURL(data);
 
         const link = document.createElement("a");
-        link.id = 'some-link';
+        link.id = "some-link";
         link.href = url;
         link.download = "contract.pdf";
         link.click();
 
-        window.URL.revokeObjectURL(url)
+        window.URL.revokeObjectURL(url);
+        setIsError(false);
       })
       .catch((error) => {
         console.log(error as Error);
+        toast.error(t("Error_generating_contract"));
         setIsError(true);
       });
   };
@@ -87,7 +91,6 @@ const ContractsPage: React.FC = () => {
           </div>
         )}
         <button type="submit">Generate Contract</button>
-        {isError && <div>Error generating file</div>}
       </form>
     </div>
   );

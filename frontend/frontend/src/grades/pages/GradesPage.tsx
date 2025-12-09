@@ -7,6 +7,7 @@ import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
+import Circular from "../../components/loading/Circular.tsx";
 
 const GradesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ const GradesPage: React.FC = () => {
   const [grades, setGrades] = useState<GradeItemProps[]>([]);
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const { userProps } = useAuthContext();
 
@@ -34,7 +36,7 @@ const GradesPage: React.FC = () => {
       }
     };
     fetchSpecializations();
-  }, [userProps]);
+  }, [userProps, selectedSpecialization]);
 
   // Fetch grades și status când se schimbă filtrele
   useEffect(() => {
@@ -57,19 +59,21 @@ const GradesPage: React.FC = () => {
         }
       })();
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus(null);
     }
 
     // Fetch grades
     (async () => {
       if (!userProps.id) return;
+      setLoading(true);
       try {
         const result = await fetchGradesForUser(userProps.id, spec, year, sem);
         setGrades(result);
         setError(null);
       } catch (err) {
         setError(err as Error);
+      } finally {
+        setLoading(false);
       }
     })();
   }, [selectedSpecialization, selectedStudyYear, selectedSemester, userProps]);
@@ -78,7 +82,7 @@ const GradesPage: React.FC = () => {
   useEffect(() => {
     if (error) {
       // Delay zero pentru a ne asigura că Toaster e montat
-      toast.error(`Error: ${error.message}`);
+      toast.error(t("Select_a_specialization"));
     }
   }, [error]);
 
@@ -129,11 +133,15 @@ const GradesPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grades-table">
-        {grades.map((item) => (
-          <GradeItem key={item.id} id={item.id} subject={item.subject} value={item.value} />
-        ))}
-      </div>
+      {loading ? (
+        <Circular />
+      ) : (
+        <div className="grades-table">
+          {grades.map((item) => (
+            <GradeItem key={item.id} id={item.id} subject={item.subject} value={item.value} />
+          ))}
+        </div>
+      )}
 
       {status && <ScholarshipStatusComponent status={status} />}
     </div>

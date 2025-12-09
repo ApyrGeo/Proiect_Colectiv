@@ -12,18 +12,15 @@ import { Toaster } from "react-hot-toast";
 
 import "../i18n.ts";
 import Homepage from "./homepage/HomePage.tsx";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
-import SignOutButton from "./auth/components/SignOutButton.tsx";
-import SignInButton from "./auth/components/SignInButton.tsx";
 import FAQPopup from "./faq/components/FAQPopup.tsx";
 import { faqsTimetable } from "./faq/FAQData.ts";
 import ContractsPage from "./contracts/ContractsPage.tsx";
 import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
+import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
-
   return (
     <>
       {/* Toaster permanent la nivel global */}
@@ -31,18 +28,7 @@ const App = () => {
       <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
       <div className={`app-content`}>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", height: "80px" }}>
-            <AuthenticatedTemplate>
-              <p>This will only render if a user is signed-in.</p>
-              <SignOutButton />
-            </AuthenticatedTemplate>
-            <UnauthenticatedTemplate>
-              <p>This will only render if a user is not signed-in.</p>
-              <SignInButton />
-            </UnauthenticatedTemplate>
-          </div>
-        </div>
+        <SignInStatusComponent />
 
         <Routes>
           <Route index Component={Homepage} />

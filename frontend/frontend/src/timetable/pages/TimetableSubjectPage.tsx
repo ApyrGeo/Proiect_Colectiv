@@ -35,7 +35,7 @@ const TimetableSubjectPage: React.FC = () => {
   return (
     <div className={"timetable-page"}>
       {subject && (
-        <>
+        <div className="container">
           <div className={"timetable-title"}>
             {t("Subject")}: {subject.name}
           </div>
@@ -43,7 +43,7 @@ const TimetableSubjectPage: React.FC = () => {
             {t("Back")}
           </button>
           <Timetable subjectId={subject.id}></Timetable>
-        </>
+        </div>
       )}
       {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
       {!subject && !fetchError && <div>{t("Loading")}</div>}
