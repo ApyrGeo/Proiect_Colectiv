@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import "../profile.css";
 import Signature from "../components/Signature.tsx";
 import { useTranslation } from "react-i18next";
+import logoUrl from '/src/assets/UBB_Logo.png'
 import useUserApi from "../ProfileApi.ts";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
@@ -69,7 +70,7 @@ const ProfilePage: React.FC = () => {
       <div className="profile-grid">
         <div className="profile-card">
           <div className="profile-avatar">
-            <img src="src/assets/UBB_Logo.png" alt="UBB LOGO" />
+            <img src={logoUrl} alt="UBB LOGO" />
           </div>
           <h2>{fullName}</h2>
         </div>

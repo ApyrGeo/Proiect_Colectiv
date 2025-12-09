@@ -127,7 +127,7 @@ const TimetablePage: React.FC = () => {
     setSelectedFreq(event.target.value);
   };
 
-  if (!userProps.id) return <div>{t("Error")}</div>;
+  if (!userProps || !userProps.id) return <div>{t("Error")}</div>;
 
   return (
     <div className={"container"}>
