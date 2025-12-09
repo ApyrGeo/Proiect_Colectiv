@@ -81,6 +81,7 @@ i18n.use(initReactI18next).init({
         Select_a_specialization: "Select a specialization",
         Sign_In: "Sign In",
         Sign_Out: "Sign Out",
+        Error_generating_contract: "Error generating contract",
       },
     },
     ro: {
@@ -157,6 +158,7 @@ i18n.use(initReactI18next).init({
         Select_a_specialization: "Selectează o specializare",
         Sign_In: "Autentificare",
         Sign_Out: "Deconectare",
+        Error_generating_contract: "Eroare la generarea contractului",
       },
     },
     hu: {
@@ -233,6 +235,7 @@ i18n.use(initReactI18next).init({
         Select_a_specialization: "Válassz egy kart",
         Sign_In: "Bejelentkezés",
         Sign_Out: "Kijelentkezés",
+        Error_generating_contract: "Hiba a szerződés generálásakor",
       },
     },
     de: {
@@ -309,6 +312,7 @@ i18n.use(initReactI18next).init({
         Select_a_specialization: "Wählen Sie eine Spezialisierung",
         Sign_In: "Anmelden",
         Sign_Out: "Abmelden",
+        Error_generating_contract: "Fehler beim Erstellen des Vertrags",
       },
     },
   },
