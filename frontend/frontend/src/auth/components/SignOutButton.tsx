@@ -17,7 +17,7 @@ const signOutClickHandler = (instance: IPublicClientApplication, activeAccount: 
 
   const logoutRequest = {
     account: activeAccount,
-    postLogoutRedirectUri: "http://localhost:5173/",
+    postLogoutRedirectUri: import.meta.env.VITE_ENTRA_REDIRECT_URI,
   };
 
   instance.logoutRedirect(logoutRequest);
