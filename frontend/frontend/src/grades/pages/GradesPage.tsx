@@ -24,7 +24,7 @@ const GradesPage: React.FC = () => {
   // Fetch specializations la mount
   useEffect(() => {
     const fetchSpecializations = async () => {
-      if (!userProps.id) return;
+      if (!userProps) return;
       try {
         const specs = await fetchUserSpecializations(userProps.id);
         setSpecializations(specs);
@@ -34,11 +34,11 @@ const GradesPage: React.FC = () => {
       }
     };
     fetchSpecializations();
-  }, [userProps.id]);
+  }, [userProps]);
 
   // Fetch grades și status când se schimbă filtrele
   useEffect(() => {
-    if (!userProps.id) return;
+    if (!userProps) return;
 
     const spec = selectedSpecialization === "" ? null : selectedSpecialization;
     const year = selectedStudyYear === "" ? null : selectedStudyYear;
@@ -72,7 +72,7 @@ const GradesPage: React.FC = () => {
         setError(err as Error);
       }
     })();
-  }, [selectedSpecialization, selectedStudyYear, selectedSemester, userProps.id]);
+  }, [selectedSpecialization, selectedStudyYear, selectedSemester, userProps]);
 
   // Toast pentru erori – folosit în useEffect și cu setTimeout pentru siguranță
   useEffect(() => {

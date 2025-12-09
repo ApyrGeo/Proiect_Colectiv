@@ -115,14 +115,14 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
 
-        var response = new LoggedUserResponseDTO() { User = userDTO, Enrollemnts = [] };
+        var response = new LoggedUserResponseDTO() { User = userDTO, Enrollments = [] };
         var enrollments = await _academicRepository.GetEnrollmentsByUserId(userDTO.Id);
 
         foreach (var enrollment in enrollments)
         {
-            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new NotFoundException($"Enrollemnt with id {enrollment.Id} doesn't have consistent data");
+            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new NotFoundException($"Enrollment with id {enrollment.Id} doesn't have consistent data");
 
-            response.Enrollemnts.Add(loggedUserEnrollment);
+            response.Enrollments.Add(loggedUserEnrollment);
         }
 
         return response;

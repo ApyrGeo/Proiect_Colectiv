@@ -10,22 +10,18 @@ const defaultSelectedLocations: SelectedLocationsProps = {
   nextLocation: null,
 };
 
-const userGroupIds = {
-  groupId: 1,
-  specId: 1,
-  facultyId: 1,
-};
-
 const TimetablePage: React.FC = () => {
   const { t } = useTranslation();
 
-  const { userProps } = useAuthContext();
+  const { userProps, userEnrollments } = useAuthContext();
 
   const [selectedFilter, setSelectedFilter] = useState<string>("personal");
   const [selectedFreq, setSelectedFreq] = useState<string>("all");
   const [activeHours, setActiveHours] = useState<boolean>(true);
   const [locations, setLocations] = useState<LocationProps[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
+
+  const [selectedEnrollment, setSelectedEnrollment] = useState(0);
 
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);
@@ -123,16 +119,33 @@ const TimetablePage: React.FC = () => {
     setSelectedFilter(event.target.value);
   };
 
+  const handleEnrollmentSelect = (value: number) => {
+    setSelectedEnrollment(value);
+  };
+
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
 
-  if (!userProps || !userProps.id) return <div>{t("Error")}</div>;
+  console.log(userProps);
+  console.log(userEnrollments);
+  if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
   return (
     <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>{t("Timetable")}</div>
+        {userEnrollments.length > 1 && (
+          <div>
+            <select onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}>
+              {userEnrollments.map((_e, index) => (
+                <option key={index} value={index}>
+                  {"Enrollment " + index}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -242,21 +255,21 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "group" && (
           <Timetable
-            groupYearId={userGroupIds.groupId}
+            groupYearId={userEnrollments[selectedEnrollment].promotionId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "specialisation" && (
           <Timetable
-            specialisationId={userGroupIds.specId}
+            specialisationId={userEnrollments[selectedEnrollment].specializationId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "faculty" && (
           <Timetable
-            facultyId={userGroupIds.facultyId}
+            facultyId={userEnrollments[selectedEnrollment].facultyId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />

@@ -63,6 +63,7 @@ i18n.use(initReactI18next).init({
         Signature: "Signature",
         Clear: "Clear",
         Undo: "Undo",
+        Promotion: "Promotion",
       },
     },
     ro: {
@@ -120,6 +121,7 @@ i18n.use(initReactI18next).init({
         Signature: "Semnătură",
         Clear: "Șterge",
         Undo: "Anulează",
+        Promotion: "Promoție",
       },
     },
     hu: {
@@ -177,6 +179,7 @@ i18n.use(initReactI18next).init({
         Signature: "Aláírás",
         Clear: "Törlés",
         Undo: "Visszavonás",
+        Promotion: "Évfolyam",
       },
     },
     de: {
@@ -234,6 +237,7 @@ i18n.use(initReactI18next).init({
         Signature: "Unterschrift",
         Clear: "Löschen",
         Undo: "Rückgängig",
+        Promotion: "Grad",
       },
     },
   },

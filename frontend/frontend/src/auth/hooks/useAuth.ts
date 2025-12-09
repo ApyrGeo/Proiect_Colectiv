@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useMsal } from "@azure/msal-react";
 import { EventType, InteractionRequiredAuthError, InteractionStatus, type AccountInfo } from "@azure/msal-browser";
 import { loginRequest } from "../authConfig";
-import { type UserProps } from "../../core/props.ts";
+import { type LoggedUserInfo, type UserEnrollments, type UserProps } from "../../core/props.ts";
 import axios from "axios";
 import { baseUrl, host } from "../../core";
 
@@ -23,6 +23,7 @@ const useAuth = () => {
   const initializedRef = useRef<boolean>(false);
 
   const [userProps, setUserProps] = useState<UserProps | null>(null);
+  const [userEnrollments, setUserEnrollments] = useState<UserEnrollments[] | null>(null);
 
   const authApiClient = useMemo(
     () =>
@@ -46,8 +47,7 @@ const useAuth = () => {
       }
     });
 
-    if (!token)
-      setFullfilled(true);
+    if (!token) setFullfilled(true);
   }, []);
 
   const waitForAccessToken = useCallback((): Promise<string | null> => {
@@ -127,7 +127,7 @@ const useAuth = () => {
   }, [accessToken, authApiClient, waitForAccessToken]);
 
   const getLoggedInUser = useCallback(async () => {
-    const response = await authApiClient.get<UserProps>("api/User/logged-user");
+    const response = await authApiClient.get<LoggedUserInfo>("api/User/logged-user");
     return response.data;
   }, [authApiClient]);
 
@@ -167,19 +167,20 @@ const useAuth = () => {
   }, [accessToken, resolveWaiters]);
 
   useEffect(() => {
-    if (!accessToken)
-      return
+    if (!accessToken) return;
     getLoggedInUser()
       .then((res) => {
         if (!res) return;
-        setUserProps(res);
-        // console.log(res);
-      }).finally(() => {
+        console.log(res);
+        setUserProps(res.user);
+        setUserEnrollments(res.enrollments);
+      })
+      .finally(() => {
         setFullfilled(true);
       });
   }, [accessToken, getLoggedInUser]);
 
-  return { accessToken, loading, error, activeAccount, waitForAccessToken, userProps, isFullfilled };
+  return { accessToken, loading, error, activeAccount, waitForAccessToken, userProps, userEnrollments, isFullfilled };
 };
 
 export default useAuth;

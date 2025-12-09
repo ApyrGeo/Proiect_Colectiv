@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
           {menus.map((section, sectionIndex) => (
             <div key={sectionIndex} className="menu">
               {section.submenu
-                ?.filter((m) => !m.url || isRouteAvailable(m.url, userProps))
+                ?.filter((m) => !m.url || !userProps || isRouteAvailable(m.url, userProps))
                 ?.map((item) => {
                   const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
 

@@ -1,5 +1,10 @@
+export type LoggedUserInfo = {
+  user: UserProps;
+  enrollments: UserEnrollments[];
+};
+
 export interface UserProps {
-  id?: number | null;
+  id: number;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -13,3 +18,12 @@ export enum UserRole {
   TEACHER,
   ADMIN,
 }
+
+export type UserEnrollments = {
+  enrollmentId: number;
+  subGroupId: number;
+  groupId: number;
+  promotionId: number;
+  specializationId: number;
+  facultyId: number;
+};
