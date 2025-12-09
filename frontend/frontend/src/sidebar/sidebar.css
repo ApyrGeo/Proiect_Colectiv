@@ -413,10 +413,6 @@
   margin: 10px 5px;
 }
 
-.language-radio label:has(input[type=radio]:checked) {
-  background: var(--timetable-highlight-color);
-  border-color: var(--timetable-highlight-color);
-}
 
 .language-radio label:has(input[type=radio]:disabled) {
   background: var(--timetable-text-highlight-color);
@@ -432,4 +428,9 @@
 .language-radio input[type=radio] {
   position:absolute;
   opacity: 0;
+}
+
+.language-radio label:has(input[type=radio]:checked) {
+  background: var(--timetable-highlight-color);
+  border-color: var(--timetable-highlight-color);
 }

@@ -171,7 +171,6 @@ const useAuth = () => {
     getLoggedInUser()
       .then((res) => {
         if (!res) return;
-        console.log(res);
         setUserProps(res.user);
         setUserEnrollments(res.enrollments);
       })

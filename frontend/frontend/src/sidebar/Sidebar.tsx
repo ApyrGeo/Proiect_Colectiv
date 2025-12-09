@@ -14,6 +14,15 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const location = useLocation();
 
   const { t, i18n } = useTranslation();
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    i18n.changeLanguage(selectedLanguage).then(() => localStorage.setItem("lang", selectedLanguage));
+  }, [i18n, selectedLanguage]);
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang).then(() => setSelectedLanguage(lang));
+  };
 
   const [menus] = useState<MenuItem[]>(getAppMenus);
 
@@ -103,10 +112,6 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   };
 
   useEffect(() => {
-    console.log(i18n.language);
-  }, [i18n.language]);
-
-  useEffect(() => {
     if (!mountedRef.current) return;
 
     if (hoverTimeout.current) {
@@ -126,6 +131,8 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     const width = isMinified ? "var(--sidebar-width-min)" : "var(--sidebar-width)";
     document.documentElement.style.setProperty("--current-sidebar-width", width);
   }, [isMinified]);
+
+  console.log(selectedLanguage);
 
   return (
     <>
@@ -149,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
           {menus.map((section, sectionIndex) => (
             <div key={sectionIndex} className="menu">
               {section.submenu
-                ?.filter((m) => !m.url || !userProps || isRouteAvailable(m.url, userProps))
+                ?.filter((m) => !m.url || (userProps && isRouteAvailable(m.url, userProps)))
                 ?.map((item) => {
                   const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
 
@@ -241,15 +248,15 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
             </div>
           )}
         </div>
-        {!isMinified && (
+        {!isMinified && selectedLanguage && (
           <div className={"language-radio"}>
             <label>
               <input
                 type="radio"
                 name="language"
                 value="en"
-                checked={i18n.language === "en"}
-                onChange={() => i18n.changeLanguage("en")}
+                checked={selectedLanguage == "en"}
+                onChange={() => changeLanguage("en")}
               />
               EN
             </label>
@@ -258,28 +265,28 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 type="radio"
                 name="language"
                 value="ro"
-                checked={i18n.language === "ro"}
-                onChange={() => i18n.changeLanguage("ro")}
+                checked={selectedLanguage == "ro"}
+                onChange={() => changeLanguage("ro")}
               />
               RO
             </label>
             <label>
               <input
                 type="radio"
-                name="filter"
+                name="language"
                 value="hu"
-                checked={i18n.language === "hu"}
-                onChange={() => i18n.changeLanguage("hu")}
+                checked={selectedLanguage == "hu"}
+                onChange={() => changeLanguage("hu")}
               />
               HU
             </label>
             <label>
               <input
                 type="radio"
-                name="filter"
+                name="language"
                 value="de"
-                checked={i18n.language === "de"}
-                onChange={() => i18n.changeLanguage("de")}
+                checked={selectedLanguage == "de"}
+                onChange={() => changeLanguage("de")}
               />
               DE
             </label>
