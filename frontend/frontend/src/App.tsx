@@ -18,7 +18,7 @@ import SignInButton from "./auth/components/SignInButton.tsx";
 import FAQPopup from "./faq/components/FAQPopup.tsx";
 import { faqsTimetable } from "./faq/FAQData.ts";
 import ContractsPage from "./contracts/ContractsPage.tsx";
-import ExamPage from "./exam/ExamPage.tsx";
+import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
 
 const App = () => {

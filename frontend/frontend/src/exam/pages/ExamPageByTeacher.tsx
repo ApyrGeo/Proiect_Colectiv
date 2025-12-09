@@ -42,7 +42,7 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
         if (c.name.length > maxLength) maxLength = c.name.length;
       });
     });
-    return maxLength * 35 + 20;
+    return maxLength * 38 + 20;
   };
 
   const handleSubjectSelect = async (subjectId: number) => {
@@ -210,7 +210,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
       </h2>
 
       <select value={selectedSubjectId || ""} onChange={(e) => handleSubjectSelect(Number(e.target.value))}>
-        <option value="">Selectează materia</option>
+        <option value="" disabled hidden>
+          Selectable materia
+        </option>
         {teacherSubjects.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}
@@ -245,7 +247,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
                       onChange={(e) => handleLocationChange(group.id, Number(e.target.value))}
                       style={{ width: `${locationWidth}px` }}
                     >
-                      <option value="">Selectează locația</option>
+                      <option value="" disabled hidden>
+                        Selectează locația
+                      </option>
                       {locations.map((l) => (
                         <option key={l.id} value={l.id}>
                           {l.name}
@@ -261,7 +265,9 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
                       disabled={!selectedLocation}
                       style={{ width: `${classroomWidth}px` }}
                     >
-                      <option value="">Selectează clasa</option>
+                      <option value="" disabled hidden>
+                        Selectează clasa
+                      </option>
                       {(
                         selectedLocation?.classrooms.filter(
                           (c) =>
@@ -279,6 +285,7 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
                   <td>
                     <input
                       type="datetime-local"
+                      className="date-input"
                       value={group.examDate || ""}
                       onChange={(e) => handleExamDateChange(group.id, e.target.value)}
                     />

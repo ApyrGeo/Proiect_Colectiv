@@ -8,10 +8,9 @@ const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
 
   const [examRows, setExamRows] = useState<StudentExamRowProps[]>([]);
   const [locations, setLocations] = useState<LocationProps[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(true);
 
   const fetchExams = async () => {
-    setLoading(true);
     try {
       const locs = await getLocations();
       setLocations(locs);
@@ -39,13 +38,30 @@ const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
       console.error("Eroare la încărcarea examenelor:", err);
       setExamRows([]);
     } finally {
-      setLoading(false);
+      setLoadingInitial(false);
     }
   };
 
   useEffect(() => {
     fetchExams();
   }, [id]);
+
+  // Loader pentru încărcarea inițială
+  function BigSpinner() {
+    return <h2 className="loading-center">🌀 Se încarcă datele...</h2>;
+  }
+
+  function Glimmer() {
+    return (
+      <div className="glimmer-panel">
+        <div className="glimmer-line" />
+        <div className="glimmer-line" />
+        <div className="glimmer-line" />
+      </div>
+    );
+  }
+
+  if (loadingInitial) return <BigSpinner />;
 
   const getMaxLocationWidth = () => {
     const maxLength = Math.max(...locations.map((l) => l.name.length), 0);
@@ -60,8 +76,6 @@ const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
     return maxLength * 8 + 20;
   };
 
-  if (loading) return <p>Se încarcă datele...</p>;
-
   const locationWidth = getMaxLocationWidth();
   const classroomWidth = getMaxClassroomWidth();
 
@@ -69,28 +83,32 @@ const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
     <div className="exam-page-container">
       <h2>Examene Student</h2>
 
-      <table className="exam-table">
-        <thead>
-          <tr>
-            <th>Materie</th>
-            <th>Data examen</th>
-            <th>Durată (min)</th>
-            <th>Locație</th>
-            <th>Clasă</th>
-          </tr>
-        </thead>
-        <tbody>
-          {examRows.map((exam) => (
-            <tr key={exam.examId}>
-              <td>{exam.subjectName}</td>
-              <td>{exam.examDate}</td>
-              <td>{exam.examDuration ?? "-"}</td>
-              <td style={{ minWidth: `${locationWidth}px` }}>{exam.locationName ?? "-"}</td>
-              <td style={{ minWidth: `${classroomWidth}px` }}>{exam.classroomName ?? "-"}</td>
+      {!examRows.length && <Glimmer />}
+
+      {examRows.length > 0 && (
+        <table className="exam-table">
+          <thead>
+            <tr>
+              <th>Materie</th>
+              <th>Data examen</th>
+              <th>Durată (min)</th>
+              <th>Locație</th>
+              <th>Clasă</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {examRows.map((exam) => (
+              <tr key={exam.examId}>
+                <td>{exam.subjectName}</td>
+                <td>{exam.examDate}</td>
+                <td>{exam.examDuration ?? "-"}</td>
+                <td style={{ minWidth: `${locationWidth}px` }}>{exam.locationName ?? "-"}</td>
+                <td style={{ minWidth: `${classroomWidth}px` }}>{exam.classroomName ?? "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
