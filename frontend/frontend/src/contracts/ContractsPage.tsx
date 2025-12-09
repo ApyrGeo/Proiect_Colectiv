@@ -24,8 +24,9 @@ const ContractsPage: React.FC = () => {
     setSelectedContract(value);
   };
 
-  const handleSubmit = (formData: FormData) => {
-    console.log(formData);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(e);
     if (contractStructures[selectedContract].signature && sigCanvas.current) console.log(sigCanvas.current.toDataURL());
 
     getStudyContract(userId)
@@ -61,7 +62,7 @@ const ContractsPage: React.FC = () => {
 
       <div className={"contract-title"}>{contractStructures[selectedContract].title}</div>
 
-      <form action={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         {contractStructures[selectedContract].fields.map((field) => {
           if (field.category === FieldCategory.SELECT)
             return (
