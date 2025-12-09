@@ -79,6 +79,8 @@ i18n.use(initReactI18next).init({
         Exams_updated_successfully: "Exams updated successfully",
         Select_a_subject: "Select a subject",
         Select_a_specialization: "Select a specialization",
+        Sign_In: "Sign In",
+        Sign_Out: "Sign Out",
       },
     },
     ro: {
@@ -153,6 +155,8 @@ i18n.use(initReactI18next).init({
         Exams_updated_successfully: "Examenele au fost actualizate cu succes",
         Select_a_subject: "Selectează o materie",
         Select_a_specialization: "Selectează o specializare",
+        Sign_In: "Autentificare",
+        Sign_Out: "Deconectare",
       },
     },
     hu: {
@@ -227,6 +231,8 @@ i18n.use(initReactI18next).init({
         Exams_updated_successfully: "A vizsgák sikeresen frissítve",
         Select_a_subject: "Válassz egy tantárgyat",
         Select_a_specialization: "Válassz egy kart",
+        Sign_In: "Bejelentkezés",
+        Sign_Out: "Kijelentkezés",
       },
     },
     de: {
@@ -301,6 +307,8 @@ i18n.use(initReactI18next).init({
         Exams_updated_successfully: "Prüfungen erfolgreich aktualisiert",
         Select_a_subject: "Wählen Sie ein Fach aus",
         Select_a_specialization: "Wählen Sie eine Spezialisierung",
+        Sign_In: "Anmelden",
+        Sign_Out: "Abmelden",
       },
     },
   },
