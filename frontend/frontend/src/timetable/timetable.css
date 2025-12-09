@@ -3,20 +3,20 @@
 
   --timetable-border-color: rgba(220, 227, 235, 0.1);
   --timetable-table-color: var(--surface);
-  --timetable-header-color: #0F1828;
-  --timetable-row-even: #1C2F4A;
-  --timetable-row-odd:  #152238;
+  --timetable-header-color: #0f1828;
+  --timetable-row-even: #1c2f4a;
+  --timetable-row-odd: #152238;
 
   --timetable-text-color: var(--text-light);
-  --timetable-text-muted: rgba(255,255,255,0.55);
+  --timetable-text-muted: rgba(255, 255, 255, 0.55);
 
   --timetable-highlight-color: rgba(0, 84, 164, 0.22);
   --timetable-current-hour-color: rgba(0, 84, 164, 0.35);
   --timetable-next-hour-color: rgba(0, 84, 164, 0.18);
 
   --timetable-button-color: var(--surface-light);
-  --timetable-disabled-color: rgba(255,255,255,0.25);
-  --timetable-text-highlight-color: #8ABEFF;
+  --timetable-disabled-color: rgba(255, 255, 255, 0.25);
+  --timetable-text-highlight-color: #8abeff;
 
   --timetable-transition-time: 0.2s;
 }
@@ -45,7 +45,6 @@
   border-radius: var(--timetable-border-radius);
 }
 
-
 .timetable table {
   display: inline-table;
   border: 1px solid var(--timetable-border-color);
@@ -53,19 +52,21 @@
   border-radius: var(--timetable-border-radius);
   border-spacing: 0;
   color: var(--timetable-text-color);
+  width: 60vw;
 }
 
-th, td {
+th,
+td {
   padding: 10px;
   border-radius: 0;
 }
 
-td{
+td {
   text-align: center;
 }
 
-.timetable tr{
-    border-radius: var(--timetable-border-radius);
+.timetable tr {
+  border-radius: var(--timetable-border-radius);
 }
 
 .timetable-header {
@@ -78,8 +79,8 @@ td{
   background-color: var(--timetable-next-hour-color);
 }
 
-.timetable-row-current{
-    background-color: var(--timetable-current-hour-color);
+.timetable-row-current {
+  background-color: var(--timetable-current-hour-color);
 }
 
 .timetable-row:nth-child(odd) {
@@ -96,12 +97,12 @@ td{
 }
 
 .timetable-filter {
-    display: flex;
-    flex-direction: row;
-    justify-items: center;
-    align-items: center;
-    align-self: flex-start;
-    margin-bottom: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+  align-items: center;
+  align-self: flex-start;
+  margin-bottom: 5px;
 }
 
 .timetable-filter {
@@ -113,42 +114,41 @@ td{
   gap: 8px;
 }
 
-.timetable-filter label:has(input[type=radio]) {
+.timetable-filter label:has(input[type="radio"]) {
   background: var(--timetable-button-color);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   padding: 6px 18px;
   border-radius: var(--timetable-border-radius);
   font-size: 15px;
   color: var(--accent-light);
 }
 
-.timetable-filter label:has(input[type=radio]:checked) {
+.timetable-filter label:has(input[type="radio"]:checked) {
   background: var(--primary);
   border-color: var(--primary);
   color: white;
 }
 
-.timetable-filter label:has(input[type=radio]:disabled) {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.15);
+.timetable-filter label:has(input[type="radio"]:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
   color: var(--timetable-disabled-color);
 }
 
-.timetable-filter input[type=radio] {
-    display: none;
+.timetable-filter input[type="radio"] {
+  display: none;
 }
 
-
 .timetable-button {
-    border: none;
-    background-color: inherit;
-    color: var(--timetable-text-color);
+  border: none;
+  background-color: inherit;
+  color: var(--timetable-text-color);
 }
 
 .timetable-button:hover {
-    color: var(--timetable-text-highlight-color);
-    transition: color var(--timetable-transition-time);
-    cursor: pointer;
+  color: var(--timetable-text-highlight-color);
+  transition: color var(--timetable-transition-time);
+  cursor: pointer;
 }
 
 .timetable-title {
@@ -160,7 +160,7 @@ td{
 
 .timetable-back-button {
   background: var(--surface-light);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-light);
   padding: 6px 14px;
   border-radius: var(--timetable-border-radius);
@@ -171,4 +171,9 @@ td{
 .timetable-back-button:hover {
   background: var(--primary);
   border-color: var(--primary);
+}
+
+.container-back-buttons {
+  display: flex;
+  gap: 30px;
 }

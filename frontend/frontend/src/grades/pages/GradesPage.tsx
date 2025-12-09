@@ -12,7 +12,7 @@ import Circular from "../../components/loading/Circular.tsx";
 const GradesPage: React.FC = () => {
   const { t } = useTranslation();
 
-  const [selectedSpecialization, setSelectedSpecialization] = useState<string | "">("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string>("");
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
   const [selectedSemester, setSelectedSemester] = useState<number | "">("");
   const [specializations, setSpecializations] = useState<string[]>([]);
@@ -30,6 +30,7 @@ const GradesPage: React.FC = () => {
       try {
         const specs = await fetchUserSpecializations(userProps.id);
         setSpecializations(specs);
+        setSelectedSpecialization(specs[0]);
       } catch (err) {
         const e = err as Error;
         setError(e);
@@ -42,7 +43,9 @@ const GradesPage: React.FC = () => {
   useEffect(() => {
     if (!userProps) return;
 
-    const spec = selectedSpecialization === "" ? null : selectedSpecialization;
+    if (selectedSpecialization === "") return;
+
+    const spec = selectedSpecialization;
     const year = selectedStudyYear === "" ? null : selectedStudyYear;
     const sem = selectedSemester === "" ? null : selectedSemester;
 

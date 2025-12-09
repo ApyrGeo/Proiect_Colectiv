@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import useExamApi from "../ExamApi.ts";
 import type { TeacherProps, LocationProps, GroupRowProps, ExamProps } from "../props.ts";
 import "../ExamPage.css";
-import Glimmer from "../../components/loading/Glimmer.tsx";
 import toast from "react-hot-toast";
 import { t } from "i18next";
+import TableGlimmer from "../../components/loading/TableGlimmer.tsx";
 
 const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const { getLocations, getSubjectsByTeacher, getExamsBySubject, updateExam } = useExamApi();
@@ -205,93 +205,94 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
         ))}
       </select>
 
-      {loadingGroups && <Glimmer no_lines={10} />}
+      <table className="exam-table">
+        <thead>
+          <tr>
+            <th>Grupa</th>
+            <th>Locația</th>
+            <th>Clasa</th>
+            <th>Data examen</th>
+            <th>Durata (min)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loadingGroups && <TableGlimmer no_lines={10} no_cols={5} />}
+          {!loadingGroups && groups.length > 0 && (
+            <>
+              {groups.map((group) => {
+                const selectedLocation = locations.find((l) => l.id === group.selectedLocationId);
 
-      {!loadingGroups && groups.length > 0 && (
-        <table className="exam-table">
-          <thead>
-            <tr>
-              <th>Grupa</th>
-              <th>Locația</th>
-              <th>Clasa</th>
-              <th>Data examen</th>
-              <th>Durata (min)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map((group) => {
-              const selectedLocation = locations.find((l) => l.id === group.selectedLocationId);
+                return (
+                  <tr key={group.id}>
+                    <td>{group.name}</td>
 
-              return (
-                <tr key={group.id}>
-                  <td>{group.name}</td>
-
-                  <td>
-                    <select
-                      value={group.selectedLocationId || ""}
-                      onChange={(e) => handleLocationChange(group.id, Number(e.target.value))}
-                      style={{ width: `${locationWidth}px` }}
-                    >
-                      <option value="" disabled hidden>
-                        Selectează locația
-                      </option>
-                      {locations.map((l) => (
-                        <option key={l.id} value={l.id}>
-                          {l.name}
+                    <td>
+                      <select
+                        value={group.selectedLocationId || ""}
+                        onChange={(e) => handleLocationChange(group.id, Number(e.target.value))}
+                        style={{ width: `${locationWidth}px` }}
+                      >
+                        <option value="" disabled hidden>
+                          Selectează locația
                         </option>
-                      ))}
-                    </select>
-                  </td>
+                        {locations.map((l) => (
+                          <option key={l.id} value={l.id}>
+                            {l.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
 
-                  <td>
-                    <select
-                      value={group.selectedClassroomId || ""}
-                      onChange={(e) => handleClassroomChange(group.id, Number(e.target.value))}
-                      disabled={!selectedLocation}
-                      style={{ width: `${classroomWidth}px` }}
-                    >
-                      <option value="" disabled hidden>
-                        Selectează clasa
-                      </option>
-                      {(
-                        selectedLocation?.classrooms.filter(
-                          (c) =>
-                            // păstrează doar clasele care nu sunt deja selectate de alte grupe
-                            !groups.some((g2) => g2.selectedClassroomId === c.id && g2.id !== group.id)
-                        ) || []
-                      ).map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
+                    <td>
+                      <select
+                        value={group.selectedClassroomId || ""}
+                        onChange={(e) => handleClassroomChange(group.id, Number(e.target.value))}
+                        disabled={!selectedLocation}
+                        style={{ width: `${classroomWidth}px` }}
+                      >
+                        <option value="" disabled hidden>
+                          Selectează clasa
                         </option>
-                      ))}
-                    </select>
-                  </td>
+                        {(
+                          selectedLocation?.classrooms.filter(
+                            (c) =>
+                              // păstrează doar clasele care nu sunt deja selectate de alte grupe
+                              !groups.some((g2) => g2.selectedClassroomId === c.id && g2.id !== group.id)
+                          ) || []
+                        ).map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
 
-                  <td>
-                    <input
-                      type="datetime-local"
-                      className="date-input"
-                      value={group.examDate || ""}
-                      onChange={(e) => handleExamDateChange(group.id, e.target.value)}
-                    />
-                  </td>
+                    <td>
+                      <input
+                        type="datetime-local"
+                        className="date-input"
+                        value={group.examDate || ""}
+                        onChange={(e) => handleExamDateChange(group.id, e.target.value)}
+                      />
+                    </td>
 
-                  <td>
-                    <input
-                      type="text"
-                      value={group.examDuration ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (/^\d*$/.test(val)) handleDurationChange(group.id, val === "" ? null : Number(val));
-                      }}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                    <td>
+                      <input
+                        type="text"
+                        value={group.examDuration ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/^\d*$/.test(val)) handleDurationChange(group.id, val === "" ? null : Number(val));
+                        }}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </>
+          )}
+        </tbody>
+      </table>
 
       {groups.length > 0 && (
         <div style={{ marginTop: "20px", textAlign: "right" }}>
