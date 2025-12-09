@@ -256,7 +256,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 name="language"
                 value="en"
                 checked={selectedLanguage == "en"}
-                onClick={() => changeLanguage("en")}
+                onChange={() => changeLanguage("en")}
               />
               EN
             </label>
@@ -266,7 +266,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 name="language"
                 value="ro"
                 checked={selectedLanguage == "ro"}
-                onClick={() => changeLanguage("ro")}
+                onChange={() => changeLanguage("ro")}
               />
               RO
             </label>
@@ -276,7 +276,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 name="language"
                 value="hu"
                 checked={selectedLanguage == "hu"}
-                onClick={() => changeLanguage("hu")}
+                onChange={() => changeLanguage("hu")}
               />
               HU
             </label>
@@ -286,7 +286,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 name="language"
                 value="de"
                 checked={selectedLanguage == "de"}
-                onClick={() => changeLanguage("de")}
+                onChange={() => changeLanguage("de")}
               />
               DE
             </label>
