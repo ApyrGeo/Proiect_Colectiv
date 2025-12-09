@@ -16,7 +16,7 @@
   padding: 30px 40px;
   border-radius: 25px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   width: 95%;
   min-width: 1200px;
   max-width: 1600px;
@@ -42,7 +42,7 @@
   padding: 8px 12px;
   border-radius: 12px;
   background-color: var(--surface-light); /* fundal filtru */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   gap: 10px;
   transition:
     transform 0.2s,
@@ -60,7 +60,7 @@
   flex: 1;
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background-color: #0f1828; /* mai contrastant */
   color: var(--text-light);
   font-size: 1.05rem;
@@ -97,15 +97,18 @@
   width: 100%;
   max-width: 240px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   border-left: 6px solid transparent;
 
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.3s ease-out,
+    box-shadow 0.3s ease-out;
 }
 
 .grade-card:hover {
+  cursor: pointer;
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
 /* Text card */
@@ -131,7 +134,7 @@
   width: fit-content;
   font-size: 1.1rem;
   color: #fff;
-  transition: transform 0.2s;
+  transition: transform 0.5s;
 }
 
 /* Status note */
@@ -140,23 +143,23 @@
 }
 
 .grade-card.pass .grade-badge {
-  background: linear-gradient(135deg, #2ECC71, #4DDC88);
+  background: linear-gradient(135deg, #2ecc71, #4ddc88);
 }
 
 .grade-card.fail {
-  border-left-color: #CC2E5A;
+  border-left-color: #cc2e5a;
 }
 
 .grade-card.fail .grade-badge {
-  background: linear-gradient(135deg, #CC2E5A, #E36C84);
+  background: linear-gradient(135deg, #cc2e5a, #e36c84);
 }
 
 .grade-card.not-counted {
-  border-left-color: #D4AF37;
+  border-left-color: #d4af37;
 }
 
 .grade-card.not-counted .grade-badge {
-  background: linear-gradient(135deg, #D4AF37, #F3D98C);
+  background: linear-gradient(135deg, #d4af37, #f3d98c);
 }
 
 /* Scor mediu */
@@ -167,7 +170,7 @@
   background-color: var(--surface-light);
   padding: 12px 24px;
   border-radius: 30px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   text-align: center;
   display: inline-block;
 }
@@ -177,11 +180,11 @@
   color: var(--text-light);
   padding: 18px 22px;
   border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   width: 100%;
   max-width: 420px;
   margin: 20px auto;
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
 }
 
@@ -210,11 +213,11 @@
 }
 
 .eligibility.eligible {
-  background: linear-gradient(90deg, #2ECC71, #59E48B);
+  background: linear-gradient(90deg, #2ecc71, #59e48b);
   color: #02150a;
 }
 
 .eligibility.not-eligible {
-  background: linear-gradient(90deg, #CC2E5A, #E36C84);
+  background: linear-gradient(90deg, #cc2e5a, #e36c84);
   color: #2a0000;
 }

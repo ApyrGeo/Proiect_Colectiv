@@ -286,7 +286,7 @@ const TimetablePage: React.FC = () => {
         <>
           <GoogleMapsComponent locations={locations} />
 
-          <div ref={sectionNavigationButtonsRef}>
+          <div className="container-back-buttons" ref={sectionNavigationButtonsRef}>
             {selectedLocations.currentLocation && (
               <button
                 className="timetable-back-button"

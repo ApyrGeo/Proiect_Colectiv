@@ -4,8 +4,8 @@ import Hour from "./Hour.tsx";
 import "../timetable.css";
 import { useTranslation } from "react-i18next";
 import useTimetableApi from "../useTimetableApi.ts";
-import Glimmer from "../../components/loading/Glimmer.tsx";
 import { toast } from "react-hot-toast";
+import TableGlimmer from "../../components/loading/TableGlimmer.tsx";
 
 export type TimetableProps = {
   userId?: number;
@@ -101,66 +101,68 @@ const Timetable: React.FC<TimetableProps> = (props) => {
 
   return (
     <>
-      {loading && <Glimmer no_lines={8} />}
-      {!loading && hours.length > 0 && (
-        <div className={"timetable"}>
-          <table>
-            <thead>
-              <tr className={"timetable-header"}>
-                <th>{t("Day")}</th>
-                <th>{t("Interval")}</th>
-                <th>{t("Frequency")}</th>
-                <th>{t("Location")}</th>
-                {!props.classroomId && <th>{t("Classroom")}</th>}
-                <th>{t("Format")}</th>
-                <th>{t("Type")}</th>
-                {!props.subjectId && <th>{t("Subject")}</th>}
-                {!props.teacherId && <th>{t("Professor")}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {hours
-                .filter((a) => !props.filterFn || props.filterFn(a))
-                .map((a) => {
-                  if (a.hourInterval.length == 4) a.hourInterval = "0" + a.hourInterval;
-                  return a;
-                })
-                .map(
-                  ({
-                    id,
-                    day,
-                    hourInterval,
-                    frequency,
-                    location,
-                    classroom,
-                    format,
-                    category,
-                    subject,
-                    teacher,
-                    specialisation,
-                  }: HourProps) => (
-                    <Hour
-                      id={id}
-                      key={id}
-                      day={day}
-                      hourInterval={hourInterval}
-                      frequency={frequency}
-                      specialisation={specialisation}
-                      location={location}
-                      classroom={classroom}
-                      format={format}
-                      category={category}
-                      subject={subject}
-                      teacher={teacher}
-                      timetableProps={props}
-                      onLocationClick={props.onHourClick ? () => props.onHourClick!(id!, hours) : undefined}
-                    />
-                  )
-                )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className={"timetable"}>
+        <table>
+          <thead>
+            <tr className={"timetable-header"}>
+              <th>{t("Day")}</th>
+              <th>{t("Interval")}</th>
+              <th>{t("Frequency")}</th>
+              <th>{t("Location")}</th>
+              {!props.classroomId && <th>{t("Classroom")}</th>}
+              <th>{t("Format")}</th>
+              <th>{t("Type")}</th>
+              {!props.subjectId && <th>{t("Subject")}</th>}
+              {!props.teacherId && <th>{t("Professor")}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {loading && <TableGlimmer no_lines={10} no_cols={9} />}
+            {!loading && hours.length > 0 && (
+              <>
+                {hours
+                  .filter((a) => !props.filterFn || props.filterFn(a))
+                  .map((a) => {
+                    if (a.hourInterval.length == 4) a.hourInterval = "0" + a.hourInterval;
+                    return a;
+                  })
+                  .map(
+                    ({
+                      id,
+                      day,
+                      hourInterval,
+                      frequency,
+                      location,
+                      classroom,
+                      format,
+                      category,
+                      subject,
+                      teacher,
+                      specialisation,
+                    }: HourProps) => (
+                      <Hour
+                        id={id}
+                        key={id}
+                        day={day}
+                        hourInterval={hourInterval}
+                        frequency={frequency}
+                        specialisation={specialisation}
+                        location={location}
+                        classroom={classroom}
+                        format={format}
+                        category={category}
+                        subject={subject}
+                        teacher={teacher}
+                        timetableProps={props}
+                        onLocationClick={props.onHourClick ? () => props.onHourClick!(id!, hours) : undefined}
+                      />
+                    )
+                  )}
+              </>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };
