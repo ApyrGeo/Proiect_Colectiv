@@ -21,6 +21,8 @@ const TimetablePage: React.FC = () => {
   const [locations, setLocations] = useState<LocationProps[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
 
+  const [selectedEnrollment, setSelectedEnrollment] = useState(0);
+
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);
   };
@@ -117,6 +119,10 @@ const TimetablePage: React.FC = () => {
     setSelectedFilter(event.target.value);
   };
 
+  const handleEnrollmentSelect = (value: number) => {
+    setSelectedEnrollment(value);
+  };
+
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
@@ -129,6 +135,17 @@ const TimetablePage: React.FC = () => {
     <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>{t("Timetable")}</div>
+        {userEnrollments.length > 1 && (
+          <div>
+            <select onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}>
+              {userEnrollments.map((_e, index) => (
+                <option key={index} value={index}>
+                  {"Enrollment " + index}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -238,21 +255,21 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "group" && (
           <Timetable
-            groupYearId={userEnrollments[0].promotionId}
+            groupYearId={userEnrollments[selectedEnrollment].promotionId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "specialisation" && (
           <Timetable
-            specialisationId={userEnrollments[0].specializationId}
+            specialisationId={userEnrollments[selectedEnrollment].specializationId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "faculty" && (
           <Timetable
-            facultyId={userEnrollments[0].facultyId}
+            facultyId={userEnrollments[selectedEnrollment].facultyId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
