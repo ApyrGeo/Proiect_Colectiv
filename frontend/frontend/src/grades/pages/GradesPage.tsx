@@ -30,7 +30,9 @@ const GradesPage: React.FC = () => {
       try {
         const specs = await fetchUserSpecializations(userProps.id);
         setSpecializations(specs);
-        setSelectedSpecialization(specs[0]);
+        if (specs.length > 0 && !selectedSpecialization) {
+          setSelectedSpecialization(specs[0]);
+        }
       } catch (err) {
         const e = err as Error;
         setError(e);
