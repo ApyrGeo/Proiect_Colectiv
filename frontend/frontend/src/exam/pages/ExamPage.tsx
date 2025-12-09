@@ -2,14 +2,14 @@ import React, { useState, useEffect, Suspense } from "react";
 import useExamApi from "../ExamApi.ts";
 import ExamPageByTeacher from "./ExamPageByTeacher.tsx";
 import ExamPageByStudent from "./ExamPageByStudent.tsx";
-import type { TeacherProps } from "../props.ts";
+import type { TeacherProps, UserProps } from "../props.ts";
 import "../ExamPage.css";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
 const ExamPage: React.FC = () => {
   const { getUserById, getTeacherbyUserId } = useExamApi();
   const [teacher, setTeacher] = useState<TeacherProps | null>(null);
-  const [studentId, setStudentId] = useState<number | null>(null);
+  const [student, setStudent] = useState<UserProps | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { userProps } = useAuthContext();
@@ -27,7 +27,7 @@ const ExamPage: React.FC = () => {
           const teacherData = await getTeacherbyUserId(id);
           setTeacher(teacherData);
         } else if (user.role === 0) {
-          setStudentId(id);
+          setStudent(user);
         }
       } catch {
         console.error("Eroare la încărcarea datelor utilizatorului!");
@@ -59,13 +59,13 @@ const ExamPage: React.FC = () => {
           </>
         )}
 
-        {!loading && studentId && (
+        {!loading && student && (
           <>
             <h1>Examene Student</h1>
 
             <Suspense fallback={<Glimmer />}>
               <Panel>
-                <ExamPageByStudent id={studentId} />
+                <ExamPageByStudent id={student.id} firstName={student.firstName} lastName={student.lastName} />
               </Panel>
             </Suspense>
           </>

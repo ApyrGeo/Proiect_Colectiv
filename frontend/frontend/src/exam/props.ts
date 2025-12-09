@@ -20,10 +20,6 @@ export interface LocationProps {
   classrooms: ClassroomProps[];
 }
 
-export interface StudentIdProps {
-  id: number;
-}
-
 export interface UserProps {
   id: number;
   firstName: string;

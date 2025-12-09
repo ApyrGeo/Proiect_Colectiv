@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import useExamApi from "../ExamApi.ts";
-import type { LocationProps, StudentExamRowProps, StudentIdProps } from "../props.ts";
+import type { LocationProps, StudentExamRowProps, UserProps } from "../props.ts";
 import "../ExamPage.css";
 
-const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
+const ExamPageByStudent: React.FC<UserProps> = ({ id, firstName, lastName }) => {
   const { getExamsByStudent, getLocations } = useExamApi();
 
   const [examRows, setExamRows] = useState<StudentExamRowProps[]>([]);
@@ -81,7 +81,9 @@ const ExamPageByStudent: React.FC<StudentIdProps> = ({ id }) => {
 
   return (
     <div className="exam-page-container">
-      <h2>Examene Student</h2>
+      <h2>
+        Student: {firstName} {lastName}
+      </h2>
 
       {!examRows.length && <Glimmer />}
 
