@@ -25,7 +25,7 @@ export function getAppMenus() {
         },
         {
           title: "Exam",
-          icon: "👤",
+          icon: "📋",
           url: "/exam",
         },
       ],
