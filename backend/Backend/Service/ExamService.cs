@@ -4,6 +4,7 @@ using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Utils;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
@@ -45,7 +46,7 @@ public class ExamService(IExamRepository examRepository, ITimetableRepository ti
             var validationResult = await validator.ValidateAsync(examEntry);
             if (!validationResult.IsValid)
             {
-                throw new ValidationException(index.ToString(), validationResult.Errors);
+                throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
             }
             index++;
         }

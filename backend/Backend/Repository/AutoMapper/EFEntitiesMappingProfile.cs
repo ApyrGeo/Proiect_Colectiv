@@ -96,5 +96,13 @@ public class EFEntitiesMappingProfile : Profile
            .ForMember(dest => dest.ClassroomId, opt => opt.MapFrom(src => src.ClassroomId))
            .ForMember(dest => dest.SubjectId, opt => opt.MapFrom(src => src.SubjectId))
            .ForMember(dest => dest.StudentGroupId, opt => opt.MapFrom(src => src.StudentGroupId));
+
+        CreateMap<Enrollment, LoggedUserEnrollmentResponseDTO>()
+            .ForMember(dest => dest.EnrollmentId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.SubGroupId, opt => opt.MapFrom(src => src.SubGroupId))
+            .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.SubGroup.StudentGroupId))
+            .ForMember(dest => dest.PromotionId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.PromotionId))
+            .ForMember(dest => dest.SpecializationId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.SpecialisationId))
+            .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId));
     }
 }

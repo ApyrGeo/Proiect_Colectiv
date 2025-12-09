@@ -103,7 +103,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
                 g => g.StudentSubGroups.Sum(sg => sg.Enrollments.Count)
             );
 
-        const double thresholdFraction = 0.1;
+        const double thresholdFraction = 0;
 
         var filteredGroupIds = subjectEnrollmentCounts
             .Where(kvp =>

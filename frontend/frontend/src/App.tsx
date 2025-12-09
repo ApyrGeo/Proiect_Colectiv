@@ -18,6 +18,7 @@ import SignInButton from "./auth/components/SignInButton.tsx";
 import FAQPopup from "./faq/components/FAQPopup.tsx";
 import { faqsTimetable } from "./faq/FAQData.ts";
 import ContractsPage from "./contracts/ContractsPage.tsx";
+import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
 
 const App = () => {
@@ -54,6 +55,7 @@ const App = () => {
             <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
+            <Route path={"/exam"} Component={ExamPage} />
           </Route>
         </Routes>
 

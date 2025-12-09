@@ -23,6 +23,11 @@ export function getAppMenus() {
           icon: "👤",
           url: "/profile",
         },
+        {
+          title: "Exam",
+          icon: "👤",
+          url: "/exam",
+        },
       ],
     },
   ];

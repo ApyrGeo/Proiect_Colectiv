@@ -100,7 +100,43 @@ const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?
         canvas.toBlob((b) => resolve(b), type, quality);
       });
 
-    useImperativeHandle(ref, () => ({ clear, undo, toBlob }), []);
+    useImperativeHandle(ref, () => ({
+      clear,
+      undo,
+      toBlob,
+
+      fromBase64: (base64: string) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+          const scale = Math.min(
+            canvas.width / img.width,
+            canvas.height / img.height
+          );
+
+          const x = (canvas.width - img.width * scale) / 2;
+          const y = (canvas.height - img.height * scale) / 2;
+
+          ctx.drawImage(
+            img,
+            x,
+            y,
+            img.width * scale,
+            img.height * scale
+          );
+        };
+
+        img.src = `data:image/png;base64,${base64}`;
+      },
+    }));
 
     return (
       <div>

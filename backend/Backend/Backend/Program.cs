@@ -86,7 +86,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AppAllowSpecificOrigins, policy =>
     {
-        policy.AllowAnyHeader().AllowAnyOrigin();
+        policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
     });
 });
 
@@ -192,7 +192,7 @@ builder.Services.AddCors(options =>
             var feUrl = builder.Configuration.GetValue<string>("Email:BaseUrl");
             policy
                 .WithOrigins(feUrl)
-                .AllowAnyHeader()
+                .AllowAnyHeader().AllowAnyMethod();
                 ;
         });
 });
@@ -216,14 +216,13 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+// CORS trebuie să fie aici
+app.UseCors(AppAllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCors(AppAllowSpecificOrigins);
 
 //try seed DB
 using (var scope = app.Services.CreateScope())

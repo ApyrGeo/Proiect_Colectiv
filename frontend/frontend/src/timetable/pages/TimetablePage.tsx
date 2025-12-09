@@ -2,8 +2,6 @@ import React, { useEffect, useState, type SetStateAction, useRef } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
-import { faqsTimetable } from "../../faq/FAQData.ts";
-import FAQPopup from "../../faq/components/FAQPopup.tsx";
 import { useTranslation } from "react-i18next";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 
