@@ -10,16 +10,10 @@ const defaultSelectedLocations: SelectedLocationsProps = {
   nextLocation: null,
 };
 
-const userGroupIds = {
-  groupId: 1,
-  specId: 1,
-  facultyId: 1,
-};
-
 const TimetablePage: React.FC = () => {
   const { t } = useTranslation();
 
-  const { userProps } = useAuthContext();
+  const { userProps, userEnrollments } = useAuthContext();
 
   const [selectedFilter, setSelectedFilter] = useState<string>("personal");
   const [selectedFreq, setSelectedFreq] = useState<string>("all");
@@ -127,7 +121,7 @@ const TimetablePage: React.FC = () => {
     setSelectedFreq(event.target.value);
   };
 
-  if (!userProps || !userProps.id) return <div>{t("Error")}</div>;
+  if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
   return (
     <div className={"container"}>
@@ -242,21 +236,21 @@ const TimetablePage: React.FC = () => {
         )}
         {selectedFilter == "group" && (
           <Timetable
-            groupYearId={userGroupIds.groupId}
+            groupYearId={userEnrollments[0].groupId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "specialisation" && (
           <Timetable
-            specialisationId={userGroupIds.specId}
+            specialisationId={userEnrollments[0].specializationId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />
         )}
         {selectedFilter == "faculty" && (
           <Timetable
-            facultyId={userGroupIds.facultyId}
+            facultyId={userEnrollments[0].facultyId}
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
           />

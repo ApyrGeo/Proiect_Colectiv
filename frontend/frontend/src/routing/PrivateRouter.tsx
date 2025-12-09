@@ -11,13 +11,11 @@ const PrivateRouter = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isFullfilled)
-      return
-    if (!activeAccount || !isRouteAvailable(location.pathname, userProps))
-      navigate("/");
-  }, [isFullfilled, userProps, activeAccount])
+    if (!isFullfilled || !userProps) return;
+    if (!activeAccount || !isRouteAvailable(location.pathname, userProps)) navigate("/");
+  }, [isFullfilled, userProps, activeAccount]);
 
-  return <Outlet />
+  return <Outlet />;
 };
 
 export default PrivateRouter;
