@@ -215,7 +215,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     
     private static void GeneratePromotionYearsAndSemesters(Promotion promotion)
     {
-        for (int year = 1; year <= promotion.EndYear-promotion.StartYear+1; year++)
+        for (int year = 1; year <= promotion.EndYear-promotion.StartYear; year++)
         {
             var promotionYear = new PromotionYear
             {
