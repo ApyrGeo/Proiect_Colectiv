@@ -21,6 +21,7 @@ public class UserServiceTests
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
     private readonly Mock<IConfiguration> conf = new();
+    private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
 
     public UserServiceTests()
     {
@@ -31,7 +32,7 @@ public class UserServiceTests
 
         _validatorFactory = mockValidatorFactory.Object;
 
-        _userService = new UserService(_mockUserRepository.Object, _validatorFactory,
+        _userService = new UserService(_mockUserRepository.Object,_mockAcademicRepository.Object ,_validatorFactory,
             _mockPasswordHasher.Object, _mockEmailProvider.Object,conf.Object);
     }
 
