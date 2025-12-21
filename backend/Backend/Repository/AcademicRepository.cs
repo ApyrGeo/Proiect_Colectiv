@@ -39,6 +39,9 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     public async Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion)
     {
         var entity = _mapper.Map<Promotion>(promotion);
+        
+        GeneratePromotionYearsAndSemesters(entity);
+        
         await _context.Promotions.AddAsync(entity);
 
         return _mapper.Map<PromotionResponseDTO>(entity);
@@ -208,5 +211,31 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .FirstOrDefaultAsync();
 
         return _mapper.Map<LoggedUserEnrollmentResponseDTO>(enrollment);
+    }
+    
+    private static void GeneratePromotionYearsAndSemesters(Promotion promotion)
+    {
+        for (int year = 1; year <= promotion.EndYear-promotion.StartYear; year++)
+        {
+            var promotionYear = new PromotionYear
+            {
+                YearNumber = year,
+                Promotion = promotion
+            };
+
+            promotionYear.PromotionSemesters.Add(new PromotionSemester
+            {
+                SemesterNumber = 1,
+                PromotionYear = promotionYear
+            });
+
+            promotionYear.PromotionSemesters.Add(new PromotionSemester
+            {
+                SemesterNumber = 2,
+                PromotionYear = promotionYear
+            });
+
+            promotion.Years.Add(promotionYear);
+        }
     }
 }
