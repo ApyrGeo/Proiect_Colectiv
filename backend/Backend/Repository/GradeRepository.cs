@@ -67,7 +67,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
         if (!string.IsNullOrWhiteSpace(specialisation))
         {
-            query = query.Where(g => g.Semester.PromotionYear.Promotion.Specialisation.Name == specialisation);
+            query = query.Where(g => g.Enrollment.SubGroup.StudentGroup.Promotion.Specialisation.Name == specialisation);
         }
 
         var grades = await query.ToListAsync();
@@ -121,6 +121,28 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     {
         var grade = await _context.Grades.Where(g => g.EnrollmentId == arg1EnrollmentId  && g.SubjectId == arg1SubjectId)
             .FirstOrDefaultAsync();
+        return _mapper.Map<GradeResponseDTO>(grade);
+    }
+
+    public async Task<GradeResponseDTO> UpdateGradeAsync(int gradeId, GradePostDTO dto)
+    {
+        var grade = await _context.Grades.FindAsync(gradeId);
+        grade.Value = dto.Value;
+        grade.SubjectId = dto.SubjectId;
+        grade.SemesterId = dto.SemesterId;
+        grade.EnrollmentId = dto.EnrollmentId;
+
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<GradeResponseDTO>(grade);
+    }
+
+    public async Task<GradeResponseDTO> PatchGradeValueAsync(int gradeId, int newValue)
+    {
+        var grade = await _context.Grades.FindAsync(gradeId);
+        grade.Value = newValue;
+        
+        await _context.SaveChangesAsync(); 
         return _mapper.Map<GradeResponseDTO>(grade);
     }
 
