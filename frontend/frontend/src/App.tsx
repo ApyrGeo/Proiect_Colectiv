@@ -18,6 +18,7 @@ import ContractsPage from "./contracts/ContractsPage.tsx";
 import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
 import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
+import AdminLocationPage from "./admin/location/AdminLocationPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -33,6 +34,7 @@ const App = () => {
         <Routes>
           <Route index Component={Homepage} />
           <Route path={"/home"} Component={Homepage} />
+          <Route path={"/admin/location"} Component={AdminLocationPage} />
           <Route Component={PrivateRouter}>
             <Route path={"/grades"} Component={GradesPage} />
             <Route path={"/timetable"} Component={TimetablePage} />
