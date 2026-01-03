@@ -2,7 +2,7 @@ import useApiClient from "../../core/useApiClient";
 import { baseUrl } from "../../core";
 import type { LocationPostProps, LocationProps } from "./props";
 
-const LOCATION_API_URL = `${baseUrl}/api/Location`;
+const LOCATION_API_URL = `${baseUrl}/api/timetable/locations`;
 
 const useLocationApi = () => {
   const { axios } = useApiClient();

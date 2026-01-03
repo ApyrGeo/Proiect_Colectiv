@@ -25,7 +25,6 @@ const AdminLocationPage: React.FC = () => {
   useEffect(() => {
     fetchLocations().then(setLocations);
   }, []);
-
   const handleSave = async () => {
     let locationId: number;
 
@@ -41,14 +40,14 @@ const AdminLocationPage: React.FC = () => {
       locationId: locationId,
     });
 
+    setClassroomName("");
+
     alert("Location & Classroom created!");
   };
 
   return (
     <div>
       <h2>Create Location & Classroom</h2>
-
-      {/* MODE SWITCH */}
       <div style={{ marginBottom: "1rem" }}>
         <button onClick={() => setMode("NEW")}>Add new location</button>
         <button onClick={() => setMode("EXISTING")}>Use existing location</button>

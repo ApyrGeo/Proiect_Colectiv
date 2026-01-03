@@ -2,7 +2,7 @@ import useApiClient from "../../core/useApiClient";
 import { baseUrl } from "../../core";
 import type { ClassroomProps } from "./props";
 
-const CLASSROOM_API_URL = `${baseUrl}/api/Classroom`;
+const CLASSROOM_API_URL = `${baseUrl}/api/timetable/classrooms`;
 
 const useClassroomApi = () => {
   const { axios } = useApiClient();
