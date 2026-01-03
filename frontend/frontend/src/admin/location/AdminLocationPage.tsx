@@ -41,8 +41,6 @@ const AdminLocationPage: React.FC = () => {
     });
 
     setClassroomName("");
-
-    alert("Location & Classroom created!");
   };
 
   return (
@@ -102,7 +100,12 @@ const AdminLocationPage: React.FC = () => {
             ))}
           </select>
 
-          {selectedLocation && <GoogleMapsComponent locations={[selectedLocation]} />}
+          {selectedLocation && (
+            <div>
+              {" "}
+              <p>Name: {selectedLocation.name}</p> <p>Address: {selectedLocation.address}</p>{" "}
+            </div>
+          )}
         </>
       )}
 
