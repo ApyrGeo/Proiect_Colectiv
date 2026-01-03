@@ -221,3 +221,34 @@
   background: linear-gradient(90deg, #cc2e5a, #e36c84);
   color: #2a0000;
 }
+
+.teacher-grades-container {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 40px;
+  background: #0d1b2a;
+  border-radius: 16px;
+}
+
+.teacher-grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.teacher-grades-table th {
+  background: #1e3a56;
+  padding: 12px;
+  color: #e0e6ed;
+}
+
+.teacher-grades-table td {
+  padding: 10px;
+  border-bottom: 1px solid #274059;
+}
+
+.teacher-grades-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
