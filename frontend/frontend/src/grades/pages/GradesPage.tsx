@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../grades.css";
-import useGradesApi from "../GradesApi.ts";
+import { fetchUserSpecializations, fetchStatusForUser, fetchGradesForUser } from "../GradesApi.ts";
 import GradeItem from "../components/GradeItem.tsx";
 import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent.tsx";
 import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
@@ -11,8 +11,6 @@ import Circular from "../../components/loading/Circular.tsx";
 
 const GradesPage: React.FC = () => {
   const { t } = useTranslation();
-
-  const { getUserSpecializations, getGradesForUser, getScholarshipStatusForUser } = useGradesApi();
 
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>("");
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
@@ -30,7 +28,7 @@ const GradesPage: React.FC = () => {
     const fetchSpecializations = async () => {
       if (!userProps) return;
       try {
-        const specs = await getUserSpecializations(userProps.id);
+        const specs = await fetchUserSpecializations(userProps.id);
         setSpecializations(specs);
         if (specs.length > 0 && !selectedSpecialization) {
           setSelectedSpecialization(specs[0]);
@@ -58,7 +56,7 @@ const GradesPage: React.FC = () => {
       (async () => {
         if (!userProps.id) return;
         try {
-          const stat = await getScholarshipStatusForUser(userProps.id, spec, year, sem);
+          const stat = await fetchStatusForUser(userProps.id, spec, year, sem);
           setStatus(stat);
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
@@ -74,7 +72,7 @@ const GradesPage: React.FC = () => {
       if (!userProps.id) return;
       setLoading(true);
       try {
-        const result = await getGradesForUser(userProps.id, spec, year, sem);
+        const result = await fetchGradesForUser(userProps.id, spec, year, sem);
         setGrades(result);
         setError(null);
       } catch (err) {
