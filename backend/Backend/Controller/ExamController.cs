@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
@@ -32,6 +33,7 @@ public class ExamController(IExamService examService) : ControllerBase
     [HttpPut]
     [ProducesResponseType(422)]
     [ProducesResponseType(200)]
+    [Authorize(Roles = $"{UserRolePermission.Teacher},{UserRolePermission.Admin}")]
     public async Task<ActionResult<List<ExamEntryResponseDTO>>> UpdateExamEntryList([FromBody] List<ExamEntryPutDTO> examEntries)
     {
         var updatedExams = await _examService.UpdateExamEntries(examEntries);

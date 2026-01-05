@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
@@ -51,6 +52,7 @@ public class GradesController(IGradeService service) : ControllerBase
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = $"{UserRolePermission.Teacher},{UserRolePermission.Admin}")]
     public async Task<ActionResult<GradeResponseDTO>> CreateUserGrade([FromQuery] int teacherId, [FromBody] GradePostDTO gradePostDto)
     {
         _logger.InfoFormat("Teacher {0} creating grade: {1}", teacherId, gradePostDto);
@@ -63,6 +65,7 @@ public class GradesController(IGradeService service) : ControllerBase
     [HttpPut("{gradeId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize(Roles = $"{UserRolePermission.Teacher},{UserRolePermission.Admin}")]
     public async Task<ActionResult<GradeResponseDTO>> UpdateGrade(int gradeId, [FromQuery] int teacherId, [FromBody] GradePostDTO dto)
     {
         var updatedGrade = await _service.UpdateGradeAsync(teacherId, gradeId, dto);
@@ -72,6 +75,7 @@ public class GradesController(IGradeService service) : ControllerBase
     [HttpPatch("{gradeId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize(Roles = $"{UserRolePermission.Teacher},{UserRolePermission.Admin}")]
     public async Task<ActionResult<GradeResponseDTO>> PatchGrade(int gradeId, [FromQuery] int teacherId, [FromBody] GradePatchDTO dto)
     {
         var updatedGrade = await _service.PatchGradeAsync(teacherId, gradeId, dto.Value);
