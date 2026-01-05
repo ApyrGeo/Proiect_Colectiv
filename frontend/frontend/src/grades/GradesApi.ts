@@ -1,12 +1,15 @@
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
 import type { ScholarshipStatus, SpecializationResponse } from "./props";
+import type {StudentGroupProps, SubjectProps, TeacherProps, UserProps} from "../exam/props.ts";
 
 const useGradesApi = () => {
   const { axios } = useApiClient();
 
   const gradesUrl = "/api/Grades";
   const userUrl = "/api/User";
+  const timetableUrl = "/api/Timetable";
+  const academicsUrl = "/api/Academics";
 
   // 📌 Specializările la care este înscris studentul
   const getUserSpecializations = useCallback(
@@ -60,10 +63,55 @@ const useGradesApi = () => {
     [axios]
   );
 
+  const getSubjectsByTeacher = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<SubjectProps[]>(`${timetableUrl}/subjects/holder-teacher/${teacherId}`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  const getStudentGroupsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get<StudentGroupProps[]>(`${timetableUrl}/subjects/${subjectId}/groups`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  const getTeacherbyUserId = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teacher/user/${userId}`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
+  const getTeacherById = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teachers/${teacherId}`);
+      return response.data;
+    },
+    [axios]
+  );
+
+  const getUserById = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<UserProps>(`${userUrl}/${userId}`);
+      return response.data;
+    },
+    [axios]
+  );
+
   return {
     getUserSpecializations,
     getScholarshipStatusForUser,
     getGradesForUser,
+    getSubjectsByTeacher,
+    getStudentGroupsBySubject,
+    getTeacherbyUserId,
+    getTeacherById,
+    getUserById,
   };
 };
 

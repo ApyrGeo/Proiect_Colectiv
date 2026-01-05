@@ -21,3 +21,20 @@ export interface ScholarshipStatus {
   isEligible: boolean;
   scholarshipType?: string | null;
 }
+
+export interface TeacherProps {
+  id: number;
+  userId: number;
+  user: UserProps;
+  facultyId: number;
+}
+
+export interface UserProps {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  password: string | null;
+  role: number;
+}

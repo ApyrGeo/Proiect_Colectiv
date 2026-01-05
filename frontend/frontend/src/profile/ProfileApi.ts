@@ -2,7 +2,7 @@ import useApiClient from "../core/useApiClient";
 import type { Profile } from "./props.ts";
 import { baseUrl } from "../core/index.ts";
 
-const USER_API_URL = `${baseUrl}api/User`;
+const USER_API_URL = `${baseUrl}/api/User`;
 
 const useUserApi = () => {
   const { axios } = useApiClient();
