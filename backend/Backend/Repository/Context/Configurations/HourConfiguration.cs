@@ -53,9 +53,5 @@ public class HourConfiguration : IEntityTypeConfiguration<Hour>
             .WithMany()
             .HasForeignKey(x => x.StudentSubGroupId)
             .IsRequired(false);
-
-        builder.HasOne(x => x.Semester)
-            .WithMany(s => s.Hours)
-            .HasForeignKey(x => x.SemesterId);
 	}
 }

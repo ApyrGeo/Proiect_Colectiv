@@ -26,10 +26,9 @@ public class ExamDataSeeder(AcademicAppContext context)
             .Where(s => s.HolderTeacher == null)
             .Include(s => s.Contracts)
                 .ThenInclude(c => c.Semester)
-                    .ThenInclude(sem => sem.PromotionYear)
-                        .ThenInclude(py => py.Promotion)
-                            .ThenInclude(p => p.Specialisation)
-                                .ThenInclude(sp => sp.Faculty)
+                    .ThenInclude(py => py.Promotion)
+                        .ThenInclude(p => p.Specialisation)
+                            .ThenInclude(sp => sp.Faculty)
             .ToListAsync();
 
         if (subjectsWithoutHolder.Count == 0)
@@ -47,9 +46,7 @@ public class ExamDataSeeder(AcademicAppContext context)
 
         foreach (var subject in subjectsWithoutHolder)
         {
-            // Determine faculty from subject's first contract (if available)
-            var contract = subject.Contracts?.FirstOrDefault();
-            var facultyId = contract?.Semester?.PromotionYear?.Promotion?.Specialisation?.Faculty?.Id;
+            var facultyId = subject.Semester.Promotion.Specialisation.FacultyId;
 
             // Prefer a teacher from the same faculty, fallback to any available teacher
             var availableTeacher = teachersWithoutSubject.FirstOrDefault(t => t.FacultyId == facultyId)

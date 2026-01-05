@@ -70,7 +70,7 @@ public class UniversityDataSeeder(AcademicAppContext context)
 				Specialisation = spec
 			};
 
-			promotion.Years = GenerateYears(promotion);
+			promotion.Semesters = GenerateSemesters(promotion);
 			promotion.StudentGroups = GenerateGroups(specNr, HelperFunctions.GetCurrentStudentYear(promotion.StartYear), promotion);
 
 			promotions.Add(promotion);
@@ -78,24 +78,15 @@ public class UniversityDataSeeder(AcademicAppContext context)
 		return promotions;
 	}
 
-	private static List<PromotionYear> GenerateYears(Promotion promotion)
+	private static List<PromotionSemester> GenerateSemesters(Promotion promotion)
 	{
-		var years = new List<PromotionYear>();
-		for (int i = 1; i <= 3; i++)
-		{
-			var year = new PromotionYear
-			{
-				YearNumber = i,
-				Promotion = promotion
-			};
-			year.PromotionSemesters = new List<PromotionSemester>
-			{
-				new PromotionSemester { SemesterNumber = 1, PromotionYear = year },
-				new PromotionSemester { SemesterNumber = 2, PromotionYear = year }
-			};
-			years.Add(year);
-		}
-		return years;
+        return Enumerable.Range(1, 6)
+            .Select(i => new PromotionSemester
+            {
+                SemesterNumber = i,
+                Promotion = promotion,
+            })
+            .ToList();
 	}
 
 	private static List<StudentGroup> GenerateGroups(int specialisationNr, int yearNum, Promotion promotion)

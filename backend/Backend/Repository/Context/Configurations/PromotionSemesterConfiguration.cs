@@ -18,8 +18,8 @@ public class PromotionSemesterConfiguration : IEntityTypeConfiguration<Promotion
 		builder.Property(ps => ps.SemesterNumber)
 			   .IsRequired();
 
-		builder.HasOne(ps => ps.PromotionYear)
-			.WithMany(py => py.PromotionSemesters)
-			.HasForeignKey(ps => ps.PromotionYearId);
+		builder.HasOne(ps => ps.Promotion)
+			.WithMany(py => py.Semesters)
+			.HasForeignKey(ps => ps.PromotionId);
 	}
 }

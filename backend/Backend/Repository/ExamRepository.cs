@@ -34,7 +34,7 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
             .Where(exam => studentGroupIds.Contains(exam.StudentGroupId))
             .Include(exam => exam.Subject)
             .Include(exam => exam.Classroom)
-                .ThenInclude(c => c.Location)
+                .ThenInclude(c => c != null ? c.Location : null)
             .Include(exam => exam.StudentGroup)
                 .ThenInclude(sg => sg.Promotion)
                     .ThenInclude(p => p.Specialisation)
@@ -77,7 +77,7 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
             .Where(e => e.SubjectId == subjectId)
             .Include(e => e.Subject)
             .Include(e => e.Classroom)
-                .ThenInclude(c => c.Location)
+                .ThenInclude(c => c != null ? c.Location : null)
             .Include(e => e.StudentGroup)
             .ToListAsync();
 
@@ -108,7 +108,7 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
         var savedEntries = await _context.ExamEntries
             .Include(e => e.Subject)
             .Include(e => e.Classroom)
-                .ThenInclude(c => c.Location)
+                .ThenInclude(c => c != null ? c.Location : null)
             .Include(e => e.StudentGroup)
             .Where(e => entryIds.Contains(e.Id))
             .ToListAsync();

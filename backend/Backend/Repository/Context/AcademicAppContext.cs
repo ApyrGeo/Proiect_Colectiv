@@ -12,7 +12,6 @@ public class AcademicAppContext(DbContextOptions<AcademicAppContext> options) : 
     public DbSet<StudentSubGroup> SubGroups { get; set; }
     public DbSet<StudentGroup> Groups { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
-    public DbSet<PromotionYear> PromotionYears { get; set; }
     public DbSet<PromotionSemester> PromotionSemesters { get; set; }
     public DbSet<Grade> Grades { get; set; }
 	public DbSet<Specialisation> Specialisations { get; set; }

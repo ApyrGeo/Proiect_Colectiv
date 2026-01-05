@@ -17,4 +17,5 @@ public class ContractData
     public required string CNP { get; set; }
     public required string StudentPhone { get; set; }
     public required string StudentEmail { get; set; }
+    public required string UniversityYear { get; set; }
 }

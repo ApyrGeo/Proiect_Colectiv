@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Exceptions.Custom;
@@ -62,7 +62,7 @@ public class GradeServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacherId))
@@ -77,7 +77,7 @@ public class GradeServiceTests
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = year };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = subjectId, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO { Id = subjectId, Name = "TestSubject", NumberOfCredits = 5, Code = "TestCode", Type = "Facultative", };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -93,7 +93,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -177,7 +177,7 @@ public class GradeServiceTests
             Email = "t@test.com",
             PhoneNumber = "+40123456789",
             Role = teacherId == 1 ? UserRole.Teacher : UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository
@@ -228,7 +228,7 @@ public class GradeServiceTests
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = year };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5, Code = "TestCode", Type = "Required", };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -244,7 +244,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -299,7 +299,7 @@ public class GradeServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacher.Id))
@@ -310,7 +310,14 @@ public class GradeServiceTests
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = yearResponse };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO
+        {
+            Id = 1,
+            Name = "TestSubject",
+            NumberOfCredits = 5,
+            Code = "TestCode",
+            Type = "Optional",
+        };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -328,7 +335,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO

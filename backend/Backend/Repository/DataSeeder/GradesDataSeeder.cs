@@ -23,12 +23,11 @@ public class GradesDataSeeder(AcademicAppContext context)
             return;
 
         var existingKeys = await _context.Grades
-            .Select(g => new { g.EnrollmentId, g.SubjectId, g.SemesterId })
+            .Include(g => g.Subject)
+            .Select(g => new { g.EnrollmentId, g.SubjectId, g.Subject.SemesterId })
             .ToListAsync();
 
-        var existingSet = new HashSet<(int EnrollmentId, int SubjectId, int SemesterId)>(
-            existingKeys.Select(k => (k.EnrollmentId, k.SubjectId, k.SemesterId))
-        );
+        var existingSet = existingKeys.Select(k => (k.EnrollmentId, k.SubjectId, k.SemesterId)).ToHashSet();
 
         var rnd = new Random();
         var gradesToAdd = new List<Grade>();
@@ -52,7 +51,6 @@ public class GradesDataSeeder(AcademicAppContext context)
                 gradesToAdd.Add(new Grade
                 {
                     Enrollment = contract.Enrollment,
-                    Semester = contract.Semester,
                     Subject = subject,
                     Value = value
                 });

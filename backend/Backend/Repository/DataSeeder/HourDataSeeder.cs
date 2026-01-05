@@ -21,8 +21,7 @@ public class HourDataSeeder(AcademicAppContext context)
 				.ThenInclude(s => s.Faculty)
 			.Include(p => p.StudentGroups)
 				.ThenInclude(sg => sg.StudentSubGroups)
-			.Include(p => p.Years)
-				.ThenInclude(y => y.PromotionSemesters)
+			.Include(p => p.Semesters)
 			.ToListAsync();
 
 		var subjects = await _context.Subjects.ToListAsync();
@@ -164,14 +163,14 @@ public class HourDataSeeder(AcademicAppContext context)
 
 		foreach (var promotion in promotions)
 		{
-			if (promotion?.Years == null || promotion.StudentGroups == null) continue;
+			if (promotion?.Semesters == null || promotion.StudentGroups == null) continue;
 
 			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
 
-			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
-			if (currentYear?.PromotionSemesters == null) continue;
-
-			foreach (var semester in currentYear.PromotionSemesters.OrderBy(s => s.SemesterNumber))
+            var semesters = promotion.Semesters
+                .Where(s => HelperFunctions.SemesterBelongsToYear(s.SemesterNumber, currentYearNum))
+                .OrderBy(s => s.SemesterNumber);
+            foreach (var semester in semesters)
 			{
 				var semesterSubjects = subjects.OrderBy(_ => _random.Next()).Take(5).ToList();
 				if (semesterSubjects.Count == 0) continue;
@@ -204,8 +203,6 @@ public class HourDataSeeder(AcademicAppContext context)
 								TeacherId = teacher.Id,
 								Promotion = promotion,
 								PromotionId = promotion.Id,
-								Semester = semester,
-								SemesterId = semester.Id,
 								Category = HourCategory.Lecture
 							};
 
@@ -243,8 +240,6 @@ public class HourDataSeeder(AcademicAppContext context)
 								TeacherId = teacher.Id,
 								StudentGroup = group,
 								StudentGroupId = group.Id,
-								Semester = semester,
-								SemesterId = semester.Id,
 								Category = HourCategory.Seminar
 							};
 
@@ -285,8 +280,6 @@ public class HourDataSeeder(AcademicAppContext context)
 									TeacherId = teacher.Id,
 									StudentSubGroup = sub,
 									StudentSubGroupId = sub.Id,
-									Semester = semester,
-									SemesterId = semester.Id,
 									Category = HourCategory.Laboratory
 								};
 

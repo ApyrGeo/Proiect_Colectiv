@@ -8,7 +8,7 @@ namespace TrackForUBB.Service.EmailService.Emails.PostedSemesterGrades;
 
 public class PostedSemesterGradesSender(EmailSettings config) : BaseEmailSender<PostedSemesterGradesModel>(config), IEmailSender<PostedSemesterGradesModel>
 {
-    private const string TemplatePath = "PostedSemesterGrades\\PostedSemesterGradesPage.html";
+    private static readonly string TemplatePath = Path.Combine("PostedSemesterGrades", "PostedSemesterGradesPage.html");
 
     public override async Task SendEmailAsync(string to, PostedSemesterGradesModel model)
     {

@@ -75,9 +75,22 @@ public class TimetableRepositoryTests : IDisposable
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
-        var groupYear = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var semester = new PromotionSemester
+        {
+            Promotion = promotion,
+            PromotionId = promotion.Id,
+            SemesterNumber = 1,
+        };
 
-        var subject = new SubjectPostDTO { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id };
+        var subject = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = numberOfCredits,
+            SemesterId = semester.Id,
+            Code = "MLR1010",
+            Type = "Required",
+        };
         await _repo.AddSubjectAsync(subject);
         await _context.SaveChangesAsync();
 
@@ -133,15 +146,23 @@ public class TimetableRepositoryTests : IDisposable
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
-        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation, Years = new List<PromotionYear>() };
-        
-		var promotionYear = new PromotionYear { Promotion = promotion, PromotionSemesters = new List<PromotionSemester>() };
-        var promotionSemester = new PromotionSemester { SemesterNumber = 1, PromotionYear = promotionYear };
-        promotionYear.PromotionSemesters.Add(promotionSemester);
-        promotion.Years.Add(promotionYear);
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
 
-		var subject = new Subject
-            { Name = name, NumberOfCredits = 4 };
+
+        var promotionSemester = new PromotionSemester { SemesterNumber = 1, Promotion = promotion };
+        promotion.Semesters.Add(promotionSemester);
+
+        var teacher = SampleTeacher(faculty);
+        var subject = new Subject
+        {
+            Name = name,
+            NumberOfCredits = 4,
+            HolderTeacher = teacher,
+            HolderTeacherId = teacher.Id,
+            Semester = promotionSemester,
+            SemesterId = promotionSemester.Id,
+            SubjectCode = "MLR1010",
+        };
 
         subject.Name = name;
 
@@ -170,15 +191,7 @@ public class TimetableRepositoryTests : IDisposable
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
         var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
-		var promotionYear = new PromotionYear { Promotion = promotion, PromotionSemesters = new List<PromotionSemester>() };
-		var promotionSemester = new PromotionSemester { SemesterNumber = 1, PromotionYear = promotionYear };
-		promotionYear.PromotionSemesters.Add(promotionSemester);
-		promotion.Years.Add(promotionYear);
-
-		var subject = new Subject
-            { Name = "FP", NumberOfCredits = 4 };
-        var location = new Location { Name = "Fsega", Address = "Str Goldis" };
-        var classroom = new Classroom { Name = "A303", Location = location };
+        var promotionSemester = new PromotionSemester { SemesterNumber = 1, Promotion = promotion };
 
         var teacher = new Teacher
         {
@@ -195,6 +208,19 @@ public class TimetableRepositoryTests : IDisposable
             Faculty = faculty
         };
 
+        var subject = new Subject
+        {
+            Name = "FP",
+            NumberOfCredits = 4,
+            HolderTeacher = teacher,
+            HolderTeacherId = teacher.Id,
+            SubjectCode = "MLR101",
+            Semester = promotionSemester,
+            SemesterId = promotionSemester.Id,
+        };
+        var location = new Location { Name = "Fsega", Address = "Str Goldis" };
+        var classroom = new Classroom { Name = "A303", Location = location };
+
         var hour = new Hour
         {
             Id = id,
@@ -205,8 +231,7 @@ public class TimetableRepositoryTests : IDisposable
             Subject = subject,
             Classroom = classroom,
             Teacher = teacher,
-            Semester = promotionSemester
-		};
+        };
 
         _context.Hours.Add(hour);
         await _context.SaveChangesAsync();
@@ -216,4 +241,26 @@ public class TimetableRepositoryTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal("10:00-12:00", result.HourInterval);
     }
+
+    private static Teacher SampleTeacher(Faculty faculty)
+    {
+        var user = new User()
+        {
+            Id = 19,
+            FirstName = "radio",
+            LastName = "san",
+            Email = "radiosan@ubbcluj.ro",
+            PhoneNumber = "-0981209843",
+            Role = UserRole.Teacher,
+        };
+        return new()
+        {
+            Id = 19,
+            User = user,
+            UserId = user.Id,
+            Faculty = faculty,
+            FacultyId = faculty.Id,
+        };
+    }
 }
+

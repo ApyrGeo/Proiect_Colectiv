@@ -157,7 +157,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var promotionDto = await _academicRepository.GetPromotionByIdAsync(promotionId)
             ?? throw new NotFoundException($"Promotion with ID {promotionId} not found.");
 
-        _logger.InfoFormat("Mapping promotion entity to DTO for ID {0}", promotionId);
+        _logger.InfoFormat("Mapped promotion entity to DTO {0}", JsonSerializer.Serialize(promotionDto));
 
         return promotionDto;
     }

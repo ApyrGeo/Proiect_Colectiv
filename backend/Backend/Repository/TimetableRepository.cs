@@ -222,7 +222,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         if (filter.SemesterNumber != null)
         {
-            query = query.Where(h => h.Semester.SemesterNumber == filter.SemesterNumber);
+            query = query.Where(h => h.Subject.Semester.SemesterNumber == filter.SemesterNumber);
         }
 
         var hours = await query

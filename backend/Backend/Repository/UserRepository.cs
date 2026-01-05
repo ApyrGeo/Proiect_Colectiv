@@ -56,6 +56,9 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         _logger.InfoFormat("Updating user with id: {0}", user.Id);
         var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
+        if (entity is null)
+            throw new Exception($"The user did not exist for id {id}");
+
         if (!string.IsNullOrEmpty(user.SignatureBase64))
             entity.Signature = Convert.FromBase64String(user.SignatureBase64);
 
