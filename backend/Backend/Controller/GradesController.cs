@@ -59,4 +59,22 @@ public class GradesController(IGradeService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetGradeById), new { gradeId = createdGrade.Id }, createdGrade);
     }
+    
+    [HttpPut("{gradeId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<GradeResponseDTO>> UpdateGrade(int gradeId, [FromQuery] int teacherId, [FromBody] GradePostDTO dto)
+    {
+        var updatedGrade = await _service.UpdateGradeAsync(teacherId, gradeId, dto);
+        return Ok(updatedGrade);
+    }
+
+    [HttpPatch("{gradeId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<GradeResponseDTO>> PatchGrade(int gradeId, [FromQuery] int teacherId, [FromBody] GradePatchDTO dto)
+    {
+        var updatedGrade = await _service.PatchGradeAsync(teacherId, gradeId, dto.Value);
+        return Ok(updatedGrade);
+    }
 }

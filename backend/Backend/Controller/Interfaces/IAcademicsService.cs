@@ -20,4 +20,6 @@ public interface IAcademicsService
     Task<TeacherResponseDTO> GetTeacherById(int id);
     Task<EnrollmentResponseDTO?> GetEnrollmentById(int enrollmentId);
     Task<TeacherResponseDTO?> GetTeacherByUserId(int userId);
+    Task<List<EnrollmentResponseDTO>> GetStudentsByStudentGroup(int studentGroupId);
+
 }

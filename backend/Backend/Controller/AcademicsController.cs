@@ -198,4 +198,16 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetStudentSubGroupById), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
     }
+    
+    [HttpGet("student-groups/{studentGroupId}/students")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetStudentsByStudentGroup([FromRoute] int studentGroupId)
+    {
+        _logger.InfoFormat("Fetching students for student group ID {0}", studentGroupId);
+
+        var students = await _service.GetStudentsByStudentGroup(studentGroupId);
+
+        return Ok(students);
+    }
 }

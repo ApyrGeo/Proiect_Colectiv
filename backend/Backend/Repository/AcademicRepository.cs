@@ -212,7 +212,21 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 
         return _mapper.Map<LoggedUserEnrollmentResponseDTO>(enrollment);
     }
-    
+
+    public async Task<List<EnrollmentResponseDTO>> GetEnrollmentByGroup(int groupId)
+    {
+        var students = await _context.Enrollments
+            .Where(e => e.SubGroup.StudentGroupId == groupId)
+            .Include(e => e.User)
+            .Include(e => e.SubGroup)
+                 .ThenInclude(sg => sg.StudentGroup)
+            .ToListAsync();
+            
+            
+        return _mapper.Map<List<EnrollmentResponseDTO>>(students);
+
+    }
+
     private static void GeneratePromotionYearsAndSemesters(Promotion promotion)
     {
         for (int year = 1; year <= promotion.EndYear-promotion.StartYear; year++)
