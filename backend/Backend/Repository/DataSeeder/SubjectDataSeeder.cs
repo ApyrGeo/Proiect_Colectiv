@@ -17,8 +17,7 @@ public class SubjectDataSeeder(AcademicAppContext context)
 		var faculties = await _context.Faculties
 			.Include(f => f.Specialisations)
 				.ThenInclude(s => s.Promotions)
-					.ThenInclude(p => p.Years)
-						.ThenInclude(y => y.PromotionSemesters)
+                    .ThenInclude(y => y.Semesters)
 			.ToListAsync();
 
 		if (faculties.Count == 0)
@@ -96,12 +95,9 @@ public class SubjectDataSeeder(AcademicAppContext context)
 			// Get all unique semesters across all promotions in this faculty's specialisations
 			var allSemesters = faculty.Specialisations
 				.SelectMany(s => s.Promotions)
-				.SelectMany(p => p.Years)
-				.SelectMany(y => y.PromotionSemesters)
-				.GroupBy(ps => new { ps.PromotionYear.YearNumber, ps.SemesterNumber })
-				.Select(g => g.Key)
-				.OrderBy(x => x.YearNumber)
-				.ThenBy(x => x.SemesterNumber)
+				.SelectMany(y => y.Semesters)
+				.GroupBy(ps => ps.SemesterNumber)
+				.Order()
 				.ToList();
 
 			// Track used subject names to avoid duplicates
@@ -147,12 +143,15 @@ public class SubjectDataSeeder(AcademicAppContext context)
 					// Only add if not already in the list (avoid global duplicates)
 					if (!subjectsToAdd.Any(s => s.Name == subjectName))
 					{
+                        // TODO_SEBI
+                        /*
 						subjectsToAdd.Add(new Subject
 						{
                             HolderTeacher = null,
                             Name = subjectName,
 							NumberOfCredits = _random.Next(3, 7)
 						});
+                        */
 					}
 				}
 			}

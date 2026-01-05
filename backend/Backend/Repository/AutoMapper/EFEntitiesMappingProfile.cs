@@ -32,13 +32,20 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<PromotionPostDTO, Promotion>();
 
         CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
-        CreateMap<StudentGroupPostDTO, StudentGroup>();
+        CreateMap<StudentGroupPostDTO, StudentGroup>()
+            .ForMember(x => x.PromotionId, o => o.MapFrom(x => x.GroupYearId));
 
         CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
         CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
 
-        CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
-        CreateMap<SubjectPostDTO, Subject>();
+        CreateMap<Subject, SubjectResponseDTO>()
+            .ForMember(x => x.Type, o => o.MapFrom(x => x.Type.ToString()))
+            .ForMember(x => x.Code, o => o.MapFrom(x => x.SubjectCode))
+            ;
+        CreateMap<SubjectPostDTO, Subject>()
+            .ForMember(x => x.Type, o => o.MapFrom(x => Enum.Parse<SubjectType>(x.Type)))
+            .ForMember(x => x.SubjectCode, o => o.MapFrom(x => x.Code))
+            ;
 
         CreateMap<Teacher, TeacherResponseDTO>().ReverseMap();
         CreateMap<TeacherPostDTO, Teacher>();
@@ -53,12 +60,25 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<LocationPostDTO, Location>();
         
         CreateMap<Grade, GradeResponseDTO>()
-            .ForMember(x => x.Semester, o => o.MapFrom(s => s.Semester));;
+            .ForMember(x => x.Semester, o => o.MapFrom(s => s.Subject.Semester));;
         CreateMap<GradePostDTO, Grade>();
-        
+
+        CreateMap<PromotionSemester, PromotionSemesterResponseDTO>()
+            .ConvertUsing((entity, c, context) =>
+            {
+                return new PromotionSemesterResponseDTO()
+                {
+                    Id = entity.Id,
+                    SemesterNumber = entity.SemesterNumber,
+                    PromotionYear = new()
+                    {
+                        Id = -1,
+                        YearNumber = HelperFunctions.YearOfSemester(entity.SemesterNumber),
+                        Promotion = context.Mapper.Map<PromotionResponseDTO>(entity.Promotion),
+                    }
+                };
+            });
         CreateMap<PromotionSemester, PromotionSemesterResponseDTO>().ReverseMap();
-        
-        CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
 
         CreateMap<User, UserProfileResponseDTO>()
             .ForMember(dest => dest.SignatureUrl,

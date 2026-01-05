@@ -27,7 +27,4 @@ public class Hour
 
     public int? StudentSubGroupId { get; set; }
     public StudentSubGroup? StudentSubGroup { get; set; }
-
-    public int SemesterId { get; set; }
-	public required PromotionSemester Semester { get; set; } 
 }

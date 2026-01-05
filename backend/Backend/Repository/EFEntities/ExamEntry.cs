@@ -17,4 +17,4 @@ public class ExamEntry
     public required Subject Subject { get; set; }
     public int StudentGroupId { get; set; }
     public required StudentGroup StudentGroup { get; set; }
-    }
+}
