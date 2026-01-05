@@ -5,6 +5,8 @@ import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.
 import { useTranslation } from "react-i18next";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 import Circular from "../../components/loading/Circular.tsx";
+import type { HourFilter } from "../useTimetableApi.ts";
+import useTimetableApi from "../useTimetableApi.ts";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -15,6 +17,8 @@ const TimetablePage: React.FC = () => {
   const { t } = useTranslation();
 
   const { userProps, userEnrollments } = useAuthContext();
+
+  const { downloadIcs } = useTimetableApi();
 
   const [selectedFilter, setSelectedFilter] = useState<string>("personal");
   const [selectedFreq, setSelectedFreq] = useState<string>("all");
@@ -127,6 +131,35 @@ const TimetablePage: React.FC = () => {
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
+
+  const handleDownloadIcs = async () => {
+    try {
+      const filter: HourFilter = {};
+      if (selectedFilter === "personal") {
+        filter.userId = userProps!.id;
+        filter.currentWeekTimetable = activeHours;
+      } else if (selectedFilter === "group") {
+        filter.groupYearId = userEnrollments![selectedEnrollment].promotionId;
+      } else if (selectedFilter === "specialisation") {
+        filter.semesterNumber = userEnrollments![selectedEnrollment].specializationId;
+      } else if (selectedFilter === "faculty") {
+        filter.semesterNumber = userEnrollments![selectedEnrollment].facultyId;
+      }
+
+      const blob = await downloadIcs(filter);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `timetable_${new Date().toISOString().slice(0, 10)}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download ICS file:", error);
+    }
+  };
+
   if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
   return (
@@ -198,40 +231,48 @@ const TimetablePage: React.FC = () => {
             {t("CurrentWeek")}
           </label>
         </div>
-        <div className={"timetable-filter"}>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="all"
-              checked={selectedFreq === "all"}
-              onChange={handleChangeFreq}
-            />
-            {t("Anytime")}
-          </label>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="1"
-              checked={selectedFreq === "1"}
-              onChange={handleChangeFreq}
-            />
-            {t("FirstWeek")}
-          </label>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="2"
-              checked={selectedFreq === "2"}
-              onChange={handleChangeFreq}
-            />
-            {t("SecondWeek")}
-          </label>
+        <div style={{ display: "flex", justifyContent: "space-between", alignSelf: "flex-start", width: "100%" }}>
+          <div className={"timetable-filter"}>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="all"
+                checked={selectedFreq === "all"}
+                onChange={handleChangeFreq}
+              />
+              {t("Anytime")}
+            </label>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="1"
+                checked={selectedFreq === "1"}
+                onChange={handleChangeFreq}
+              />
+              {t("FirstWeek")}
+            </label>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="2"
+                checked={selectedFreq === "2"}
+                onChange={handleChangeFreq}
+              />
+              {t("SecondWeek")}
+            </label>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <button className="timetable-download-ics-button" onClick={handleDownloadIcs}>
+              {t("Download")}
+            </button>
+          </div>
         </div>
 
         {selectedFilter == "personal" && !activeHours && (

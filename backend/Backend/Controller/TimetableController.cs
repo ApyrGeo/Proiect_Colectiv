@@ -176,7 +176,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("hours/download")]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] HourFilter filter)
+    public async Task<ActionResult<FileContentResult>> DownloadIcs([FromQuery] HourFilter filter)
     {
         _logger.InfoFormat("Downloading ICS with filter {0}", JsonSerializer.Serialize(filter));
 
