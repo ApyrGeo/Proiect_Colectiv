@@ -44,17 +44,16 @@ public class GradeServiceTests
     [InlineData(1, 1, 1, 10)]
     [InlineData(2, 3, 2, 8)]
     public async Task CreateGradeValidData(
-        int teacherId, int subjectId, int enrollmentId, int value)
+        int teacherUserId, int subjectId, int enrollmentId, int value)
     {
         var postDto = new GradePostDTO
         {
             SubjectId = subjectId,
             EnrollmentId = enrollmentId,
-            SemesterId = 1,
             Value = value
         };
 
-        var teacher = new UserResponseDTO
+        var teacherUser = new UserResponseDTO
         {
             Id = 1,
             FirstName = "Andrei",
@@ -65,12 +64,24 @@ public class GradeServiceTests
             Owner = ""
         };
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(teacherId))
-            .ReturnsAsync(teacher);
+        var teacherId = teacherUserId * 3 + 1;
+
+        var teacher = new TeacherResponseDTO
+        {
+            Id = teacherId,
+            User = teacherUser,
+            UserId = teacherUser.Id,
+            FacultyId = 91,
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(teacherUserId))
+            .ReturnsAsync(teacherUser);
 
         _mockRepository.Setup(r => r.TeacherTeachesSubjectAsync(teacherId, subjectId))
             .ReturnsAsync(true);
 
+        _mockAcademicRepository.Setup(r => r.GetTeacherByUserId(teacherUserId))
+            .ReturnsAsync(teacher);
 
         var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
         var year = new PromotionYearResponseDTO { Id = 1, Promotion = promotion, YearNumber = 2 };
@@ -116,7 +127,7 @@ public class GradeServiceTests
         _mockAcademicRepository.Setup(r => r.GetEnrollmentsByUserId(userDto.Id))
             .ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository
-            .Setup(r => r.TeacherTeachesSubjectAsync(teacherId, subjectId))
+            .Setup(r => r.TeacherTeachesSubjectAsync(teacherUserId, subjectId))
             .ReturnsAsync(true);
 
         _mockRepository
@@ -132,7 +143,7 @@ public class GradeServiceTests
             .ReturnsAsync(new List<GradeResponseDTO>());
 
 
-        var result = await _service.CreateGrade(teacherId, postDto);
+        var result = await _service.CreateGrade(teacherUserId, postDto);
 
         Assert.NotNull(result);
         Assert.Equal(value, result.Value);
@@ -153,7 +164,6 @@ public class GradeServiceTests
         {
             SubjectId = subjectId,
             EnrollmentId = enrollmentId,
-            SemesterId = 1,
             Value = value
         };
 

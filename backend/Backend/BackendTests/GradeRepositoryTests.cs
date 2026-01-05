@@ -76,7 +76,6 @@ public class GradeRepositoryTests : IDisposable
 
         var gradeDto = new GradePostDTO
         {
-            SemesterId = semesterId,
             EnrollmentId = enrollmentId,
             SubjectId = subjectId,
             Value = value
@@ -121,7 +120,7 @@ public class GradeRepositoryTests : IDisposable
 
     [Theory]
     [InlineData(1, 1, null, "Informatica")]
-    [InlineData(2, null, 1, null)]
+    [InlineData(2, null, 1, "")]
     public async Task GetGradesFilteredAsyncTest(int userId, int? yearOfStudy, int? semester, string specialisation)
     {
         var faculty = new Faculty { Id = 1, Name = "FMI" };
