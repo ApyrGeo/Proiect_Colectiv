@@ -17,6 +17,8 @@ public class EFEntitiesMappingProfile : Profile
                 opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)));
 
         CreateMap<UserPostDTO, User>()
+            .ForMember(dest => dest.Owner,
+                opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)))
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();

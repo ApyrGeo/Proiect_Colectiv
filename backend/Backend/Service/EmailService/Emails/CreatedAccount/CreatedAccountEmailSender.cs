@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using TrackForUBB.Service.EmailService.Abstract;
 using TrackForUBB.Service.EmailService.Configuration;
 using TrackForUBB.Service.EmailService.Interfaces;
@@ -15,6 +15,7 @@ public class CreatedAccountEmailSender(EmailSettings config) : BaseEmailSender<C
         string html = await LoadTemplateAsync(TemplatePath);
 
         html = html.Replace("{{UserName}}", WebUtility.HtmlEncode(model.FirstName + " " + model.LastName))
+            .Replace("{{Email}}", WebUtility.HtmlEncode(model.Email))
             .Replace("{{Password}}", WebUtility.HtmlEncode(model.Password))
             .Replace("{{BaseUrl}}", WebUtility.HtmlEncode(_baseUrl));
 

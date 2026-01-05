@@ -5,10 +5,12 @@ using Microsoft.Identity.Web;
 using System.Text.Json;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UserController(IUserService service) : ControllerBase
 {
@@ -49,6 +51,7 @@ public class UserController(IUserService service) : ControllerBase
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult> CreateUser([FromBody] UserPostDTO user)
     {
         _logger.InfoFormat("Received request to create user: {0}", user);
@@ -87,7 +90,6 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpGet("logged-user")]
-    [Authorize]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult<LoggedUserResponseDTO>> GetLoggedUser()

@@ -42,12 +42,6 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
                     return existingUser == null;
                 }).WithMessage("Email already exists.");
 
-            RuleFor(user => user.Password)
-                .NotNull()
-                .NotEmpty().WithMessage("Password is required.")
-                .MaximumLength(Constants.ExtendedStringMaxLenght).WithMessage($"User password must not exceed {Constants.ExtendedStringMaxLenght} characters.")
-                .MinimumLength(8).WithMessage("Password must be at least 8 characters long.");
-
             RuleFor(user => user.Role)
                 .NotNull()
                 .NotEmpty().WithMessage("Role is required.")
