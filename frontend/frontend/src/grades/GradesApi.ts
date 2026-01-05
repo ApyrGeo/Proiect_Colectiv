@@ -87,6 +87,14 @@ const useGradesApi = () => {
     [axios]
   );
 
+  const getStudentByGroup = useCallback(
+    async (groupId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/student-groups/${groupId}/students`);
+      return response.data ?? [];
+    },
+    [axios]
+  );
+
   const getTeacherById = useCallback(
     async (teacherId: number) => {
       const response = await axios.get<TeacherProps>(`${academicsUrl}/teachers/${teacherId}`);
@@ -103,6 +111,14 @@ const useGradesApi = () => {
     [axios]
   );
 
+  const getSpecialisationsByStudent = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<UserProps>(`${userUrl}/${userId}/enrolled-specialisations`);
+      return response.data;
+    },
+    [axios]
+  );
+
   return {
     getUserSpecializations,
     getScholarshipStatusForUser,
@@ -112,6 +128,8 @@ const useGradesApi = () => {
     getTeacherbyUserId,
     getTeacherById,
     getUserById,
+    getStudentByGroup,
+    getSpecialisationsByStudent,
   };
 };
 
