@@ -120,8 +120,20 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
             foreach (var subject in subjects)
             {
-                int seminarsCount = (subject.FormationType == SubjectFormationType.Course_Seminar || subject.FormationType == SubjectFormationType.Course_Seminar_Laboratory) ? groups.Count : 0;
-                int labsCount = (subject.FormationType == SubjectFormationType.Course_Laboratory || subject.FormationType == SubjectFormationType.Course_Seminar_Laboratory) ? groups.Count * 2 : 0;
+                int seminarsCount = subject.FormationType switch
+                {
+                    SubjectFormationType.Course_Seminar
+                    | SubjectFormationType.Course_Seminar_Laboratory
+                        => groups.Count,
+                    _ => 0,
+                };
+                int labsCount = subject.FormationType switch
+                {
+                    SubjectFormationType.Course_Laboratory
+                    | SubjectFormationType.Course_Seminar_Laboratory
+                        => groups.Sum(x => x.StudentSubGroups.Count),
+                    _ => 0,
+                };
 
                 // Generate course hour - use IDs instead of navigation properties
                 var courseHour = new Hour
