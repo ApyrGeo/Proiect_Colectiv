@@ -274,4 +274,12 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Select(g => _mapper.Map<StudentGroupResponseDTO>(g))
             .ToListAsync();
     }
+
+    public Task<List<FacultyResponseDTO>> GetAllFacultiesAsync()
+    {
+        return _context.Faculties
+            .Include(f => f.Specialisations)
+            .Select(f => _mapper.Map<FacultyResponseDTO>(f))
+            .ToListAsync();
+    }
 }
