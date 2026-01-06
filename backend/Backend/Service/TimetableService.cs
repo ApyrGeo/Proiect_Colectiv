@@ -351,6 +351,8 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
             throw new EntityValidationException(["Semester must be either 1 or 2."]);
         }
 
+        await DeleteHoursBySpecialization(dto.SpecialisationId);
+
         var generatedHours = await _timetableRepository.GenerateTimetableAsync(dto);
         return generatedHours;
     }
