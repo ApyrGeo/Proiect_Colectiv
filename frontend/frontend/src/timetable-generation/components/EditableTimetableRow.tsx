@@ -45,17 +45,9 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
         />
       </td>
 
-      <td>
-        <ComboBox
-          options={types.map((t) => ({ value: t, label: t }))}
-          value={row.type ? { value: row.type, label: row.type } : undefined}
-          onChange={(v) => onUpdate(row.id, { type: v.value })}
-        />
-      </td>
+      <td>{row.type}</td>
 
-      <td>
-        {row.formationGroupId}
-      </td>
+      <td>{row.formationGroupId}</td>
 
       <td>
         <ComboBox

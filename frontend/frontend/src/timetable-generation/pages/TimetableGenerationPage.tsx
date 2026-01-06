@@ -78,8 +78,9 @@ const TimetableGenerationPage: React.FC = () => {
 
     setLoading(true);
 
-    api.getGeneratedTimetable(selectedSpecialisation, year, semester).then((res) => {
-      setRows(res.map(hourToEditableRow));
+    api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value).then((res) => {
+      console.log(res);
+      setRows(res.hours.map(hourToEditableRow));
       setLoading(false);
     });
   }, [selectedSpecialisation, year, semester]);
@@ -90,8 +91,9 @@ const TimetableGenerationPage: React.FC = () => {
     setLoading(true);
     await api.generateTimetable(selectedSpecialisation.value, year.value, semester.value);
 
-    const res = await api.getGeneratedTimetable(selectedSpecialisation, year, semester);
-    setRows(res.map(hourToEditableRow));
+    const res = await api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value);
+    console.log(res);
+    setRows(res.hours.map(hourToEditableRow));
     setLoading(false);
   };
 

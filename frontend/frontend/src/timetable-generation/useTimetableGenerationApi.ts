@@ -1,9 +1,30 @@
 import type { SubjectProps, LocationProps, ClassroomProps, HourProps } from "../timetable/props";
 import type { ComboOption } from "./components/ComboBox";
-import type { SpecialisationProps, GroupProps, Semester, Frequency, FacultyProps } from "./props";
-
+import type {
+  SpecialisationProps,
+  GroupProps,
+  Semester,
+  Frequency,
+  FacultyProps,
+  TimeTableGenerationProps,
+} from "./props";
+import TimetableGenerationPage from "./pages/TimetableGenerationPage.tsx";
+import { useCallback } from "react";
+import useApiClient from "../core/useApiClient.ts";
 
 let GENERATED_HOURS: HourProps[] = [];
+
+type HourFilter = {
+  userId?: number;
+  classroomId?: number;
+  subjectId?: number;
+  teacherId?: number;
+  facultyId?: number;
+  specialisationId?: number;
+  groupYearId?: number;
+  currentWeekTimetable?: boolean;
+  semesterNumber?: number;
+};
 
 const updateHour = async (
   hourId: number,
@@ -28,25 +49,12 @@ const updateHour = async (
 };
 
 const useTimetableGenerationApi = () => {
+  const { axios } = useApiClient();
 
-  const getFaculties = async (): Promise<FacultyProps[]> => [
-    {
-      id: 20,
-      name: "Facultatea de Matematica si Informatica",
-      specialisations: [
-        {
-          id: 73,
-          name: "Informatics Romana",
-          groupYears: [],
-        },
-        {
-          id: 74,
-          name: "Informatica Engleza",
-          groupYears: [],
-        },
-      ],
-    },
-  ];
+  const getFaculties = useCallback(async (): Promise<FacultyProps[]> => {
+    const response = await axios.get(`/api/Academics/faculties/`);
+    return response.data;
+  }, [axios]);
 
   const getLocations = async (): Promise<LocationProps[]> => [
     {
@@ -61,57 +69,49 @@ const useTimetableGenerationApi = () => {
     { id: 2, name: "315" },
   ];
 
+  const getGeneratedTimetable = useCallback(
+    async (specialization: number, year: number, semester: number): Promise<TimeTableGenerationProps> => {
+      const params: HourFilter = { semesterNumber: semester, specialisationId: specialization };
+      const response = await axios.get<TimeTableGenerationProps>(`/api/Timetable/hours`, {
+        params,
+      });
+      return response.data;
+    },
+    [axios]
+  );
 
-  const getGeneratedTimetable = async (
-    specialisation: ComboOption<number> | null,
-    year: ComboOption<number> | null,
-    semester: ComboOption<Semester> | null
-  ): Promise<HourProps[]> => {
-    if (!specialisation || !year || !semester) return [];
-
-    const res = await fetch(
-      `/api/Timetable/hours?specialisationId=${specialisation.value}&groupYearId=${year.value}&semesterNumber=${semester.value}`
-    );
-
-    if (!res.ok) return [];
-    return res.json();
-  };
-
-  const generateTimetable = async (
-    specialisationId: number,
-    year: number,
-    semester: Semester
-  ): Promise<void> => {
-    await fetch("/api/Timetable/hours/generate-timetable", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+  const generateTimetable = useCallback(
+    async (specialisationId: number, year: number, semester: number) => {
+      const response = await axios.post("/api/Timetable/hours/generate-timetable", {
         specialisationId,
         year,
         semester,
-      }),
-    });
-  };
+      });
+      return response.data;
+    },
+    [axios]
+  );
 
-  const updateHour = async (
-    hourId: number,
-    payload: {
-      day?: string;
-      hourInterval?: string;
-      frequency?: string;
-      category?: string;
-      classroomId?: number;
-      subjectId?: number;
-      teacherId?: number;
-      studentGroupId?: number;
-    }
-  ): Promise<void> => {
-    await fetch(`/api/Timetable/hours/${hourId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  };
+  const updateHour = useCallback(
+    async (
+      hourId: number,
+      payload: {
+        day?: string;
+        hourInterval?: string;
+        frequency?: string;
+        category?: string;
+        classroomId?: number;
+        subjectId?: number;
+        teacherId?: number;
+        studentGroupId?: number;
+      }
+    ) => {
+      const response = await axios.put(`/api/Timetable/hours/${hourId}`, payload);
+
+      return response.data;
+    },
+    [axios]
+  );
 
   return {
     getFaculties,

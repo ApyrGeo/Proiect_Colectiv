@@ -1,5 +1,11 @@
+import type { HourProps } from "../timetable/props.ts";
 
 export type Semester = 1 | 2;
+
+export interface TimeTableGenerationProps {
+  hours: HourProps[];
+  calendarStartISODate: string;
+}
 
 export interface SpecialisationProps {
   id: number;
