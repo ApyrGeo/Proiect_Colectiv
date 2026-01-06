@@ -351,6 +351,8 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
             throw new EntityValidationException(["Semester must be either 1 or 2."]);
         }
 
+        await DeleteHoursBySpecialization(dto.SpecialisationId);
+
         var generatedHours = await _timetableRepository.GenerateTimetableAsync(dto);
         return generatedHours;
     }
@@ -400,6 +402,13 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
             StudentGroupId = dto.StudentGroupId,
             StudentSubGroupId = dto.StudentSubGroupId
         };
+
+        var validator = _validatorFactory.Get<IntermediaryHourDTO>();
+        var validationResult = await validator.ValidateAsync(intermediaryDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
+        }
 
         return await _timetableRepository.UpdateHourAsync(hourId, intermediaryDto);
     }
