@@ -95,6 +95,15 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return Ok(faculties);
     }
 
+    [HttpGet("faculties")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<FacultyResponseDTO>>> GetAllFaculties()
+    {
+        _logger.Info("Fetching all faculties");
+        List<FacultyResponseDTO> faculties = await _service.GetAllFaculties();
+        return Ok(faculties);
+    }
+
     [HttpPost("faculties")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]

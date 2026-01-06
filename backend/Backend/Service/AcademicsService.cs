@@ -265,4 +265,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
                               ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
         return await _academicRepository.GetEnrollmentByGroup(studentGroupId);
     }
+
+    public async Task<List<FacultyResponseDTO>> GetAllFaculties()
+    {
+        _logger.InfoFormat("Retrieving all faculties from repository");
+        return await _academicRepository.GetAllFacultiesAsync();
+    }
 }
