@@ -1,8 +1,9 @@
 using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Utils;
+using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Service.Interfaces;
@@ -24,7 +25,7 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         return _mapper.Map<UserResponseDTO>(user);
     }
 
-    public async Task<UserResponseDTO> AddAsync(UserPostDTO user)
+    public async Task<UserResponseDTO> AddAsync(InternalUserPostDTO user)
     {
         _logger.InfoFormat("Adding new user with email: {0}", user.Email);
 
@@ -56,6 +57,11 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
     {
         _logger.InfoFormat("Updating user with id: {0}", user.Id);
         var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (entity == null)
+        {
+            throw new NotFoundException($"User with ID {id} not found.");
+        }
 
         if (!string.IsNullOrEmpty(user.SignatureBase64))
             entity.Signature = Convert.FromBase64String(user.SignatureBase64);
@@ -111,8 +117,19 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         return _mapper.Map<UserResponseDTO>(user);
     }
 
-    public async Task<bool> IsTenantEmailDuplicate(string email)
+    public async Task<UserResponseDTO> UpdateEntraDetailsAsync(int id, Guid ownerId, string tenantEmail)
     {
-        return await _context.Users.AnyAsync(u => HelperFunctions.GetUserTenantEmail(u.FirstName, u.LastName) == email);
+        _logger.InfoFormat("Updating user with id: {0}", id);
+        var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (entity == null)
+        {
+            throw new NotFoundException($"User with ID {id} not found.");
+        }
+
+        entity.Owner = ownerId;
+        entity.TenantEmail = tenantEmail;
+
+        return _mapper.Map<UserResponseDTO>(entity);
     }
 }

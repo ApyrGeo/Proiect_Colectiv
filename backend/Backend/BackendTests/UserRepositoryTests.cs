@@ -108,7 +108,7 @@ public class UserRepositoryTests : IDisposable
     public async Task AddAsyncValidUser(string firstName, string lastName, string phoneNumber, string email,
         string password, UserRole role)
     {
-        var user = new UserPostDTO
+        var user = new InternalUserPostDTO
         {
             Email = email,
             FirstName = firstName,

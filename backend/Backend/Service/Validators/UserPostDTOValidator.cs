@@ -6,7 +6,7 @@ using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Service.Validators;
 
-public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
+public class UserPostDTOValidator : AbstractValidator<InternalUserPostDTO>
 {
     private readonly IUserRepository _repository;
     public UserPostDTOValidator(IUserRepository repository)
@@ -24,19 +24,6 @@ public class UserPostDTOValidator : AbstractValidator<UserPostDTO>
             .NotEmpty().WithMessage("Last name is required.")
             .MaximumLength(Constants.DefaultStringMaxLenght).WithMessage($"User last name must not exceed {Constants.DefaultStringMaxLenght} characters.")
             .Matches("^[-'\\p{L}]+( [-'\\p{L}]+)*$").WithMessage("Invalid last name format.");
-            
-        RuleFor(x => x).CustomAsync(async (user, context, cancellation) =>
-        {
-            if (!string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(user.LastName))
-            {
-                var entraEmail = HelperFunctions.GetUserTenantEmail(user.FirstName, user.LastName);
-
-                if (await _repository.IsTenantEmailDuplicate(entraEmail))
-                {
-                    context.AddFailure("A user with the same first name and last name already exists.");
-                }
-            }
-        });
 
         RuleFor(user => user.PhoneNumber)
                 .NotNull()

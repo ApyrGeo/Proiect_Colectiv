@@ -2,7 +2,7 @@ using CsvHelper.Configuration;
 using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Service.FileHeaderMapper;
-internal sealed class UserPostDTOMap : ClassMap<UserPostDTO>
+internal sealed class UserPostDTOMap : ClassMap<InternalUserPostDTO>
 {
     public UserPostDTOMap()
     {

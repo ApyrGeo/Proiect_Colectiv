@@ -1,3 +1,4 @@
+using AutoMapper;
 using ClosedXML.Excel;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -24,20 +25,19 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, 
-    IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, 
-    IEmailProvider emailProvider, IConfiguration config, GraphServiceClient graph) : IUserService
+public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, IMapper mapper, 
+    IValidatorFactory validator, IEmailProvider emailProvider, IConfiguration config, GraphServiceClient graph) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IValidatorFactory _validator = validator;
-    private readonly IAdapterPasswordHasher<UserPostDTO> _passwordHasher = passwordHasher;
     private readonly IEmailProvider _emailProvider = emailProvider;
     private readonly IConfiguration _config = config;
+    private readonly IMapper _mapper = mapper;
     private readonly GraphServiceClient _graph = graph;
 
-    private async Task<(Guid ownerId, string tenantEmail)> CreateEntraUser(UserPostDTO userDTO)
+    private async Task<(Guid ownerId, string tenantEmail)> CreateEntraUser(UserResponseDTO userDTO)
     {
         var resourceId = _config["AzureAd:ResourceId"];
         var studentRoleId = _config["AzureAd:AppRoles:Student"];
@@ -62,7 +62,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             mailNickLastName = mailNickLastName.Split(" ")[0];
         }   
 
-        var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{mailNickFirstName}.{mailNickLastName}".ToLowerInvariant());
+        var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{mailNickFirstName}.{mailNickLastName}{userDTO.Id}".ToLowerInvariant());
         var userPrincipal = $"{mailNick}@trackforubb.onmicrosoft.com";
 
         var entraUserRequestBody = new EntraUser
@@ -86,7 +86,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         }
 
         var ownerId = Guid.Parse(result.Id);
-        var userRole = Enum.Parse<UserRole>(userDTO.Role!);
+        var userRole = userDTO.Role;
 
         var appRoleAssigmentRequestBody = new AppRoleAssignment
         {
@@ -100,10 +100,12 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return (ownerId, tenantEmail: userPrincipal);
     }
 
-    public async Task<UserResponseDTO> CreateUser(UserPostDTO userDTO)
+    public async Task<UserResponseDTO> CreateUser(UserPostDTO dto)
     {
+        var userDTO = _mapper.Map<InternalUserPostDTO>(dto);
+
         _logger.InfoFormat("Validating request data");
-        var validator = _validator.Get<UserPostDTO>();
+        var validator = _validator.Get<InternalUserPostDTO>();
         var result = await validator.ValidateAsync(userDTO);
         if (!result.IsValid)
         {
@@ -112,17 +114,18 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         _logger.InfoFormat("Attempting to create user: {0}", JsonSerializer.Serialize(userDTO));
 
-        (var ownerId, var tenantEmail) = await CreateEntraUser(userDTO);
-        userDTO.Owner = ownerId.ToString();
-
         _logger.InfoFormat("Saving user to repository: {0}", JsonSerializer.Serialize(userDTO));
         var addedUserDTO = await _userRepository.AddAsync(userDTO);
         await _userRepository.SaveChangesAsync();
 
-        _logger.InfoFormat($"Sending email to user: {addedUserDTO.Email}");
-        await SendWelcomeEmail(addedUserDTO, tenantEmail);
+        (var ownerId, var tenantEmail) = await CreateEntraUser(addedUserDTO);
+        var updatedUserDTO = await _userRepository.UpdateEntraDetailsAsync(addedUserDTO.Id, ownerId, tenantEmail);
+        await _userRepository.SaveChangesAsync();
 
-        return addedUserDTO;
+        _logger.InfoFormat($"Sending email to user: {updatedUserDTO.Email}");
+        await SendWelcomeEmail(updatedUserDTO, tenantEmail);
+
+        return updatedUserDTO;
     }
 
     private async Task SendWelcomeEmail(UserResponseDTO user, string tenantEmail)
@@ -228,7 +231,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             throw new EntityValidationException(["Unsupported file type. Allowed: .csv, .xlsx"]);
         }
 
-        var parseList = new List<(int Row, UserPostDTO Dto)>();
+        var parseList = new List<(int Row, InternalUserPostDTO Dto)>();
 
         if (fileExtension == ".csv")
         {
@@ -264,9 +267,9 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     }
 
     private async Task<(List<BulkUserCreateItemResultDTO> resultItems, bool isValid)> 
-        ValidateAddUserFile(List<(int Row, UserPostDTO Dto)> list)
+        ValidateAddUserFile(List<(int Row, InternalUserPostDTO Dto)> list)
     {
-        var validator = _validator.Get<UserPostDTO>();
+        var validator = _validator.Get<InternalUserPostDTO>();
         var resultItems = new List<BulkUserCreateItemResultDTO>();
 
         foreach (var (row, dto) in list)
@@ -311,9 +314,9 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return (resultItems, true);
     }
 
-    private List<(int Row, UserPostDTO Dto)> ParseUserCsvFile(IFormFile file)
+    private List<(int Row, InternalUserPostDTO Dto)> ParseUserCsvFile(IFormFile file)
     {
-        var dtoList = new List<(int Row, UserPostDTO Dto)>();
+        var dtoList = new List<(int Row, InternalUserPostDTO Dto)>();
 
         using var reader = new StreamReader(file.OpenReadStream());
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -326,7 +329,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         using var csv = new CsvReader(reader, config);
         csv.Context.RegisterClassMap<UserPostDTOMap>();
-        var records = csv.GetRecords<UserPostDTO>().ToList();
+        var records = csv.GetRecords<InternalUserPostDTO>().ToList();
 
         for (int i = 0; i < records.Count; i++)
         {
@@ -336,9 +339,9 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return dtoList;
     }
 
-    private List<(int Row, UserPostDTO dto)> ParseUserExcelFile(IFormFile file)
+    private List<(int Row, InternalUserPostDTO dto)> ParseUserExcelFile(IFormFile file)
     {
-        var dtoList = new List<(int Row, UserPostDTO Dto)>();
+        var dtoList = new List<(int Row, InternalUserPostDTO Dto)>();
 
         using var workbook = new XLWorkbook(file.OpenReadStream());
         var workSheets = workbook.Worksheets.First();
@@ -381,13 +384,13 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
                 return workSheets.Row(r).Cell(idx).GetString()?.Trim();
             }
 
-            var dto = new UserPostDTO
+            var dto = new InternalUserPostDTO
             {
-                FirstName = GetCellByProp(nameof(UserPostDTO.FirstName)),
-                LastName = GetCellByProp(nameof(UserPostDTO.LastName)),
-                Email = GetCellByProp(nameof(UserPostDTO.Email)),
-                PhoneNumber = GetCellByProp(nameof(UserPostDTO.PhoneNumber)),
-                Role = GetCellByProp(nameof(UserPostDTO.Role)),
+                FirstName = GetCellByProp(nameof(InternalUserPostDTO.FirstName)),
+                LastName = GetCellByProp(nameof(InternalUserPostDTO.LastName)),
+                Email = GetCellByProp(nameof(InternalUserPostDTO.Email)),
+                PhoneNumber = GetCellByProp(nameof(InternalUserPostDTO.PhoneNumber)),
+                Role = GetCellByProp(nameof(InternalUserPostDTO.Role)),
             };
 
             dtoList.Add((r, dto));

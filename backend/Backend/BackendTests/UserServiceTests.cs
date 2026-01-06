@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service;
@@ -16,7 +16,7 @@ namespace TrackForUBB.BackendTests;
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _mockUserRepository = new();
-    private readonly Mock<IAdapterPasswordHasher<UserPostDTO>> _mockPasswordHasher = new();
+    private readonly Mock<IAdapterPasswordHasher<InternalUserPostDTO>> _mockPasswordHasher = new();
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
@@ -28,7 +28,7 @@ public class UserServiceTests
         var realValidator = new UserPostDTOValidator(_mockUserRepository.Object);
 
         var mockValidatorFactory = new Mock<IValidatorFactory>();
-        mockValidatorFactory.Setup(v => v.Get<UserPostDTO>()).Returns(realValidator);
+        mockValidatorFactory.Setup(v => v.Get<InternalUserPostDTO>()).Returns(realValidator);
 
         _validatorFactory = mockValidatorFactory.Object;
 
@@ -42,7 +42,7 @@ public class UserServiceTests
     public async Task CreateUserValidData(string firstName, string lastName, string phone, string email,
         string password, string role)
     {
-        var userDTO = new UserPostDTO
+        var userDTO = new InternalUserPostDTO
         {
             FirstName = firstName,
             LastName = lastName,
@@ -92,7 +92,7 @@ public class UserServiceTests
     public async Task CreateUserInvalidData(string firstName, string lastName, string phone, string email,
         string password, string role)
     {
-        var userDTO = new UserPostDTO
+        var userDTO = new InternalUserPostDTO
         {
             FirstName = firstName,
             LastName = lastName,
@@ -104,9 +104,9 @@ public class UserServiceTests
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _userService.CreateUser(userDTO));
 
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<UserPostDTO>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<InternalUserPostDTO>()), Times.Never);
 
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<UserPostDTO>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<InternalUserPostDTO>()), Times.Never);
     }
 
     [Theory]

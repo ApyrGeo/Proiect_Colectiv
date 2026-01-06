@@ -5,7 +5,7 @@ public interface IUserRepository
 {
     Task<UserResponseDTO?> GetByIdAsync(int id);
     Task<UserResponseDTO?> GetByEmailAsync(string email);
-    Task<UserResponseDTO> AddAsync(UserPostDTO user);
+    Task<UserResponseDTO> AddAsync(InternalUserPostDTO user);
     Task SaveChangesAsync();
     Task<List<UserResponseDTO>> GetAll();
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
@@ -13,5 +13,5 @@ public interface IUserRepository
     Task<UserResponseDTO> UpdateAsync(int id, UserPutDTO user);
     Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId);
     Task<UserResponseDTO?> GetByOwnerIdAsync(Guid ownerId);
-    Task<bool> IsTenantEmailDuplicate(string email);
+    Task<UserResponseDTO> UpdateEntraDetailsAsync(int id, Guid ownerId, string tenantEmail);
 }
