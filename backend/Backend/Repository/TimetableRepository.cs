@@ -169,15 +169,9 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
                 }
 
                 // Generate laboratory hours
-                for (int i = 0; i < labsCount; i++)
+                var subgroups = groups.SelectMany(x => x.StudentSubGroups);
+                foreach (var subgroup in subgroups)
                 {
-                    var group = groups[i / 2];
-                    if (group.StudentSubGroups == null || group.StudentSubGroups.Count <= i % 2)
-                    {
-                        _logger.WarnFormat("Missing subgroup for group {0} at index {1}", group.Id, i % 2);
-                        continue;
-                    }
-
                     var labHour = new Hour
                     {
                         Day = HourDay.Unknown,
@@ -188,7 +182,7 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
                         Subject = subject,
                         ClassroomId = null,
                         TeacherId = null,
-                        StudentSubGroupId = group.StudentSubGroups[i % 2].Id
+                        StudentSubGroupId = subgroup.Id,
                     };
                     hours.Add(labHour);
                 }
