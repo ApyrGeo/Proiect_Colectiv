@@ -266,7 +266,6 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
-            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
         {selectedFilter == "specialisation" && (
@@ -275,7 +274,6 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
-            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
         {selectedFilter == "faculty" && (
@@ -284,7 +282,6 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
-            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
       </div>
