@@ -33,7 +33,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new faculty to repository: {0}", JsonSerializer.Serialize(facultyPostDto));
         var facultyDto = await _academicRepository.AddFacultyAsync(facultyPostDto);
-        await _academicRepository.SaveChangesAsync();
 
         return facultyDto;
     }
@@ -50,7 +49,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new group year to repository: {0}", JsonSerializer.Serialize(promotionPostDTO));
         var groupYearDto = await _academicRepository.AddPromotionAsync(promotionPostDTO);
-        await _academicRepository.SaveChangesAsync();
 
         return groupYearDto;
     }
@@ -67,7 +65,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new specialisation to repository: {0}", JsonSerializer.Serialize(specialisationPostDto));
         var specialisationDto = await _academicRepository.AddSpecialisationAsync(specialisationPostDto);
-        await _academicRepository.SaveChangesAsync();
 
         return specialisationDto;
     }
@@ -84,7 +81,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new student group to repository: {0}", JsonSerializer.Serialize(studentGroupPostDto));
 		var studentGroupDto = await _academicRepository.AddGroupAsync(studentGroupPostDto);
-        await _academicRepository.SaveChangesAsync();
 
         return studentGroupDto;
     }
@@ -101,7 +97,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new student sub-group to repository: {0}", JsonSerializer.Serialize(studentSubGroupPostDto));
 		var studentSubGroupDto = await _academicRepository.AddSubGroupAsync(studentSubGroupPostDto);
-        await _academicRepository.SaveChangesAsync();
 
         return studentSubGroupDto;
     }
@@ -118,7 +113,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
 
         _logger.InfoFormat("Adding new enrollment to repository: {0}", JsonSerializer.Serialize(enrollmentPostDto));
         var enrollmentDto = await _academicRepository.AddEnrollmentAsync(enrollmentPostDto);
-        await _academicRepository.SaveChangesAsync();
 
         _logger.InfoFormat($"Sending email to: {enrollmentDto.User.Email}");
         await SendAddedEnrollementEmail(enrollmentDto);
@@ -225,7 +219,6 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Adding new teacher to repository: {0}", JsonSerializer.Serialize(teacherPostDTO));
 
         var teacherDto = await _academicRepository.AddTeacherAsync(teacherPostDTO);
-        await _academicRepository.SaveChangesAsync();
 
         return teacherDto;
 	}

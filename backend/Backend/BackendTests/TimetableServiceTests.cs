@@ -39,6 +39,7 @@ public class TimetableServiceTests
 
         _service = new TimetableService(
             _mockRepository.Object,
+            _mockAcademicRepository.Object,
             _validatorFactory
         );
     }
@@ -114,6 +115,7 @@ public class TimetableServiceTests
             HolderTeacherId = teacherUser.Id,
             Code = code,
             Type = type,
+            FormationType = "Course_Seminar",
         };
 
         _mockRepository.Setup(r => r.AddSubjectAsync(postDto))
@@ -126,8 +128,6 @@ public class TimetableServiceTests
                 Type = type,
             });
 
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-
         var responseDto = new SubjectResponseDTO
         {
             Id = 1,
@@ -139,7 +139,6 @@ public class TimetableServiceTests
 
 
         _mockRepository.Setup(r => r.AddSubjectAsync(postDto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
         var result = await _service.CreateSubject(postDto);
 
@@ -148,7 +147,6 @@ public class TimetableServiceTests
         Assert.Equal(credits, result.NumberOfCredits);
 
         _mockRepository.Verify(r => r.AddSubjectAsync(postDto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -164,6 +162,7 @@ public class TimetableServiceTests
             SemesterId = semesterId,
             Code = "MLR101",
             Type = "Required",
+            FormationType = "Course_Seminar"
         };
 
         var promotionResponseDTO = new PromotionResponseDTO
@@ -182,6 +181,7 @@ public class TimetableServiceTests
             NumberOfCredits = credits,
             SemesterId = semesterId,
             Code = "MLR101",
+            FormationType = "Course_Seminar",
             Type = "Required",
         };
 
@@ -189,7 +189,6 @@ public class TimetableServiceTests
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateSubject(postDto));
 
         _mockRepository.Verify(r => r.AddSubjectAsync(subjectEntity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -242,7 +241,6 @@ public class TimetableServiceTests
         var response = new LocationResponseDTO { Id = 1, Name = name, Address = address, GoogleMapsData = googleData };
 
         _mockRepository.Setup(r => r.AddLocationAsync(dto)).ReturnsAsync(response);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
 
         var result = await _service.CreateLocation(dto);
@@ -251,7 +249,6 @@ public class TimetableServiceTests
         Assert.Equal(name, result.Name);
         Assert.Equal(address, result.Address);
         _mockRepository.Verify(r => r.AddLocationAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -264,7 +261,6 @@ public class TimetableServiceTests
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateLocation(dto));
 
         _mockRepository.Verify(r => r.AddLocationAsync(It.IsAny<LocationPostDTO>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -302,8 +298,6 @@ public class TimetableServiceTests
             .ReturnsAsync(locationResponse);
         _mockRepository.Setup(r => r.AddClassroomAsync(postDto))
             .ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync())
-            .Returns(Task.CompletedTask);
 
         var result = await _service.CreateClassroom(postDto);
 
@@ -311,7 +305,6 @@ public class TimetableServiceTests
         Assert.Equal(name, result.Name);
 
         _mockRepository.Verify(r => r.AddClassroomAsync(postDto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -327,7 +320,6 @@ public class TimetableServiceTests
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateClassroom(dto));
 
         _mockRepository.Verify(r => r.AddClassroomAsync(It.IsAny<ClassroomPostDTO>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -430,7 +422,6 @@ public class TimetableServiceTests
 
 
         _mockRepository.Setup(r => r.AddHourAsync(dto)).ReturnsAsync(response);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
 
         var result = await _service.CreateHour(dto);
@@ -438,7 +429,6 @@ public class TimetableServiceTests
         Assert.NotNull(result);
         Assert.Equal(dto.HourInterval, result.HourInterval);
         _mockRepository.Verify(r => r.AddHourAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -464,7 +454,6 @@ public class TimetableServiceTests
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateHour(dto));
 
         _mockRepository.Verify(r => r.AddHourAsync(It.IsAny<HourPostDTO>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]

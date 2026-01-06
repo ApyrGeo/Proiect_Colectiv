@@ -90,6 +90,7 @@ public class TimetableRepositoryTests : IDisposable
             SemesterId = semester.Id,
             Code = "MLR1010",
             Type = "Required",
+            FormationType = "Course_Seminar",
         };
         await _repo.AddSubjectAsync(subject);
         await _context.SaveChangesAsync();

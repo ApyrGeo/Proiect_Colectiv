@@ -183,5 +183,3 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         await _emailProvider.SendSemesterGradesEmailAsync(grade.Enrollment.User.Email,gradesSemester);
     }
 }
-
-

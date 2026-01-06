@@ -29,6 +29,7 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         var entity = _mapper.Map<User>(user);
         await _context.Users.AddAsync(entity);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<UserResponseDTO>(entity);
     }
@@ -61,6 +62,8 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         if (!string.IsNullOrEmpty(user.SignatureBase64))
             entity.Signature = Convert.FromBase64String(user.SignatureBase64);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<UserResponseDTO>(entity);
     }

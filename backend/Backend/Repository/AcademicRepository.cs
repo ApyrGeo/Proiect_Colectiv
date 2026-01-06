@@ -20,6 +20,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<Enrollment>(enrollment);
         await _context.Enrollments.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<EnrollmentResponseDTO>(entity);
     }
 
@@ -28,6 +30,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<Faculty>(faculty);
         await _context.Faculties.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<FacultyResponseDTO>(entity);
     }
 
@@ -35,6 +39,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var entity = _mapper.Map<StudentGroup>(studentGroup);
         await _context.Groups.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<StudentGroupResponseDTO>(entity);
     }
@@ -47,6 +53,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         
         await _context.Promotions.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<PromotionResponseDTO>(entity);
     }
 
@@ -54,6 +62,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var entity = _mapper.Map<Specialisation>(specialisation);
         await _context.Specialisations.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<SpecialisationResponseDTO>(entity);
     }
@@ -63,6 +73,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<StudentSubGroup>(studentSubGroup);
         await _context.SubGroups.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<StudentSubGroupResponseDTO>(entity);
     }
 
@@ -70,6 +82,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var entity = _mapper.Map<Teacher>(teacher);
         await _context.Teachers.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<TeacherResponseDTO>(entity);
     }
@@ -242,6 +256,22 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
                     SemesterNumber = (year - 1) * 2 + semesterInYear,
                 });
             }
+        }
     }
-}
+    public async Task<List<PromotionResponseDTO>> GetCurrentYearPromotions(int year)
+    {
+         return await _context.Promotions
+            .Where(p => p.StartYear <= year && p.EndYear >= year)
+            .Select(p => _mapper.Map<PromotionResponseDTO>(p))
+            .ToListAsync();
+    }
+
+    public async Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id)
+    {
+        return await _context.Groups
+            .Where(g => g.PromotionId == id)
+            .Include(g => g.StudentSubGroups)
+            .Select(g => _mapper.Map<StudentGroupResponseDTO>(g))
+            .ToListAsync();
+    }
 }

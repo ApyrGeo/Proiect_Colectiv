@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.EFEntities;
@@ -32,12 +32,12 @@ public class HourConfiguration : IEntityTypeConfiguration<Hour>
         builder.HasOne(x => x.Teacher)
             .WithMany(x => x.Hours)
             .HasForeignKey(x => x.TeacherId)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.HasOne(x => x.Classroom)
             .WithMany(x => x.Hours)
             .HasForeignKey(x => x.ClassroomId)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.HasOne(x => x.Promotion)
             .WithMany()

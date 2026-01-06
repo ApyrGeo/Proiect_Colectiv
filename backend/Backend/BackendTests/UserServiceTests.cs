@@ -67,7 +67,6 @@ public class UserServiceTests
         _mockPasswordHasher.Setup(h => h.HashPassword(userDTO, password)).Returns("hashedPassword");
 
         _mockUserRepository.Setup(r => r.AddAsync(userDTO)).ReturnsAsync(userResponseDTO);
-        _mockUserRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
 
         var result = await _userService.CreateUser(userDTO);
@@ -78,7 +77,6 @@ public class UserServiceTests
         Assert.Equal(email, result.Email);
 
         _mockUserRepository.Verify(r => r.AddAsync(userDTO), Times.Once);
-        _mockUserRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]

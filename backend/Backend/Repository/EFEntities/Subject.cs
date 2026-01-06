@@ -25,4 +25,6 @@ public class Subject
     public int? OptionalPackage { get; set; }
 
     public required string SubjectCode { get; set; }
+
+    public SubjectFormationType FormationType { get; set; }
 }
