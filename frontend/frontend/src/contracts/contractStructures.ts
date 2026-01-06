@@ -38,11 +38,11 @@ type ContractAPICall = StudyContractCall;
 
 export const structure: ContractStructure[] = [
   {
-    title: "Study Contract",
+    title: "Study_Contract",
     fields: [
       {
         name: "fullName",
-        label: "Full name",
+        label: "Full_name",
         category: FieldCategory.TEXT,
         autoFill: true,
       },
@@ -54,7 +54,7 @@ export const structure: ContractStructure[] = [
       },
       {
         name: "phone",
-        label: "Phone number",
+        label: "Phone",
         category: FieldCategory.PHONE,
         autoFill: true,
       },
@@ -65,12 +65,12 @@ export const structure: ContractStructure[] = [
       },
       {
         name: "serie",
-        label: "Serie CI",
+        label: "ID_series",
         category: FieldCategory.SERIE,
       },
       {
         name: "numar",
-        label: "Număr CI",
+        label: "ID_Number",
         category: FieldCategory.NUMAR,
       },
       {
@@ -81,7 +81,7 @@ export const structure: ContractStructure[] = [
       },
       {
         name: "agree",
-        label: "I agree to the Terms",
+        label: "Terms",
         category: FieldCategory.CHECKBOX,
       },
     ],

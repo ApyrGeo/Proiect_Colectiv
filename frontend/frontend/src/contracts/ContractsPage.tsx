@@ -3,18 +3,19 @@ import { useEffect, useState } from "react";
 import "./contracts.css";
 import useContractApi from "./useContractApi.ts";
 import { toast } from "react-hot-toast";
-import { t } from "i18next";
 import { useAuthContext } from "../auth/context/AuthContext.tsx";
 import useUserApi from "../profile/ProfileApi.ts";
+import { useTranslation } from "react-i18next";
 
 const ContractsPage: React.FC = () => {
   const { getStudyContract } = useContractApi();
   const { userProps } = useAuthContext();
   const { fetchUserProfile } = useUserApi();
-  const [userData, setUserData] = useState<Record<string, any>>({});
+  const [, setUserData] = useState<Record<string, any>>({});
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const contract = structure[0];
   const [, setIsError] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!userProps?.id) return;
@@ -65,7 +66,7 @@ const ContractsPage: React.FC = () => {
 
   return (
     <div className={"contracts-page"}>
-      <div className={"contract-title"}>{contract.title}</div>
+      <div className={"contract-title"}>{t(contract.title)}</div>
       <form onSubmit={handleSubmit}>
         {contract.fields.map((field) => {
           if (field.category === FieldCategory.SELECT) {
@@ -94,7 +95,7 @@ const ContractsPage: React.FC = () => {
           if (field.category === FieldCategory.CHECKBOX) {
             return (
               <label key={field.name}>
-                <label className={"checkbox-label"}>{field.label}</label>
+                <label className={"checkbox-label"}>{t(field.label)}</label>
                 <input
                   type="checkbox"
                   checked={!!formValues[field.name]}
@@ -105,35 +106,56 @@ const ContractsPage: React.FC = () => {
                     }))
                   }
                 />
-
               </label>
             );
           }
 
           return (
             <label key={field.name}>
-              {field.label}
+              {t(field.label)}
               <input
-                type={
-                  field.category === FieldCategory.EMAIL
-                    ? "email"
-                    : field.category === FieldCategory.PHONE
-                      ? "tel"
-                      : "text"
-                }
+                type="text"
                 value={formValues[field.name] ?? ""}
-                onChange={(e) =>
+                maxLength={
+                  field.category === FieldCategory.SERIE
+                    ? 2
+                    : field.category === FieldCategory.NUMAR
+                      ? 6
+                      : field.category === FieldCategory.CNP
+                        ? 13
+                        : undefined
+                }
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  if (field.category === FieldCategory.PHONE) {
+                    value = value.replace(/[^0-9+]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.NUMAR) {
+                    value = value.replace(/[^0-9]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.CNP) {
+                    value = value.replace(/[^0-9]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.SERIE) {
+                    value = value.replace(/[^a-zA-Z]/g, "");
+                    value = value.toUpperCase();
+                  }
+
                   setFormValues((prev) => ({
                     ...prev,
-                    [field.name]: e.target.value,
-                  }))
-                }
+                    [field.name]: value,
+                  }));
+                }}
               />
             </label>
           );
         })}
 
-        <button type="submit">Generate Contract</button>
+        <button type="submit">{t("Generate")}</button>
       </form>
     </div>
   );
