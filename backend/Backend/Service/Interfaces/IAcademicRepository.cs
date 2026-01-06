@@ -26,4 +26,5 @@ public interface IAcademicRepository
     Task<List<EnrollmentResponseDTO>> GetEnrollmentByGroup(int groupId);
     Task<List<PromotionResponseDTO>> GetCurrentYearPromotions(int year);
     Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
+    Task<List<FacultyResponseDTO>> GetAllFacultiesAsync();
 }
