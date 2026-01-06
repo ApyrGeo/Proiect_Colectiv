@@ -1,6 +1,7 @@
 .academic-label {
   color: var(--accent);
   border-radius: 2px;
+  display: inline-flex;
   margin-top: 40px;
 }
 
@@ -10,4 +11,16 @@
   padding-bottom: 5px;
   border-bottom: var(--primary) 2px solid;
   margin-bottom: 20px;
+}
+
+.academic-column {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+.academic-row {
+  display: inline-flex;
+  flex-direction: row;
 }
