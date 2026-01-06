@@ -1,7 +1,12 @@
+using ClosedXML.Excel;
+using CsvHelper;
+using CsvHelper.Configuration;
 using log4net;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using System.Globalization;
 using System.Text.Json;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
@@ -11,6 +16,7 @@ using TrackForUBB.Domain.Security;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Models;
+using TrackForUBB.Service.FileHeaderMapper;
 using TrackForUBB.Service.Interfaces;
 using TrackForUBB.Service.Utils;
 using EntraUser = Microsoft.Graph.Models.User;
@@ -18,7 +24,9 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, IEmailProvider emailProvider, IConfiguration config, GraphServiceClient graph) : IUserService
+public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, 
+    IValidatorFactory validator, IAdapterPasswordHasher<UserPostDTO> passwordHasher, 
+    IEmailProvider emailProvider, IConfiguration config, GraphServiceClient graph) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
@@ -42,7 +50,19 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             throw new NotFoundException("Missing configuration for creating Entra user.");
         }
 
-        var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{userDTO.FirstName}.{userDTO.LastName}".ToLowerInvariant());
+        var mailNickFirstName = userDTO.FirstName!;
+        if (mailNickFirstName.Contains(' '))
+        {
+            mailNickFirstName = mailNickFirstName.Split(" ")[0];
+        }
+
+        var mailNickLastName = userDTO.LastName!;
+        if (mailNickLastName.Contains(' '))
+        {
+            mailNickLastName = mailNickLastName.Split(" ")[0];
+        }   
+
+        var mailNick = HelperFunctions.ReplaceRomanianDiacritics($"{mailNickFirstName}.{mailNickLastName}".ToLowerInvariant());
         var userPrincipal = $"{mailNick}@trackforubb.onmicrosoft.com";
 
         var entraUserRequestBody = new EntraUser
@@ -107,7 +127,8 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
     private async Task SendWelcomeEmail(UserResponseDTO user, string tenantEmail)
     {
-        var userEmailModel = new CreatedUserModel { FirstName = user.FirstName, LastName = user.LastName, Email = tenantEmail, Password = _config["EntraUserDefaultPassword"]! };
+        var userEmailModel = new CreatedUserModel 
+        { FirstName = user.FirstName, LastName = user.LastName, Email = tenantEmail, Password = _config["EntraUserDefaultPassword"]! };
         await _emailProvider.SendCreateAccountEmailAsync(user.Email, userEmailModel);
     }
 
@@ -171,18 +192,207 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     {
         _logger.InfoFormat("Getting user by owner ID: {0}", ownerId);
 
-        var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
+        var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) 
+            ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
 
         var response = new LoggedUserResponseDTO() { User = userDTO, Enrollments = [] };
         var enrollments = await _academicRepository.GetEnrollmentsByUserId(userDTO.Id);
 
         foreach (var enrollment in enrollments)
         {
-            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new NotFoundException($"Enrollment with id {enrollment.Id} doesn't have consistent data");
+            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) 
+                ?? throw new NotFoundException($"Enrollment with id {enrollment.Id} doesn't have consistent data");
 
             response.Enrollments.Add(loggedUserEnrollment);
         }
 
         return response;
+    }
+
+    public async Task<BulkUserCreateResultDTO> CreateUsersFromFile(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            throw new EntityValidationException(["File is empty or not provided."]);
+        }
+
+        if (file.Length > 100_000_000)
+        {
+            throw new EntityValidationException(["File size exceeds the maximum limit of 100 MB."]);
+        }
+
+        var allowedExtensions = new[] { ".csv", ".xlsx", ".xls" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            throw new EntityValidationException(["Unsupported file type. Allowed: .csv, .xlsx"]);
+        }
+
+        var parseList = new List<(int Row, UserPostDTO Dto)>();
+
+        if (fileExtension == ".csv")
+        {
+            parseList = ParseUserCsvFile(file);
+        }
+        else
+        {
+            parseList = ParseUserExcelFile(file);
+        }
+
+        (var resultItems, var isValid) = await ValidateAddUserFile(parseList);
+
+        if (!isValid)
+        {
+            return new BulkUserCreateResultDTO { Items = resultItems };
+        }
+
+        var finalItems = new List<BulkUserCreateItemResultDTO>();
+
+        foreach (var (row, dto) in parseList)
+        {
+            var createdUser = await CreateUser(dto);
+            finalItems.Add(new BulkUserCreateItemResultDTO
+            {
+                Row = row,
+                Email = createdUser.Email,
+                Success = true,
+                CreatedUserId = createdUser.Id,
+            });
+        }
+
+        return new BulkUserCreateResultDTO { Items = finalItems };
+    }
+
+    private async Task<(List<BulkUserCreateItemResultDTO> resultItems, bool isValid)> 
+        ValidateAddUserFile(List<(int Row, UserPostDTO Dto)> list)
+    {
+        var validator = _validator.Get<UserPostDTO>();
+        var resultItems = new List<BulkUserCreateItemResultDTO>();
+
+        foreach (var (row, dto) in list)
+        {
+            var item = new BulkUserCreateItemResultDTO { Row = row, Email = dto.Email };
+            var validation = await validator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                item.Success = false;
+                item.Errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
+            }
+
+            resultItems.Add(item);
+        }
+
+        var emailGroups = list
+            .Select(p => new { p.Row, Email = p.Dto.Email?.Trim().ToLowerInvariant() })
+            .Where(x => !string.IsNullOrEmpty(x.Email))
+            .GroupBy(x => x.Email)
+            .Where(g => g.Count() > 1);
+
+        foreach (var group in emailGroups)
+        {
+            foreach (var entry in group)
+            {
+                var item = resultItems.First(i => i.Row == entry.Row);
+                item.Success = false;
+                item.Errors.Add("Duplicate email inside file.");
+            }
+        }
+
+        if (resultItems.Any(i => i.Errors.Count > 0))
+        {
+            foreach (var it in resultItems)
+            {
+                it.Success = it.Errors.Count == 0;
+            }
+
+            return (resultItems, false);
+        }
+
+        return (resultItems, true);
+    }
+
+    private List<(int Row, UserPostDTO Dto)> ParseUserCsvFile(IFormFile file)
+    {
+        var dtoList = new List<(int Row, UserPostDTO Dto)>();
+
+        using var reader = new StreamReader(file.OpenReadStream());
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true,
+            MissingFieldFound = null,
+            BadDataFound = null,
+            HeaderValidated = null
+        };
+
+        using var csv = new CsvReader(reader, config);
+        csv.Context.RegisterClassMap<UserPostDTOMap>();
+        var records = csv.GetRecords<UserPostDTO>().ToList();
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            dtoList.Add((i + 2, records[i]));
+        }
+
+        return dtoList;
+    }
+
+    private List<(int Row, UserPostDTO dto)> ParseUserExcelFile(IFormFile file)
+    {
+        var dtoList = new List<(int Row, UserPostDTO Dto)>();
+
+        using var workbook = new XLWorkbook(file.OpenReadStream());
+        var workSheets = workbook.Worksheets.First();
+        var headerCells = workSheets.Row(1).CellsUsed().ToList();
+        var headerMap = headerCells.Select((c, idx) => new { Name = c.GetString().Trim(), Index = idx + 1 })
+                                   .ToDictionary(x => x.Name, x => x.Index, StringComparer.InvariantCultureIgnoreCase);
+
+        var map = new UserPostDTOMap();
+        var propertyIndex = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+
+        foreach (var memberMap in map.MemberMaps)
+        {
+            var propName = memberMap.Data.Member?.Name;
+            if (string.IsNullOrWhiteSpace(propName))
+            {
+                continue;
+            }
+
+            foreach (var candidate in memberMap.Data.Names)
+            {
+                if (headerMap.TryGetValue(candidate, out var index))
+                {
+                    propertyIndex[propName] = index;
+                    break;
+                }
+            }
+        }
+
+        int lastRow = workSheets.LastRowUsed()!.RowNumber();
+
+        for (int r = 2; r <= lastRow; r++)
+        {
+            string? GetCellByProp(string prop)
+            {
+                if (!propertyIndex.TryGetValue(prop, out var idx))
+                {
+                    return null;
+                }
+
+                return workSheets.Row(r).Cell(idx).GetString()?.Trim();
+            }
+
+            var dto = new UserPostDTO
+            {
+                FirstName = GetCellByProp(nameof(UserPostDTO.FirstName)),
+                LastName = GetCellByProp(nameof(UserPostDTO.LastName)),
+                Email = GetCellByProp(nameof(UserPostDTO.Email)),
+                PhoneNumber = GetCellByProp(nameof(UserPostDTO.PhoneNumber)),
+                Role = GetCellByProp(nameof(UserPostDTO.Role)),
+            };
+
+            dtoList.Add((r, dto));
+        }
+
+        return dtoList;
     }
 }

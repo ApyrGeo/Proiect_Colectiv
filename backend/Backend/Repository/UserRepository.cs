@@ -2,6 +2,7 @@ using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Service.Interfaces;
@@ -108,5 +109,10 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Owner == ownerId);
 
         return _mapper.Map<UserResponseDTO>(user);
+    }
+
+    public async Task<bool> IsTenantEmailDuplicate(string email)
+    {
+        return await _context.Users.AnyAsync(u => HelperFunctions.GetUserTenantEmail(u.FirstName, u.LastName) == email);
     }
 }

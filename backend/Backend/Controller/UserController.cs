@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Text.Json;
@@ -57,6 +58,17 @@ public class UserController(IUserService service) : ControllerBase
         _logger.InfoFormat("Received request to create user: {0}", user);
         UserResponseDTO createdUser = await _service.CreateUser(user);
         return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+    }
+
+    [HttpPost("bulk")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
+    public async Task<ActionResult<BulkUserCreateResultDTO>> CreateUsersFromFile([FromForm] IFormFile file)
+    {
+        _logger.InfoFormat("Received request to create users from file: {0}", file.FileName);
+        BulkUserCreateResultDTO result = await _service.CreateUsersFromFile(file);
+        return Ok(result);
     }
 
     [HttpGet("{userId}/enrolled-specialisations")]

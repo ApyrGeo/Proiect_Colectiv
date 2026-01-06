@@ -13,4 +13,5 @@ public interface IUserRepository
     Task<UserResponseDTO> UpdateAsync(int id, UserPutDTO user);
     Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId);
     Task<UserResponseDTO?> GetByOwnerIdAsync(Guid ownerId);
+    Task<bool> IsTenantEmailDuplicate(string email);
 }

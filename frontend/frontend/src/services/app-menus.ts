@@ -28,6 +28,11 @@ export function getAppMenus() {
           icon: "📋",
           url: "/exam",
         },
+        {
+          title: "Create Users",
+          icon: "➕",
+          url: "/create-users",
+        },
       ],
     },
   ];

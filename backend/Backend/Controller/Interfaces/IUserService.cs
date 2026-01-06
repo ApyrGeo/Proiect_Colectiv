@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Controller.Interfaces;
@@ -11,4 +12,5 @@ public interface IUserService
     Task<UserProfileResponseDTO> GetUserProfileAsync(int userId);
     Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPutDTO dto);
     Task<LoggedUserResponseDTO> GetLoggedUserAsync(Guid ownerId);
+    Task<BulkUserCreateResultDTO> CreateUsersFromFile(IFormFile file);
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.Domain.Utils;
@@ -75,5 +76,10 @@ public class HelperFunctions
         }
 
         return clean.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    public static string GetUserTenantEmail(string firstName, string lastName)
+    {
+        return ReplaceRomanianDiacritics($"{firstName}.{lastName}".ToLowerInvariant());
     }
 }

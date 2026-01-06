@@ -10,6 +10,7 @@ public class User
     public required string LastName { get; set; }
     public required string PhoneNumber { get; set; }
     public required string Email { get; set; }
+    public required string TenantEmail { get; set; }
     public required UserRole Role { get; set; }
     public byte[]? Signature { get; set; }
     public List<Enrollment> Enrollments { get; set; } = [];

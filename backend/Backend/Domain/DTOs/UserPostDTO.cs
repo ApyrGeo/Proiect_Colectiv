@@ -8,5 +8,6 @@ public class UserPostDTO
     public string? Email { get; set; }
     public string? Role { get; set; }
     public string? Owner { get; set; }
+    public string? TenantEmail {get; set; }
     public string? SignatureBase64 { get; set; }
 }
