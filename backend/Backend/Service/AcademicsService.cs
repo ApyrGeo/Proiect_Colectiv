@@ -271,4 +271,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Retrieving all faculties from repository");
         return await _academicRepository.GetAllFacultiesAsync();
     }
+
+    public Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId)
+    {
+        _logger.InfoFormat("Retrieving all teachers for faculty with ID {0}", facultyId);
+        return _academicRepository.GetAllTeachersByFacultyId(facultyId);
+    }
 }
