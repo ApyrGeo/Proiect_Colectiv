@@ -82,6 +82,7 @@ i18n.use(initReactI18next).init({
         Sign_In: "Sign In",
         Sign_Out: "Sign Out",
         Error_generating_contract: "Error generating contract",
+        Enrollment: "Enrollment",
       },
     },
     ro: {
@@ -159,6 +160,7 @@ i18n.use(initReactI18next).init({
         Sign_In: "Autentificare",
         Sign_Out: "Deconectare",
         Error_generating_contract: "Eroare la generarea contractului",
+        Enrollment: "Înscriere",
       },
     },
     hu: {
@@ -236,6 +238,7 @@ i18n.use(initReactI18next).init({
         Sign_In: "Bejelentkezés",
         Sign_Out: "Kijelentkezés",
         Error_generating_contract: "Hiba a szerződés generálásakor",
+        Enrollment: "Beiratkozás",
       },
     },
     de: {
@@ -313,6 +316,7 @@ i18n.use(initReactI18next).init({
         Sign_In: "Anmelden",
         Sign_Out: "Abmelden",
         Error_generating_contract: "Fehler beim Erstellen des Vertrags",
+        Enrollment: "Einschreibung",
       },
     },
   },

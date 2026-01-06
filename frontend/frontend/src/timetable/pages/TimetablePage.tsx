@@ -133,17 +133,6 @@ const TimetablePage: React.FC = () => {
     <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>{t("Timetable")}</div>
-        {userEnrollments.length > 1 && (
-          <div>
-            <select onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}>
-              {userEnrollments.map((_e, index) => (
-                <option key={index} value={index}>
-                  {"Enrollment " + index}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -163,7 +152,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "group"}
               onChange={handleChange}
             />
-            {t("Group")}
+            {t("Promotion")}
           </label>
           <label>
             <input
@@ -186,18 +175,35 @@ const TimetablePage: React.FC = () => {
             {t("Faculty")}
           </label>
         </div>
-        <div className={"timetable-filter"}>
-          <label hidden={selectedFilter != "personal"}>
-            <input
-              type="checkbox"
-              name="active"
-              value="active"
-              checked={activeHours}
-              onChange={() => setActiveHours(!activeHours)}
-            />
-            {t("CurrentWeek")}
-          </label>
-        </div>
+        {selectedFilter != "personal" ? (
+          userEnrollments.length > 1 && (
+            <div className={"timetable-filter-item"}>
+              <select
+                onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}
+                value={selectedEnrollment}
+              >
+                {userEnrollments.map((_e, index) => (
+                  <option key={index} value={index}>
+                    {t("Enrollment") + " " + (index + 1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )
+        ) : (
+          <div className={"timetable-filter"}>
+            <label>
+              <input
+                type="checkbox"
+                name="active"
+                value="active"
+                checked={activeHours}
+                onChange={() => setActiveHours(!activeHours)}
+              />
+              {t("CurrentWeek")}
+            </label>
+          </div>
+        )}
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -260,6 +266,7 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
+            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
         {selectedFilter == "specialisation" && (
@@ -268,6 +275,7 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
+            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
         {selectedFilter == "faculty" && (
@@ -276,6 +284,7 @@ const TimetablePage: React.FC = () => {
             filterFn={getFreqFilter()}
             selectedLocations={selectedLocations}
             onLoadingChange={setIsLoadingTimetable}
+            sendLocationsToMaps={sendLocationsToMaps}
           />
         )}
       </div>

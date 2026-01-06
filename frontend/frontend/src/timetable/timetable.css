@@ -123,6 +123,16 @@ td {
   color: var(--accent-light);
 }
 
+.timetable-filter label:has(input[type="checkbox"]) {
+  background: var(--timetable-button-color);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--timetable-border-radius);
+  font-size: 15px;
+  color: var(--accent-light);
+  padding-left: 20px;
+  background-color: var(--surface-light);
+}
+
 .timetable-filter label:has(input[type="radio"]:checked) {
   background: var(--primary);
   border-color: var(--primary);
@@ -176,4 +186,41 @@ td {
 .container-back-buttons {
   display: flex;
   gap: 30px;
+}
+
+.timetable-filter-item {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-self: flex-start;
+  min-width: 200px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background-color: var(--surface-light); /* fundal filtru */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  gap: 10px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.timetable-filter-item select {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #0f1828; /* mai contrastant */
+  color: var(--text-light);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.timetable-filter-item select:hover {
+  background-color: #142033;
+  transform: scale(1.02);
 }
