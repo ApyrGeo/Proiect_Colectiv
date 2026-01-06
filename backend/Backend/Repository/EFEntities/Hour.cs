@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Enums;
 
 namespace TrackForUBB.Repository.EFEntities;
 
@@ -13,11 +13,11 @@ public class Hour
     public int SubjectId { get; set; }
     public required Subject Subject { get; set; }
 
-    public int ClassroomId { get; set; }
-    public required Classroom Classroom { get; set; }
+    public int? ClassroomId { get; set; }
+    public Classroom? Classroom { get; set; }
 
-    public int TeacherId { get; set; }
-    public required Teacher Teacher { get; set; }
+    public int? TeacherId { get; set; }
+    public Teacher? Teacher { get; set; }
 
     public int? PromotionId { get; set; }
     public Promotion? Promotion { get; set; }

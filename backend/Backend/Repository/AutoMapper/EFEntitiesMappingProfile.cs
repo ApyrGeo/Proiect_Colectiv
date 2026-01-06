@@ -44,6 +44,7 @@ public class EFEntitiesMappingProfile : Profile
             ;
         CreateMap<SubjectPostDTO, Subject>()
             .ForMember(x => x.Type, o => o.MapFrom(x => Enum.Parse<SubjectType>(x.Type)))
+            .ForMember(x => x.FormationType, o => o.MapFrom(x => Enum.Parse<SubjectFormationType>(x.FormationType)))
             .ForMember(x => x.SubjectCode, o => o.MapFrom(x => x.Code))
             ;
 
@@ -90,7 +91,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
             .ForMember(x => x.Category, o => o.MapFrom(s => s.Category.ToString()))
-            .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom.Location))
+            .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom != null ? s.Classroom.Location : null))
             .ForMember(x => x.Format, o => o.MapFrom(s =>
                 s.StudentSubGroup != null ? s.StudentSubGroup.Name
                 : s.StudentGroup != null ? s.StudentGroup.Name
@@ -124,5 +125,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(dest => dest.PromotionId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.PromotionId))
             .ForMember(dest => dest.SpecializationId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.SpecialisationId))
             .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId));
+
+        CreateMap<ExamEntryRequestDTO, ExamEntry>();
     }
 }

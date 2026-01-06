@@ -57,7 +57,6 @@ public class AcademicsServiceTests
         var postDto = new FacultyPostDTO { Name = name };
         var responseDto = new FacultyResponseDTO { Id = 1, Name = name };
         _mockRepository.Setup(r => r.AddFacultyAsync(postDto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
         var result = await _service.CreateFaculty(postDto);
 
@@ -74,7 +73,6 @@ public class AcademicsServiceTests
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateFaculty(postDto));
         _mockRepository.Verify(r => r.AddFacultyAsync(postDto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -90,7 +88,6 @@ public class AcademicsServiceTests
         var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
         _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
         var result = await _service.CreatePromotion(dto);
 
@@ -98,7 +95,6 @@ public class AcademicsServiceTests
         Assert.Equal(startYear, result.StartYear);
         Assert.Equal(endYear, result.EndYear);
         _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
 
@@ -115,12 +111,10 @@ public class AcademicsServiceTests
         var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
         _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreatePromotion(dto));
 
         _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
     
     [Theory]
@@ -136,7 +130,6 @@ public class AcademicsServiceTests
         var responseDto = new SpecialisationResponseDTO { Id = 1, Name = name };
         
         _mockRepository.Setup(r => r.AddSpecialisationAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         var result = await _service.CreateSpecialisation(dto);
 
@@ -144,7 +137,6 @@ public class AcademicsServiceTests
         Assert.Equal(name, result.Name);
 
         _mockRepository.Verify(r => r.AddSpecialisationAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -160,12 +152,10 @@ public class AcademicsServiceTests
         var responseDto = new SpecialisationResponseDTO { Id = 1, Name = name };
 
         _mockRepository.Setup(r => r.AddSpecialisationAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateSpecialisation(dto));
 
         _mockRepository.Verify(r => r.AddSpecialisationAsync(dto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -185,14 +175,12 @@ public class AcademicsServiceTests
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
 
         _mockRepository.Setup(r => r.AddGroupAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         var result = await _service.CreateStudentGroup(dto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
         _mockRepository.Verify(r => r.AddGroupAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -212,12 +200,10 @@ public class AcademicsServiceTests
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
         
         _mockRepository.Setup(r => r.AddGroupAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateStudentGroup(dto));
 
         _mockRepository.Verify(r => r.AddGroupAsync(dto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -233,7 +219,6 @@ public class AcademicsServiceTests
         var responseDto = new StudentSubGroupResponseDTO { Id = 1, Name = name };
         
         _mockRepository.Setup(r => r.AddSubGroupAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         var result = await _service.CreateStudentSubGroup(dto);
 
@@ -241,7 +226,6 @@ public class AcademicsServiceTests
         Assert.Equal(name, result.Name);
 
         _mockRepository.Verify(r => r.AddSubGroupAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -258,12 +242,10 @@ public class AcademicsServiceTests
         var responseDto = new StudentSubGroupResponseDTO { Id = 1, Name = name };
         
         _mockRepository.Setup(r => r.AddSubGroupAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateStudentSubGroup(dto));
 
         _mockRepository.Verify(r => r.AddSubGroupAsync(dto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -309,7 +291,6 @@ public class AcademicsServiceTests
             { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
         _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId)).ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         var result = await _service.CreateUserEnrollment(dto);
 
@@ -317,7 +298,6 @@ public class AcademicsServiceTests
         Assert.Equal(userId, result.UserId);
 
         _mockRepository.Verify(r => r.AddEnrollmentAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -352,12 +332,10 @@ public class AcademicsServiceTests
         _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
             .ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateUserEnrollment(dto));
 
         _mockRepository.Verify(r => r.AddEnrollmentAsync(dto), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
 
@@ -392,7 +370,6 @@ public class AcademicsServiceTests
         _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(userResponseDto);
 
         _mockRepository.Setup(r => r.AddTeacherAsync(dto)).ReturnsAsync(responseDto);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
         
         var result = await _service.CreateTeacher(dto);
 
@@ -400,7 +377,6 @@ public class AcademicsServiceTests
         Assert.Equal(userId, result.UserId);
         Assert.Equal(facultyId, result.FacultyId);
         _mockRepository.Verify(r => r.AddTeacherAsync(dto), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -416,7 +392,6 @@ public class AcademicsServiceTests
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateTeacher(dto));
 
         _mockRepository.Verify(r => r.AddTeacherAsync(It.IsAny<TeacherPostDTO>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]

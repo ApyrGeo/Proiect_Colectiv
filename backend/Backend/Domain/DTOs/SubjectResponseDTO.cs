@@ -1,4 +1,4 @@
-﻿namespace TrackForUBB.Domain.DTOs;
+namespace TrackForUBB.Domain.DTOs;
 
 public class SubjectResponseDTO
 {

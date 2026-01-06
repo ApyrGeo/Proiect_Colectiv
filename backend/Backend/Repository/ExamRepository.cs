@@ -12,6 +12,34 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
     private readonly AcademicAppContext _context = context;
     private readonly IMapper _mapper = mapper;
 
+    public async Task<ExamEntryResponseDTO> CreateExamEntryAsync(ExamEntryRequestDTO examEntry)
+    {
+        var newEntry = new ExamEntry
+        {
+            ExamDate = examEntry.Date,
+            ClassroomId = examEntry.ClassroomId,
+            SubjectId = examEntry.SubjectId,
+            StudentGroupId = examEntry.StudentGroupId,
+            Classroom = null,
+            Subject = null!,
+            StudentGroup = null!,
+            Duration = (int?)examEntry.Duration?.TotalMinutes,
+        };
+
+        await _context.ExamEntries.AddAsync(newEntry);
+        await _context.SaveChangesAsync();
+
+        var savedEntry = await _context.ExamEntries
+            .AsNoTracking()
+            .Include(e => e.Subject)
+            .Include(e => e.Classroom)
+                .ThenInclude(c => c!.Location)
+            .Include(e => e.StudentGroup)
+            .FirstOrDefaultAsync(e => e.Id == newEntry.Id);
+
+        return _mapper.Map<ExamEntryResponseDTO>(savedEntry);
+    }
+
     public async Task<List<ExamEntryForStudentDTO>> GetStudentExamsByStudentId(int studentId)
     {
         var enrollments = await _context.Enrollments
@@ -34,7 +62,7 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
             .Where(exam => studentGroupIds.Contains(exam.StudentGroupId))
             .Include(exam => exam.Subject)
             .Include(exam => exam.Classroom)
-                .ThenInclude(c => c != null ? c.Location : null)
+                .ThenInclude(c => c!.Location)
             .Include(exam => exam.StudentGroup)
                 .ThenInclude(sg => sg.Promotion)
                     .ThenInclude(p => p.Specialisation)
@@ -77,7 +105,7 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
             .Where(e => e.SubjectId == subjectId)
             .Include(e => e.Subject)
             .Include(e => e.Classroom)
-                .ThenInclude(c => c != null ? c.Location : null)
+                .ThenInclude(c => c!.Location)
             .Include(e => e.StudentGroup)
             .ToListAsync();
 
@@ -98,7 +126,8 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
                 _mapper.Map(examEntryDto, existingEntry);
             }
             else
-            {                var newEntry = _mapper.Map<ExamEntry>(examEntryDto);
+            {
+                var newEntry = _mapper.Map<ExamEntry>(examEntryDto);
                 await _context.ExamEntries.AddAsync(newEntry);
             }
         }
@@ -108,11 +137,45 @@ public class ExamRepository(AcademicAppContext context, IMapper mapper) : IExamR
         var savedEntries = await _context.ExamEntries
             .Include(e => e.Subject)
             .Include(e => e.Classroom)
-                .ThenInclude(c => c != null ? c.Location : null)
+                .ThenInclude(c => c!.Location)
             .Include(e => e.StudentGroup)
             .Where(e => entryIds.Contains(e.Id))
             .ToListAsync();
 
         return _mapper.Map<List<ExamEntryResponseDTO>>(savedEntries);
+    }
+
+    public Task<ExamEntryResponseDTO?> GetExamEntryBySubjectAndGroupAsync(int subjectId, int studentGroupId)
+    {
+        return _context.ExamEntries
+            .Where(e => e.SubjectId == subjectId && e.StudentGroupId == studentGroupId)
+            .Include(e => e.Subject)
+            .Include(e => e.Classroom)
+                .ThenInclude(c => c!.Location)
+            .Include(e => e.StudentGroup)
+            .Select(e => _mapper.Map<ExamEntryResponseDTO>(e))
+            .FirstOrDefaultAsync()!;
+    }
+
+    public async Task DeleteExamEntryAsync(int id)
+    {
+        var examEntry = await _context.ExamEntries.Where(e => e.Id == id).FirstOrDefaultAsync();
+        if (examEntry != null)
+        {
+            _context.ExamEntries.Remove(examEntry);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public Task<ExamEntryResponseDTO?> GetExamEntryByIdAsync(int id)
+    {
+        return _context.ExamEntries
+            .Where(e => e.Id == id)
+            .Include(e => e.Subject)
+            .Include(e => e.Classroom)
+                .ThenInclude(c => c!.Location)
+            .Include(e => e.StudentGroup)
+            .Select(e => _mapper.Map<ExamEntryResponseDTO>(e))
+            .FirstOrDefaultAsync();
     }
 }

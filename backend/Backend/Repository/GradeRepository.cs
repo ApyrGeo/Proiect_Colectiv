@@ -32,6 +32,8 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
                 .ThenInclude(e => e.User)
             .FirstOrDefaultAsync(g => g.Id == entity.Id);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
 
@@ -88,7 +90,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     public async Task<List<SubjectResponseDTO>> GetSubjectsForSemesterAsync(int semesterId)
     {
         var subjects = await _context.Hours
-            .Where(h => h.Subject.SemesterId == semesterId)
+            .Where(h => h.Subject != null ? h.Subject.SemesterId == semesterId : false)
             .Select(h => h.Subject)
             .Distinct()
             .ToListAsync();

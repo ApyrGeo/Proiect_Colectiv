@@ -18,4 +18,7 @@ public interface ITimetableService
     Task<List<LocationWithClassroomsResponseDTO>> GetAllLocations();
     Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherId(int teacherId);
     Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectId(int subjectId);
+    Task<List<HourResponseDTO>> GenerateTimetable(TimetableGenerationDTO dto);
+    Task DeleteHoursBySpecialization(int specializationId);
+    Task<HourResponseDTO> UpdateHour(int hourId, HourPutDTO dto);
 }

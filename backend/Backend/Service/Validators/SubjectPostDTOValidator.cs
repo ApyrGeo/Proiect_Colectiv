@@ -37,5 +37,9 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
                 var semester = await academicRepository.GetSemesterByIdAsync(id);
                 return semester != null;
             }).WithMessage("The specified Semester does not exist.");
+
+        RuleFor(f => f.FormationType)
+            .NotEmpty().WithMessage("Formation type is required.")
+            .IsEnumName(typeof(SubjectFormationType)).WithMessage($"Formation type string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(SubjectFormationType)))}.");
     }
 }
