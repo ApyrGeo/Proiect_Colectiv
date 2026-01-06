@@ -13,7 +13,7 @@ const AddSpecialisationComponent: React.FC = () => {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               label="Specialization"
-              onChange={() => 1}
+              onChange={() => {}}
             >
               <MenuItem value={10}>Ten</MenuItem>
               <MenuItem value={20}>Twenty</MenuItem>

@@ -9,9 +9,9 @@ const AdminAcademicsPage: React.FC = () => {
   return (
     <Grid container spacing={5} padding={10}>
       <AddFacultyComponent />
-      <AddGroupsComponent />
       <AddSpecialisationComponent />
       <AddPromotionComponent />
+      <AddGroupsComponent />
     </Grid>
   );
 };
