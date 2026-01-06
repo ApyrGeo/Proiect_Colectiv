@@ -32,15 +32,10 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
-        var teacher = await _userRepository.GetByIdAsync(teacherId)
+        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
                 ?? throw new NotFoundException("Teacher not found.");
         
-        if (teacher.Role != UserRole.Teacher)
-        {
-            throw new UnauthorizedAccessException("Only teachers can add grades.");
-        }
-        
-        bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacherId, gradePostDto.SubjectId);
+        bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacher.Id, gradePostDto.SubjectId);
         if (!teaches)
             throw new  UnauthorizedAccessException("Teacher does not teach this subject.");
         
@@ -50,7 +45,36 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return gradeDto;
     }
     
+    public async Task<GradeResponseDTO> UpdateGradeAsync(int teacherId, int gradeId, GradePostDTO dto)
+    {
+        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
+                      ?? throw new NotFoundException("Teacher not found.");
 
+        var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)
+                    ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
+
+        bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacher.Id, dto.SubjectId);
+        if (!teaches)
+            throw new UnauthorizedAccessException("Teacher does not teach this subject.");
+
+        var updated = await _gradeRepository.UpdateGradeAsync(gradeId, dto);
+
+        return updated;
+    }
+    
+    public async Task<GradeResponseDTO> PatchGradeAsync(int teacherId, int gradeId, int newValue)
+    {
+        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
+                      ?? throw new NotFoundException("Teacher not found.");
+
+        var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)
+                    ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
+
+        var updated = await _gradeRepository.PatchGradeValueAsync(gradeId, newValue);
+
+        return updated;
+    }
+    
     public async Task<List<GradeResponseDTO>> GetGradesFiteredAsync(int userId, int? yearOfStudy, int? semester, string specialisation)
     {
         _logger.InfoFormat("Trying to retrieve filtered grades for user with ID {0}, year {1}, semester {2}", 
@@ -159,5 +183,3 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         await _emailProvider.SendSemesterGradesEmailAsync(grade.Enrollment.User.Email,gradesSemester);
     }
 }
-
-

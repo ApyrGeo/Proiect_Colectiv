@@ -172,9 +172,6 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int>("EnrollmentId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SemesterId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SubjectId")
                         .HasColumnType("integer");
 
@@ -184,8 +181,6 @@ namespace TrackForUBB.Repository.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EnrollmentId");
-
-                    b.HasIndex("SemesterId");
 
                     b.HasIndex("SubjectId");
 
@@ -203,7 +198,7 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ClassroomId")
+                    b.Property<int?>("ClassroomId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Day")
@@ -220,9 +215,6 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int?>("PromotionId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SemesterId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("StudentGroupId")
                         .HasColumnType("integer");
 
@@ -232,7 +224,7 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int>("SubjectId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TeacherId")
+                    b.Property<int?>("TeacherId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -240,8 +232,6 @@ namespace TrackForUBB.Repository.Migrations
                     b.HasIndex("ClassroomId");
 
                     b.HasIndex("PromotionId");
-
-                    b.HasIndex("SemesterId");
 
                     b.HasIndex("StudentGroupId");
 
@@ -309,7 +299,7 @@ namespace TrackForUBB.Repository.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("PromotionYearId")
+                    b.Property<int>("PromotionId")
                         .HasColumnType("integer");
 
                     b.Property<int>("SemesterNumber")
@@ -317,30 +307,9 @@ namespace TrackForUBB.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PromotionYearId");
-
-                    b.ToTable("PromotionSemesters");
-                });
-
-            modelBuilder.Entity("TrackForUBB.Repository.EFEntities.PromotionYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PromotionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("YearNumber")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("PromotionId");
 
-                    b.ToTable("PromotionYears");
+                    b.ToTable("PromotionSemesters");
                 });
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Specialisation", b =>
@@ -420,7 +389,12 @@ namespace TrackForUBB.Repository.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("HolderTeacherId")
+                    b.Property<int>("FormationType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("HolderTeacherId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -431,9 +405,24 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<int>("NumberOfCredits")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("OptionalPackage")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SemesterId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SubjectCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("HolderTeacherId");
+
+                    b.HasIndex("SemesterId");
 
                     b.ToTable("Subjects");
                 });
@@ -603,12 +592,6 @@ namespace TrackForUBB.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TrackForUBB.Repository.EFEntities.PromotionSemester", "Semester")
-                        .WithMany("Grades")
-                        .HasForeignKey("SemesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TrackForUBB.Repository.EFEntities.Subject", "Subject")
                         .WithMany("Grades")
                         .HasForeignKey("SubjectId")
@@ -617,8 +600,6 @@ namespace TrackForUBB.Repository.Migrations
 
                     b.Navigation("Enrollment");
 
-                    b.Navigation("Semester");
-
                     b.Navigation("Subject");
                 });
 
@@ -626,19 +607,11 @@ namespace TrackForUBB.Repository.Migrations
                 {
                     b.HasOne("TrackForUBB.Repository.EFEntities.Classroom", "Classroom")
                         .WithMany("Hours")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClassroomId");
 
                     b.HasOne("TrackForUBB.Repository.EFEntities.Promotion", "Promotion")
                         .WithMany()
                         .HasForeignKey("PromotionId");
-
-                    b.HasOne("TrackForUBB.Repository.EFEntities.PromotionSemester", "Semester")
-                        .WithMany("Hours")
-                        .HasForeignKey("SemesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("TrackForUBB.Repository.EFEntities.StudentGroup", "StudentGroup")
                         .WithMany()
@@ -656,15 +629,11 @@ namespace TrackForUBB.Repository.Migrations
 
                     b.HasOne("TrackForUBB.Repository.EFEntities.Teacher", "Teacher")
                         .WithMany("Hours")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TeacherId");
 
                     b.Navigation("Classroom");
 
                     b.Navigation("Promotion");
-
-                    b.Navigation("Semester");
 
                     b.Navigation("StudentGroup");
 
@@ -719,19 +688,8 @@ namespace TrackForUBB.Repository.Migrations
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.PromotionSemester", b =>
                 {
-                    b.HasOne("TrackForUBB.Repository.EFEntities.PromotionYear", "PromotionYear")
-                        .WithMany("PromotionSemesters")
-                        .HasForeignKey("PromotionYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PromotionYear");
-                });
-
-            modelBuilder.Entity("TrackForUBB.Repository.EFEntities.PromotionYear", b =>
-                {
                     b.HasOne("TrackForUBB.Repository.EFEntities.Promotion", "Promotion")
-                        .WithMany("Years")
+                        .WithMany("Semesters")
                         .HasForeignKey("PromotionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -776,9 +734,19 @@ namespace TrackForUBB.Repository.Migrations
                 {
                     b.HasOne("TrackForUBB.Repository.EFEntities.Teacher", "HolderTeacher")
                         .WithMany("HeldSubjects")
-                        .HasForeignKey("HolderTeacherId");
+                        .HasForeignKey("HolderTeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrackForUBB.Repository.EFEntities.PromotionSemester", "Semester")
+                        .WithMany("Subjects")
+                        .HasForeignKey("SemesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("HolderTeacher");
+
+                    b.Navigation("Semester");
                 });
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Teacher", b =>
@@ -828,23 +796,16 @@ namespace TrackForUBB.Repository.Migrations
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Promotion", b =>
                 {
-                    b.Navigation("StudentGroups");
+                    b.Navigation("Semesters");
 
-                    b.Navigation("Years");
+                    b.Navigation("StudentGroups");
                 });
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.PromotionSemester", b =>
                 {
                     b.Navigation("Contracts");
 
-                    b.Navigation("Grades");
-
-                    b.Navigation("Hours");
-                });
-
-            modelBuilder.Entity("TrackForUBB.Repository.EFEntities.PromotionYear", b =>
-                {
-                    b.Navigation("PromotionSemesters");
+                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("TrackForUBB.Repository.EFEntities.Specialisation", b =>

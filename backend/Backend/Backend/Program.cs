@@ -169,7 +169,6 @@ builder.Services
     .Configure<PdfConverterConfiguration>(builder.Configuration.GetSection("PdfConverter"))
     .AddSingleton(resolver => resolver.GetRequiredService<IOptions<PdfConverterConfiguration>>().Value);
 
-
 //data seeders
 builder.Services.AddScoped<UniversityDataSeeder>();
 builder.Services.AddScoped<UserDataSeeder>();
@@ -210,10 +209,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 //try seed DB
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = scope.ServiceProvider.GetRequiredService<GlobalDataSeeder>();
-    await seeder.SeedAsync();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var seeder = scope.ServiceProvider.GetRequiredService<GlobalDataSeeder>();
+//    await seeder.SeedAsync();
+//}
 
 app.Run();

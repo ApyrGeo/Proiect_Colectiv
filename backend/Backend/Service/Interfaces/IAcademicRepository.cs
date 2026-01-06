@@ -19,9 +19,11 @@ public interface IAcademicRepository
     Task<StudentGroupResponseDTO?> GetGroupByIdAsync(int id);
     Task<StudentSubGroupResponseDTO> AddSubGroupAsync(StudentSubGroupPostDTO studentSubGroup);
     Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id);
-    Task SaveChangesAsync();
     Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId);
     Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId);
     Task<TeacherResponseDTO?> GetTeacherByUserId(int userId);
     Task<LoggedUserEnrollmentResponseDTO?> GetFacultyByEnrollment(int enrollmentId);
+    Task<List<EnrollmentResponseDTO>> GetEnrollmentByGroup(int groupId);
+    Task<List<PromotionResponseDTO>> GetCurrentYearPromotions(int year);
+    Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
 }

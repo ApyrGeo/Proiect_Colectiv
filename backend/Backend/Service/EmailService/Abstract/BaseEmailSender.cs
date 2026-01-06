@@ -28,7 +28,7 @@ public abstract class BaseEmailSender<T>
         };
         _baseUrl = config.BaseUrl;
 
-        BasePath = Path.Combine(AppContext.BaseDirectory, "EmailService\\Emails");
+        BasePath = Path.Combine(AppContext.BaseDirectory, "EmailService", "Emails");
     }
 
     protected async Task<string> LoadTemplateAsync(string relativePath)

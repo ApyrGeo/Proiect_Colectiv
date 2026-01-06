@@ -1,4 +1,6 @@
+using System.Text.Json;
 using AutoMapper;
+using log4net;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Repository.Context;
@@ -11,11 +13,14 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 {
     private readonly AcademicAppContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicRepository));
 
     public async Task<EnrollmentResponseDTO> AddEnrollmentAsync(EnrollmentPostDTO enrollment)
     {
         var entity = _mapper.Map<Enrollment>(enrollment);
         await _context.Enrollments.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<EnrollmentResponseDTO>(entity);
     }
@@ -25,6 +30,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<Faculty>(faculty);
         await _context.Faculties.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<FacultyResponseDTO>(entity);
     }
 
@@ -33,6 +40,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<StudentGroup>(studentGroup);
         await _context.Groups.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<StudentGroupResponseDTO>(entity);
     }
 
@@ -40,9 +49,11 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var entity = _mapper.Map<Promotion>(promotion);
         
-        GeneratePromotionYearsAndSemesters(entity);
+        GenerationPromotionSemesters(entity);
         
         await _context.Promotions.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<PromotionResponseDTO>(entity);
     }
@@ -52,6 +63,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<Specialisation>(specialisation);
         await _context.Specialisations.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<SpecialisationResponseDTO>(entity);
     }
 
@@ -60,6 +73,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var entity = _mapper.Map<StudentSubGroup>(studentSubGroup);
         await _context.SubGroups.AddAsync(entity);
 
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<StudentSubGroupResponseDTO>(entity);
     }
 
@@ -67,6 +82,8 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var entity = _mapper.Map<Teacher>(teacher);
         await _context.Teachers.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<TeacherResponseDTO>(entity);
     }
@@ -129,6 +146,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         var promotion = await _context.Promotions
             .Include(gy => gy.StudentGroups)
+                .ThenInclude(x => x.StudentSubGroups)
             .Include(gy => gy.Specialisation)
                 .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(gy => gy.Id == id);
@@ -180,10 +198,9 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     public async Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId)
     {
         var semester = await _context.PromotionSemesters.Where(p => p.Id == semesterId)
-            .Include(s => s.PromotionYear)
-                .ThenInclude(g => g.Promotion)
-                    .ThenInclude(gy => gy.Specialisation)
-                        .ThenInclude(s => s.Faculty)
+            .Include(g => g.Promotion)
+                .ThenInclude(gy => gy.Specialisation)
+                    .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync();
 
         return _mapper.Map<PromotionSemesterResponseDTO>(semester);
@@ -212,30 +229,49 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
 
         return _mapper.Map<LoggedUserEnrollmentResponseDTO>(enrollment);
     }
-    
-    private static void GeneratePromotionYearsAndSemesters(Promotion promotion)
+
+
+    public async Task<List<EnrollmentResponseDTO>> GetEnrollmentByGroup(int groupId)
     {
-        for (int year = 1; year <= promotion.EndYear-promotion.StartYear; year++)
+        var students = await _context.Enrollments
+            .Where(e => e.SubGroup.StudentGroupId == groupId)
+            .Include(e => e.User)
+            .Include(e => e.SubGroup)
+                 .ThenInclude(sg => sg.StudentGroup)
+            .ToListAsync();
+            
+            
+        return _mapper.Map<List<EnrollmentResponseDTO>>(students);
+
+    }
+
+    private static void GenerationPromotionSemesters(Promotion promotion)
+    {
+        for (int year = 1; year <= promotion.EndYear - promotion.StartYear; year++)
         {
-            var promotionYear = new PromotionYear
-            {
-                YearNumber = year,
-                Promotion = promotion
-            };
-
-            promotionYear.PromotionSemesters.Add(new PromotionSemester
-            {
-                SemesterNumber = 1,
-                PromotionYear = promotionYear
-            });
-
-            promotionYear.PromotionSemesters.Add(new PromotionSemester
-            {
-                SemesterNumber = 2,
-                PromotionYear = promotionYear
-            });
-
-            promotion.Years.Add(promotionYear);
+            foreach (var semesterInYear in Enumerable.Range(1, 2)) {
+                promotion.Semesters.Add(new()
+                {
+                    Promotion = promotion,
+                    SemesterNumber = (year - 1) * 2 + semesterInYear,
+                });
+            }
         }
+    }
+    public async Task<List<PromotionResponseDTO>> GetCurrentYearPromotions(int year)
+    {
+         return await _context.Promotions
+            .Where(p => p.StartYear <= year && p.EndYear >= year)
+            .Select(p => _mapper.Map<PromotionResponseDTO>(p))
+            .ToListAsync();
+    }
+
+    public async Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id)
+    {
+        return await _context.Groups
+            .Where(g => g.PromotionId == id)
+            .Include(g => g.StudentSubGroups)
+            .Select(g => _mapper.Map<StudentGroupResponseDTO>(g))
+            .ToListAsync();
     }
 }

@@ -14,48 +14,185 @@ namespace TrackForUBB.Repository;
 public class TimetableRepository(AcademicAppContext context, IMapper mapper) : ITimetableRepository
 {
     private readonly AcademicAppContext _context = context;
-	private readonly IMapper _mapper = mapper;
-	private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
+    private readonly IMapper _mapper = mapper;
+    private readonly ILog _logger = LogManager.GetLogger(typeof(UserRepository));
 
     public async Task<ClassroomResponseDTO> AddClassroomAsync(ClassroomPostDTO classroom)
     {
         _logger.InfoFormat("Adding new classroom with name: {0}", classroom.Name);
 
-		var entity = _mapper.Map<Classroom>(classroom);
-		await _context.Classrooms.AddAsync(entity);
+        var entity = _mapper.Map<Classroom>(classroom);
+        await _context.Classrooms.AddAsync(entity);
 
-		return _mapper.Map<ClassroomResponseDTO>(entity);
-	}
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<ClassroomResponseDTO>(entity);
+    }
 
     public async Task<HourResponseDTO> AddHourAsync(HourPostDTO hour)
     {
         _logger.InfoFormat("Adding new hour with interval: {0}", hour.HourInterval);
 
-		var entity = _mapper.Map<Hour>(hour);
-		await _context.Hours.AddAsync(entity);
+        var entity = _mapper.Map<Hour>(hour);
+        await _context.Hours.AddAsync(entity);
 
-		return _mapper.Map<HourResponseDTO>(entity);
-	}
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<HourResponseDTO>(entity);
+    }
 
     public async Task<LocationResponseDTO> AddLocationAsync(LocationPostDTO location)
     {
         _logger.InfoFormat("Adding new location with name: {0}", location.Name);
 
-		var entity = _mapper.Map<Location>(location);
-		await _context.Locations.AddAsync(entity);
+        var entity = _mapper.Map<Location>(location);
+        await _context.Locations.AddAsync(entity);
 
-		return _mapper.Map<LocationResponseDTO>(entity);
-	}
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<LocationResponseDTO>(entity);
+    }
 
     public async Task<SubjectResponseDTO> AddSubjectAsync(SubjectPostDTO subject)
     {
         _logger.InfoFormat("Adding new subject with name: {0}", subject.Name);
 
-		var entity = _mapper.Map<Subject>(subject);
-		await _context.Subjects.AddAsync(entity);
+        var entity = _mapper.Map<Subject>(subject);
+        await _context.Subjects.AddAsync(entity);
 
-		return _mapper.Map<SubjectResponseDTO>(entity);
-	}
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<SubjectResponseDTO>(entity);
+    }
+
+    public Task DeleteHoursBySpecializationAsync(int specializationId)
+    {
+        _logger.InfoFormat("Deleting hours for specialization ID: {0}", specializationId);
+        var hoursToDelete = _context.Hours.Where(h =>
+            _context.Promotions.Any(p => p.Id == h.PromotionId && p.SpecialisationId == specializationId)
+            || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.Promotion.SpecialisationId == specializationId)
+            || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.Promotion.SpecialisationId == specializationId)
+        );
+        _context.Hours.RemoveRange(hoursToDelete);
+        return _context.SaveChangesAsync();
+    }
+
+    public async Task<List<HourResponseDTO>> GenerateTimetableAsync(TimetableGenerationDTO dto)
+    {
+        _logger.InfoFormat("Generating timetable for DTO: {0}", JsonSerializer.Serialize(dto));
+
+        var specialisation = await _context.Specialisations
+            .Include(s => s.Promotions)
+                .ThenInclude(p => p.Semesters)
+                    .ThenInclude(sem => sem.Subjects)
+            .FirstOrDefaultAsync(s => s.Id == dto.SpecialisationId);
+
+        if (specialisation == null)
+        {
+            _logger.WarnFormat("Specialisation with ID {0} not found", dto.SpecialisationId);
+            return [];
+        }
+
+        var currentPromotions = specialisation.Promotions
+            .Where(p => p.StartYear <= dto.Year && p.EndYear >= dto.Year)
+            .ToList();
+
+        var hours = new List<Hour>();
+
+        foreach (var promotion in currentPromotions)
+        {
+            _logger.InfoFormat("Processing promotion ID: {0}", promotion.Id);
+
+            var groups = await _context.Groups
+                .Include(g => g.StudentSubGroups)
+                .Where(g => g.PromotionId == promotion.Id)
+                .ToListAsync();
+
+            int promotionYear = dto.Year - promotion.StartYear + 1;
+
+            var semester = promotion.Semesters
+                .FirstOrDefault(s => s.SemesterNumber == (promotionYear - 1) * 2 + dto.Semester);
+
+            if (semester == null || semester.Subjects.Count == 0)
+                continue;
+
+            var subjects = semester.Subjects;
+
+            foreach (var subject in subjects)
+            {
+                int seminarsCount = subject.FormationType switch
+                {
+                    SubjectFormationType.Course_Seminar
+                    | SubjectFormationType.Course_Seminar_Laboratory
+                        => groups.Count,
+                    _ => 0,
+                };
+                int labsCount = subject.FormationType switch
+                {
+                    SubjectFormationType.Course_Laboratory
+                    | SubjectFormationType.Course_Seminar_Laboratory
+                        => groups.Sum(x => x.StudentSubGroups.Count),
+                    _ => 0,
+                };
+
+                // Generate course hour - use IDs instead of navigation properties
+                var courseHour = new Hour
+                {
+                    Day = HourDay.Unknown,
+                    HourInterval = "00:00-00:00",
+                    Frequency = HourFrequency.Weekly,
+                    Category = HourCategory.Lecture,
+                    SubjectId = subject.Id,
+                    Subject = subject,
+                    ClassroomId = null,
+                    TeacherId = null,
+                    PromotionId = promotion.Id,
+                };
+                hours.Add(courseHour);
+
+                // Generate seminar hours
+                for (int i = 0; i < seminarsCount; i++)
+                {
+                    var seminarHour = new Hour
+                    {
+                        Day = HourDay.Unknown,
+                        HourInterval = "00:00-00:00",
+                        Frequency = HourFrequency.Weekly,
+                        Category = HourCategory.Seminar,
+                        SubjectId = subject.Id,
+                        Subject = subject,
+                        ClassroomId = null,
+                        TeacherId = null,
+                        StudentGroupId = groups[i].Id
+                    };
+                    hours.Add(seminarHour);
+                }
+
+                // Generate laboratory hours
+                var subgroups = groups.SelectMany(x => x.StudentSubGroups);
+                foreach (var subgroup in subgroups)
+                {
+                    var labHour = new Hour
+                    {
+                        Day = HourDay.Unknown,
+                        HourInterval = "00:00-00:00",
+                        Frequency = HourFrequency.Weekly,
+                        Category = HourCategory.Laboratory,
+                        SubjectId = subject.Id,
+                        Subject = subject,
+                        ClassroomId = null,
+                        TeacherId = null,
+                        StudentSubGroupId = subgroup.Id,
+                    };
+                    hours.Add(labHour);
+                }
+            }
+        }
+
+        await _context.AddRangeAsync(hours);
+        await _context.SaveChangesAsync();
+        return _mapper.Map<List<HourResponseDTO>>(hours);
+    }
 
     public Task<List<LocationWithClassroomsResponseDTO>> GetAllLocationsAsync()
     {
@@ -74,8 +211,8 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             .Include(x => x.Location)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-		return _mapper.Map<ClassroomResponseDTO>(classroom);
-	}
+        return _mapper.Map<ClassroomResponseDTO>(classroom);
+    }
 
     public async Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectIdAsync(int subjectId)
     {
@@ -136,17 +273,17 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         var hour = await _context.Hours
             .Include(x => x.Classroom)
-                .ThenInclude(x => x.Location)
+                .ThenInclude(x => x!.Location)
             .Include(x => x.Teacher)
-                .ThenInclude(x => x.User)
+                .ThenInclude(x => x!.User)
             .Include(x => x.Subject)
             .Include(x => x.Promotion)
             .Include(x => x.StudentGroup)
             .Include(x => x.StudentSubGroup)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-		return _mapper.Map<HourResponseDTO>(hour);
-	}
+        return _mapper.Map<HourResponseDTO>(hour);
+    }
 
     public async Task<List<HourResponseDTO>> GetHoursAsync(HourFilter filter)
     {
@@ -222,14 +359,14 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         if (filter.SemesterNumber != null)
         {
-            query = query.Where(h => h.Semester.SemesterNumber == filter.SemesterNumber);
+            query = query.Where(h => h.Subject.Semester.SemesterNumber == filter.SemesterNumber);
         }
 
         var hours = await query
             .Include(x => x.Classroom)
-                .ThenInclude(x => x.Location)
+                .ThenInclude(x => x!.Location)
             .Include(x => x.Teacher)
-                .ThenInclude(x => x.User)
+                .ThenInclude(x => x!.User)
             .Include(x => x.Subject)
             .Include(x => x.Promotion)
             .Include(x => x.StudentGroup)
@@ -238,8 +375,8 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
                 .ThenBy(x => x.HourInterval)
             .ToListAsync();
 
-		return _mapper.Map<List<HourResponseDTO>>(hours);
-	}
+        return _mapper.Map<List<HourResponseDTO>>(hours);
+    }
 
     public async Task<LocationResponseDTO?> GetLocationByIdAsync(int id)
     {
@@ -249,22 +386,22 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             .Include(x => x.Classrooms)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-		return _mapper.Map<LocationResponseDTO>(location);
-	}
+        return _mapper.Map<LocationResponseDTO>(location);
+    }
 
     public async Task<SubjectResponseDTO?> GetSubjectByIdAsync(int id)
     {
         var subject = await _context.Subjects.FirstOrDefaultAsync(f => f.Id == id);
 
-		return _mapper.Map<SubjectResponseDTO>(subject);
-	}
+        return _mapper.Map<SubjectResponseDTO>(subject);
+    }
 
-	public async Task<SubjectResponseDTO?> GetSubjectByNameAsync(string name)
+    public async Task<SubjectResponseDTO?> GetSubjectByNameAsync(string name)
     {
         var subject = await _context.Subjects.FirstOrDefaultAsync(f => f.Name == name);
 
-		return _mapper.Map<SubjectResponseDTO>(subject);
-	}
+        return _mapper.Map<SubjectResponseDTO>(subject);
+    }
 
     public async Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherIdAsync(int teacherId)
     {
@@ -280,5 +417,44 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<HourResponseDTO> UpdateHourAsync(int hourId, IntermediaryHourDTO dto)
+    {
+        _logger.InfoFormat("Updating hour with ID: {0}", hourId);
+
+        var hour = await _context.Hours.FirstOrDefaultAsync(h => h.Id == hourId)
+            ?? throw new KeyNotFoundException($"Hour with ID {hourId} not found");
+
+        if (dto.HourInterval != null)
+        {
+            hour.HourInterval = dto.HourInterval;
+        }
+
+        hour.Day = dto.Day;
+        hour.Frequency = dto.Frequency;
+        hour.Category = dto.Category;
+        hour.ClassroomId = dto.ClassroomId;
+        hour.SubjectId = dto.SubjectId;
+        hour.TeacherId = dto.TeacherId;
+        hour.PromotionId = dto.GroupYearId;
+        hour.StudentGroupId = dto.StudentGroupId;
+        hour.StudentSubGroupId = dto.StudentSubGroupId;
+
+        _context.Hours.Update(hour);
+        await _context.SaveChangesAsync();
+
+        var updatedHour = await _context.Hours
+            .Include(x => x.Classroom)
+                .ThenInclude(x => x!.Location)
+            .Include(x => x.Teacher)
+                .ThenInclude(x => x!.User)
+            .Include(x => x.Subject)
+            .Include(x => x.Promotion)
+            .Include(x => x.StudentGroup)
+            .Include(x => x.StudentSubGroup)
+            .FirstOrDefaultAsync(x => x.Id == hourId);
+
+        return _mapper.Map<HourResponseDTO>(updatedHour);
     }
 }

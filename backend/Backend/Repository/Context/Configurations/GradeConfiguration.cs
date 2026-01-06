@@ -25,9 +25,5 @@ public class GradeConfiguration : IEntityTypeConfiguration<Grade>
 		builder.HasOne(g => g.Subject)
 			.WithMany(s => s.Grades)
 			.HasForeignKey(g => g.SubjectId);
-
-		builder.HasOne(g => g.Semester)
-			.WithMany(s => s.Grades)
-			.HasForeignKey(g => g.SemesterId);
 	}
 }

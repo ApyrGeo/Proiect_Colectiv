@@ -191,4 +191,36 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         return File(icsBytes, "text/calendar; charset=utf-8", $"timetable_{DateTime.UtcNow:yyyyMMdd}.ics");
     }
+
+    [HttpPost("hours/generate-timetable")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(422)]
+    public async Task<ActionResult> GenerateTimetable([FromBody] TimetableGenerationDTO dto)
+    {
+        _logger.InfoFormat("Generating timetable with parameters {0}", JsonSerializer.Serialize(dto));
+        List<HourResponseDTO> hours = await _service.GenerateTimetable(dto);
+        return Ok(hours);
+    }
+
+    [HttpDelete("hours/specialization/{specializationId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult> DeleteHoursBySpecialization([FromRoute] int specializationId)
+    {
+        _logger.InfoFormat("Deleting hours for specialization with ID {0}", specializationId);
+
+        await _service.DeleteHoursBySpecialization(specializationId);
+
+        return NoContent();
+    }
+
+    [HttpPut("hours/{hourId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<HourResponseDTO>> UpdateHour([FromRoute] int hourId, [FromBody] HourPutDTO dto)
+    {
+        _logger.InfoFormat("Updating hour with id {0}", hourId);
+        var updatedHour = await _service.UpdateHour(hourId, dto);
+        return Ok(updatedHour);
+    }
 }
