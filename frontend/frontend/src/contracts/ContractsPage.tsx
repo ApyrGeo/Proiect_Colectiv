@@ -26,6 +26,7 @@ const ContractsPage: React.FC = () => {
           fullName: `${profile.firstName} ${profile.lastName}`,
           email: profile.email,
           phone: profile.phoneNumber,
+          signature: profile.signatureUrl,
         };
 
         setUserData(initialData);

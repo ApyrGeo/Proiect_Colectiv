@@ -80,6 +80,12 @@ export const structure: ContractStructure[] = [
         options: ["Geometry", "IOC", "Robotics"],
       },
       {
+        name: "opt2",
+        label: "Optional 2",
+        category: FieldCategory.SELECT,
+        options: ["Geometry", "IOC", "Robotics"],
+      },
+      {
         name: "agree",
         label: "Terms",
         category: FieldCategory.CHECKBOX,
