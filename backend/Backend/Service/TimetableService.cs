@@ -371,6 +371,36 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         if (hourId != dto.Id)
             throw new EntityValidationException(["Hour ID in the URL does not match Hour ID in the body."]);
 
-        return await _timetableRepository.UpdateHourAsync(hourId, dto);
+        if (!Enum.TryParse<HourDay>(dto.Day, ignoreCase: true, out var dayEnum))
+        {
+            throw new EntityValidationException([$"Day string '{dto.Day}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourDay)))}"]);
+        }
+
+        if (!Enum.TryParse<HourFrequency>(dto.Frequency, ignoreCase: true, out var frequencyEnum))
+        {
+            throw new EntityValidationException([$"Frequency string '{dto.Frequency}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourFrequency)))}"]);
+        }
+
+        if (!Enum.TryParse<HourCategory>(dto.Category, ignoreCase: true, out var categoryEnum))
+        {
+            throw new EntityValidationException([$"Category string '{dto.Category}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourCategory)))}"]);
+        }
+
+        var intermediaryDto = new IntermediaryHourDTO
+        {
+            Id = dto.Id,
+            Day = dayEnum,
+            HourInterval = dto.HourInterval,
+            Frequency = frequencyEnum,
+            Category = categoryEnum,
+            ClassroomId = dto.ClassroomId,
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            GroupYearId = dto.GroupYearId,
+            StudentGroupId = dto.StudentGroupId,
+            StudentSubGroupId = dto.StudentSubGroupId
+        };
+
+        return await _timetableRepository.UpdateHourAsync(hourId, intermediaryDto);
     }
 }

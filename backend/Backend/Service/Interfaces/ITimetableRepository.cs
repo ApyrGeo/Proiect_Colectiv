@@ -20,5 +20,5 @@ public interface ITimetableRepository
     Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectIdAsync(int subjectId);
     Task<List<HourResponseDTO>> GenerateTimetableAsync(TimetableGenerationDTO dto);
     Task DeleteHoursBySpecializationAsync(int specializationId);
-    Task<HourResponseDTO> UpdateHourAsync(int hourId, HourPutDTO dto);
+    Task<HourResponseDTO> UpdateHourAsync(int hourId, IntermediaryHourDTO dto);
 }

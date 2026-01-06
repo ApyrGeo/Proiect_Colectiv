@@ -413,33 +413,21 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         await _context.SaveChangesAsync();
     }
 
-    public async Task<HourResponseDTO> UpdateHourAsync(int hourId, HourPutDTO dto)
+    public async Task<HourResponseDTO> UpdateHourAsync(int hourId, IntermediaryHourDTO dto)
     {
         _logger.InfoFormat("Updating hour with ID: {0}", hourId);
 
         var hour = await _context.Hours.FirstOrDefaultAsync(h => h.Id == hourId)
             ?? throw new KeyNotFoundException($"Hour with ID {hourId} not found");
 
-        if (Enum.TryParse<HourDay>(dto.Day, out var day))
-        {
-            hour.Day = day;
-        }
-
         if (dto.HourInterval != null)
         {
             hour.HourInterval = dto.HourInterval;
         }
 
-        if (Enum.TryParse<HourFrequency>(dto.Frequency, out var frequency))
-        {
-            hour.Frequency = frequency;
-        }
-
-        if (Enum.TryParse<HourCategory>(dto.Category, out var category))
-        {
-            hour.Category = category;
-        }
-
+        hour.Day = dto.Day;
+        hour.Frequency = dto.Frequency;
+        hour.Category = dto.Category;
         hour.ClassroomId = dto.ClassroomId;
         hour.SubjectId = dto.SubjectId;
         hour.TeacherId = dto.TeacherId;
