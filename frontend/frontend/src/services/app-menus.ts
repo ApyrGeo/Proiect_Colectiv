@@ -28,6 +28,11 @@ export function getAppMenus() {
           icon: "📋",
           url: "/exam",
         },
+        {
+          title: "Timetable Generation",
+          icon: "📆",
+          url: "/timetable-generation",
+        },
       ],
     },
   ];

@@ -2,13 +2,15 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@headlessui/react": "^2.2.9",
     "@mui/material": "^7.3.6",
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.24",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^7.9.6",
+    "react-select": "^5.10.2",
     "react-signature-canvas": "^1.1.0-alpha.2",
     "react-toastify": "^11.0.5"
   }
