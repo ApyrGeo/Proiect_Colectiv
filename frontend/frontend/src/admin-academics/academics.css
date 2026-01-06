@@ -1,0 +1,13 @@
+.academic-label {
+  color: var(--accent);
+  border-radius: 2px;
+  margin-top: 40px;
+}
+
+.academic-title {
+  color: var(--accent);
+  font-size: large;
+  padding-bottom: 5px;
+  border-bottom: var(--primary) 2px solid;
+  margin-bottom: 20px;
+}
