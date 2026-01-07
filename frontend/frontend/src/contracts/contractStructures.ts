@@ -74,18 +74,6 @@ export const structure: ContractStructure[] = [
         category: FieldCategory.NUMAR,
       },
       {
-        name: "opt1",
-        label: "Optional 1",
-        category: FieldCategory.SELECT,
-        options: ["Geometry", "IOC", "Robotics"],
-      },
-      {
-        name: "opt2",
-        label: "Optional 2",
-        category: FieldCategory.SELECT,
-        options: ["Geometry", "IOC", "Robotics"],
-      },
-      {
         name: "agree",
         label: "Terms",
         category: FieldCategory.CHECKBOX,
@@ -93,3 +81,9 @@ export const structure: ContractStructure[] = [
     ],
   },
 ];
+
+export type OptionalField = ContractFieldBase & {
+  category: FieldCategory.SELECT;
+  options: { label: string; value: number }[];
+  packageId: number;
+};

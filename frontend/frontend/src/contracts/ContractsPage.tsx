@@ -1,4 +1,4 @@
-import { structure, FieldCategory } from "./contractStructures.ts";
+import { structure, FieldCategory, type OptionalField } from "./contractStructures.ts";
 import { useEffect, useState } from "react";
 import "./contracts.css";
 import useContractApi from "./useContractApi.ts";
@@ -6,16 +6,25 @@ import { toast } from "react-hot-toast";
 import { useAuthContext } from "../auth/context/AuthContext.tsx";
 import useUserApi from "../profile/ProfileApi.ts";
 import { useTranslation } from "react-i18next";
+import { useOptionalSubjectsApi } from "./OptionalApi.ts";
 
 const ContractsPage: React.FC = () => {
   const { getStudyContract } = useContractApi();
   const { userProps } = useAuthContext();
+  const { userEnrollments } = useAuthContext();
   const { fetchUserProfile } = useUserApi();
   const [, setUserData] = useState<Record<string, any>>({});
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const contract = structure[0];
   const [, setIsError] = useState(false);
   const { t } = useTranslation();
+  const [optionalFields, setOptionalFields] = useState<OptionalField[]>([]);
+  const { getOptionalPackages } = useOptionalSubjectsApi();
+  const allFields = [
+    ...contract.fields.filter((f) => f.category !== FieldCategory.CHECKBOX),
+    ...optionalFields,
+    ...contract.fields.filter((f) => f.category === FieldCategory.CHECKBOX),
+  ];
 
   useEffect(() => {
     if (!userProps?.id) return;
@@ -36,6 +45,27 @@ const ContractsPage: React.FC = () => {
         toast.error(t("Error_loading_user_data"));
       });
   }, [userProps?.id]);
+
+  useEffect(() => {
+    if (!userEnrollments?.[0]?.promotionId) return;
+    console.log("Fetching optional packages for promotionId:", userEnrollments?.[0]?.promotionId);
+    getOptionalPackages(userEnrollments?.[0]?.promotionId).then((packages) => {
+      console.log("PACKAGES:", packages);
+      const fields: OptionalField[] = packages.map((pkg) => ({
+        name: `optional_${pkg.packageId}`,
+        label: `Optional package ${pkg.packageId}`,
+        category: FieldCategory.SELECT,
+        packageId: pkg.packageId,
+        options: pkg.subjects.map((s) => ({
+          label: s.name,
+          value: s.id,
+        })),
+      }));
+
+      setOptionalFields(fields);
+    });
+  }, [userEnrollments?.[0]?.promotionId]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(e);
@@ -69,26 +99,37 @@ const ContractsPage: React.FC = () => {
     <div className={"contracts-page"}>
       <div className={"contract-title"}>{t(contract.title)}</div>
       <form onSubmit={handleSubmit}>
-        {contract.fields.map((field) => {
+        {allFields.map((field) => {
           if (field.category === FieldCategory.SELECT) {
             return (
               <label key={field.name}>
-                {field.label}
+                {t(field.label)}
                 <select
                   value={formValues[field.name] ?? ""}
                   onChange={(e) =>
                     setFormValues((prev) => ({
                       ...prev,
-                      [field.name]: e.target.value,
+                      [field.name]: Number(e.target.value),
                     }))
                   }
                 >
                   <option value="">Select</option>
-                  {field.options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
+                  {"options" in field &&
+                    field.options.map((opt) => {
+                      if (typeof opt === "string") {
+                        return (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        );
+                      } else {
+                        return (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        );
+                      }
+                    })}
                 </select>
               </label>
             );

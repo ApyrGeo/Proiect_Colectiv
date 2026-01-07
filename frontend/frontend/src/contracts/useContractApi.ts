@@ -1,9 +1,6 @@
 import useApiClient from "../core/useApiClient.ts";
 import { useCallback } from "react";
-
-type StudyContractPayload = {
-  fields: Record<string, any>;
-};
+import type { StudyContractPayload } from "./props.ts";
 
 const useContractApi = () => {
   const { axiosPdf } = useApiClient();
@@ -17,6 +14,7 @@ const useContractApi = () => {
     },
     [axiosPdf]
   );
+
   return {
     getStudyContract,
   };
