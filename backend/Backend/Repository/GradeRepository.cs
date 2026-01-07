@@ -157,4 +157,45 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<SubjectGroupGradesDTO> GetSubjectGroupGradesAsync(int subjectId, int groupId)
+    {
+        var subject = await _context.Subjects
+            .FirstOrDefaultAsync(s => s.Id == subjectId);
+
+        var group = await _context.Groups
+            .Include(g => g.StudentSubGroups)
+                .ThenInclude(sg => sg.Enrollments)
+                    .ThenInclude(e => e.User)
+            .Include(g => g.StudentSubGroups)
+                .ThenInclude(sg => sg.Enrollments)
+                    .ThenInclude(e => e.Grades)
+            .Include(g => g.Promotion)
+                .ThenInclude(p => p.Specialisation)
+                    .ThenInclude(s => s.Faculty)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        var userGrades = group!.StudentSubGroups
+            .SelectMany(sg => sg.Enrollments)
+            .Select(e => new
+            {
+                User = e.User,
+                Grade = e.Grades.FirstOrDefault(g => g.SubjectId == subjectId)
+            })
+            .Select(x => new UserGradeDTO
+            {
+                User = _mapper.Map<SimplifiedUserResponseDTO>(x.User),
+                Grade = x.Grade?.Value
+            })
+            .OrderBy(ug => ug.User.LastName)
+            .ThenBy(ug => ug.User.FirstName)
+            .ToList();
+
+        return new SubjectGroupGradesDTO
+        {
+            Subject = _mapper.Map<SubjectResponseDTO>(subject),
+            StudentGroup = _mapper.Map<StudentGroupResponseDTO>(group),
+            Grades = userGrades
+        };
+    }
 }
