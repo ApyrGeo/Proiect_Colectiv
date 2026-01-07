@@ -1,0 +1,240 @@
+/* ===========================
+   PAGINA GRADES - CONTAINER GENERAL
+=========================== */
+.grades-page-teacher-container {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--text-light);
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 40px;
+  background: #0d1b2a;
+  border-radius: 16px;
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.5s ease;
+}
+
+.grades-page-title {
+  color: #e0e6ed;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 28px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.grades-page-subtitle {
+  margin-top: 20px;
+  color: #fff;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+/* ===========================
+   PANEL & FILTRE
+=========================== */
+.grades-panel {
+  background: #1b263b;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  max-width: 1250px;
+  margin-bottom: 30px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.grades-filter-item {
+  display: flex;
+  align-items: center;
+  min-width: 150px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background-color: var(--surface-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.grades-filter-item label {
+  font-weight: 600;
+  color: var(--accent-light);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.grades-filter-item select {
+  flex: 1;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #0f1828;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.grades-filter-item select:hover {
+  background-color: #142033;
+  transform: scale(1.02);
+}
+
+/* ===========================
+   GRADES CARDS
+=========================== */
+.grades-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 26px;
+  width: 100%;
+}
+
+.grades-grade-card {
+  background-color: var(--surface);
+  padding: 16px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 240px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border-left: 6px solid transparent;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.grades-grade-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.grades-subject-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.grades-credit-badge {
+  font-size: 1.05rem;
+  color: var(--accent-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grades-grade-badge {
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 28px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #fff;
+  transition: transform 0.5s;
+}
+
+.grades-pass {
+  border-left-color: var(--success);
+}
+.grades-pass .grades-grade-badge {
+  background: linear-gradient(135deg, #2ecc71, #4ddc88);
+}
+
+.grades-fail {
+  border-left-color: #cc2e5a;
+}
+.grades-fail .grades-grade-badge {
+  background: linear-gradient(135deg, #cc2e5a, #e36c84);
+}
+
+.grades-not-counted {
+  border-left-color: #d4af37;
+}
+.grades-not-counted .grades-grade-badge {
+  background: linear-gradient(135deg, #d4af37, #f3d98c);
+}
+
+/* ===========================
+   EMPTY MESSAGE
+=========================== */
+.grades-empty-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* ===========================
+   ANIMAȚII
+=========================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ===========================
+   TABEL GRADES
+=========================== */
+.grades-table-inner {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.grades-table-inner th,
+.grades-table-inner td {
+  padding: 12px 18px;
+  text-align: left;
+  font-size: 1rem;
+  color: #d9e2ec;
+}
+
+.grades-table-inner th {
+  background-color: #0f1828; /* fundal mai închis pentru header */
+  color: #e0e6ed;           /* text vizibil */
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #274059;
+}
+
+.grades-table-inner tr:hover {
+  background-color: #142033;
+  transition: background-color 0.2s ease;
+}
+
+/* COLOR PASS / FAIL / NOT COUNTED */
+.grades-pass td:nth-child(2) {
+  background: linear-gradient(135deg, #2ecc71, #4ddc88);
+  color: #02150a;
+  font-weight: 700;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.grades-fail td:nth-child(2) {
+  background: linear-gradient(135deg, #cc2e5a, #e36c84);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.grades-not-counted td:nth-child(2) {
+  background: linear-gradient(135deg, #d4af37, #f3d98c);
+  color: #02150a;
+  font-weight: 700;
+  border-radius: 6px;
+  text-align: center;
+}

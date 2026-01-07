@@ -1,4 +1,5 @@
 export interface SubjectProps {
+  id: number;
   name: string;
   numberOfCredits: number;
 }
@@ -37,4 +38,33 @@ export interface UserProps {
   email: string;
   password: string | null;
   role: number;
+}
+
+type GradeEntry = {
+  user: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+  grade: number | null;
+};
+
+export type SubjectGradesResponse = {
+  subject: {
+    id: number;
+    name: string;
+    numberOfCredits: number;
+    code: string;
+    type: string;
+  };
+  studentGroup: {
+    id: number;
+    name: string;
+  };
+  grades: GradeEntry[];
+};
+
+export interface StudentGroupProps {
+  id: number;
+  name: string;
 }

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
 import type { ScholarshipStatus, SpecializationResponse } from "./props";
-import type {StudentGroupProps, SubjectProps, TeacherProps, UserProps} from "../exam/props.ts";
+import type { SubjectGradesResponse, SubjectProps, TeacherProps, UserProps, StudentGroupProps } from "./props.ts";
 
 const useGradesApi = () => {
   const { axios } = useApiClient();
@@ -88,9 +88,13 @@ const useGradesApi = () => {
   );
 
   const getStudentByGroup = useCallback(
-    async (groupId: number) => {
-      const response = await axios.get<TeacherProps>(`${academicsUrl}/student-groups/${groupId}/students`);
-      return response.data ?? [];
+    async (subjectId: number, groupId: number): Promise<SubjectGradesResponse> => {
+      const response = await axios.get<SubjectGradesResponse>(
+        `${gradesUrl}/subject-groups`,
+        {
+        params: { subjectId, groupId },
+      });
+      return response.data;
     },
     [axios]
   );
