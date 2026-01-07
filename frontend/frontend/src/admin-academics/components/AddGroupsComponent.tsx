@@ -12,11 +12,37 @@ import {
 } from "@mui/material";
 import { theme } from "../theme.ts";
 import { useState } from "react";
+import type { Faculty } from "../props.ts";
+import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
 
-const AddSpecialisationComponent: React.FC = () => {
+type AddGroupProps = {
+  faculties: Faculty[];
+  refreshFaculties: () => void;
+};
+
+const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
   const [groupCount, setGroupCount] = useState(1);
-
   const [groupNames, setGroupNames] = useState<string[]>(["1"]);
+  const [promId, setPromId] = useState<number | null>(null);
+
+  const { postGroup, postSubGroup } = useAdminAcademicsApi();
+
+  const handleAddPromotion = () => {
+    if (!promId) return;
+
+    for (let i = 0; i < groupCount; i++) handlePostGroup(groupNames[i], promId);
+  };
+
+  const handlePostGroup = (name: string, promId: number) => {
+    postGroup({ groupYearId: promId, name: name })
+      .then((res) => {
+        postSubGroup({ studentGroupId: res.id, name: name + "/1" });
+        postSubGroup({ studentGroupId: res.id, name: name + "/2" });
+      })
+      .catch(() => {
+        //TODO handle error
+      });
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -27,10 +53,22 @@ const AddSpecialisationComponent: React.FC = () => {
             <div className={"academic-column"}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Promotion</InputLabel>
-                <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Promotion" onChange={() => 1}>
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  label="Promotion"
+                  onChange={(event) => {
+                    if (!event.target.value) return;
+                    setPromId(Number(event.target.value));
+                  }}
+                >
+                  {props.faculties.map((f) =>
+                    f.specialisations.map((s) => (
+                      <MenuItem value={s.id} key={s.id}>
+                        {s.name}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
               <div className={"academic-label"}>Count</div>
@@ -47,7 +85,7 @@ const AddSpecialisationComponent: React.FC = () => {
                 }}
                 valueLabelDisplay="auto"
               />
-              <Button>Add Promotion</Button>
+              <Button onClick={handleAddPromotion}>Add Promotion</Button>
             </div>
             <div className={"academic-column"}>
               <div className={"academic-label"}>Group Names</div>
