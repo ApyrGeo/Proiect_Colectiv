@@ -63,17 +63,19 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
                   }}
                 >
                   {props.faculties.map((f) =>
-                    f.specialisations.map((s) => (
-                      <MenuItem value={s.id} key={s.id}>
-                        {s.name}
-                      </MenuItem>
-                    ))
+                    f.specialisations.map((s) =>
+                      s.groupYears.map((g) => (
+                        <MenuItem value={g.id} key={g.id}>
+                          {s.name + ": " + g.startYear + " - " + g.endYear}
+                        </MenuItem>
+                      ))
+                    )
                   )}
                 </Select>
               </FormControl>
               <div className={"academic-label"}>Count</div>
               <Slider
-                defaultValue={groupCount}
+                // defaultValue={groupCount}
                 min={1}
                 max={20}
                 value={groupCount}

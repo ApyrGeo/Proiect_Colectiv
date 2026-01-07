@@ -56,7 +56,6 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
           </FormControl>
           <div className={"academic-label"}>Length</div>
           <Slider
-            defaultValue={promotionLenght}
             value={promotionLenght}
             min={1}
             max={6}

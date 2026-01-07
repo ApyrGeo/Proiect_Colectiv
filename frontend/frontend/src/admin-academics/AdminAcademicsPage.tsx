@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import "./academics.css";
 import AddFacultyComponent from "./components/AddFacultyComponent.tsx";
-import AddSpecialisationComponent from "./components/AddSpecializationComponent.tsx";
+import AddSpecialisationComponent from "./components/AddSpecialisationComponent.tsx";
 import AddPromotionComponent from "./components/AddPromotionComponent.tsx";
 import AddGroupsComponent from "./components/AddGroupsComponent.tsx";
 import useAdminAcademicsApi from "./useAdminAcademicsApi.ts";
@@ -16,7 +16,8 @@ const AdminAcademicsPage: React.FC = () => {
   const refreshFaculties = useCallback(() => {
     getFaculties()
       .then((res) => {
-        setFaculties(res.faculties);
+        console.log(res);
+        setFaculties(res);
       })
       .catch(() => {
         setFetchError("Couldn't fetch faculties");
@@ -24,7 +25,7 @@ const AdminAcademicsPage: React.FC = () => {
   }, [getFaculties]);
 
   useEffect(() => {
-    if (fetchError == "") return;
+    if (fetchError != "") return;
 
     refreshFaculties();
   }, [fetchError, refreshFaculties]);

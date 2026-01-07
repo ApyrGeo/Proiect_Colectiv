@@ -1,7 +1,6 @@
 import useApiClient from "../core/useApiClient.ts";
 import { useCallback } from "react";
 import type {
-  FacultiesResponse,
   FacultyPostData,
   PromotionPostData,
   SpecialisationPostData,
@@ -52,7 +51,7 @@ const useAdminAcademicsApi = () => {
   );
 
   const getFaculties = useCallback(async () => {
-    const response = await axios.get<FacultiesResponse>(`${academicsApi}/faculties`);
+    const response = await axios.get(`${academicsApi}/faculties`);
     return response.data;
   }, [axios]);
 
