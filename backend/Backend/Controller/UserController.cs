@@ -61,7 +61,7 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpPost("bulk")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(201)]
     [ProducesResponseType(422)]
     [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<BulkUserCreateResultDTO>> CreateUsersFromFile(IFormFile file)
@@ -72,7 +72,7 @@ public class UserController(IUserService service) : ControllerBase
         {
             return UnprocessableEntity(result);
         }
-        return Ok(result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpGet("{userId}/enrolled-specialisations")]
