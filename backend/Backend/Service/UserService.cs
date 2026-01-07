@@ -13,7 +13,6 @@ using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Exceptions.Custom;
-using TrackForUBB.Domain.Security;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Models;
@@ -104,6 +103,11 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     {
         var userDTO = _mapper.Map<InternalUserPostDTO>(dto);
 
+        return await CreateUser(userDTO);
+    }
+
+    private async Task<UserResponseDTO> CreateUser(InternalUserPostDTO userDTO)
+    {
         _logger.InfoFormat("Validating request data");
         var validator = _validator.Get<InternalUserPostDTO>();
         var result = await validator.ValidateAsync(userDTO);
@@ -119,7 +123,6 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         (var ownerId, var tenantEmail) = await CreateEntraUser(addedUserDTO);
         var updatedUserDTO = await _userRepository.UpdateEntraDetailsAsync(addedUserDTO.Id, ownerId, tenantEmail);
-        await _userRepository.SaveChangesAsync();
 
         _logger.InfoFormat($"Sending email to user: {updatedUserDTO.Email}");
         await SendWelcomeEmail(updatedUserDTO, tenantEmail);
@@ -326,7 +329,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         };
 
         using var csv = new CsvReader(reader, config);
-        csv.Context.RegisterClassMap<UserPostDTOMap>();
+        csv.Context.RegisterClassMap<InternalUserPostDTOMap>();
         var records = csv.GetRecords<InternalUserPostDTO>().ToList();
 
         for (int i = 0; i < records.Count; i++)
@@ -347,7 +350,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         var headerMap = headerCells.Select((c, idx) => new { Name = c.GetString().Trim(), Index = idx + 1 })
                                    .ToDictionary(x => x.Name, x => x.Index, StringComparer.InvariantCultureIgnoreCase);
 
-        var map = new UserPostDTOMap();
+        var map = new InternalUserPostDTOMap();
         var propertyIndex = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
         foreach (var memberMap in map.MemberMaps)

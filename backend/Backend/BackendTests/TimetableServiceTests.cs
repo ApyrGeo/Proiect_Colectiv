@@ -90,6 +90,7 @@ public class TimetableServiceTests
             Email = "andrei@gmail.com",
             Role = UserRole.Teacher,
             PhoneNumber = "+40777301089",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Owner = ""
         };
 
@@ -374,6 +375,7 @@ public class TimetableServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "i am inside your walls",
             Role = UserRole.Teacher
         };
         var userResponse = new UserResponseDTO
@@ -383,6 +385,7 @@ public class TimetableServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "open your window",
             Role = UserRole.Teacher,
             Owner = ""
         };
@@ -529,6 +532,7 @@ public class TimetableServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
+            TenantEmail = "at the crossroads",
             PhoneNumber = "+40777301089",
             Role = Enum.Parse<UserRole>("Student")
         };
@@ -559,6 +563,7 @@ public class TimetableServiceTests
             Email = teacher.User.Email,
             PhoneNumber = teacher.User.PhoneNumber,
             Role = teacher.User.Role,
+            TenantEmail = "he is watching, always",
             Owner = ""
         };
         var teacherResponse = new TeacherResponseDTO
@@ -641,6 +646,7 @@ public class TimetableServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "i see you",
             Role = UserRole.Student,
             Owner = ""
         };

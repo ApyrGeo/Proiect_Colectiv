@@ -51,6 +51,7 @@ public class UserRepositoryTests : IDisposable
             FirstName = "Andrei",
             LastName = "Rotaru",
             PhoneNumber = "+4077",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Role = UserRole.Student
         });
         await _context.SaveChangesAsync();
@@ -81,6 +82,7 @@ public class UserRepositoryTests : IDisposable
             FirstName = "Test",
             LastName = "User",
             PhoneNumber = "+400",
+            TenantEmail = "test.user@trackforubb.onmicrosoft.com",
             Role = UserRole.Student
         };
         _context.Users.Add(user);
@@ -103,17 +105,16 @@ public class UserRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("Vanya", "Doktorovic", "0759305094", "vandok@gmail.com", "pass1234", UserRole.Admin)]
-    [InlineData("Andrei", "Horo", "0779725710", "horo@gmail.com", "password", UserRole.Student)]
+    [InlineData("Vanya", "Doktorovic", "0759305094", "vandok@gmail.com", UserRole.Admin)]
+    [InlineData("Andrei", "Horo", "0779725710", "horo@gmail.com", UserRole.Student)]
     public async Task AddAsyncValidUser(string firstName, string lastName, string phoneNumber, string email,
-        string password, UserRole role)
+        UserRole role)
     {
         var user = new InternalUserPostDTO
         {
             Email = email,
             FirstName = firstName,
             LastName = lastName,
-            Password = password,
             PhoneNumber = phoneNumber,
             Role = role.ToString()
         };
@@ -137,6 +138,7 @@ public class UserRepositoryTests : IDisposable
                 FirstName = "A",
                 LastName = "A",
                 PhoneNumber = "+40779725710",
+                TenantEmail = "a.a@trackforubb.onmicrosoft.com",
                 Role = UserRole.Student
             },
             new User
@@ -146,6 +148,7 @@ public class UserRepositoryTests : IDisposable
                 FirstName = "B",
                 LastName = "B",
                 PhoneNumber = "+40779725710",
+                TenantEmail = "b.b@trackforubb.onmicrosoft.com",
                 Role = UserRole.Admin
             }
         );

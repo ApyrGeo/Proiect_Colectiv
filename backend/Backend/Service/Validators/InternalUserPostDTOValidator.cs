@@ -6,10 +6,10 @@ using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Service.Validators;
 
-public class UserPostDTOValidator : AbstractValidator<InternalUserPostDTO>
+public class InternalUserPostDTOValidator : AbstractValidator<InternalUserPostDTO>
 {
     private readonly IUserRepository _repository;
-    public UserPostDTOValidator(IUserRepository repository)
+    public InternalUserPostDTOValidator(IUserRepository repository)
     {
         _repository = repository;
 

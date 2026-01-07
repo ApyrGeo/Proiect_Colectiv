@@ -90,9 +90,3 @@ public class HelperFunctions
     public static int FirstSemesterOfYear(int year) => year * 2 - 1;
     public static int SecondSemesterOfYear(int year) => year * 2;
 }
-
-    public static string GetUserTenantEmail(string firstName, string lastName)
-    {
-        return ReplaceRomanianDiacritics($"{firstName}.{lastName}".ToLowerInvariant());
-    }
-}

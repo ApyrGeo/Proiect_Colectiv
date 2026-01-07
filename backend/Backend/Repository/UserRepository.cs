@@ -1,7 +1,6 @@
 using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Repository.Context;
@@ -130,6 +129,8 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         entity.Owner = ownerId;
         entity.TenantEmail = tenantEmail;
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<UserResponseDTO>(entity);
     }

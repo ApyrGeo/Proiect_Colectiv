@@ -10,6 +10,8 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Domain.Security;
 using TrackForUBB.Service.Interfaces;
+using Microsoft.Graph;
+using AutoMapper;
 
 namespace TrackForUBB.BackendTests;
 
@@ -22,33 +24,43 @@ public class UserServiceTests
     private readonly UserService _userService;
     private readonly Mock<IConfiguration> conf = new();
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
+    private readonly Mock<GraphServiceClient> _mockGraph = new();
+    private readonly Mock<IMapper> _mockMapper = new();
 
     public UserServiceTests()
     {
-        var realValidator = new UserPostDTOValidator(_mockUserRepository.Object);
+        var realValidator = new InternalUserPostDTOValidator(_mockUserRepository.Object);
 
         var mockValidatorFactory = new Mock<IValidatorFactory>();
         mockValidatorFactory.Setup(v => v.Get<InternalUserPostDTO>()).Returns(realValidator);
 
         _validatorFactory = mockValidatorFactory.Object;
 
-        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, _validatorFactory,
-            _mockPasswordHasher.Object, _mockEmailProvider.Object, conf.Object);
+        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, _mockMapper.Object, _validatorFactory,
+            _mockEmailProvider.Object, conf.Object, _mockGraph.Object);
     }
 
     [Theory]
-    [InlineData("Vanya", "Doktorovic", "+40712345678", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Andrei", "Horo", "40712345678", "horo@gmail.com", "password", "Teacher")]
+    [InlineData("Vanya", "Doktorovic", "+40712345678", "vandok@gmail.com", "Admin")]
+    [InlineData("Andrei", "Horo", "40712345678", "horo@gmail.com", "Teacher")]
     public async Task CreateUserValidData(string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
-        var userDTO = new InternalUserPostDTO
+        var userDTO = new UserPostDTO
         {
             FirstName = firstName,
             LastName = lastName,
             PhoneNumber = phone,
             Email = email,
-            Password = password,
+            Role = role
+        };
+
+        var internalUserDTO = new InternalUserPostDTO
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
             Role = role
         };
 
@@ -60,13 +72,11 @@ public class UserServiceTests
             Email = email,
             PhoneNumber = phone,
             Role = Enum.Parse<UserRole>(role),
+            TenantEmail = "",
             Owner = ""
         };
 
-
-        _mockPasswordHasher.Setup(h => h.HashPassword(userDTO, password)).Returns("hashedPassword");
-
-        _mockUserRepository.Setup(r => r.AddAsync(userDTO)).ReturnsAsync(userResponseDTO);
+        _mockUserRepository.Setup(r => r.AddAsync(internalUserDTO)).ReturnsAsync(userResponseDTO);
 
 
         var result = await _userService.CreateUser(userDTO);
@@ -76,27 +86,26 @@ public class UserServiceTests
         Assert.Equal(lastName, result.LastName);
         Assert.Equal(email, result.Email);
 
-        _mockUserRepository.Verify(r => r.AddAsync(userDTO), Times.Once);
+        _mockUserRepository.Verify(r => r.AddAsync(internalUserDTO), Times.Once);
     }
 
     [Theory]
-    [InlineData("", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "0759305094", "invalid-email", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+10adwd21234", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Lvbhk")]
+    [InlineData("", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "0759305094", "invalid-email", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "+10adwd21234", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Lvbhk")]
     public async Task CreateUserInvalidData(string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
-        var userDTO = new InternalUserPostDTO
+        var userDTO = new UserPostDTO
         {
             FirstName = firstName,
             LastName = lastName,
             PhoneNumber = phone,
             Email = email,
-            Password = password,
             Role = role
         };
 
@@ -121,6 +130,7 @@ public class UserServiceTests
             PhoneNumber = phone,
             Email = email,
             Role = Enum.Parse<UserRole>(role),
+            TenantEmail = "",
             Owner = ""
         };
 

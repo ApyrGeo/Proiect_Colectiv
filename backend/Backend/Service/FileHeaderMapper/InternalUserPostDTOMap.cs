@@ -2,9 +2,9 @@ using CsvHelper.Configuration;
 using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Service.FileHeaderMapper;
-internal sealed class UserPostDTOMap : ClassMap<InternalUserPostDTO>
+internal sealed class InternalUserPostDTOMap : ClassMap<InternalUserPostDTO>
 {
-    public UserPostDTOMap()
+    public InternalUserPostDTOMap()
     {
         Map(x => x.FirstName).Name("FirstName", "First Name", "firstname", "first name", "first_name");
         Map(x => x.LastName).Name("LastName", "Last Name", "lastname", "last name", "last_name");

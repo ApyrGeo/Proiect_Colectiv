@@ -259,7 +259,7 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
-           
+            TenantEmail = "Don't turn left at the crossroads",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
             Owner = ""
@@ -283,6 +283,7 @@ public class AcademicsServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "Do you hear me, don't turn left",
             Role = UserRole.Student,
             Owner = ""
         };
@@ -314,6 +315,7 @@ public class AcademicsServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
+            TenantEmail = "Don't turn left at the crossroads",
             Owner = ""
         };
         _mockUserRepository
@@ -353,6 +355,7 @@ public class AcademicsServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
+            TenantEmail = "java is better than c#",
             Owner = ""
         };
         _mockUserRepository
@@ -558,6 +561,7 @@ public class AcademicsServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Admin,
+            TenantEmail = "You cannot escape his gaze",
             Owner = ""
         };
 
@@ -617,6 +621,7 @@ public class AcademicsServiceTests
             FirstName = "Andrei",
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
+            TenantEmail = "Always watching, always maddening",
             PhoneNumber = "+40777301089",
             Role = Enum.Parse<UserRole>("Teacher")
         };
@@ -630,6 +635,7 @@ public class AcademicsServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
+            TenantEmail = "Remember, don't go hollow",
             Owner = ""
         };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };

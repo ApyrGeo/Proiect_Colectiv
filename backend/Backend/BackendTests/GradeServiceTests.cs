@@ -61,6 +61,7 @@ public class GradeServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
+            TenantEmail = "rats, there are rats in the walls",
             Owner = ""
         };
 
@@ -104,6 +105,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
+            TenantEmail = "he is watching you",
             Owner = ""
         };
 
@@ -186,6 +188,7 @@ public class GradeServiceTests
             LastName = "Teacher",
             Email = "t@test.com",
             PhoneNumber = "+40123456789",
+            TenantEmail = "do not walk outside on 27/07/2027",
             Role = teacherId == 1 ? UserRole.Teacher : UserRole.Student,
             Owner = ""
         };
@@ -253,6 +256,7 @@ public class GradeServiceTests
             LastName = "Popescu",
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "the cake is a lie",
             Role = UserRole.Student,
             Owner = ""
         };
@@ -308,6 +312,7 @@ public class GradeServiceTests
             LastName = "Rotaru",
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
+            TenantEmail = "CAN YOU HEAR ME?",
             Role = UserRole.Teacher,
             Owner = ""
         };
@@ -345,6 +350,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
+            TenantEmail = "At the crossroads, don't turn left",
             Owner = ""
         };
 
