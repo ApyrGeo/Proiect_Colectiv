@@ -7,6 +7,7 @@ import type {
   Frequency,
   FacultyProps,
   TimeTableGenerationProps,
+  PutTimeTableGenerationDto,
 } from "./props";
 import TimetableGenerationPage from "./pages/TimetableGenerationPage.tsx";
 import { useCallback } from "react";
@@ -93,19 +94,8 @@ const useTimetableGenerationApi = () => {
   );
 
   const updateHour = useCallback(
-    async (
-      hourId: number,
-      payload: {
-        day?: string;
-        hourInterval?: string;
-        frequency?: string;
-        category?: string;
-        classroomId?: number;
-        subjectId?: number;
-        teacherId?: number;
-        studentGroupId?: number;
-      }
-    ) => {
+    async (hourId: number, payload: PutTimeTableGenerationDto) => {
+      console.log(payload);
       const response = await axios.put(`/api/Timetable/hours/${hourId}`, payload);
 
       return response.data;

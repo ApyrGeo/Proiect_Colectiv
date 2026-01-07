@@ -7,19 +7,6 @@ import Circular from "../../components/loading/Circular";
 
 import { ComboBox, type ComboOption } from "../components/ComboBox";
 import type { EditableHourRow, Semester, SpecialisationProps, FacultyProps } from "../props";
-import type { HourProps } from "../../timetable/props";
-
-const hourToEditableRow = (hour: HourProps): EditableHourRow => ({
-  id: String(hour.id),
-  day: hour.day,
-  interval: hour.hourInterval,
-  frequency: hour.frequency,
-  locationId: hour.location?.id,
-  classroomId: hour.classroom?.id,
-  type: hour.category,
-  subjectId: hour.subject?.id,
-  teacherId: hour.teacher?.id,
-});
 
 const TimetableGenerationPage: React.FC = () => {
   const api = useTimetableGenerationApi();
@@ -45,7 +32,6 @@ const TimetableGenerationPage: React.FC = () => {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setYears(tempYears);
-    console.log(tempYears);
   }, []);
 
   const [selectedFaculty, setSelectedFaculty] = useState<ComboOption<number> | null>(null);
@@ -55,6 +41,19 @@ const TimetableGenerationPage: React.FC = () => {
 
   const [rows, setRows] = useState<EditableHourRow[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const handleRefreshHours = async () => {
+    if (!selectedSpecialisation || !year || !semester) {
+      setRows([]);
+      return;
+    }
+
+    setLoading(true);
+
+    const res = await api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value);
+    setRows(res.hours);
+    setLoading(false);
+  };
 
   useEffect(() => {
     api.getFaculties().then(setFaculties);
@@ -70,19 +69,8 @@ const TimetableGenerationPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedSpecialisation || !year || !semester) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRows([]);
-      return;
-    }
-
-    setLoading(true);
-
-    api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value).then((res) => {
-      console.log(res);
-      setRows(res.hours.map(hourToEditableRow));
-      setLoading(false);
-    });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    handleRefreshHours();
   }, [selectedSpecialisation, year, semester]);
 
   const handleGenerate = async () => {
@@ -92,8 +80,7 @@ const TimetableGenerationPage: React.FC = () => {
     await api.generateTimetable(selectedSpecialisation.value, year.value, semester.value);
 
     const res = await api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value);
-    console.log(res);
-    setRows(res.hours.map(hourToEditableRow));
+    setRows(res.hours);
     setLoading(false);
   };
 
@@ -154,7 +141,9 @@ const TimetableGenerationPage: React.FC = () => {
           </button>
         )}
 
-        {!loading && rows.length > 0 && <EditableTimetable rows={rows} setRows={setRows} />}
+        {!loading && rows.length > 0 && (
+          <EditableTimetable rows={rows} setRows={setRows} refreshHours={handleRefreshHours} />
+        )}
       </div>
     </div>
   );

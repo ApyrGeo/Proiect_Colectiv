@@ -9,9 +9,9 @@ public class IntermediaryHourDTO
     public string? HourInterval { get; set; }
     public HourFrequency Frequency { get; set; }
     public HourCategory Category { get; set; }
-    public required int ClassroomId { get; set; }
+    public int? ClassroomId { get; set; }
     public required int SubjectId { get; set; }
-    public required int TeacherId { get; set; }
+    public int? TeacherId { get; set; }
     public int? GroupYearId { get; set; }
     public int? StudentGroupId { get; set; }
     public int? StudentSubGroupId { get; set; }

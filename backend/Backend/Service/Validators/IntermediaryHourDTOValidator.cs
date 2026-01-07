@@ -12,7 +12,7 @@ public class IntermediaryHourDTOValidator : AbstractValidator<IntermediaryHourDT
     {
         RuleFor(h => h.HourInterval)
             .NotEmpty().WithMessage("HourInterval is required.")
-            .Matches(@"^\d{1,2}-\d{1,2}$").WithMessage("HourInterval must be in the format 'startHour-endHour'.");
+            .Matches(@"^(\d{1,2}:00-\d{1,2}:00|00:00-00:00)$").WithMessage("HourInterval must be in the format 'startHour-endHour'.");
 
         RuleFor(h => h)
             .MustAsync(async (dto, cancellation) =>

@@ -1,9 +1,29 @@
-import type { HourProps } from "../timetable/props.ts";
+import type { TeacherProps } from "../exam/props.ts";
 
 export type Semester = 1 | 2;
 
+export interface PutTimeTableGenerationDto {
+  id: number;
+  day: string;
+  hourInterval: string;
+  frequency?: string;
+  category: string;
+  classroomId: number | null;
+  subjectId?: number;
+  teacherId: number | null;
+  studentGroupId: number | null;
+  studentSubGroupId: number | null;
+  groupYearId: number | null;
+}
+
+export interface ClassroomProps {
+  id: number;
+  name: string;
+  locationId: number;
+}
+
 export interface TimeTableGenerationProps {
-  hours: HourProps[];
+  hours: EditableHourRow[];
   calendarStartISODate: string;
 }
 
@@ -38,14 +58,27 @@ export interface StudentSubGroupProps {
 }
 
 export interface EditableHourRow {
-  id: string;
-  day?: string;
-  interval?: string;
-  frequency?: string;
-  type?: string;
-  formationGroupId?: number;
-  locationId?: number;
-  classroomId?: number;
-  subjectId?: number;
-  teacherId?: number;
+  category?: string;
+  classroom?: ClassroomProps;
+  day: string;
+  frequency: string;
+  format: string;
+  hourInterval: string;
+  id?: number;
+  location?: string;
+  promotion?: GroupYearProps;
+  studentGroup?: GroupProps;
+  studentSubGroup?: StudentSubGroupProps;
+  subject?: SubjectProps;
+  teacher?: TeacherProps;
 }
+
+export interface SubjectProps {
+  id: number;
+  code: string;
+  name: string;
+  numberOfCredits: number;
+  type: string;
+}
+
+

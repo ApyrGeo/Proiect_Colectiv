@@ -1,29 +1,50 @@
 import { ComboBox } from "./ComboBox";
-import type { EditableHourRow } from "../props";
+import type { ClassroomProps, EditableHourRow, PutTimeTableGenerationDto } from "../props";
+import type { TeacherProps } from "../../exam/props.ts";
 
 interface Props {
   row: EditableHourRow;
   formations: { id: number; name: string }[];
-  onUpdate: (id: string, patch: Partial<EditableHourRow>) => void;
+  onUpdate: (id: number | undefined, patch: Partial<EditableHourRow>) => void;
 }
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const intervals = ["08-10", "10-12", "12-14", "14-16", "16-18"];
-const types = ["Lecture", "Seminar", "Laboratory"];
+const intervals = ["08:00-10:00", "10:00-12:00", "12:00-14:00", "14:00-16:00", "16:00-18:00"];
 
-const subjects = [
-  { id: 1, name: "Programare" },
-  { id: 2, name: "Structuri de date" },
+const classrooms: ClassroomProps[] = [
+  { id: 1, name: "A101", locationId: 1 },
+  { id: 2, name: "B202", locationId: 2 },
 ];
 
-const classrooms = [
-  { id: 1, name: "A101" },
-  { id: 2, name: "B202" },
-];
+const frequency = ["Weekly", "First week", "Second week"];
 
-const teachers = [
-  { id: 1, name: "Popa Edgar" },
-  { id: 2, name: "Ionescu Maria" },
+const teachers: TeacherProps[] = [
+  {
+    id: 1,
+    user: {
+      id: 1,
+      firstName: "John",
+      lastName: "Doe",
+      role: 1,
+      phoneNumber: "",
+      email: "",
+    },
+    userId: 0,
+    facultyId: 0,
+  },
+  {
+    id: 2,
+    user: {
+      id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
+      role: 1,
+      phoneNumber: "",
+      email: "",
+    },
+    userId: 0,
+    facultyId: 0,
+  },
 ];
 
 const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
@@ -40,66 +61,46 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
       <td>
         <ComboBox
           options={intervals.map((i) => ({ value: i, label: i }))}
-          value={row.interval ? { value: row.interval, label: row.interval } : undefined}
-          onChange={(v) => onUpdate(row.id, { interval: v.value })}
+          value={row.hourInterval ? { value: row.hourInterval, label: row.hourInterval } : undefined}
+          onChange={(v) => onUpdate(row.id, { hourInterval: v.value })}
         />
       </td>
 
-      <td>{row.type}</td>
+      <td>{row.category}</td>
 
-      <td>{row.formationGroupId}</td>
+      <td>{row.format}</td>
 
       <td>
         <ComboBox
           placeholder="Classroom"
-          options={classrooms.map((c) => ({ value: c.id, label: c.name }))}
+          options={classrooms.map((c) => ({ value: c, label: c.name }))}
           value={
-            row.classroomId
+            row.classroom
               ? {
-                  value: row.classroomId,
-                  label: classrooms.find((c) => c.id === row.classroomId)?.name ?? "",
+                  value: row.classroom,
+                  label: classrooms.find((c) => c.name === row.classroom?.name)?.name ?? "",
                 }
               : undefined
           }
-          onChange={(v) => onUpdate(row.id, { classroomId: v.value })}
+          onChange={(v) => onUpdate(row.id, { classroom: v.value })}
         />
       </td>
 
-      <td>
-        <ComboBox
-          placeholder="Subject"
-          options={subjects.map((s) => ({ value: s.id, label: s.name }))}
-          value={
-            row.subjectId
-              ? {
-                  value: row.subjectId,
-                  label: subjects.find((s) => s.id === row.subjectId)?.name ?? "",
-                }
-              : undefined
-          }
-          onChange={(v) =>
-            onUpdate(row.id, {
-              subjectId: v.value,
-              teacherId: undefined,
-            })
-          }
-        />
-      </td>
+      <td>{row.subject?.name}</td>
 
       <td>
         <ComboBox
           placeholder="Teacher"
-          options={teachers.map((t) => ({ value: t.id, label: t.name }))}
+          options={teachers.map((t) => ({ value: t, label: t.user.lastName + " " + t.user.firstName }))}
           value={
-            row.teacherId
+            row.teacher
               ? {
-                  value: row.teacherId,
-                  label: teachers.find((t) => t.id === row.teacherId)?.name ?? "",
+                  value: row.teacher,
+                  label: teachers.find((t) => t.id === row.teacher?.id)?.user.lastName ?? "",
                 }
               : undefined
           }
-          onChange={(v) => onUpdate(row.id, { teacherId: v.value })}
-          disabled={!row.subjectId}
+          onChange={(v) => onUpdate(row.id, { teacher: v.value })}
         />
       </td>
     </tr>
