@@ -1,19 +1,12 @@
-import type { SubjectProps, LocationProps, ClassroomProps, HourProps } from "../timetable/props";
-import type { ComboOption } from "./components/ComboBox";
+import type { TeacherProps } from "../exam/props";
 import type {
-  SpecialisationProps,
-  GroupProps,
-  Semester,
-  Frequency,
+  LocationProps,
   FacultyProps,
   TimeTableGenerationProps,
   PutTimeTableGenerationDto,
 } from "./props";
-import TimetableGenerationPage from "./pages/TimetableGenerationPage.tsx";
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient.ts";
-
-let GENERATED_HOURS: HourProps[] = [];
 
 type HourFilter = {
   userId?: number;
@@ -57,18 +50,18 @@ const useTimetableGenerationApi = () => {
     return response.data;
   }, [axios]);
 
-  const getLocations = async (): Promise<LocationProps[]> => [
-    {
-      id: 1,
-      name: "Facultatea de Chimie",
-      googleMapsData: { id: "1", latitude: 46.77, longitude: 23.59 },
+  const getTeachers = useCallback(
+    async (facultyId: number): Promise<TeacherProps[]> => {
+      const response = await axios.get(`/api/Academics/teachers/faculty/${facultyId}`);
+      return response.data;
     },
-  ];
+    [axios]
+  );
 
-  const getClassrooms = async (): Promise<ClassroomProps[]> => [
-    { id: 1, name: "217" },
-    { id: 2, name: "315" },
-  ];
+  const getLocations = useCallback(async (): Promise<LocationProps[]> => {
+    const response = await axios.get(`/api/Timetable/locations`);
+    return response.data;
+  }, [axios]);
 
   const getGeneratedTimetable = useCallback(
     async (specialization: number, year: number, semester: number): Promise<TimeTableGenerationProps> => {
@@ -104,9 +97,9 @@ const useTimetableGenerationApi = () => {
   );
 
   return {
+    getTeachers,
     getFaculties,
     getLocations,
-    getClassrooms,
 
     getGeneratedTimetable,
     generateTimetable,

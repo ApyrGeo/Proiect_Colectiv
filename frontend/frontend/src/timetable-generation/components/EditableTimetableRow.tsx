@@ -1,53 +1,29 @@
 import { ComboBox } from "./ComboBox";
-import type { ClassroomProps, EditableHourRow, PutTimeTableGenerationDto } from "../props";
+import type { ClassroomProps, EditableHourRow, LocationProps } from "../props";
 import type { TeacherProps } from "../../exam/props.ts";
+import { useEffect, useState } from "react";
 
 interface Props {
   row: EditableHourRow;
-  formations: { id: number; name: string }[];
   onUpdate: (id: number | undefined, patch: Partial<EditableHourRow>) => void;
+  teachers: TeacherProps[];
+  locations: LocationProps[];
 }
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const intervals = ["08:00-10:00", "10:00-12:00", "12:00-14:00", "14:00-16:00", "16:00-18:00"];
+const frequencies = ["Weekly", "FirstWeek", "SecondWeek"];
 
-const classrooms: ClassroomProps[] = [
-  { id: 1, name: "A101", locationId: 1 },
-  { id: 2, name: "B202", locationId: 2 },
-];
+const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate, teachers, locations }) => {
+  const [selectedLocation, setSelectedLocation] = useState<LocationProps | null>(null);
+  useEffect(() => {
+    if (row.location) {
+      setSelectedLocation(row.location);
+    }
+  }, [row.location]);
 
-const frequency = ["Weekly", "First week", "Second week"];
+  const classrooms: ClassroomProps[] = selectedLocation?.classrooms ?? [];
 
-const teachers: TeacherProps[] = [
-  {
-    id: 1,
-    user: {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      role: 1,
-      phoneNumber: "",
-      email: "",
-    },
-    userId: 0,
-    facultyId: 0,
-  },
-  {
-    id: 2,
-    user: {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      role: 1,
-      phoneNumber: "",
-      email: "",
-    },
-    userId: 0,
-    facultyId: 0,
-  },
-];
-
-const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
   return (
     <tr className="timetable-row">
       <td>
@@ -66,23 +42,45 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
         />
       </td>
 
+      <td>
+        <ComboBox
+          options={frequencies.map((f) => ({ value: f, label: f }))}
+          value={row.frequency ? { value: row.frequency, label: row.frequency } : undefined}
+          onChange={(v) => onUpdate(row.id, { frequency: v.value })}
+        />
+      </td>
+
       <td>{row.category}</td>
 
       <td>{row.format}</td>
 
       <td>
+        <td>
+          <ComboBox
+            placeholder="Location"
+            options={locations.map((l) => ({
+              value: l,
+              label: l.name,
+            }))}
+            value={selectedLocation ? { value: selectedLocation, label: selectedLocation.name } : undefined}
+            onChange={(v) => {
+              setSelectedLocation(v.value);
+              onUpdate(row.id, { classroom: undefined });
+            }}
+          />
+        </td>
+      </td>
+
+      <td>
         <ComboBox
           placeholder="Classroom"
-          options={classrooms.map((c) => ({ value: c, label: c.name }))}
-          value={
-            row.classroom
-              ? {
-                  value: row.classroom,
-                  label: classrooms.find((c) => c.name === row.classroom?.name)?.name ?? "",
-                }
-              : undefined
-          }
+          options={classrooms.map((c) => ({
+            value: c,
+            label: c.name,
+          }))}
+          value={row.classroom ? { value: row.classroom, label: row.classroom.name } : undefined}
           onChange={(v) => onUpdate(row.id, { classroom: v.value })}
+          disabled={classrooms.length === 0}
         />
       </td>
 
@@ -96,7 +94,7 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate }) => {
             row.teacher
               ? {
                   value: row.teacher,
-                  label: teachers.find((t) => t.id === row.teacher?.id)?.user.lastName ?? "",
+                  label: row.teacher.user.lastName + " " + row.teacher.user.firstName,
                 }
               : undefined
           }

@@ -142,7 +142,12 @@ const TimetableGenerationPage: React.FC = () => {
         )}
 
         {!loading && rows.length > 0 && (
-          <EditableTimetable rows={rows} setRows={setRows} refreshHours={handleRefreshHours} />
+          <EditableTimetable
+            rows={rows}
+            setRows={setRows}
+            refreshHours={handleRefreshHours}
+            facultyId={selectedFaculty?.value ?? 0}
+          />
         )}
       </div>
     </div>

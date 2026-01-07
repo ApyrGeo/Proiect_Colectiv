@@ -1,18 +1,27 @@
 import EditableTimetableRow from "./EditableTimetableRow";
-import type { EditableHourRow, PutTimeTableGenerationDto } from "../props";
+import type { EditableHourRow, LocationProps } from "../props";
 import useTimetableGenerationApi from "../useTimetableGenerationApi";
 import { toast } from "react-hot-toast";
-import React from "react";
+import React, { useState } from "react";
+import type { TeacherProps } from "../../exam/props.ts";
 
 interface Props {
+  facultyId: number;
   rows: EditableHourRow[];
   setRows: React.Dispatch<React.SetStateAction<EditableHourRow[]>>;
   refreshHours: () => Promise<void>;
 }
 
-const EditableTimetable: React.FC<Props> = ({ rows, setRows, refreshHours }) => {
-  console.log(rows);
+const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshHours }) => {
   const api = useTimetableGenerationApi();
+  const [teachers, setTeachers] = useState<TeacherProps[]>([]);
+  const [locations, setLocations] = useState<LocationProps[]>([]);
+  React.useEffect(() => {
+    api.getTeachers(facultyId).then((data) => setTeachers(data));
+  }, [facultyId]);
+  React.useEffect(() => {
+    api.getLocations().then((data) => setLocations(data));
+  }, []);
 
   const updateRow = (id: number, patch: Partial<EditableHourRow>) => {
     const rowIndex = rows.findIndex((r) => r.id === id);
@@ -22,6 +31,8 @@ const EditableTimetable: React.FC<Props> = ({ rows, setRows, refreshHours }) => 
     const newRows = [...rows];
     newRows[rowIndex] = updatedRow;
     setRows(newRows);
+
+    console.log(updatedRow);
 
     api
       .updateHour(Number(id), {
@@ -39,6 +50,7 @@ const EditableTimetable: React.FC<Props> = ({ rows, setRows, refreshHours }) => 
       })
       .then(() => {})
       .catch((error) => {
+        console.log(error);
         toast.error(error.response.data.Description.split(":")[1]);
         refreshHours();
       });
@@ -52,16 +64,24 @@ const EditableTimetable: React.FC<Props> = ({ rows, setRows, refreshHours }) => 
             <tr className="timetable-header">
               <th>Day</th>
               <th>Interval</th>
-              <th>Type</th>
-              <th>Group</th>
+              <th>Frequency</th>
+              <th>Category</th>
+              <th>Format</th>
+              <th>Location</th>
               <th>Classroom</th>
               <th>Subject</th>
-              <th>Professor</th>
+              <th>Teacher</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <EditableTimetableRow key={row.id} row={row} onUpdate={updateRow} />
+              <EditableTimetableRow
+                key={row.id}
+                row={row}
+                onUpdate={updateRow}
+                teachers={teachers ?? []}
+                locations={locations ?? []}
+              />
             ))}
           </tbody>
         </table>

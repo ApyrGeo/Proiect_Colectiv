@@ -35,6 +35,9 @@ public class IntermediaryHourDTOValidator : AbstractValidator<IntermediaryHourDT
 
     private static bool HasSchedulingConflict(IntermediaryHourDTO dto, List<HourResponseDTO> existingHours)
     {
+        if (dto.HourInterval == "00:00-00:00")
+            return false;
+        
         return existingHours.Any(h =>
         {
             if (h.Id == dto.Id)

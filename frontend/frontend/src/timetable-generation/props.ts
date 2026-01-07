@@ -16,6 +16,13 @@ export interface PutTimeTableGenerationDto {
   groupYearId: number | null;
 }
 
+export interface LocationProps {
+  id: number;
+  name: string;
+  address: string;
+  classrooms: ClassroomProps[];
+}
+
 export interface ClassroomProps {
   id: number;
   name: string;
@@ -65,7 +72,7 @@ export interface EditableHourRow {
   format: string;
   hourInterval: string;
   id?: number;
-  location?: string;
+  location?: LocationProps;
   promotion?: GroupYearProps;
   studentGroup?: GroupProps;
   studentSubGroup?: StudentSubGroupProps;
