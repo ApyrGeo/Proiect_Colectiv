@@ -247,7 +247,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         if (!isValid)
         {
-            return new BulkUserCreateResultDTO { Items = resultItems };
+            return new BulkUserCreateResultDTO { Users = resultItems };
         }
 
         var finalItems = new List<BulkUserCreateItemResultDTO>();
@@ -259,12 +259,12 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             {
                 Row = row,
                 Email = createdUser.Email,
-                Success = true,
+                IsValid = true,
                 CreatedUserId = createdUser.Id,
             });
         }
 
-        return new BulkUserCreateResultDTO { Items = finalItems };
+        return new BulkUserCreateResultDTO { Users = finalItems };
     }
 
     private async Task<(List<BulkUserCreateItemResultDTO> resultItems, bool isValid)> 
@@ -279,7 +279,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
             {
-                item.Success = false;
+                item.IsValid = false;
                 item.Errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
             }
 
@@ -297,7 +297,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             foreach (var entry in group)
             {
                 var item = resultItems.First(i => i.Row == entry.Row);
-                item.Success = false;
+                item.IsValid = false;
                 item.Errors.Add("Duplicate email inside file.");
             }
         }
@@ -306,7 +306,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         {
             foreach (var it in resultItems)
             {
-                it.Success = it.Errors.Count == 0;
+                it.IsValid = it.Errors.Count == 0;
             }
 
             return (resultItems, false);

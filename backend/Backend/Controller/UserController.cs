@@ -68,6 +68,10 @@ public class UserController(IUserService service) : ControllerBase
     {
         _logger.InfoFormat("Received request to create users from file: {0}", file.FileName);
         var result = await _service.CreateUsersFromFile(file);
+        if (!result.IsValid)
+        {
+            return UnprocessableEntity(result);
+        }
         return Ok(result);
     }
 

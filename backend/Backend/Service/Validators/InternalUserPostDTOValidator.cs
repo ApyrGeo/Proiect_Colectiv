@@ -45,6 +45,11 @@ public class InternalUserPostDTOValidator : AbstractValidator<InternalUserPostDT
         RuleFor(user => user.Role)
             .NotNull()
             .NotEmpty().WithMessage("Role is required.")
-            .IsEnumName(typeof(UserRole)).WithMessage($"User role string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(UserRole)))}.");
+            .Must(role =>
+            {
+                return Enum.TryParse<UserRole>(role, true, out var parsed)
+                       && (parsed == UserRole.Student || parsed == UserRole.Teacher);
+            })
+            .WithMessage($"User role must be one of: {UserRole.Student}, {UserRole.Teacher}.");
     }
 }
