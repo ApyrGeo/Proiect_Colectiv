@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
@@ -10,6 +11,7 @@ namespace TrackForUBB.Controller;
 [Route("api/[controller]")]
 public class ExamController(IExamService examService) : ControllerBase
 {
+    private readonly ILog _logger = LogManager.GetLogger(typeof(ExamController));
     private readonly IExamService _examService = examService;
 
     [HttpGet("subject/{subjectId}")]
@@ -28,6 +30,25 @@ public class ExamController(IExamService examService) : ControllerBase
     {
         var exams = await _examService.GetStudentExamsByStudentId(studentId);
         return Ok(exams);
+    }
+
+    [HttpPost("generate-exam-entries")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<ExamEntryResponseDTO>>> GenerateExamEntries([FromBody] GenerateExamEntriesRequestDTO request)
+    {
+        _logger.Info("Received request to generate exam entries.");
+        var examEntries = await _examService.GenerateExamEntries(request);
+        return Ok(examEntries);
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteExamEntry([FromRoute] int id)
+    {
+        _logger.Info($"Received request to delete exam entry with ID: {id}");
+        await _examService.DeleteExamEntry(id);
+        return NoContent();
     }
 
     [HttpPut]

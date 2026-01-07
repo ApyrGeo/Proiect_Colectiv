@@ -233,8 +233,8 @@ public class AcademicRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("IR1", "312", "FMI")]
-    public async Task GetGroupByIdAsyncTest(string year, string groupName, string facultyName)
+    [InlineData("312", "FMI")]
+    public async Task GetGroupByIdAsyncTest(string groupName, string facultyName)
     {
         var faculty = new Faculty { Name = facultyName };
         var specialisation = new Specialisation { Name = "Informatica", Faculty = faculty };

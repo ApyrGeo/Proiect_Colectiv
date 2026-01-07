@@ -18,9 +18,10 @@ using TrackForUBB.Controller.Interfaces;
 
 namespace TrackForUBB.Service;
 
-public class TimetableService(ITimetableRepository timetableRepository, IValidatorFactory validatorFactory) : ITimetableService
+public class TimetableService(ITimetableRepository timetableRepository, IAcademicRepository academicRepository, IValidatorFactory validatorFactory) : ITimetableService
 {
     private readonly ITimetableRepository _timetableRepository = timetableRepository;
+    private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly ILog _logger = LogManager.GetLogger(typeof(TimetableService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
 
@@ -39,7 +40,6 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         _logger.InfoFormat("Adding new classroom to repository: {0}", JsonSerializer.Serialize(classroomPostDTO));
 
         var classroomDto = await _timetableRepository.AddClassroomAsync(classroomPostDTO);
-        await _timetableRepository.SaveChangesAsync();
 
         return classroomDto;
     }
@@ -59,7 +59,6 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         _logger.InfoFormat("Adding new hour to repository: {0}", JsonSerializer.Serialize(hourPostDTO));
 
         var hourDto = await _timetableRepository.AddHourAsync(hourPostDTO);
-        await _timetableRepository.SaveChangesAsync();
 
         return hourDto;
     }
@@ -79,7 +78,6 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         _logger.InfoFormat("Adding new location to repository: {0}", JsonSerializer.Serialize(locationPostDTO));
 
         var locationDto = await _timetableRepository.AddLocationAsync(locationPostDTO);
-        await _timetableRepository.SaveChangesAsync();
 
         return locationDto;
     }
@@ -99,7 +97,6 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
         _logger.InfoFormat("Adding new subject to repository: {0}", JsonSerializer.Serialize(subjectPostDto));
 
         var subjectDto = await _timetableRepository.AddSubjectAsync(subjectPostDto);
-        await _timetableRepository.SaveChangesAsync();
 
         return subjectDto;
     }
@@ -249,8 +246,9 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
             var daysUntil = ((int)hourDayOfWeek - (int)HardcodedData.CalendarStartDate.DayOfWeek + 7) % 7;
             var firstDate = HardcodedData.CalendarStartDate.AddDays(daysUntil);
 
-            var summary = $"{hour.Subject.Name} - {hour.Teacher.User.FirstName} {hour.Teacher.User.LastName}";
-            var locationText = $"Location: {hour.Location.Name} - Classroom: {hour.Classroom.Name}";
+            var teacherFullName = hour.Teacher != null ? $"{hour.Teacher.User.FirstName} {hour.Teacher.User.LastName}" : "Unknown teacher";
+            var summary = $"{hour.Subject.Name} - {teacherFullName}";
+            var locationText = $"Location: {hour.Location?.Name ?? "Unknown location"} - Classroom: {hour.Classroom?.Name ?? "Unknown classromm"}";
             var format = hour.Format;
             var description = $"Category: {hour.Category} - Format: {format}";
 
@@ -337,5 +335,81 @@ public class TimetableService(ITimetableRepository timetableRepository, IValidat
             ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
 
         return await _timetableRepository.GetGroupsBySubjectIdAsync(subjectId);
+    }
+
+    public async Task<List<HourResponseDTO>> GenerateTimetable(TimetableGenerationDTO dto)
+    {
+        var _ = await _academicRepository.GetSpecialisationByIdAsync(dto.SpecialisationId)
+            ?? throw new NotFoundException($"Specialization with ID {dto.SpecialisationId} not found.");
+
+        if(dto.Year <= 0 )
+        {
+            throw new EntityValidationException(new List<string> { "Year must be between 1 and 6." });
+        }
+        if(dto.Semester < 1 || dto.Semester > 2)
+        {
+            throw new EntityValidationException(["Semester must be either 1 or 2."]);
+        }
+
+        await DeleteHoursBySpecialization(dto.SpecialisationId);
+
+        var generatedHours = await _timetableRepository.GenerateTimetableAsync(dto);
+        return generatedHours;
+    }
+
+    public Task DeleteHoursBySpecialization(int specializationId)
+    {
+        _logger.InfoFormat("Deleting hours for specialization with id {0}", specializationId);
+        return _timetableRepository.DeleteHoursBySpecializationAsync(specializationId);
+    }
+
+    public async Task<HourResponseDTO> UpdateHour(int hourId, HourPutDTO dto)
+    {
+        _logger.InfoFormat("Updating hour with id {0} using data {1}", hourId, JsonSerializer.Serialize(dto));
+
+        var _ = await _timetableRepository.GetHourByIdAsync(hourId)
+            ?? throw new NotFoundException($"Hour with ID {hourId} not found.");
+
+        if (hourId != dto.Id)
+            throw new EntityValidationException(["Hour ID in the URL does not match Hour ID in the body."]);
+
+        if (!Enum.TryParse<HourDay>(dto.Day, ignoreCase: true, out var dayEnum))
+        {
+            throw new EntityValidationException([$"Day string '{dto.Day}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourDay)))}"]);
+        }
+
+        if (!Enum.TryParse<HourFrequency>(dto.Frequency, ignoreCase: true, out var frequencyEnum))
+        {
+            throw new EntityValidationException([$"Frequency string '{dto.Frequency}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourFrequency)))}"]);
+        }
+
+        if (!Enum.TryParse<HourCategory>(dto.Category, ignoreCase: true, out var categoryEnum))
+        {
+            throw new EntityValidationException([$"Category string '{dto.Category}' cannot be converted to enum. Available values: {string.Join(", ", Enum.GetNames(typeof(HourCategory)))}"]);
+        }
+
+        var intermediaryDto = new IntermediaryHourDTO
+        {
+            Id = dto.Id,
+            Day = dayEnum,
+            HourInterval = dto.HourInterval,
+            Frequency = frequencyEnum,
+            Category = categoryEnum,
+            ClassroomId = dto.ClassroomId,
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            GroupYearId = dto.GroupYearId,
+            StudentGroupId = dto.StudentGroupId,
+            StudentSubGroupId = dto.StudentSubGroupId
+        };
+
+        var validator = _validatorFactory.Get<IntermediaryHourDTO>();
+        var validationResult = await validator.ValidateAsync(intermediaryDto);
+        if (!validationResult.IsValid)
+        {
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
+        }
+
+        return await _timetableRepository.UpdateHourAsync(hourId, intermediaryDto);
     }
 }

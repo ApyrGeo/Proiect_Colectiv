@@ -38,8 +38,7 @@ public class UserDataSeeder
 					.ThenInclude(p => p.Specialisation)
 			.Include(s => s.StudentGroup)
 				.ThenInclude(sg => sg.Promotion)
-					.ThenInclude(p => p.Years)
-						.ThenInclude(py => py.PromotionSemesters)
+                    .ThenInclude(py => py.Semesters)
 			.ToListAsync();
 		var subGroupsCounts = subGroups.ToDictionary(sg => sg.Id, sg => 0);
 
@@ -81,9 +80,9 @@ public class UserDataSeeder
 
 			var currentYearNum = Math.Clamp(HelperFunctions.GetCurrentStudentYear(promotion.StartYear), 1, 3);
 			var currentSemesterNum = DateTime.Now.Month < 7 ? 1 : 2;
+            var semesterNumber = (currentYearNum - 1) * 2 + currentSemesterNum;
 
-			var currentYear = promotion.Years.FirstOrDefault(y => y.YearNumber == currentYearNum);
-			var currentSemester = currentYear?.PromotionSemesters.FirstOrDefault(s => s.SemesterNumber == currentSemesterNum);
+            var currentSemester = promotion?.Semesters.FirstOrDefault(s => s.SemesterNumber == semesterNumber);
 
 			if (currentSemester == null)
 				return;

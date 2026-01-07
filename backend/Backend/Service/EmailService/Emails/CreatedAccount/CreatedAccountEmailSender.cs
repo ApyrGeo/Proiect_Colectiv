@@ -8,7 +8,7 @@ namespace TrackForUBB.Service.EmailService.Emails.CreatedAccount;
 
 public class CreatedAccountEmailSender(EmailSettings config) : BaseEmailSender<CreatedUserModel>(config), IEmailSender<CreatedUserModel>
 {
-    private const string TemplatePath = "CreatedAccount\\CreatedAccountEmailPage.html";
+    private static readonly string TemplatePath = Path.Combine("CreatedAccount", "CreatedAccountEmailPage.html");
 
     public override async Task SendEmailAsync(string to, CreatedUserModel model)
     {

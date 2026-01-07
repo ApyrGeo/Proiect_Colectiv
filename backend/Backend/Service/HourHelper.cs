@@ -1,4 +1,4 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
 
@@ -10,7 +10,7 @@ public class HourHelper
     {
         if (hours == null || hours.Count == 0) return;
 
-        var groupedHours = hours.GroupBy(h => h.Day)
+        var groupedHours = hours.Where(h => h.Day != "Unknown").GroupBy(h => h.Day)
             .Select(g => new
             {
                 Day = HourDayConverter.ConvertToDayOfWeek(Enum.Parse<HourDay>(g.Key)),

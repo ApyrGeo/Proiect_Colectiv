@@ -8,5 +8,6 @@ public class Promotion
     public List<StudentGroup> StudentGroups { get; set; } = [];
     public int SpecialisationId { get; set; }
     public required Specialisation Specialisation { get; set; }
-    public List<PromotionYear> Years { get; set; } = [];
+
+    public List<PromotionSemester> Semesters { get; set; } = [];
 }

@@ -31,6 +31,7 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
 
         var entity = _mapper.Map<User>(user);
         await _context.Users.AddAsync(entity);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<UserResponseDTO>(entity);
     }
@@ -58,13 +59,13 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         _logger.InfoFormat("Updating user with id: {0}", user.Id);
         var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-        if (entity == null)
-        {
-            throw new NotFoundException($"User with ID {id} not found.");
-        }
+        if (entity is null)
+            throw new Exception($"The user did not exist for id {id}");
 
         if (!string.IsNullOrEmpty(user.SignatureBase64))
             entity.Signature = Convert.FromBase64String(user.SignatureBase64);
+
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<UserResponseDTO>(entity);
     }

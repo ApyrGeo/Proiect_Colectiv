@@ -116,7 +116,6 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         _logger.InfoFormat("Saving user to repository: {0}", JsonSerializer.Serialize(userDTO));
         var addedUserDTO = await _userRepository.AddAsync(userDTO);
-        await _userRepository.SaveChangesAsync();
 
         (var ownerId, var tenantEmail) = await CreateEntraUser(addedUserDTO);
         var updatedUserDTO = await _userRepository.UpdateEntraDetailsAsync(addedUserDTO.Id, ownerId, tenantEmail);
@@ -186,7 +185,6 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         }
 
         var updatedUserDTO = await _userRepository.UpdateAsync(userId, dto);
-        await _userRepository.SaveChangesAsync();
 
         return updatedUserDTO;
     }

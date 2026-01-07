@@ -1,4 +1,4 @@
-﻿namespace TrackForUBB.Domain.Enums;
+namespace TrackForUBB.Domain.Enums;
 
 public enum HourDay
 {

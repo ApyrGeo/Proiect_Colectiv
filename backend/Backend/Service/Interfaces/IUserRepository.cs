@@ -6,7 +6,6 @@ public interface IUserRepository
     Task<UserResponseDTO?> GetByIdAsync(int id);
     Task<UserResponseDTO?> GetByEmailAsync(string email);
     Task<UserResponseDTO> AddAsync(InternalUserPostDTO user);
-    Task SaveChangesAsync();
     Task<List<UserResponseDTO>> GetAll();
     Task<List<SpecialisationResponseDTO>> GetUserEnrolledSpecialisations(int userId);
     Task<UserProfileResponseDTO?> GetProfileByIdAsync(int id);

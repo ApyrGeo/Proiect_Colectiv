@@ -12,21 +12,16 @@ public class ContractService(
     PdfConverterConfiguration pdfConfig
 ) : IContractService
 {
-    public async Task<byte[]> GenerateContract(int userId)
+    public async Task<byte[]> GenerateContract(int userId, int promotionId, int year)
     {
-        var model = await CreateModel(userId);
+        var model = await CreateModel(userId, promotionId, year);
         var path = Path.Combine(pdfConfig.ContractsPath, "ContractStudii.ro.odt");
         return await pdfGenerator.Generate(path, model);
     }
 
-    private async Task<ContractViewModel> CreateModel(int userId)
+    private async Task<ContractViewModel> CreateModel(int userId, int promotionId, int year)
     {
-        var contracts = await contractUoW.GetData(userId);
-        if (contracts.Count == 0)
-            throw new Exception("User is not register at any faculty");
-        if (contracts.Count > 1)
-            throw new Exception("User is registered at too many faculties");
-        var contract = contracts[0];
+        var contract = await contractUoW.GetData(userId, promotionId, year);
 
         var viewModel = mapper.Map<ContractViewModel>(contract);
 
@@ -37,10 +32,6 @@ public class ContractService(
 
         var now = DateTime.Now;
         viewModel.Now = now.ToString("dd.MM.yyyy, H:m");
-
-        var startOfUniYear = now.Month >= 7 ? now.Year : now.Year - 1;
-        var uniYear = $"{startOfUniYear}-{startOfUniYear + 1}";
-        viewModel.UniversityYear = uniYear;
 
         return viewModel;
     }

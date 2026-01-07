@@ -78,6 +78,19 @@ public class HelperFunctions
         return clean.ToString().Normalize(NormalizationForm.FormC);
     }
 
+    /// semester == [1, 2, 3, 4, 5, 6]
+    /// year == [1, 2, 3]
+    public static bool SemesterBelongsToYear(int semester, int year)
+    {
+        return YearOfSemester(semester) == year;
+    }
+
+    public static int YearOfSemester(int semester) => (semester + 1) / 2;
+
+    public static int FirstSemesterOfYear(int year) => year * 2 - 1;
+    public static int SecondSemesterOfYear(int year) => year * 2;
+}
+
     public static string GetUserTenantEmail(string firstName, string lastName)
     {
         return ReplaceRomanianDiacritics($"{firstName}.{lastName}".ToLowerInvariant());

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.EFEntities;
 
@@ -24,6 +25,9 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         builder.HasOne(s => s.HolderTeacher)
             .WithMany(t => t.HeldSubjects)
             .HasForeignKey(s => s.HolderTeacherId)
-            .IsRequired(false);
+            .IsRequired();
+
+        builder.Property(f => f.FormationType)
+            .HasDefaultValue(SubjectFormationType.Course_Seminar);
     }
 }

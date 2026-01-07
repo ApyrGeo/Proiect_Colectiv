@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.Interfaces;
 

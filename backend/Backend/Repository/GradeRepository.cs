@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Service.Interfaces;
@@ -19,8 +20,8 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         await _context.Grades.AddAsync(entity);
         await SaveChangesAsync();
         var fullEntity = await _context.Grades
-            .Include(g => g.Semester)
-                .ThenInclude(s => s.PromotionYear)
+            .Include(g => g.Subject)
+                .ThenInclude(s => s.Semester)
                     .ThenInclude(py => py.Promotion)
                         .ThenInclude(p => p.Specialisation)
                             .ThenInclude(s => s.Faculty)
@@ -30,26 +31,27 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             .Include(g => g.Enrollment)
                 .ThenInclude(e => e.User)
             .FirstOrDefaultAsync(g => g.Id == entity.Id);
-        
+
+        await _context.SaveChangesAsync();
+
         return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
-    
+
     public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, string specialisation)
     {
         var query = _context.Grades
             .Include(g => g.Subject)
+                .ThenInclude(g => g.Semester)
+                    .ThenInclude(py => py.Promotion)
+                        .ThenInclude(p => p.Specialisation)
+                            .ThenInclude(s => s.Faculty)
             .Include(g => g.Enrollment)
                 .ThenInclude(e => e.User)
             .Include(g => g.Enrollment)
                  .ThenInclude(e => e.SubGroup)
                     .ThenInclude(sg => sg.StudentGroup)
-            .Include(g => g.Semester)
-                .ThenInclude(s => s.PromotionYear)
-                    .ThenInclude(py => py.Promotion)
-                        .ThenInclude(p => p.Specialisation)
-                            .ThenInclude(s => s.Faculty)
             .AsQueryable();
-        
+
         if (userId.HasValue)
         {
             query = query.Where(g => g.Enrollment.UserId == userId);
@@ -57,12 +59,12 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
         if (yearOfStudy.HasValue)
         {
-            query = query.Where(g => g.Semester.PromotionYear.YearNumber == yearOfStudy.Value);
+            query = query.Where(x => (x.Subject.Semester.SemesterNumber + 1) / 2 == yearOfStudy);
         }
 
         if (semester.HasValue)
         {
-            query = query.Where(g => g.Semester.SemesterNumber == semester.Value);
+            query = query.Where(x => x.Subject.Semester.SemesterNumber % 2 == semester % 2);
         }
 
         if (!string.IsNullOrWhiteSpace(specialisation))
@@ -77,34 +79,34 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
     public async Task<List<GradeResponseDTO>> GetGradesForStudentInSemesterAsync(int enrollmentId, int semesterId)
     {
-        var grades= await _context.Grades
-            .Where(g => g.EnrollmentId == enrollmentId && g.SemesterId == semesterId)
+        var grades = await _context.Grades
+            .Include(g => g.Subject)
+            .Where(g => g.EnrollmentId == enrollmentId && g.Subject.SemesterId == semesterId)
             .ToListAsync();
-        
+
         return _mapper.Map<List<GradeResponseDTO>>(grades);
     }
 
     public async Task<List<SubjectResponseDTO>> GetSubjectsForSemesterAsync(int semesterId)
     {
-        var subjects= await _context.Hours
-            .Where(h => h.SemesterId == semesterId)
+        var subjects = await _context.Hours
+            .Where(h => h.Subject != null ? h.Subject.SemesterId == semesterId : false)
             .Select(h => h.Subject)
             .Distinct()
             .ToListAsync();
-        
+
         return _mapper.Map<List<SubjectResponseDTO>>(subjects);
     }
 
     public async Task<GradeResponseDTO?> GetGradeByIdAsync(int gradeId)
     {
-        var grade = await _context.Grades.Where(g=>g.Id == gradeId)
+        var grade = await _context.Grades.Where(g => g.Id == gradeId)
             .Include(g => g.Subject)
-            .Include(g => g.Enrollment)
-            .Include(g => g.Semester)
-                 .ThenInclude(s => s.PromotionYear)
+                 .ThenInclude(s => s.Semester)
                     .ThenInclude(py => py.Promotion)
                         .ThenInclude(p => p.Specialisation)
                             .ThenInclude(s => s.Faculty)
+            .Include(g => g.Enrollment)
             .FirstOrDefaultAsync();
         return _mapper.Map<GradeResponseDTO>(grade);
     }
@@ -119,7 +121,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
     public async Task<GradeResponseDTO> GetGradeByEnrollmentAndSubjectAsync(int arg1EnrollmentId, int arg1SubjectId)
     {
-        var grade = await _context.Grades.Where(g => g.EnrollmentId == arg1EnrollmentId  && g.SubjectId == arg1SubjectId)
+        var grade = await _context.Grades.Where(g => g.EnrollmentId == arg1EnrollmentId && g.SubjectId == arg1SubjectId)
             .FirstOrDefaultAsync();
         return _mapper.Map<GradeResponseDTO>(grade);
     }
@@ -127,9 +129,11 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     public async Task<GradeResponseDTO> UpdateGradeAsync(int gradeId, GradePostDTO dto)
     {
         var grade = await _context.Grades.FindAsync(gradeId);
+        if (grade is null)
+            throw new Exception($"There is not grade for grarde id {gradeId}");
+
         grade.Value = dto.Value;
         grade.SubjectId = dto.SubjectId;
-        grade.SemesterId = dto.SemesterId;
         grade.EnrollmentId = dto.EnrollmentId;
 
         await _context.SaveChangesAsync();
@@ -140,6 +144,9 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     public async Task<GradeResponseDTO> PatchGradeValueAsync(int gradeId, int newValue)
     {
         var grade = await _context.Grades.FindAsync(gradeId);
+        if (grade is null)
+            throw new Exception($"There is not grade with id {gradeId}");
+
         grade.Value = newValue;
         
         await _context.SaveChangesAsync(); 

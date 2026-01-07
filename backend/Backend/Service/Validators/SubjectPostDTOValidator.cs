@@ -18,21 +18,28 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
             .NotNull().WithMessage("Nr credits is required.")
             .InclusiveBetween(1, 6).WithMessage("Nr credits must be between 1 and 6.");
 
-        RuleFor(f => f.GroupYearId)
-            .GreaterThan(0).WithMessage("GroupYearId must be a positive integer.")
-            .MustAsync(async (groupYearId, cancellation) =>
-            {
-                var groupYear = await academicRepository.GetPromotionByIdAsync(groupYearId);
-                return groupYear != null;
-            }).WithMessage("The specified GroupYearId does not exist.");
-
         RuleFor(f => f.HolderTeacherId)
             .NotEmpty()
             .WithMessage("HolderTeacherId is required.")
             .MustAsync(async (holderTeacherId, cancellation) =>
             {
-                var teacher = await userRepository.GetByIdAsync(holderTeacherId);
-                return teacher != null && teacher.Role == UserRole.Teacher;
+                var teacher = await academicRepository.GetTeacherById(holderTeacherId);
+                return teacher != null;
             }).WithMessage("The specified HolderTeacherId does not exist.");
+
+        RuleFor(x => x.Code)
+            .NotEmpty().WithMessage("Subject code is required");
+
+        RuleFor(f => f.SemesterId)
+            .NotEmpty().WithMessage("Semester id is required")
+            .MustAsync(async (id, cancellation) =>
+            {
+                var semester = await academicRepository.GetSemesterByIdAsync(id);
+                return semester != null;
+            }).WithMessage("The specified Semester does not exist.");
+
+        RuleFor(f => f.FormationType)
+            .NotEmpty().WithMessage("Formation type is required.")
+            .IsEnumName(typeof(SubjectFormationType)).WithMessage($"Formation type string cannot be converted to enum, available values: {string.Join(", ", Enum.GetNames(typeof(SubjectFormationType)))}.");
     }
 }
