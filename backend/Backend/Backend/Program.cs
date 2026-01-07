@@ -208,11 +208,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//try seed DB
-//using (var scope = app.Services.CreateScope())
-//{
-//    var seeder = scope.ServiceProvider.GetRequiredService<GlobalDataSeeder>();
-//    await seeder.SeedAsync();
-//}
+// try seed DB
+using (var scope = app.Services.CreateScope())
+{
+   var seeder = scope.ServiceProvider.GetRequiredService<GlobalDataSeeder>();
+   await seeder.SeedAsync();
+}
 
 app.Run();

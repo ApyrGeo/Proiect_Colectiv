@@ -16,21 +16,21 @@ public class HourDataSeeder(AcademicAppContext context)
 		if (await _context.Hours.AnyAsync())
 			return;
 
-		var promotions = await _context.Promotions
-			.Include(p => p.Specialisation)
-				.ThenInclude(s => s.Faculty)
-			.Include(p => p.StudentGroups)
-				.ThenInclude(sg => sg.StudentSubGroups)
-			.Include(p => p.Semesters)
+        var promotions = await _context.Promotions
+            .Include(p => p.Specialisation)
+                .ThenInclude(s => s.Faculty)
+            .Include(p => p.StudentGroups)
+                .ThenInclude(sg => sg.StudentSubGroups)
+            .Include(p => p.Semesters)
+                .ThenInclude(x => x.Subjects)
 			.ToListAsync();
 
-		var subjects = await _context.Subjects.ToListAsync();
 		var teachers = await _context.Teachers
 			.Include(t => t.Faculty)
 			.ToListAsync();
 		var classrooms = await _context.Classrooms.ToListAsync();
 
-		if (promotions.Count == 0 || subjects.Count == 0 || teachers.Count == 0 || classrooms.Count == 0)
+		if (promotions.Count == 0 || teachers.Count == 0 || classrooms.Count == 0)
 			return;
 
 		var dayValues = Enum.GetValues<HourDay>().Cast<HourDay>()
@@ -172,15 +172,15 @@ public class HourDataSeeder(AcademicAppContext context)
                 .OrderBy(s => s.SemesterNumber);
             foreach (var semester in semesters)
 			{
-				var semesterSubjects = subjects.OrderBy(_ => _random.Next()).Take(5).ToList();
-				if (semesterSubjects.Count == 0) continue;
+                var semesterSubjects = semester.Subjects.Take(5).ToList();
+                if (semesterSubjects.Count == 0) continue;
 
 				var facultyId = promotion.Specialisation?.Faculty?.Id ?? 0;
 				var candidateTeachers = teachers.Where(t => t.FacultyId == facultyId).ToList();
 				if (candidateTeachers.Count == 0)
 					candidateTeachers = teachers.ToList();
 
-				foreach (var subject in semesterSubjects)
+                foreach (var subject in semesterSubjects)
 				{
 					// 1) Lecture for entire promotion (all groups/subgroups attend)
 					{
