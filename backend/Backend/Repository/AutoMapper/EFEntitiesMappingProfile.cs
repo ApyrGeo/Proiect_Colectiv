@@ -19,6 +19,8 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<UserPostDTO, User>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
+        CreateMap<User, SimplifiedUserResponseDTO>();
+
         CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
         CreateMap<EnrollmentPostDTO, Enrollment>();
 

@@ -12,11 +12,12 @@ using TrackForUBB.Service.Utils;
 
 namespace TrackForUBB.Service;
 
-public class GradeService(IGradeRepository gradeRepository, IUserRepository userRepository, IAcademicRepository academicRepository, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IGradeService
+public class GradeService(IGradeRepository gradeRepository, IUserRepository userRepository, IAcademicRepository academicRepository, ITimetableRepository timetableRepository, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IGradeService
 {
     private readonly IGradeRepository _gradeRepository = gradeRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IAcademicRepository _academicRepository = academicRepository;
+    private readonly ITimetableRepository _timetableRepository = timetableRepository;
 
     private readonly ILog _logger = LogManager.GetLogger(typeof(GradeService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
@@ -181,5 +182,16 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         };
         
         await _emailProvider.SendSemesterGradesEmailAsync(grade.Enrollment.User.Email,gradesSemester);
+    }
+
+    public async Task<SubjectGroupGradesDTO> GetSubjectGroupsAsync(int subjectId, int groupId)
+    {
+        var _ = await _academicRepository.GetGroupByIdAsync(groupId)
+                ?? throw new NotFoundException($"Group with ID {groupId} not found.");
+
+        var __ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
+                ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
+
+        return await _gradeRepository.GetSubjectGroupGradesAsync(subjectId, groupId);
     }
 }

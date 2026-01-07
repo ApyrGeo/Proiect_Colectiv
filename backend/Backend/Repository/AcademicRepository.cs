@@ -282,4 +282,14 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .ToListAsync();
     }
+
+    public Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId)
+    {
+        return _context.Teachers
+            .Where(t => t.FacultyId == facultyId)
+            .Include(t => t.User)
+            .Include(t => t.Faculty)
+            .Select(t => _mapper.Map<TeacherResponseDTO>(t))
+            .ToListAsync();
+    }
 }
