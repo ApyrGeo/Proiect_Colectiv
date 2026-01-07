@@ -457,4 +457,31 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         return _mapper.Map<HourResponseDTO>(updatedHour);
     }
+
+    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionIdAsync(int promotionId)
+    {
+        _logger.InfoFormat("Fetching optional subjects for promotion ID: {0}", promotionId);
+
+        var subjects = await _context.Subjects
+            .Where(s =>
+                s.Semester.PromotionId == promotionId && 
+                s.OptionalPackage != null &&
+                s.Type == SubjectType.Optional
+                )
+            .Include(s => s.Semester)
+            .Include(s => s.HolderTeacher)
+            .ToListAsync();
+        
+        var grouped = subjects
+            .GroupBy(s => s.OptionalPackage!.Value)
+            .Select(g => new OptionalPackageResponseDTO
+            {
+                PackageId = g.Key,
+                Subjects = _mapper.Map<List<SubjectResponseDTO>>(g.ToList())
+            })
+            .ToList();
+
+        return grouped;
+        
+    }
 }
