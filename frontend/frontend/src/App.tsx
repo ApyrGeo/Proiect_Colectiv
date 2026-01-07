@@ -34,7 +34,6 @@ const App = () => {
         <Routes>
           <Route index Component={Homepage} />
           <Route path={"/home"} Component={Homepage} />
-          <Route path={"/admin/location"} Component={AdminLocationPage} />
           <Route Component={PrivateRouter}>
             <Route path={"/grades"} Component={GradesPage} />
             <Route path={"/timetable"} Component={TimetablePage} />
@@ -44,6 +43,7 @@ const App = () => {
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
             <Route path={"/exam"} Component={ExamPage} />
+            <Route path={"/admin//location"} Component={AdminLocationPage} />
           </Route>
         </Routes>
 

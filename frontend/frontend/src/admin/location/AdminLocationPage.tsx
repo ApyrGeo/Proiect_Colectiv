@@ -3,6 +3,7 @@ import useLocationApi from "./LocationApi";
 import useClassroomApi from "./ClassroomApi";
 import type { LocationPostProps, LocationProps } from "./props";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent";
+import { toast } from "react-hot-toast";
 
 type Mode = "NEW" | "EXISTING";
 const AdminLocationPage: React.FC = () => {
@@ -11,7 +12,7 @@ const AdminLocationPage: React.FC = () => {
 
   const [locations, setLocations] = useState<LocationProps[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationProps | null>(null);
-
+  const [savedLocationId, setSavedLocationId] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("NEW");
   const [newLocation, setNewLocation] = useState<LocationPostProps>({
     name: "",
@@ -25,7 +26,7 @@ const AdminLocationPage: React.FC = () => {
   useEffect(() => {
     fetchLocations().then(setLocations);
   }, []);
-  const handleSave = async () => {
+  const handleSaveLocation = async () => {
     let locationId: number;
 
     if (selectedLocation) {
@@ -34,10 +35,18 @@ const AdminLocationPage: React.FC = () => {
       const createdLocation = await createLocation(newLocation);
       locationId = createdLocation.id;
     }
+    setSavedLocationId(locationId);
+  };
+
+  const handleAddClassroom = async () => {
+    if (!savedLocationId) {
+      toast.error("Save a location first!");
+      return;
+    }
 
     await createClassroom({
       name: classroomName,
-      locationId: locationId,
+      locationId: savedLocationId,
     });
 
     setClassroomName("");
@@ -47,8 +56,23 @@ const AdminLocationPage: React.FC = () => {
     <div>
       <h2>Create Location & Classroom</h2>
       <div style={{ marginBottom: "1rem" }}>
-        <button onClick={() => setMode("NEW")}>Add new location</button>
-        <button onClick={() => setMode("EXISTING")}>Use existing location</button>
+        <button
+          onClick={() => {
+            setMode("NEW");
+            setSelectedLocation(null);
+            setSavedLocationId(null);
+          }}
+        >
+          Add new location
+        </button>
+        <button
+          onClick={() => {
+            setMode("EXISTING");
+            setSavedLocationId(null);
+          }}
+        >
+          Use existing location
+        </button>
       </div>
 
       <hr />
@@ -81,6 +105,7 @@ const AdminLocationPage: React.FC = () => {
             ]}
             onMapClick={(lat, lng) => setNewLocation({ ...newLocation, latitude: lat, longitude: lng })}
           />
+          <button onClick={handleSaveLocation}>Save Location</button>
         </>
       )}
       {mode === "EXISTING" && (
@@ -90,6 +115,7 @@ const AdminLocationPage: React.FC = () => {
             onChange={(e) => {
               const loc = locations.find((l) => l.id === Number(e.target.value));
               setSelectedLocation(loc ?? null);
+              setSavedLocationId(loc ? loc.id : null);
             }}
           >
             <option value="">Select location</option>
@@ -112,7 +138,9 @@ const AdminLocationPage: React.FC = () => {
       <hr />
       <input placeholder="Classroom name" value={classroomName} onChange={(e) => setClassroomName(e.target.value)} />
 
-      <button onClick={handleSave}>Save</button>
+      <button onClick={handleAddClassroom} disabled={!savedLocationId}>
+        Save
+      </button>
     </div>
   );
 };
