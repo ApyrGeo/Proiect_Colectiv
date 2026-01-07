@@ -12,5 +12,5 @@ public interface IUserService
     Task<UserProfileResponseDTO> GetUserProfileAsync(int userId);
     Task<UserResponseDTO> UpdateUserProfileAsync(int userId, UserPutDTO dto);
     Task<LoggedUserResponseDTO> GetLoggedUserAsync(Guid ownerId);
-    Task<BulkUserCreateResultDTO> CreateUsersFromFile(IFormFile file);
+    Task<BulkUserResultDTO> CreateUsersFromFile(IFormFile file);
 }

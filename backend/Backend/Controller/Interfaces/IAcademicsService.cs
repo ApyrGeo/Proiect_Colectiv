@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using TrackForUBB.Domain.DTOs;
 
 namespace TrackForUBB.Controller.Interfaces;
@@ -23,4 +24,5 @@ public interface IAcademicsService
     Task<List<EnrollmentResponseDTO>> GetStudentsByStudentGroup(int studentGroupId);
     Task<List<FacultyResponseDTO>> GetAllFaculties();
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<BulkPromotionResultDTO> CreatePromotionBulk(PromotionPostDTO promotionDto, IFormFile file);
 }

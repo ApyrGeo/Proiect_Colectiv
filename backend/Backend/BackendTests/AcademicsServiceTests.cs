@@ -24,7 +24,7 @@ public class AcademicsServiceTests
     public AcademicsServiceTests()
     {
         var facultyValidator = new FacultyPostDTOValidator(_mockRepository.Object);
-        var groupYearValidator = new GroupYearPostDTOValidator(_mockRepository.Object);
+        var groupYearValidator = new PromotionPostDTOValidator(_mockRepository.Object);
         var specialisationValidator = new SpecialisationPostDTOValidator(_mockRepository.Object);
         var studentGroupValidator = new StudentGroupPostDTOValidator(_mockRepository.Object);
         var studentSubGroupValidator = new StudentSubGroupPostDTOValidator(_mockRepository.Object);

@@ -28,4 +28,6 @@ public interface IAcademicRepository
     Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
     Task<List<FacultyResponseDTO>> GetAllFacultiesAsync();
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId);
+    Task<FacultyResponseDTO?> GetSpecialisationFaculty(int specialisationId);
 }

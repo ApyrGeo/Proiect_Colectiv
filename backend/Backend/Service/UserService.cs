@@ -213,7 +213,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return response;
     }
 
-    public async Task<BulkUserCreateResultDTO> CreateUsersFromFile(IFormFile file)
+    public async Task<BulkUserResultDTO> CreateUsersFromFile(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
@@ -247,15 +247,15 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         if (!isValid)
         {
-            return new BulkUserCreateResultDTO { Users = resultItems };
+            return new BulkUserResultDTO { Users = resultItems };
         }
 
-        var finalItems = new List<BulkUserCreateItemResultDTO>();
+        var finalItems = new List<BulkUserItemResultDTO>();
 
         foreach (var (row, dto) in parseList)
         {
             var createdUser = await CreateUser(dto);
-            finalItems.Add(new BulkUserCreateItemResultDTO
+            finalItems.Add(new BulkUserItemResultDTO
             {
                 Row = row,
                 Email = createdUser.Email,
@@ -264,18 +264,19 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             });
         }
 
-        return new BulkUserCreateResultDTO { Users = finalItems };
+        return new BulkUserResultDTO { Users = finalItems };
     }
 
-    private async Task<(List<BulkUserCreateItemResultDTO> resultItems, bool isValid)> 
+    private async Task<(List<BulkUserItemResultDTO> resultItems, bool isValid)> 
         ValidateAddUserFile(List<(int Row, InternalUserPostDTO Dto)> list)
     {
         var validator = _validator.Get<InternalUserPostDTO>();
-        var resultItems = new List<BulkUserCreateItemResultDTO>();
+        var resultItems = new List<BulkUserItemResultDTO>();
 
         foreach (var (row, dto) in list)
         {
-            var item = new BulkUserCreateItemResultDTO { Row = row, Email = dto.Email };
+            // check if InternalUserPostDTO is valid
+            var item = new BulkUserItemResultDTO { Row = row, Email = dto.Email };
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
             {
@@ -286,6 +287,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             resultItems.Add(item);
         }
 
+        // check for duplicate emails inside file
         var emailGroups = list
             .Select(p => new { p.Row, Email = p.Dto.Email?.Trim().ToLowerInvariant() })
             .Where(x => !string.IsNullOrEmpty(x.Email))
@@ -302,6 +304,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             }
         }
 
+        // final validation result
         if (resultItems.Any(i => i.Errors.Count > 0))
         {
             foreach (var it in resultItems)

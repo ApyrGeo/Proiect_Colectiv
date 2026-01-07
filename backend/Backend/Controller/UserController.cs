@@ -64,7 +64,7 @@ public class UserController(IUserService service) : ControllerBase
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
     [Authorize(Roles = UserRolePermission.Admin)]
-    public async Task<ActionResult<BulkUserCreateResultDTO>> CreateUsersFromFile(IFormFile file)
+    public async Task<ActionResult<BulkUserResultDTO>> CreateUsersFromFile(IFormFile file)
     {
         _logger.InfoFormat("Received request to create users from file: {0}", file.FileName);
         var result = await _service.CreateUsersFromFile(file);

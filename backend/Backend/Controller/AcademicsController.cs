@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
@@ -228,7 +229,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetStudentSubGroupById), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
     }
-    
+
     [HttpGet("student-groups/{studentGroupId}/students")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
@@ -239,5 +240,23 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         var students = await _service.GetStudentsByStudentGroup(studentGroupId);
 
         return Ok(students);
+    }
+
+    [HttpPost("promotions/bulk")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
+    public async Task<ActionResult<BulkPromotionResultDTO>> CreatePromotionBulk([FromForm] PromotionPostDTO promotionPostDTO, IFormFile enrollmentFile)
+    {
+        _logger.InfoFormat("Create bulk promotion for specialisation ID {0} and years {1} - {2}", promotionPostDTO.SpecialisationId, promotionPostDTO.StartYear, promotionPostDTO.EndYear);
+
+        var result = await _service.CreatePromotionBulk(promotionPostDTO, enrollmentFile);
+
+        if (!result.IsValid)
+        {
+            return UnprocessableEntity(result);
+        }
+
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 }

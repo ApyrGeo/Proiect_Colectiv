@@ -146,6 +146,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         var promotion = await _context.Promotions
             .Include(gy => gy.StudentGroups)
                 .ThenInclude(x => x.StudentSubGroups)
+                    .ThenInclude(x => x.Enrollments)
             .Include(gy => gy.Specialisation)
                 .ThenInclude(s => s.Faculty)
             .FirstOrDefaultAsync(gy => gy.Id == id);
@@ -278,6 +279,9 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         return _context.Faculties
             .Include(f => f.Specialisations)
+                .ThenInclude(s => s.Promotions)
+                    .ThenInclude(p => p.StudentGroups)
+                        .ThenInclude(g => g.StudentSubGroups)
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .ToListAsync();
     }
@@ -290,5 +294,27 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Include(t => t.Faculty)
             .Select(t => _mapper.Map<TeacherResponseDTO>(t))
             .ToListAsync();
+    }
+
+    public async Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId)
+    {
+        return await _context.Enrollments
+            .Where(e => e.User.Email == userEmail && e.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId == facultyId)
+            .Include(e => e.User)
+            .Include(e => e.SubGroup)
+                .ThenInclude(sg => sg.StudentGroup)
+                    .ThenInclude(g => g.Promotion)
+                        .ThenInclude(gy => gy.Specialisation)
+                            .ThenInclude(s => s.Faculty)
+            .Select(e => _mapper.Map<EnrollmentResponseDTO>(e))
+            .ToListAsync();
+    }
+
+    public async Task<FacultyResponseDTO?> GetSpecialisationFaculty(int specialisationId)
+    {
+        return await _context.Faculties
+            .Where(f => f.Specialisations.Any(s => s.Id == specialisationId))
+            .Select(f => _mapper.Map<FacultyResponseDTO>(f))
+            .FirstOrDefaultAsync();
     }
 }

@@ -129,5 +129,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId));
 
         CreateMap<ExamEntryRequestDTO, ExamEntry>();
+
+        CreateMap<BulkPromotionPostDTO, Promotion>();
     }
 }

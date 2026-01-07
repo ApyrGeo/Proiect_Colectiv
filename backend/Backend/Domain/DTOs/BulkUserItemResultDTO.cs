@@ -1,6 +1,6 @@
 namespace TrackForUBB.Domain.DTOs;
 
-public class BulkUserCreateItemResultDTO
+public class BulkUserItemResultDTO
 {
     public int Row { get; set; }
     public string? Email { get; set; }
