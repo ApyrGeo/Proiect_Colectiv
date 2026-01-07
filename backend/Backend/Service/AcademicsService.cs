@@ -474,6 +474,11 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validator = _validatorFactory.Get<BulkEnrollmentItem>();
         var resultItems = new List<BulkEnrollmentItemResultDTO>();
 
+        if (resultItems.Count == 0)
+        {
+            return (resultItems, false);
+        }
+
         foreach (var (row, dto) in list)
         {
             // check if user with email exists

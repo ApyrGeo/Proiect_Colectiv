@@ -273,6 +273,11 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         var validator = _validator.Get<InternalUserPostDTO>();
         var resultItems = new List<BulkUserItemResultDTO>();
 
+        if (list.Count == 0)
+        {
+            return (resultItems, false);
+        }
+
         foreach (var (row, dto) in list)
         {
             // check if InternalUserPostDTO is valid
@@ -318,7 +323,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return (resultItems, true);
     }
 
-    private List<(int Row, InternalUserPostDTO Dto)> ParseUserCsvFile(IFormFile file)
+    private static List<(int Row, InternalUserPostDTO Dto)> ParseUserCsvFile(IFormFile file)
     {
         var dtoList = new List<(int Row, InternalUserPostDTO Dto)>();
 
@@ -343,7 +348,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         return dtoList;
     }
 
-    private List<(int Row, InternalUserPostDTO dto)> ParseUserExcelFile(IFormFile file)
+    private static List<(int Row, InternalUserPostDTO dto)> ParseUserExcelFile(IFormFile file)
     {
         var dtoList = new List<(int Row, InternalUserPostDTO Dto)>();
 
