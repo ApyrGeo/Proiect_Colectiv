@@ -4,5 +4,5 @@ namespace TrackForUBB.Service.Interfaces;
 
 public interface IContractUnitOfWork
 {
-    Task<ContractData> GetData(int userId, int promotionId, int yearNumber);
+    Task<ContractData> GetData(ContractRequestModel model);
 }

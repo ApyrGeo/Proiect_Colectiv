@@ -106,7 +106,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Trying to retrieve classroom with id {0}", classroomId);
 
         var classroomDto = await _timetableRepository.GetClassroomByIdAsync(classroomId)
-            ?? throw new NotFoundException($"Classroom with ID {classroomId} not found.");
+            ?? throw new UnprocessableContentException($"Classroom with ID {classroomId} not found.");
 
         _logger.InfoFormat("Mapping classroom entity to DTO for ID {0}", classroomId);
 
@@ -139,7 +139,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Trying to retrieve hour with id {0}", hourId);
 
         var hourDto = await _timetableRepository.GetHourByIdAsync(hourId)
-            ?? throw new NotFoundException($"Hour with ID {hourId} not found.");
+            ?? throw new UnprocessableContentException($"Hour with ID {hourId} not found.");
 
         _logger.InfoFormat("Mapping hour entity to DTO for ID {0}", hourId);
 
@@ -151,7 +151,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Trying to retrieve location with id {0}", locationId);
 
         var locationDto = await _timetableRepository.GetLocationByIdAsync(locationId)
-            ?? throw new NotFoundException($"Location with ID {locationId} not found.");
+            ?? throw new UnprocessableContentException($"Location with ID {locationId} not found.");
 
         _logger.InfoFormat("Mapping location entity to DTO for ID {0}", locationId);
 
@@ -163,7 +163,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Trying to retrieve subject with id {0}", JsonSerializer.Serialize(subjectId));
 
         var subjectDto = await _timetableRepository.GetSubjectByIdAsync(subjectId)
-            ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
+            ?? throw new UnprocessableContentException($"Subject with ID {subjectId} not found.");
 
         _logger.InfoFormat("Mapping subject entity to DTO for ID {0}", JsonSerializer.Serialize(subjectId));
 
@@ -332,7 +332,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Trying to retrieve groups for subject with id {0}", subjectId);
 
         var _ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
-            ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
+            ?? throw new UnprocessableContentException($"Subject with ID {subjectId} not found.");
 
         return await _timetableRepository.GetGroupsBySubjectIdAsync(subjectId);
     }
@@ -340,7 +340,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
     public async Task<List<HourResponseDTO>> GenerateTimetable(TimetableGenerationDTO dto)
     {
         var _ = await _academicRepository.GetSpecialisationByIdAsync(dto.SpecialisationId)
-            ?? throw new NotFoundException($"Specialization with ID {dto.SpecialisationId} not found.");
+            ?? throw new UnprocessableContentException($"Specialization with ID {dto.SpecialisationId} not found.");
 
         if(dto.Year <= 0 )
         {
@@ -368,7 +368,7 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         _logger.InfoFormat("Updating hour with id {0} using data {1}", hourId, JsonSerializer.Serialize(dto));
 
         var _ = await _timetableRepository.GetHourByIdAsync(hourId)
-            ?? throw new NotFoundException($"Hour with ID {hourId} not found.");
+            ?? throw new UnprocessableContentException($"Hour with ID {hourId} not found.");
 
         if (hourId != dto.Id)
             throw new EntityValidationException(["Hour ID in the URL does not match Hour ID in the body."]);
@@ -413,13 +413,13 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         return await _timetableRepository.UpdateHourAsync(hourId, intermediaryDto);
     }
 
-    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionId(int promotionId)
+    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionId(int promotionId, int year)
     {
         _logger.InfoFormat("Trying to retrieve optional subjects for promotion with id {0}", JsonSerializer.Serialize(promotionId));
 
         var _ = await _academicRepository.GetPromotionByIdAsync(promotionId)
-            ?? throw new NotFoundException($"Promotion with ID {promotionId} not found.");
+            ?? throw new UnprocessableContentException($"Promotion with ID {promotionId} not found.");
 
-        return await _timetableRepository.GetOptionalSubjectsByPromotionIdAsync(promotionId);
+        return await _timetableRepository.GetOptionalSubjectsByPromotionIdAsync(promotionId, year);
     }
 }

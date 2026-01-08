@@ -138,7 +138,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve faculty with id {0}", facultyId);
         var facultyDto = await _academicRepository.GetFacultyByIdAsync(facultyId)
-            ?? throw new NotFoundException($"Faculty with ID {facultyId} not found.");
+            ?? throw new UnprocessableContentException($"Faculty with ID {facultyId} not found.");
 
         _logger.InfoFormat("Mapping faculty entity to DTO for ID {0}", facultyId);
 
@@ -149,7 +149,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve promotion with id {0}", promotionId);
         var promotionDto = await _academicRepository.GetPromotionByIdAsync(promotionId)
-            ?? throw new NotFoundException($"Promotion with ID {promotionId} not found.");
+            ?? throw new UnprocessableContentException($"Promotion with ID {promotionId} not found.");
 
         _logger.InfoFormat("Mapped promotion entity to DTO {0}", JsonSerializer.Serialize(promotionDto));
 
@@ -160,7 +160,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve specialisation with id {0}", specialisationId);
         var specialisationDto = await _academicRepository.GetSpecialisationByIdAsync(specialisationId)
-            ?? throw new NotFoundException($"Specialisation with ID {specialisationId} not found.");
+            ?? throw new UnprocessableContentException($"Specialisation with ID {specialisationId} not found.");
 
         _logger.InfoFormat("Mapping specialisation entity to DTO for ID {0}", specialisationId);
 
@@ -171,7 +171,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve student group with id {0}", studentGroupId);
         var studentGroupDto = await _academicRepository.GetGroupByIdAsync(studentGroupId)
-            ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
+            ?? throw new UnprocessableContentException($"StudentGroup with ID {studentGroupId} not found.");
 
         _logger.InfoFormat("Mapping student group entity to DTO for ID {0}", studentGroupId);
 
@@ -182,7 +182,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve student sub-group with id {0}", studentSubGroupId);
         var studentSubGroupDto = await _academicRepository.GetSubGroupByIdAsync(studentSubGroupId)
-           ?? throw new NotFoundException($"StudentSubGroup with ID {studentSubGroupId} not found.");
+           ?? throw new UnprocessableContentException($"StudentSubGroup with ID {studentSubGroupId} not found.");
 
         _logger.InfoFormat("Mapping student sub-group entity to DTO for ID {0}", studentSubGroupId);
 
@@ -194,10 +194,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Trying to retrieve enrollment for user with ID {0}", userId);
 
         var _ = await _userRepository.GetByIdAsync(userId)
-            ?? throw new NotFoundException($"Student with ID {userId} not found.");
+            ?? throw new UnprocessableContentException($"Student with ID {userId} not found.");
 
         var enrollmentsDto = await _academicRepository.GetEnrollmentsByUserId(userId)
-            ?? throw new NotFoundException($"Enrollment for user with ID {userId} not found.");
+            ?? throw new UnprocessableContentException($"Enrollment for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping enrollment entity to DTO for user with ID {0}", userId);
 
@@ -228,7 +228,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Trying to retrieve teacher with ID {0}", id);
 
         var teacherDto = await _academicRepository.GetTeacherById(id)
-            ?? throw new NotFoundException($"Teacher with ID {id} not found.");
+            ?? throw new UnprocessableContentException($"Teacher with ID {id} not found.");
 
         _logger.InfoFormat("Mapping teacher entity to DTO with ID {0}", id);
 
@@ -240,14 +240,14 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Trying to retrieve enrollment with ID {0}", enrollmentId);
         return await _academicRepository.GetEnrollmentByIdAsync(enrollmentId)
-            ?? throw new NotFoundException($"Enrollment with ID {enrollmentId} not found.");
+            ?? throw new UnprocessableContentException($"Enrollment with ID {enrollmentId} not found.");
 	}
 
     public async Task<TeacherResponseDTO?> GetTeacherByUserId(int userId)
     {
         _logger.InfoFormat("Trying to retrieve teacher for user with ID {0}", userId);
         var user = await _userRepository.GetByIdAsync(userId)
-            ?? throw new NotFoundException($"User with ID {userId} not found.");
+            ?? throw new UnprocessableContentException($"User with ID {userId} not found.");
 
         if(user.Role != UserRole.Teacher)
         {
@@ -255,14 +255,14 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         }
 
         return await _academicRepository.GetTeacherByUserId(userId)
-            ?? throw new NotFoundException($"Teacher for user with ID {userId} not found.");
+            ?? throw new UnprocessableContentException($"Teacher for user with ID {userId} not found.");
     }
 
     public async Task<List<EnrollmentResponseDTO>> GetStudentsByStudentGroup(int studentGroupId)
     {
         _logger.InfoFormat("Trying to retrieve list of students from group with ID {0}", studentGroupId);
         var studentGroupDto = await _academicRepository.GetGroupByIdAsync(studentGroupId)
-                              ?? throw new NotFoundException($"StudentGroup with ID {studentGroupId} not found.");
+                              ?? throw new UnprocessableContentException($"StudentGroup with ID {studentGroupId} not found.");
         return await _academicRepository.GetEnrollmentByGroup(studentGroupId);
     }
 

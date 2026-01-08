@@ -24,6 +24,7 @@ const ContractsPage: React.FC = () => {
     ...contract.fields.filter((f) => f.category !== FieldCategory.CHECKBOX),
     ...optionalFields,
     ...contract.fields.filter((f) => f.category === FieldCategory.CHECKBOX),
+    { name: "yearNumber", label: "year", category: FieldCategory.NUMAR },
   ];
 
   useEffect(() => {

@@ -1,5 +1,10 @@
+using System.Text.Json;
 using AutoMapper;
+using log4net;
 using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Domain.DTOs.Contracts;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Service.Contracts.Models;
 using TrackForUBB.Service.Interfaces;
 using TrackForUBB.Service.PdfGeneration;
 
@@ -12,16 +17,20 @@ public class ContractService(
     PdfConverterConfiguration pdfConfig
 ) : IContractService
 {
-    public async Task<byte[]> GenerateContract(int userId, int promotionId, int year)
+    public async Task<byte[]> GenerateContract(int userId, ContractPostRequest request)
     {
-        var model = await CreateModel(userId, promotionId, year);
+        if (!request.Fields.Agree)
+            throw new UnprocessableContentException("You must agree to generate a contract");
+
+        var model = await CreateModel(userId, request);
         var path = Path.Combine(pdfConfig.ContractsPath, "ContractStudii.ro.odt");
         return await pdfGenerator.Generate(path, model);
     }
 
-    private async Task<ContractViewModel> CreateModel(int userId, int promotionId, int year)
+    private async Task<ContractViewModel> CreateModel(int userId, ContractPostRequest request)
     {
-        var contract = await contractUoW.GetData(userId, promotionId, year);
+        var requestModel = ToRequestModel(userId, request);
+        var contract = await contractUoW.GetData(requestModel);
 
         var viewModel = mapper.Map<ContractViewModel>(contract);
 
@@ -31,7 +40,16 @@ public class ContractService(
         viewModel.TotalCreditsSemester2 = viewModel.SubjectsSemester2.Sum(x => x.Credits);
 
         var now = DateTime.Now;
-        viewModel.Now = now.ToString("dd.MM.yyyy, H:m");
+        viewModel.Now = now.ToString("dd.MM.yyyy, HH:mm");
+
+        var fields = request.Fields;
+
+        AssignFilled(v => viewModel.CNP = v, fields.CNP);
+        AssignFilled(v => viewModel.StudentEmail = v, fields.Email);
+        AssignFilled(v => viewModel.FullName = v, fields.FullName);
+        AssignFilled(v => viewModel.IdCardNumber = v, fields.IdCardNumber);
+        AssignFilled(v => viewModel.IdCardSeries = v, fields.IdCardSeries);
+        AssignFilled(v => viewModel.StudentPhone = v, fields.PhoneNumber);
 
         return viewModel;
     }
@@ -44,4 +62,51 @@ public class ContractService(
             ++ i;
         }
     }
+
+    private static void AssignFilled(Action<string> setter, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            setter(value);
+    }
+
+    private static void AssignFilled<T>(Action<string> setter, T? value)
+    {
+        if (value is not null)
+            setter(value.ToString()!);
+    }
+
+    private static ContractRequestModel ToRequestModel(int userId, ContractPostRequest request)
+    {
+        var fields = request.Fields;
+
+        return new()
+        {
+            SignatureBase64 = fields.SignatureBase64,
+
+            OptionalToSubjectCodesSem1 = ToOptionalDict([
+                fields.Optional0Id,
+                fields.Optional1Id,
+                //fields.Optional2Id,
+                fields.Optional3Id,
+                fields.Optional4Id,
+                fields.Optional5Id,
+                fields.Optional6Id,
+            ]),
+            OptionalToSubjectCodesSem2 = ToOptionalDict([
+                fields.Optional2Id,
+            ]),
+
+            PromotionId = request.PromotionId,
+            Year = fields.Year,
+            UserId = userId,
+        };
+    }
+
+    private static IDictionary<int, int> ToOptionalDict(List<int?> codes) =>
+        codes
+            .Select((value, index) => (value, index))
+            .Where(x => x.value is not null)
+            .ToDictionary(x => x.index, x => x.value!.Value);
+
+    private readonly ILog logger = LogManager.GetLogger(typeof(ContractService));
 }
