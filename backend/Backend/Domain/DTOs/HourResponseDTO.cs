@@ -8,6 +8,9 @@ public class HourResponseDTO
     public required string Frequency { get; set; }
     public required string Category { get; set; }
     public required string Format { get; set; }
+    public required PromotionResponseDTO? Promotion { get; set; }
+    public required StudentGroupResponseDTO? StudentGroup { get; set; }
+    public required StudentSubGroupResponseDTO? StudentSubGroup { get; set; }
 
     public required LocationResponseDTO? Location { get; set; }
     public string? LocationUrl => Location?.Id.ToString();

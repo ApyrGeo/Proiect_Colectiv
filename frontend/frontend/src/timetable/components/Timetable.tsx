@@ -21,6 +21,8 @@ export type TimetableProps = {
   sendLocationsToMaps?: (locs: LocationProps[]) => void;
   selectedLocations?: SelectedLocationsProps;
   onLoadingChange?: (loading: boolean) => void;
+
+  previewHours?: HourProps[];
 };
 
 const Timetable: React.FC<TimetableProps> = (props) => {
@@ -58,6 +60,13 @@ const Timetable: React.FC<TimetableProps> = (props) => {
   };
 
   useEffect(() => {
+    if (props.previewHours) {
+      setHours(props.previewHours);
+      setLoading(false);
+      if (props.onLoadingChange) props.onLoadingChange(false);
+      return;
+    }
+
     // Check conditions before setting loading states
     if (!props.classroomId && !props.subjectId && !props.teacherId) {
       if (!props.selectedLocations) return;
@@ -89,6 +98,7 @@ const Timetable: React.FC<TimetableProps> = (props) => {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    props.previewHours,
     props.userId,
     props.currentWeekOnly,
     props.groupYearId,

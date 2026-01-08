@@ -1,0 +1,104 @@
+
+
+.timetable {
+  max-width: 95vw;
+  height: 500px;
+  overflow-x: auto;
+}
+
+.timetable table {
+  table-layout: auto;
+  width: auto;
+  border-collapse: collapse;
+}
+
+.timetable th,
+.timetable td {
+  white-space: nowrap;
+  padding: 6px 8px;
+}
+
+.timetable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--timetable-header-color);
+}
+
+
+
+.combo-container {
+  position: relative;
+  display: inline-block;
+
+.combo-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
+.combo-input {
+  width: auto;
+  min-width: 4ch;
+  max-width: 22ch;
+  padding: 6px 8px;
+
+  background: var(--surface-light);
+  color: var(--text-light);
+  border-radius: var(--timetable-border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  white-space: nowrap;
+}
+
+.combo-button {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.combo-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+
+  min-width: 100%;
+  max-width: 30ch;
+  max-height: 120px;
+
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--timetable-border-radius);
+  z-index: 20;
+}
+
+
+.combo-option {
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.combo-option.active {
+  background: var(--primary);
+  color: white;
+}
+
+.combo-option-disabled {
+  padding: 6px 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+
+
+.combo-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.combo-options::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
