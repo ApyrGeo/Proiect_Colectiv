@@ -31,7 +31,7 @@ export function getAppMenus() {
         {
           title: "Timetable Generation",
           icon: "📆",
-          url: "/timetable-generation",
+          url: "/admin/timetable-generation",
         },
         {
           title: "Add users",
@@ -39,15 +39,15 @@ export function getAppMenus() {
           submenu: [
             {
               title: "Import users",
-              url: "/import-users",
+              url: "/admin/import-users",
             },
             {
               title: "Import promotion",
-              url: "/import-promotion",
+              url: "/admin/import-promotion",
             },
             {
               title: "Add teacher",
-              url: "/add-teacher",
+              url: "/admin/add-teacher",
             },
           ],
         },

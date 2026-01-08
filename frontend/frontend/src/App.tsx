@@ -47,11 +47,11 @@ const App = () => {
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
             <Route path={"/exam"} Component={ExamPage} />
-            <Route path={"/timetable-generation"} Component={TimetableGenerationPage}></Route>
-            <Route path={"/admin//location"} Component={AdminLocationPage} />
-            <Route path={"/import-users"} Component={ImportUsersPage} />
-            <Route path={"/import-promotion"} Component={ImportPromotionPage} />
-            <Route path={"/add-teacher"} Component={AddTeacherPage} />
+            <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage}></Route>
+            <Route path={"/admin/location"} Component={AdminLocationPage} />
+            <Route path={"/admin/import-users"} Component={ImportUsersPage} />
+            <Route path={"/admin/import-promotion"} Component={ImportPromotionPage} />
+            <Route path={"/admin/add-teacher"} Component={AddTeacherPage} />
           </Route>
         </Routes>
 
