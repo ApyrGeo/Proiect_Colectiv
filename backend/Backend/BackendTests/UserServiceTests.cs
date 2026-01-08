@@ -1,17 +1,18 @@
+using AutoMapper;
 using Microsoft.Extensions.Configuration;
-using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Exceptions.Custom;
-using TrackForUBB.Service;
-using TrackForUBB.Service.Validators;
+using Microsoft.Graph;
+using Microsoft.Kiota.Abstractions.Authentication;
 using Moq;
+using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Domain.Security;
+using TrackForUBB.Service;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Validators;
 using Xunit;
 using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
-using TrackForUBB.Service.EmailService.Interfaces;
-using TrackForUBB.Domain.Security;
-using TrackForUBB.Service.Interfaces;
-using Microsoft.Graph;
-using AutoMapper;
 
 namespace TrackForUBB.BackendTests;
 
@@ -24,7 +25,7 @@ public class UserServiceTests
     private readonly UserService _userService;
     private readonly Mock<IConfiguration> conf = new();
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
-    private readonly Mock<GraphServiceClient> _mockGraph = new();
+    private readonly Mock<GraphServiceClient> _mockGraph;
     private readonly Mock<IMapper> _mockMapper = new();
 
     public UserServiceTests()
@@ -35,6 +36,9 @@ public class UserServiceTests
         mockValidatorFactory.Setup(v => v.Get<InternalUserPostDTO>()).Returns(realValidator);
 
         _validatorFactory = mockValidatorFactory.Object;
+
+        var mockAuthProvider = new Mock<IAuthenticationProvider>();
+        _mockGraph = new Mock<GraphServiceClient>(MockBehavior.Strict, mockAuthProvider.Object);
 
         _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, _mockMapper.Object, _validatorFactory,
             _mockEmailProvider.Object, conf.Object, _mockGraph.Object);
