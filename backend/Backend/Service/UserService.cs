@@ -137,10 +137,10 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
         await _emailProvider.SendCreateAccountEmailAsync(user.Email, userEmailModel);
     }
 
-    public async Task<List<UserResponseDTO>> GetAllUser()
+    public async Task<List<UserResponseDTO>> GetAllUser(string? email)
     {
         _logger.InfoFormat("Getting all users");
-        var userDTOs = await _userRepository.GetAll();
+        var userDTOs = await _userRepository.GetAll(email);
 
         _logger.InfoFormat("Mapping Users to Response DTOs");
 

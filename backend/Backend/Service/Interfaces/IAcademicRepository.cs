@@ -31,4 +31,5 @@ public interface IAcademicRepository
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
     Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId);
     Task<FacultyResponseDTO?> GetSpecialisationFaculty(int specialisationId);
+    Task<TeacherResponseDTO?> GetTeacherByUserIdAsync(int userId);
 }

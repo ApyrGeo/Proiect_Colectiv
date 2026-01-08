@@ -75,11 +75,18 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<UserResponseDTO>> GetAll()
+    public async Task<List<UserResponseDTO>> GetAll(string? email)
     {
         _logger.InfoFormat("Fetching all users");
 
-        var users = await _context.Users.ToListAsync();
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            query = query.Where(u => u.Email == email);
+        }
+
+        var users = await query.ToListAsync();
 
         return _mapper.Map<List<UserResponseDTO>>(users);
     }

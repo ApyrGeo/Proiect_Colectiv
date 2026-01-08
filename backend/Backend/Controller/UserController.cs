@@ -30,10 +30,10 @@ public class UserController(IUserService service) : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<List<UserResponseDTO>>> GetAllUsers()
+    public async Task<ActionResult<List<UserResponseDTO>>> GetAllUsers([FromQuery] string? email)
     {
         _logger.InfoFormat("Received request for all users");
-        List<UserResponseDTO> users = await _service.GetAllUser();
+        List<UserResponseDTO> users = await _service.GetAllUser(email);
 
         return Ok(users);
     }

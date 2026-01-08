@@ -326,4 +326,12 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .FirstOrDefaultAsync();
     }
+
+    public async Task<TeacherResponseDTO?> GetTeacherByUserIdAsync(int userId)
+    {
+        return await _context.Teachers
+            .Where(t => t.UserId == userId)
+            .Select(t => _mapper.Map<TeacherResponseDTO>(t))
+            .FirstOrDefaultAsync();
+    }
 }

@@ -15,7 +15,12 @@ public class TeacherPostDTOValidator : AbstractValidator<TeacherPostDTO>
             {
                 var user = await userRepository.GetByIdAsync(userId);
                 return user?.Role == UserRole.Teacher;
-            }).WithMessage("User with the specified UserId does not exist.");
+            }).WithMessage("User does not have teacher role.")
+            .MustAsync(async (userId, cancellation) =>
+            {
+                var teacher = await academicRepository.GetTeacherByUserIdAsync(userId);
+                return teacher == null;
+            }).WithMessage("A teacher with the specified UserId already exists.");
 
         RuleFor(e => e.FacultyId)
             .GreaterThan(0).WithMessage("FacultyId must be a positive integer.")

@@ -20,6 +20,7 @@ import PrivateRouter from "./routing/PrivateRouter.tsx";
 import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
 import ImportUsersPage from "./admin/create-users/pages/ImportUsersPage.tsx";
 import ImportPromotionPage from "./admin/create-users/pages/ImportPromotionPage.tsx";
+import AddTeacherPage from "./admin/create-users/pages/AddTeacherPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -46,6 +47,7 @@ const App = () => {
             <Route path={"/exam"} Component={ExamPage} />
             <Route path={"/import-users"} Component={ImportUsersPage} />
             <Route path={"/import-promotion"} Component={ImportPromotionPage} />
+            <Route path={"/add-teacher"} Component={AddTeacherPage} />
           </Route>
         </Routes>
 

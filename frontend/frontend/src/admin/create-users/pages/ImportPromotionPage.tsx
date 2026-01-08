@@ -122,6 +122,23 @@ const ImportPromotionPage = () => {
       <h1 className="create-users-title">Import promotion</h1>
       <p className="create-users-subtext">Configure the promotion and upload a CSV with student enrollments.</p>
 
+      <Box className="create-users-template-row">
+        <Typography variant="body2" className="create-users-template-text">
+          You can download a CSV template and fill it in before uploading.
+        </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          component="a"
+          href="/import-promotion-with-enrollments-example.csv"
+          download
+          className="create-users-template-button"
+        >
+          Download template
+        </Button>
+      </Box>
+
       <Card className="create-users-card">
         <CardContent>
           <Box className="promotion-fields-row">
