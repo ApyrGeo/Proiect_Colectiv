@@ -1,31 +1,58 @@
 .App {
   text-align: center;
-  height: calc(100vh - 100px);
+  height: 86vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   color: white;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  width: 100%;
+  background: var(--background);
+  overflow: hidden;
 }
 
 .header {
-  padding: 60px 20px;
+  padding: 2rem 1rem;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .logo {
-  max-width: 100px;
+  max-width: 80px;
   height: auto;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  color: var(--accent);
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+
+.header p {
+  color: var(--text-light);
+  margin: 0.5rem 0;
+}
+
+/* News component - takes remaining space */
+.news-component {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
 }
 
 .footer {
   width: 100%;
-  padding: 20px;
-  background-color: rgba(0,0,0,0.2);
+  padding: 0.5rem;
+  background-color: var(--surface);
   font-size: 0.9rem;
   text-align: center;
+  color: var(--text-light);
+  flex-shrink: 0;
+  border-top: 1px solid var(--surface-light);
+  z-index: 10;
 }
 
-
+/* Ensure no scrolling on body */
+html,
+body {
+  height: 100%;
+}

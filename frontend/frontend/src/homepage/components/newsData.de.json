@@ -1,0 +1,39 @@
+{
+  "newsItems": [
+    {
+      "id": 1,
+      "title": "Neues Stundenplansystem",
+      "description": "Einführung des neuen Stundenplanverwaltungssystems mit Echtzeit-Updates und besserer Benutzerfreundlichkeit.",
+      "image": "https://www.utep.edu/extendeduniversity/utepconnect/blog/january-2018/schedule-1.jpg",
+      "date": "8. Januar 2026"
+    },
+    {
+      "id": 2,
+      "title": "Noten Veröffentlicht",
+      "description": "Die Noten des Frühjahrssemesters sind jetzt in deinem Profil verfügbar. Überprüfe deine akademischen Leistungen.",
+      "image": "https://media.istockphoto.com/id/1167956299/vector/vector-a-plus-red-grade-mark.jpg?s=612x612&w=0&k=20&c=WYvJYy8hst-4jhc3YeyGcWWO3StKxkr0fKAY1cS_ggw=",
+      "date": "6. Januar 2026"
+    },
+    {
+      "id": 3,
+      "title": "Campus-Veranstaltungen",
+      "description": "Nimm an der jährlichen Technologiekonferenz diesen Monat teil. Registriere dich jetzt, um deinen Platz zu sichern!",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/034/218/616/small/leadership-conference-presentation-diverse-audience-background-with-empty-space-for-text-photo.jpg",
+      "date": "1. Januar 2026"
+    },
+    {
+      "id": 4,
+      "title": "Bibliothek Updates",
+      "description": "Neue Bücher und digitale Ressourcen wurden zur Bibliothek hinzugefügt. Erkunden Sie die neuesten Sammlungen.",
+      "image": "https://t4.ftcdn.net/jpg/06/28/30/41/360_F_628304123_IDQBKBHPWPIu2lccIyaLbFAmbi0IoNMA.jpg",
+      "date": "28. Dezember 2025"
+    },
+    {
+      "id": 5,
+      "title": "Stipendiummöglichkeiten",
+      "description": "Bewerben Sie sich jetzt für unsere leistungsgestützten Stipendien. Bewerbungsfrist ist der 15. Februar 2026.",
+      "image": "https://hotnews.ro/wp-content/uploads/2024/04/image-2021-01-11-24531973-41-bursa-scolara.jpg",
+      "date": "25. Dezember 2025"
+    }
+  ]
+}

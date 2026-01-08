@@ -15,7 +15,8 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@headlessui/react": "^2.2.9",
-    "@mui/material": "^7.3.6",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.12.2",
     "i18next": "^25.6.3",
@@ -24,7 +25,8 @@
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^16.3.5",
     "react-router-dom": "^7.9.4",
-    "react-signature-canvas": "^1.1.0-alpha.2"
+    "react-signature-canvas": "^1.1.0-alpha.2",
+    "swiper": "^12.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
