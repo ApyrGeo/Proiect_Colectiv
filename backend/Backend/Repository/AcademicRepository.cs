@@ -279,6 +279,9 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         return _context.Faculties
             .Include(f => f.Specialisations)
+                .ThenInclude(s => s.Promotions)
+                        .ThenInclude(p => p.StudentGroups)
+                            .ThenInclude(g => g.StudentSubGroups)
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .ToListAsync();
     }

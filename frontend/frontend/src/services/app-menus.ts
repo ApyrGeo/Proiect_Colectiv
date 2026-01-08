@@ -29,9 +29,14 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
+          title: "Academics",
+          icon: "🏛️",
+          url: "/admin/academics",
+        },
+        {
           title: "Timetable Generation",
           icon: "📆",
-          url: "/timetable-generation",
+          url: "/admin/timetable-generation",
         },
       ],
     },
