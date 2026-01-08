@@ -39,6 +39,11 @@ export function getAppMenus() {
           url: "/admin/timetable-generation",
         },
         {
+          title: "Location Management",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
           title: "Add users",
           icon: "➕",
           submenu: [

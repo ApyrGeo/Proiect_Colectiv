@@ -164,7 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 ?.map((item) => {
                   const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
 
-                  if (isMenuEmpty(item)) return null;
+                  if (!userProps || isMenuEmpty(item)) return null;
 
                   return (
                     <div

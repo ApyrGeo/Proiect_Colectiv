@@ -47,10 +47,9 @@ const App = () => {
             <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
-                      <Route path={"/exam"} Component={ExamPage} />
-                      <Route path={"/admin/academics"} Component={AdminAcademicsPage} />
-                      <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage}></Route>
-                      <Route path={"/timetable-generation"} Component={TimetableGenerationPage}></Route>
+            <Route path={"/exam"} Component={ExamPage} />
+            <Route path={"/admin/academics"} Component={AdminAcademicsPage} />
+            <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage}></Route>
             <Route path={"/admin/location"} Component={AdminLocationPage} />
             <Route path={"/admin/import-users"} Component={ImportUsersPage} />
             <Route path={"/admin/import-promotion"} Component={ImportPromotionPage} />
