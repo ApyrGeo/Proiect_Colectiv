@@ -47,6 +47,7 @@ const App = () => {
             <Route path={"/exam"} Component={ExamPage} />
             <Route path={"/admin/academics"} Component={AdminAcademicsPage} />
             <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage}></Route>
+            <Route path={"/timetable-generation"} Component={TimetableGenerationPage}></Route>
             <Route path={"/admin/location"} Component={AdminLocationPage} />
           </Route>
         </Routes>
