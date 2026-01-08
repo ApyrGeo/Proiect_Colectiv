@@ -15,7 +15,7 @@ export type BulkUserResult = {
   isValid: boolean;
 };
 
-const useCreateUsersApi = () => {
+const useImportUsersApi = () => {
   const { axios } = useApiClient();
 
   const userUrl = "/api/User";
@@ -39,4 +39,4 @@ const useCreateUsersApi = () => {
   return { uploadUsersFile };
 };
 
-export default useCreateUsersApi;
+export default useImportUsersApi;

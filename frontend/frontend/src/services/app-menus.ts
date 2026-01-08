@@ -29,9 +29,18 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
-          title: "Create Users",
+          title: "Add users",
           icon: "➕",
-          url: "/create-users",
+          submenu: [
+            {
+              title: "Import users",
+              url: "/import-users",
+            },
+            {
+              title: "Import promotion",
+              url: "/import-promotion",
+            },
+          ],
         },
       ],
     },

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../create-users.css";
+import "../import-users.css";
 import {
   Box,
   Button,
@@ -14,11 +14,11 @@ import {
 } from "@mui/material";
 import { toast } from "react-hot-toast";
 import Circular from "../../../components/loading/Circular.tsx";
-import useCreateUsersApi, { type BulkUserItemResult, type BulkUserResult } from "../useCreateUsersApi.ts";
+import useImportUsersApi, { type BulkUserItemResult, type BulkUserResult } from "../useImportUsersApi.ts";
 import type { AxiosError } from "axios";
 
-const CreateUsersPage = () => {
-  const { uploadUsersFile } = useCreateUsersApi();
+const ImportUsersPage = () => {
+  const { uploadUsersFile } = useImportUsersApi();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -177,4 +177,4 @@ const CreateUsersPage = () => {
   );
 };
 
-export default CreateUsersPage;
+export default ImportUsersPage;

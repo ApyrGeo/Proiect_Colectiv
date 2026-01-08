@@ -18,7 +18,7 @@ import ContractsPage from "./contracts/ContractsPage.tsx";
 import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
 import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
-import CreateUsersPage from "./admin/create-users/pages/CreateUsersPage.tsx";
+import ImportUsersPage from "./admin/create-users/pages/ImportUsersPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -43,7 +43,7 @@ const App = () => {
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
             <Route path={"/exam"} Component={ExamPage} />
-            <Route path={"/create-users"} Component={CreateUsersPage} />
+            <Route path={"/import-users"} Component={ImportUsersPage} />
           </Route>
         </Routes>
 
