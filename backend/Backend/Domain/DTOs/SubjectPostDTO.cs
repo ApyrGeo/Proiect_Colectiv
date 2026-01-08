@@ -9,4 +9,5 @@ public class SubjectPostDTO
     public required int SemesterId { get; set; }
     public required string Type { get; set; }
     public required string FormationType { get; set; }
+    public int? OptionalPackage { get; set; }
 }
