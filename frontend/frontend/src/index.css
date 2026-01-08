@@ -1,3 +1,6 @@
+/* Swiper CSS */
+@import url("https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css");
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -12,29 +15,29 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-    --sidebar-width: 200px;
-    --sidebar-width-min: 60px;
-    --current-sidebar-width: var(--sidebar-width);
+  --sidebar-width: 200px;
+  --sidebar-width-min: 60px;
+  --current-sidebar-width: var(--sidebar-width);
 
-  --primary: #0054A4;
-  --background: #0A1A2F;
-  --accent: #DCE3EB;
+  --primary: #0054a4;
+  --background: #0a1a2f;
+  --accent: #dce3eb;
   --surface: #152238;
-  --text-light:   #F2F5F7;
-  --success:      #2ECC71;
-  --accent-light: #DCE3EB;
-  --surface-light: #1C2F4A;
+  --text-light: #f2f5f7;
+  --success: #2ecc71;
+  --accent-light: #dce3eb;
+  --surface-light: #1c2f4a;
 }
 
 .app-content {
-    margin-left: var(--current-sidebar-width);
-    transition: margin-left 0.3s ease;
+  margin-left: var(--current-sidebar-width);
+  transition: margin-left 0.3s ease;
 }
 
 @media (max-width: 768px) {
-    .app-content {
-        margin-left: var(--sidebar-width-min);
-    }
+  .app-content {
+    margin-left: var(--sidebar-width-min);
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -50,7 +53,8 @@
   }
 }
 
-html, body {
+html,
+body {
   background: var(--background) !important;
   color: var(--text-light);
 }
