@@ -154,7 +154,7 @@ public class UserRepositoryTests : IDisposable
         );
         await _context.SaveChangesAsync();
 
-        var result = await _repo.GetAll();
+        var result = await _repo.GetAll(null);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);

@@ -18,6 +18,7 @@ public class AcademicsServiceTests
     private readonly Mock<IUserRepository> _mockUserRepository = new();
 
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
+    private readonly Mock<IMapper> _mockMapper = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly AcademicsService _service;
 
@@ -45,7 +46,8 @@ public class AcademicsServiceTests
             _mockRepository.Object,
             _mockUserRepository.Object,
             _validatorFactory,
-            _mockEmailProvider.Object
+            _mockEmailProvider.Object,
+            _mockMapper.Object
         );
     }
 
