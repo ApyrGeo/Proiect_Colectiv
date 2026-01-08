@@ -17,13 +17,13 @@ export const theme = createTheme({
             },
             "&.Mui-focused": {
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "secondary.main",
+                borderColor: "#0054A4",
                 borderWidth: "3px",
               },
             },
             "&:hover:not(.Mui-focused)": {
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#ccc",
+                borderColor: "#0054A4",
               },
             },
           },
@@ -71,17 +71,21 @@ export const theme = createTheme({
           borderColor: "#DCE3EB",
           borderWidth: "1px",
           ".MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgb(255,255,255)",
+            borderColor: "#DCE3EB",
             borderWidth: "1px",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgb(255,255,255)",
+            borderColor: "#0054A4",
             borderWidth: "1px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgb(255,255,255)",
+            borderColor: "#0054A4",
             borderWidth: "1px",
           },
+        },
+        icon: {
+          color: "#DCE3EB",
+          scale: 1.5,
         },
       },
     },
