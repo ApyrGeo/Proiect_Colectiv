@@ -29,9 +29,19 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
-          title: "Timetable Generation",
+          title: "Timetable",
           icon: "📆",
-          url: "/timetable-generation",
+          url: "/admin/timetable-generation",
+        },
+        {
+          title: "Location",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
+          title: "Subject",
+          icon: "📚",
+          url: "/admin/subject-generation",
         },
       ],
     },

@@ -5,5 +5,5 @@ public class SpecialisationResponseDTO
     public required int Id { get; set; }
     public required string Name { get; set; }
 
-    public List<PromotionResponseDTO> GroupYears { get; set; } = [];
+    public List<PromotionResponseDTO> Promotions { get; set; } = [];
 }

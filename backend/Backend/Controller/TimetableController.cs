@@ -54,7 +54,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("subjects")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
-    [Authorize(Roles = UserRolePermission.Teacher)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     [RequiredScopeOrAppPermission(
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"

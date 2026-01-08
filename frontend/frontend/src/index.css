@@ -12,7 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-    --sidebar-width: 200px;
+    --sidebar-width: 240px;
     --sidebar-width-min: 60px;
     --current-sidebar-width: var(--sidebar-width);
 
