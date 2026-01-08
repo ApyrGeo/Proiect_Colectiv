@@ -9,6 +9,7 @@ using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Service.Interfaces;
+using AutoMapper;
 
 namespace TrackForUBB.BackendTests;
 
