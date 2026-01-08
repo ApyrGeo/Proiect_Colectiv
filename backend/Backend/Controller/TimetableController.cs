@@ -33,6 +33,23 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         return Ok(subject);
     }
+    
+    [HttpGet("promotions/{promotionId}/subjects/optional")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [Authorize(Roles = UserRolePermission.Student)]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
+        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
+    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
+    public async Task<ActionResult<List<OptionalPackageResponseDTO>>> GetOptionalSubjects([FromRoute] int promotionId)
+    {
+        _logger.InfoFormat("Fetching subjects with id {0}", promotionId);
+
+        var subjects = await _service.GetOptionalSubjectsByPromotionId(promotionId);
+
+        return Ok(subjects);
+    }
 
     [HttpPost("subjects")]
     [ProducesResponseType(201)]
@@ -190,5 +207,37 @@ public class TimetableController(ITimetableService service) : ControllerBase
         var icsBytes = await _service.GenerateIcs(filter);
 
         return File(icsBytes, "text/calendar; charset=utf-8", $"timetable_{DateTime.UtcNow:yyyyMMdd}.ics");
+    }
+
+    [HttpPost("hours/generate-timetable")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(422)]
+    public async Task<ActionResult> GenerateTimetable([FromBody] TimetableGenerationDTO dto)
+    {
+        _logger.InfoFormat("Generating timetable with parameters {0}", JsonSerializer.Serialize(dto));
+        List<HourResponseDTO> hours = await _service.GenerateTimetable(dto);
+        return Ok(hours);
+    }
+
+    [HttpDelete("hours/specialization/{specializationId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult> DeleteHoursBySpecialization([FromRoute] int specializationId)
+    {
+        _logger.InfoFormat("Deleting hours for specialization with ID {0}", specializationId);
+
+        await _service.DeleteHoursBySpecialization(specializationId);
+
+        return NoContent();
+    }
+
+    [HttpPut("hours/{hourId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<HourResponseDTO>> UpdateHour([FromRoute] int hourId, [FromBody] HourPutDTO dto)
+    {
+        _logger.InfoFormat("Updating hour with id {0}", hourId);
+        var updatedHour = await _service.UpdateHour(hourId, dto);
+        return Ok(updatedHour);
     }
 }

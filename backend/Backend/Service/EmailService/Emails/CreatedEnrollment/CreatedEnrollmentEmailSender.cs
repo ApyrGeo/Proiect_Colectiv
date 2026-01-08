@@ -8,7 +8,7 @@ namespace TrackForUBB.Service.EmailService.Emails.CreatedEnrollment;
 
 public class CreatedEnrollmentEmailSender(EmailSettings config) : BaseEmailSender<CreatedEnrollmentModel>(config), IEmailSender<CreatedEnrollmentModel>
 {
-    private const string TemplatePath = "CreatedEnrollment\\CreatedEnrollmentEmailPage.html";
+    private static readonly string TemplatePath = Path.Combine("CreatedEnrollment", "CreatedEnrollmentEmailPage.html");
 
     public override async Task SendEmailAsync(string to, CreatedEnrollmentModel model)
     {

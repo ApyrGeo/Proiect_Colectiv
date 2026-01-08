@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Service;
@@ -32,8 +32,8 @@ public class UserServiceTests
 
         _validatorFactory = mockValidatorFactory.Object;
 
-        _userService = new UserService(_mockUserRepository.Object,_mockAcademicRepository.Object ,_validatorFactory,
-            _mockPasswordHasher.Object, _mockEmailProvider.Object,conf.Object);
+        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, _validatorFactory,
+            _mockPasswordHasher.Object, _mockEmailProvider.Object, conf.Object);
     }
 
     [Theory]
@@ -67,7 +67,6 @@ public class UserServiceTests
         _mockPasswordHasher.Setup(h => h.HashPassword(userDTO, password)).Returns("hashedPassword");
 
         _mockUserRepository.Setup(r => r.AddAsync(userDTO)).ReturnsAsync(userResponseDTO);
-        _mockUserRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
 
         var result = await _userService.CreateUser(userDTO);
@@ -78,7 +77,6 @@ public class UserServiceTests
         Assert.Equal(email, result.Email);
 
         _mockUserRepository.Verify(r => r.AddAsync(userDTO), Times.Once);
-        _mockUserRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Theory]
@@ -110,10 +108,10 @@ public class UserServiceTests
     }
 
     [Theory]
-    [InlineData(1, "Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData(2, "Andrei", "Horo", "+40779725710", "horo@gmail.com", "password", "Teacher")]
+    [InlineData(1, "Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData(2, "Andrei", "Horo", "+40779725710", "horo@gmail.com", "Teacher")]
     public async Task GetUserByIdExistingUser(int id, string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
         var userDto = new UserResponseDTO
         {
@@ -123,7 +121,7 @@ public class UserServiceTests
             PhoneNumber = phone,
             Email = email,
             Role = Enum.Parse<UserRole>(role),
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(userDto);

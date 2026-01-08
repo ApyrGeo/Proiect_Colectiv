@@ -19,6 +19,8 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<UserPostDTO, User>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
+        CreateMap<User, SimplifiedUserResponseDTO>();
+
         CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
         CreateMap<EnrollmentPostDTO, Enrollment>();
 
@@ -32,13 +34,21 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<PromotionPostDTO, Promotion>();
 
         CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();
-        CreateMap<StudentGroupPostDTO, StudentGroup>();
+        CreateMap<StudentGroupPostDTO, StudentGroup>()
+            .ForMember(x => x.PromotionId, o => o.MapFrom(x => x.GroupYearId));
 
         CreateMap<StudentSubGroup, StudentSubGroupResponseDTO>().ReverseMap();
         CreateMap<StudentSubGroupPostDTO, StudentSubGroup>();
 
-        CreateMap<Subject, SubjectResponseDTO>().ReverseMap();
-        CreateMap<SubjectPostDTO, Subject>();
+        CreateMap<Subject, SubjectResponseDTO>()
+            .ForMember(x => x.Type, o => o.MapFrom(x => x.Type.ToString()))
+            .ForMember(x => x.Code, o => o.MapFrom(x => x.SubjectCode))
+            ;
+        CreateMap<SubjectPostDTO, Subject>()
+            .ForMember(x => x.Type, o => o.MapFrom(x => Enum.Parse<SubjectType>(x.Type)))
+            .ForMember(x => x.FormationType, o => o.MapFrom(x => Enum.Parse<SubjectFormationType>(x.FormationType)))
+            .ForMember(x => x.SubjectCode, o => o.MapFrom(x => x.Code))
+            ;
 
         CreateMap<Teacher, TeacherResponseDTO>().ReverseMap();
         CreateMap<TeacherPostDTO, Teacher>();
@@ -50,15 +60,35 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
         CreateMap<Location, LocationWithClassroomsResponseDTO>();
-        CreateMap<LocationPostDTO, Location>();
+        CreateMap<LocationPostDTO, Location>() 
+            .ForMember(dest => dest.GoogleMapsData, opt => opt.MapFrom(src =>
+                new GoogleMapsData
+                {
+                    Latitude = src.Latitude,
+                    Longitude = src.Longitude
+                }
+            ));
         
         CreateMap<Grade, GradeResponseDTO>()
-            .ForMember(x => x.Semester, o => o.MapFrom(s => s.Semester));;
+            .ForMember(x => x.Semester, o => o.MapFrom(s => s.Subject.Semester));;
         CreateMap<GradePostDTO, Grade>();
-        
+
+        CreateMap<PromotionSemester, PromotionSemesterResponseDTO>()
+            .ConvertUsing((entity, c, context) =>
+            {
+                return new PromotionSemesterResponseDTO()
+                {
+                    Id = entity.Id,
+                    SemesterNumber = entity.SemesterNumber,
+                    PromotionYear = new()
+                    {
+                        Id = -1,
+                        YearNumber = HelperFunctions.YearOfSemester(entity.SemesterNumber),
+                        Promotion = context.Mapper.Map<PromotionResponseDTO>(entity.Promotion),
+                    }
+                };
+            });
         CreateMap<PromotionSemester, PromotionSemesterResponseDTO>().ReverseMap();
-        
-        CreateMap<PromotionYear, PromotionYearResponseDTO>().ReverseMap();
 
         CreateMap<User, UserProfileResponseDTO>()
             .ForMember(dest => dest.SignatureUrl,
@@ -70,7 +100,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(x => x.Day, o => o.MapFrom(s => s.Day.ToString()))
             .ForMember(x => x.Frequency, o => o.MapFrom(s => s.Frequency.ToString()))
             .ForMember(x => x.Category, o => o.MapFrom(s => s.Category.ToString()))
-            .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom.Location))
+            .ForMember(x => x.Location, o => o.MapFrom(s => s.Classroom != null ? s.Classroom.Location : null))
             .ForMember(x => x.Format, o => o.MapFrom(s =>
                 s.StudentSubGroup != null ? s.StudentSubGroup.Name
                 : s.StudentGroup != null ? s.StudentGroup.Name
@@ -104,5 +134,7 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(dest => dest.PromotionId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.PromotionId))
             .ForMember(dest => dest.SpecializationId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.SpecialisationId))
             .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId));
+
+        CreateMap<ExamEntryRequestDTO, ExamEntry>();
     }
 }

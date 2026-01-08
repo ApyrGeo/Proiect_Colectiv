@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using TrackForUBB.Domain.DTOs;
 using TrackForUBB.Domain.Enums;
 using TrackForUBB.Domain.Exceptions.Custom;
@@ -35,6 +35,7 @@ public class GradeServiceTests
             _mockRepository.Object,
             _mockUserRepository.Object,
             _mockAcademicRepository.Object,
+            _mockTimetableRepository.Object,
             _validatorFactory,
             _mockEmailProvider.Object
         );
@@ -44,17 +45,16 @@ public class GradeServiceTests
     [InlineData(1, 1, 1, 10)]
     [InlineData(2, 3, 2, 8)]
     public async Task CreateGradeValidData(
-        int teacherId, int subjectId, int enrollmentId, int value)
+        int teacherUserId, int subjectId, int enrollmentId, int value)
     {
         var postDto = new GradePostDTO
         {
             SubjectId = subjectId,
             EnrollmentId = enrollmentId,
-            SemesterId = 1,
             Value = value
         };
 
-        var teacher = new UserResponseDTO
+        var teacherUser = new UserResponseDTO
         {
             Id = 1,
             FirstName = "Andrei",
@@ -62,22 +62,34 @@ public class GradeServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
-            Owner=""
+            Owner = ""
         };
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(teacherId))
-            .ReturnsAsync(teacher);
+        var teacherId = teacherUserId * 3 + 1;
+
+        var teacher = new TeacherResponseDTO
+        {
+            Id = teacherId,
+            User = teacherUser,
+            UserId = teacherUser.Id,
+            FacultyId = 91,
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(teacherUserId))
+            .ReturnsAsync(teacherUser);
 
         _mockRepository.Setup(r => r.TeacherTeachesSubjectAsync(teacherId, subjectId))
             .ReturnsAsync(true);
 
+        _mockAcademicRepository.Setup(r => r.GetTeacherByUserId(teacherUserId))
+            .ReturnsAsync(teacher);
 
         var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
         var year = new PromotionYearResponseDTO { Id = 1, Promotion = promotion, YearNumber = 2 };
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = year };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = subjectId, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO { Id = subjectId, Name = "TestSubject", NumberOfCredits = 5, Code = "TestCode", Type = "Facultative", };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -93,7 +105,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -116,7 +128,7 @@ public class GradeServiceTests
         _mockAcademicRepository.Setup(r => r.GetEnrollmentsByUserId(userDto.Id))
             .ReturnsAsync(new List<EnrollmentResponseDTO>());
         _mockRepository
-            .Setup(r => r.TeacherTeachesSubjectAsync(teacherId, subjectId))
+            .Setup(r => r.TeacherTeachesSubjectAsync(teacherUserId, subjectId))
             .ReturnsAsync(true);
 
         _mockRepository
@@ -132,7 +144,7 @@ public class GradeServiceTests
             .ReturnsAsync(new List<GradeResponseDTO>());
 
 
-        var result = await _service.CreateGrade(teacherId, postDto);
+        var result = await _service.CreateGrade(teacherUserId, postDto);
 
         Assert.NotNull(result);
         Assert.Equal(value, result.Value);
@@ -153,7 +165,6 @@ public class GradeServiceTests
         {
             SubjectId = subjectId,
             EnrollmentId = enrollmentId,
-            SemesterId = 1,
             Value = value
         };
 
@@ -177,7 +188,7 @@ public class GradeServiceTests
             Email = "t@test.com",
             PhoneNumber = "+40123456789",
             Role = teacherId == 1 ? UserRole.Teacher : UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository
@@ -228,7 +239,7 @@ public class GradeServiceTests
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = year };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5, Code = "TestCode", Type = "Required", };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -244,7 +255,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO
@@ -299,7 +310,7 @@ public class GradeServiceTests
             Email = "andrei@gmail.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Teacher,
-            Owner=""
+            Owner = ""
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacher.Id))
@@ -310,7 +321,14 @@ public class GradeServiceTests
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = yearResponse };
         _mockAcademicRepository.Setup(r => r.GetSemesterByIdAsync(semester.Id)).ReturnsAsync(semester);
-        var subject = new SubjectResponseDTO { Id = 1, Name = "TestSubject", NumberOfCredits = 5 };
+        var subject = new SubjectResponseDTO
+        {
+            Id = 1,
+            Name = "TestSubject",
+            NumberOfCredits = 5,
+            Code = "TestCode",
+            Type = "Optional",
+        };
         _mockTimetableRepository.Setup(r => r.GetSubjectByIdAsync(subject.Id)).ReturnsAsync(subject);
         var subgroupDto = new StudentSubGroupResponseDTO
         {
@@ -328,7 +346,7 @@ public class GradeServiceTests
             Email = "gigel@student.com",
             PhoneNumber = "+40777301089",
             Role = UserRole.Student,
-            Owner=""
+            Owner = ""
         };
 
         var enrollmentDto = new EnrollmentResponseDTO

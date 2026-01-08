@@ -12,15 +12,6 @@ public class GradePostDTOValidator : AbstractValidator<GradePostDTO>
             .NotNull().WithMessage("Grade value cannot be null.")
             .InclusiveBetween(1, 10).WithMessage("Grade must be between 1 and 10.");
 
-        RuleFor(g => g.SemesterId)
-            .GreaterThan(0).WithMessage("SemesterId must be a positive integer.")
-            .MustAsync(async (semesterId, _) =>
-            {
-                var semester = await academicRepository.GetSemesterByIdAsync(semesterId);
-                return semester != null;
-            })
-            .WithMessage("Semester with the given ID does not exist.");
-        
         RuleFor(g => g.SubjectId)
             .GreaterThan(0).WithMessage("SubjectId must be a positive integer.")
             .MustAsync(async (subjectId, _) =>

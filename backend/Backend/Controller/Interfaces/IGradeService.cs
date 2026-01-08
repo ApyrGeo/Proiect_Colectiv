@@ -10,4 +10,5 @@ public interface IGradeService
     Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int year, int semester, string specialisation);
     Task<GradeResponseDTO> UpdateGradeAsync(int teacherId, int gradeId, GradePostDTO dto);
     Task<GradeResponseDTO> PatchGradeAsync(int teacherId, int gradeId, int newValue);
+    Task<SubjectGroupGradesDTO> GetSubjectGroupsAsync(int subjectId, int groupId);
 }
