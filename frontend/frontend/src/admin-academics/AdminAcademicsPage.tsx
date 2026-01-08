@@ -16,7 +16,6 @@ const AdminAcademicsPage: React.FC = () => {
   const refreshFaculties = useCallback(() => {
     getFaculties()
       .then((res) => {
-        console.log(res);
         setFaculties(res);
       })
       .catch(() => {

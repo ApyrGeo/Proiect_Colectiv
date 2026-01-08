@@ -43,7 +43,6 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
         //TODO handle error
       });
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Grid>
@@ -64,7 +63,7 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
                 >
                   {props.faculties.map((f) =>
                     f.specialisations.map((s) =>
-                      s.groupYears.map((g) => (
+                      s.promotions.map((g) => (
                         <MenuItem value={g.id} key={g.id}>
                           {s.name + ": " + g.startYear + " - " + g.endYear}
                         </MenuItem>
@@ -82,7 +81,7 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
                 onChange={(_event, value) => {
                   setGroupCount(value);
                   const names = [];
-                  for (let i = 0; i < value; i++) names.push(String(value));
+                  for (let i = 0; i < value; i++) names.push(String(i + 1));
                   setGroupNames(names);
                 }}
                 valueLabelDisplay="auto"
@@ -91,8 +90,15 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
             </div>
             <div className={"academic-column"}>
               <div className={"academic-label"}>Group Names</div>
-              {groupNames.map((value) => (
-                <TextField defaultValue={value}></TextField>
+              {groupNames.map((value, index) => (
+                <TextField
+                  defaultValue={value}
+                  onChange={(event) => {
+                    const names = groupNames;
+                    groupNames[index] = event.target.value;
+                    setGroupNames(names);
+                  }}
+                ></TextField>
               ))}
             </div>
           </div>

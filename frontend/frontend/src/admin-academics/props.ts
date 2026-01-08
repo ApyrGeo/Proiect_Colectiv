@@ -36,7 +36,7 @@ export type Faculty = {
 export type Specialisation = {
   id: number;
   name: string;
-  groupYears: Promotion[];
+  promotions: Promotion[];
 };
 
 export type FacultiesResponse = { faculties: Faculty[] };
