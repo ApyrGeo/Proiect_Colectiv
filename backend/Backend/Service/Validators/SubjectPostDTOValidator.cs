@@ -26,7 +26,12 @@ public class SubjectPostDTOValidator : AbstractValidator<SubjectPostDTO>
                 var teacher = await academicRepository.GetTeacherById(holderTeacherId);
                 return teacher != null;
             }).WithMessage("The specified HolderTeacherId does not exist.");
-
+        
+        RuleFor(f => f.OptionalPackage)
+            .NotNull()
+            .WithMessage("Optional subjects must belong to an optional package.")
+            .When(f => f.Type == SubjectType.Optional.ToString());
+        
         RuleFor(x => x.Code)
             .NotEmpty().WithMessage("Subject code is required");
 

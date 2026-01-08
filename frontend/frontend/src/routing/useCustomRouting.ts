@@ -5,7 +5,7 @@ const useCustomRouting = () => {
   const rolePermissions = useMemo(
     () =>
       new Map<UserRole, string[]>([
-        [UserRole.STUDENT, ["grades", "timetable", "contracts", "profile", "exam"]],
+        [UserRole.STUDENT, ["grades", "timetable", "contracts", "profile", "exam", "timetable-generation"]],
         [UserRole.TEACHER, ["profile", "grades", "exam"]],
         [UserRole.ADMIN, ["profile", "import-users", "import-promotion", "add-teacher"]],
       ]),

@@ -18,6 +18,8 @@ import ContractsPage from "./contracts/ContractsPage.tsx";
 import ExamPage from "./exam/pages/ExamPage.tsx";
 import PrivateRouter from "./routing/PrivateRouter.tsx";
 import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
+import TimetableGenerationPage from "./timetable-generation/pages/TimetableGenerationPage.tsx";
+import AdminLocationPage from "./admin/location/AdminLocationPage.tsx";
 import ImportUsersPage from "./admin/create-users/pages/ImportUsersPage.tsx";
 import ImportPromotionPage from "./admin/create-users/pages/ImportPromotionPage.tsx";
 import AddTeacherPage from "./admin/create-users/pages/AddTeacherPage.tsx";
@@ -45,6 +47,8 @@ const App = () => {
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
             <Route path={"/exam"} Component={ExamPage} />
+            <Route path={"/timetable-generation"} Component={TimetableGenerationPage}></Route>
+            <Route path={"/admin//location"} Component={AdminLocationPage} />
             <Route path={"/import-users"} Component={ImportUsersPage} />
             <Route path={"/import-promotion"} Component={ImportPromotionPage} />
             <Route path={"/add-teacher"} Component={AddTeacherPage} />

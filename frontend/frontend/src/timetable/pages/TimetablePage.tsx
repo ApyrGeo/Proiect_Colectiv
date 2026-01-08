@@ -166,17 +166,6 @@ const TimetablePage: React.FC = () => {
     <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>{t("Timetable")}</div>
-        {userEnrollments.length > 1 && (
-          <div>
-            <select onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}>
-              {userEnrollments.map((_e, index) => (
-                <option key={index} value={index}>
-                  {"Enrollment " + index}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -196,7 +185,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "group"}
               onChange={handleChange}
             />
-            {t("Group")}
+            {t("Promotion")}
           </label>
           <label>
             <input
@@ -219,60 +208,74 @@ const TimetablePage: React.FC = () => {
             {t("Faculty")}
           </label>
         </div>
-        <div className={"timetable-filter"}>
-          <label hidden={selectedFilter != "personal"}>
-            <input
-              type="checkbox"
-              name="active"
-              value="active"
-              checked={activeHours}
-              onChange={() => setActiveHours(!activeHours)}
-            />
-            {t("CurrentWeek")}
-          </label>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignSelf: "flex-start", width: "100%" }}>
+        {selectedFilter != "personal" ? (
+          userEnrollments.length > 1 && (
+            <div className={"timetable-filter-item"}>
+              <select
+                onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}
+                value={selectedEnrollment}
+              >
+                {userEnrollments.map((_e, index) => (
+                  <option key={index} value={index}>
+                    {t("Enrollment") + " " + (index + 1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )
+        ) : (
           <div className={"timetable-filter"}>
             <label>
               <input
-                disabled={activeHours && selectedFilter == "personal"}
-                type="radio"
-                name="freq"
-                value="all"
-                checked={selectedFreq === "all"}
-                onChange={handleChangeFreq}
+                type="checkbox"
+                name="active"
+                value="active"
+                checked={activeHours}
+                onChange={() => setActiveHours(!activeHours)}
               />
-              {t("Anytime")}
-            </label>
-            <label>
-              <input
-                disabled={activeHours && selectedFilter == "personal"}
-                type="radio"
-                name="freq"
-                value="1"
-                checked={selectedFreq === "1"}
-                onChange={handleChangeFreq}
-              />
-              {t("FirstWeek")}
-            </label>
-            <label>
-              <input
-                disabled={activeHours && selectedFilter == "personal"}
-                type="radio"
-                name="freq"
-                value="2"
-                checked={selectedFreq === "2"}
-                onChange={handleChangeFreq}
-              />
-              {t("SecondWeek")}
+              {t("CurrentWeek")}
             </label>
           </div>
-
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <button className="timetable-download-ics-button" onClick={handleDownloadIcs}>
-              {t("Download")}
-            </button>
-          </div>
+        )}
+        <div className={"timetable-filter"}>
+          <label>
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="all"
+              checked={selectedFreq === "all"}
+              onChange={handleChangeFreq}
+            />
+            {t("Anytime")}
+          </label>
+          <label>
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="1"
+              checked={selectedFreq === "1"}
+              onChange={handleChangeFreq}
+            />
+            {t("FirstWeek")}
+          </label>
+          <label>
+            <input
+              disabled={activeHours && selectedFilter == "personal"}
+              type="radio"
+              name="freq"
+              value="2"
+              checked={selectedFreq === "2"}
+              onChange={handleChangeFreq}
+            />
+            {t("SecondWeek")}
+                  </label>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                      <button className="timetable-download-ics-button" onClick={handleDownloadIcs}>
+                          {t("Download")}
+                      </button>
+                  </div>
         </div>
 
         {selectedFilter == "personal" && !activeHours && (

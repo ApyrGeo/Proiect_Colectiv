@@ -81,4 +81,14 @@ public class GradesController(IGradeService service) : ControllerBase
         var updatedGrade = await _service.PatchGradeAsync(teacherId, gradeId, dto.Value);
         return Ok(updatedGrade);
     }
+
+    [HttpGet("subject-groups")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<SubjectGroupGradesDTO>> GetSubjectGroups([FromQuery] int subjectId, [FromQuery] int groupId)
+    {
+        _logger.Info("Fetching subject groups");
+        var subjectGroups = await _service.GetSubjectGroupsAsync(subjectId, groupId);
+        return Ok(subjectGroups);
+    }
 }

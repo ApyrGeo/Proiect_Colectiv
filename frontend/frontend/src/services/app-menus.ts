@@ -29,6 +29,11 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
+          title: "Timetable Generation",
+          icon: "📆",
+          url: "/timetable-generation",
+        },
+        {
           title: "Add users",
           icon: "➕",
           submenu: [

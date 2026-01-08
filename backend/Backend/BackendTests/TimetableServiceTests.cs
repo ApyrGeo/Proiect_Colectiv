@@ -421,6 +421,9 @@ public class TimetableServiceTests
             Classroom = classroomResponse,
             Subject = subjectResponse,
             Teacher = teacherResponse,
+            Promotion = promotion,
+            StudentGroup = studentGroup,
+            StudentSubGroup = subGroup
         };
 
 
@@ -580,7 +583,10 @@ public class TimetableServiceTests
             Location = locationResponse,
             Classroom = classroomResponse,
             Subject = subjectResponse,
-            Teacher = teacherResponse
+            Teacher = teacherResponse,
+            Promotion = null,
+            StudentGroup = null,
+            StudentSubGroup = null
         };
 
         _mockRepository.Setup(r => r.GetHourByIdAsync(hourId)).ReturnsAsync(response);
@@ -690,7 +696,10 @@ public class TimetableServiceTests
             Location = locationResponse,
             Classroom = classroom,
             Subject = subject,
-            Teacher = teacher
+            Teacher = teacher,
+            Promotion = promotion,
+            StudentGroup = studentGroup,
+            StudentSubGroup = subGroup
         };
 
         _mockRepository.Setup(r => r.GetHoursAsync(filter)).ReturnsAsync(new List<HourResponseDTO> { response });

@@ -21,6 +21,8 @@ public class EFEntitiesMappingProfile : Profile
                 opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)))
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
+        CreateMap<User, SimplifiedUserResponseDTO>();
+
         CreateMap<Enrollment, EnrollmentResponseDTO>().ReverseMap();
         CreateMap<EnrollmentPostDTO, Enrollment>();
 
@@ -60,7 +62,14 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
         CreateMap<Location, LocationWithClassroomsResponseDTO>();
-        CreateMap<LocationPostDTO, Location>();
+        CreateMap<LocationPostDTO, Location>() 
+            .ForMember(dest => dest.GoogleMapsData, opt => opt.MapFrom(src =>
+                new GoogleMapsData
+                {
+                    Latitude = src.Latitude,
+                    Longitude = src.Longitude
+                }
+            ));
         
         CreateMap<Grade, GradeResponseDTO>()
             .ForMember(x => x.Semester, o => o.MapFrom(s => s.Subject.Semester));;

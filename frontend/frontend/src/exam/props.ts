@@ -27,7 +27,6 @@ export interface UserProps {
   lastName: string;
   phoneNumber: string;
   email: string;
-  password: string | null;
   role: number;
 }
 

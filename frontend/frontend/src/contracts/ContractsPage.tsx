@@ -1,35 +1,102 @@
-import { exampleStructures, FieldCategory } from "./contractStructures.ts";
-import { useRef, useState } from "react";
+import { structure, FieldCategory, type OptionalField } from "./contractStructures.ts";
+import { useEffect, useState } from "react";
 import "./contracts.css";
-import SignatureCanvas from "react-signature-canvas";
 import useContractApi from "./useContractApi.ts";
 import { toast } from "react-hot-toast";
-import { t } from "i18next";
+import { useAuthContext } from "../auth/context/AuthContext.tsx";
+import useUserApi from "../profile/ProfileApi.ts";
+import { useTranslation } from "react-i18next";
+import { useOptionalSubjectsApi } from "./OptionalApi.ts";
 
 const ContractsPage: React.FC = () => {
-  // TODO remove hard coded user id
-  const userId = 21005;
-
   const { getStudyContract } = useContractApi();
-
-  const contractStructures = exampleStructures;
-
-  const [selectedContract, setSelectedContract] = useState(0);
-
+  const { userProps } = useAuthContext();
+  const { userEnrollments } = useAuthContext();
+  const { fetchUserProfile } = useUserApi();
+  const [, setUserData] = useState<Record<string, any>>({});
+  const [formValues, setFormValues] = useState<Record<string, any>>({});
+  const contract = structure[0];
   const [, setIsError] = useState(false);
+  const { t } = useTranslation();
+  const [optionalFields, setOptionalFields] = useState<OptionalField[]>([]);
+  const { getOptionalPackages } = useOptionalSubjectsApi();
+  const allFields = [
+    ...contract.fields.filter((f) => f.category !== FieldCategory.CHECKBOX),
+    ...optionalFields,
+    ...contract.fields.filter((f) => f.category === FieldCategory.CHECKBOX),
+  ];
 
-  const sigCanvas = useRef<SignatureCanvas>(null);
+  useEffect(() => {
+    if (!userProps?.id) return;
 
-  const handleChange = (value: number) => {
-    setSelectedContract(value);
+    fetchUserProfile(userProps.id)
+      .then((profile) => {
+        const initialData = {
+          fullName: `${profile.firstName} ${profile.lastName}`,
+          email: profile.email,
+          phone: profile.phoneNumber,
+          signature: profile.signatureUrl,
+        };
+
+        setUserData(initialData);
+        setFormValues(initialData);
+      })
+      .catch(() => {
+        toast.error("Error_loading_user_data");
+      });
+  }, [userProps?.id]);
+
+  useEffect(() => {
+    if (!userEnrollments?.[0]?.promotionId) return;
+    console.log("Fetching optional packages for promotionId:", userEnrollments?.[0]?.promotionId);
+    getOptionalPackages(userEnrollments?.[0]?.promotionId).then((packages) => {
+      console.log("PACKAGES:", packages);
+      const fields: OptionalField[] = packages.map((pkg) => ({
+        name: `optional_${pkg.packageId}`,
+        label: `${t("Optional")} ${pkg.packageId}`,
+        category: FieldCategory.SELECT,
+        packageId: pkg.packageId,
+        options: pkg.subjects.map((s) => ({
+          label: s.name,
+          value: s.id,
+        })),
+      }));
+
+      setOptionalFields(fields);
+    });
+  }, [userEnrollments?.[0]?.promotionId]);
+
+  const validateForm = () => {
+    for (const field of ["cnp", "serie", "numar", "fullName", "email", "phone"]) {
+      if (!formValues[field] || String(formValues[field]).trim() === "") {
+        toast.error(`Field ${field} is required`);
+        return false;
+      }
+    }
+    if (!formValues["agree"]) {
+      toast.error("You must accept the terms and conditions");
+      return false;
+    }
+    for (const optField of optionalFields) {
+      if (!formValues[optField.name]) {
+        toast.error(`You must select an optional subject for package ${optField.packageId}`);
+        return false;
+      }
+    }
+
+    return true;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(e);
-    if (contractStructures[selectedContract].signature && sigCanvas.current) console.log(sigCanvas.current.toDataURL());
+    if (!validateForm()) return;
 
-    getStudyContract(userId)
+    if (!userProps?.id || !userEnrollments?.[0]?.promotionId) return;
+
+    getStudyContract(userProps.id, {
+      promotionId: userEnrollments?.[0]?.promotionId,
+      fields: formValues,
+    })
       .then((response) => {
         const data = new Blob([response]);
         const url = window.URL.createObjectURL(data);
@@ -52,46 +119,107 @@ const ContractsPage: React.FC = () => {
 
   return (
     <div className={"contracts-page"}>
-      <select className={"contracts-filter"} onChange={(e) => handleChange(Number(e.currentTarget.value))}>
-        {contractStructures.map((s, index) => (
-          <option key={index} value={index}>
-            {s.title}
-          </option>
-        ))}
-      </select>
-
-      <div className={"contract-title"}>{contractStructures[selectedContract].title}</div>
-
+      <div className={"contract-title"}>{t(contract.title)}</div>
       <form onSubmit={handleSubmit}>
-        {contractStructures[selectedContract].fields.map((field) => {
-          if (field.category === FieldCategory.SELECT)
+        {allFields.map((field) => {
+          if (field.category === FieldCategory.SELECT) {
             return (
               <label key={field.name}>
-                {field.label}
-                <select name={field.name}>
-                  {field.options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
+                {t(field.label)}
+                <select
+                  value={formValues[field.name] ?? ""}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      [field.name]: Number(e.target.value),
+                    }))
+                  }
+                >
+                  <option value="">Select</option>
+                  {"options" in field &&
+                    field.options.map((opt) => {
+                      if (typeof opt === "string") {
+                        return (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        );
+                      } else {
+                        return (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        );
+                      }
+                    })}
                 </select>
               </label>
             );
-          else {
+          }
+          if (field.category === FieldCategory.CHECKBOX) {
             return (
               <label key={field.name}>
-                {field.label}
-                <input name={field.name} type={field.category.toString()} />
+                <label className={"checkbox-label"}>{t(field.label)}</label>
+                <input
+                  type="checkbox"
+                  checked={!!formValues[field.name]}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      [field.name]: e.target.checked,
+                    }))
+                  }
+                />
               </label>
             );
           }
+
+          return (
+            <label key={field.name}>
+              {t(field.label)}
+              <input
+                type="text"
+                value={formValues[field.name] ?? ""}
+                maxLength={
+                  field.category === FieldCategory.SERIE
+                    ? 2
+                    : field.category === FieldCategory.NUMAR
+                      ? 6
+                      : field.category === FieldCategory.CNP
+                        ? 13
+                        : undefined
+                }
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  if (field.category === FieldCategory.PHONE) {
+                    value = value.replace(/[^0-9+]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.NUMAR) {
+                    value = value.replace(/[^0-9]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.CNP) {
+                    value = value.replace(/[^0-9]/g, "");
+                  }
+
+                  if (field.category === FieldCategory.SERIE) {
+                    value = value.replace(/[^a-zA-Z]/g, "");
+                    value = value.toUpperCase();
+                  }
+
+                  setFormValues((prev) => ({
+                    ...prev,
+                    [field.name]: value,
+                  }));
+                }}
+              />
+            </label>
+          );
         })}
-        {contractStructures[selectedContract].signature && (
-          <div className={"sigContainer"}>
-            <SignatureCanvas ref={sigCanvas} canvasProps={{ className: "sigCanvas" }}></SignatureCanvas>
-          </div>
-        )}
-        <button type="submit">Generate Contract</button>
+
+        <button type="submit">{t("Generate")}</button>
       </form>
     </div>
   );
