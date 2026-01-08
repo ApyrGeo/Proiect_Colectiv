@@ -1,4 +1,3 @@
-import { Grid } from "@mui/material";
 import "./academics.css";
 import AddFacultyComponent from "./components/AddFacultyComponent.tsx";
 import AddSpecialisationComponent from "./components/AddSpecialisationComponent.tsx";
@@ -7,11 +6,19 @@ import AddGroupsComponent from "./components/AddGroupsComponent.tsx";
 import useAdminAcademicsApi from "./useAdminAcademicsApi.ts";
 import { useCallback, useEffect, useState } from "react";
 import type { Faculty } from "./props.ts";
+import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const AdminAcademicsPage: React.FC = () => {
   const { getFaculties } = useAdminAcademicsApi();
   const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [fetchError, setFetchError] = useState("");
+  const { t } = useTranslation();
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (error) {
+      toast.error(t("Error"));
+    }
+  }, [error, t]);
 
   const refreshFaculties = useCallback(() => {
     getFaculties()
@@ -19,23 +26,27 @@ const AdminAcademicsPage: React.FC = () => {
         setFaculties(res);
       })
       .catch(() => {
-        setFetchError("Couldn't fetch faculties");
+        setError("Couldn't fetch faculties");
       });
   }, [getFaculties]);
 
   useEffect(() => {
-    if (fetchError != "") return;
+    if (error != "") return;
 
     refreshFaculties();
-  }, [fetchError, refreshFaculties]);
+  }, [error, refreshFaculties]);
 
   return (
-    <Grid container spacing={5} padding={10}>
-      <AddFacultyComponent refreshFaculties={refreshFaculties} />
-      <AddSpecialisationComponent faculties={faculties} refreshFaculties={refreshFaculties} />
-      <AddPromotionComponent faculties={faculties} refreshFaculties={refreshFaculties} />
-      <AddGroupsComponent faculties={faculties} refreshFaculties={refreshFaculties} />
-    </Grid>
+    <div className={"admin-academic-page"}>
+      <div className={"admin-academic-column"}>
+        <AddFacultyComponent refreshFaculties={refreshFaculties} />
+        <AddSpecialisationComponent faculties={faculties} refreshFaculties={refreshFaculties} />
+        <AddPromotionComponent faculties={faculties} refreshFaculties={refreshFaculties} />
+      </div>
+      <div className={"admin-academic-column"}>
+        <AddGroupsComponent faculties={faculties} refreshFaculties={refreshFaculties} />
+      </div>
+    </div>
   );
 };
 

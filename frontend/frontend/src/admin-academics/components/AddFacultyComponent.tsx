@@ -1,16 +1,25 @@
-import { Grid, TextField, Button, Card, ThemeProvider } from "@mui/material";
+import { TextField, Button, Card, ThemeProvider } from "@mui/material";
 import { theme } from "../theme.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 type AddFacultyProps = {
   refreshFaculties: () => void;
 };
 
 const AddFacultyComponent: React.FC<AddFacultyProps> = (props) => {
+  const { t } = useTranslation();
   const { postFaculty } = useAdminAcademicsApi();
 
   const [facultyName, setFacultyName] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (error) {
+      toast.error(t("Error"));
+    }
+  }, [error, t]);
 
   const handleAddFaculty = () => {
     if (facultyName == "") return;
@@ -19,26 +28,26 @@ const AddFacultyComponent: React.FC<AddFacultyProps> = (props) => {
         props.refreshFaculties();
       })
       .catch(() => {
-        //TODO handle error
+        setError("Error");
       });
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid>
+      <div className={"admin-academic-component"}>
         <Card>
-          <div className={"academic-title"}>New Faculty</div>
+          <div className={"academic-title"}>{t("NewFaculty")}</div>
           <TextField
             onChange={(event) => {
               setFacultyName(event.target.value);
             }}
             id="outlined-basic"
-            label="Faculty name"
+            label={t("FacultyName")}
             variant="outlined"
           />
-          <Button onClick={handleAddFaculty}>Add Faculty</Button>
+          <Button onClick={handleAddFaculty}>{t("AddFaculty")}</Button>
         </Card>
-      </Grid>
+      </div>
     </ThemeProvider>
   );
 };

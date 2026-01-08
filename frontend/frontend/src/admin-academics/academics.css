@@ -1,8 +1,32 @@
+.admin-academic-page{
+  display: flex;
+  flex-direction: row;
+  align-self: flex-start;
+  justify-content: center;
+}
+
+.admin-academic-column{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
+
+.admin-academic-component {
+  display: inline-flex;
+  flex-direction: column;
+  align-self: flex-end;
+  justify-content: flex-start;
+  margin: 10px;
+}
+
 .academic-label {
   color: var(--accent);
+  text-align: center;
+  font-size: medium;
   border-radius: 2px;
   display: inline-flex;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .academic-title {
@@ -16,11 +40,16 @@
 .academic-column {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
   flex-direction: column;
 }
 
 .academic-row {
   display: inline-flex;
   flex-direction: row;
+  align-items: flex-start;
+}
+
+.academic-slider{
+  position: relative;
+  width: 150px
 }

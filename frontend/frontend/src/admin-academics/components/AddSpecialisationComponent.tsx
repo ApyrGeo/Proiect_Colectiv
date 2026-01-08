@@ -1,8 +1,10 @@
-import { Grid, TextField, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
+import { TextField, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
 import { theme } from "../theme.ts";
 import type { Faculty } from "../props.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 type AddSpecialisationProps = {
   faculties: Faculty[];
@@ -10,9 +12,16 @@ type AddSpecialisationProps = {
 };
 const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => {
   const { postSpecialisation } = useAdminAcademicsApi();
+  const { t } = useTranslation();
 
   const [specName, setSpecName] = useState("");
   const [selectedFacultyId, setSelectedFacultyId] = useState<number | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (error) {
+      toast.error(t("Error"));
+    }
+  }, [error, t]);
 
   const handleAddSpecialisation = () => {
     if (specName == "" || selectedFacultyId == null) return;
@@ -22,19 +31,21 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
         props.refreshFaculties();
       })
       .catch(() => {
-        //TODO handle error
+        setError("Error");
       });
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid>
+      <div className={"admin-academic-component"}>
         <Card>
-          <div className={"academic-title"}>New Specialisation</div>
+          <div className={"academic-title"}>
+            {t("New")} {t("Specialisation")}
+          </div>
           <FormControl fullWidth={true}>
-            <InputLabel>Faculty</InputLabel>
+            <InputLabel>{t("Faculty")}</InputLabel>
             <Select
-              label="Faculty"
+              label={t("Faculty")}
               onChange={(event) => {
                 if (!event.target.value) return;
                 setSelectedFacultyId(Number(event.target.value));
@@ -51,13 +62,14 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
             onChange={(event) => {
               setSpecName(event.target.value);
             }}
-            id="outlined-basic"
-            label="Specialization name"
+            key="spec-text"
+            id="spec-text"
+            label={t("SpecialisationName")}
             variant="outlined"
           />
-          <Button onClick={handleAddSpecialisation}>Add Specialisation</Button>
+          <Button onClick={handleAddSpecialisation}>{t("AddSpecialisation")}</Button>
         </Card>
-      </Grid>
+      </div>
     </ThemeProvider>
   );
 };

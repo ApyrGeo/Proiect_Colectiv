@@ -1,8 +1,10 @@
-import { Grid, Slider, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
+import { Slider, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
 import { theme } from "../theme.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
 import type { Faculty } from "../props.ts";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 type AddPromotionProps = {
   faculties: Faculty[];
@@ -10,10 +12,17 @@ type AddPromotionProps = {
 };
 
 const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
-  const [promotionLenght, setPromotionLenght] = useState(1);
+  const [promotionLenght, setPromotionLenght] = useState(3);
   const [specId, setSpecId] = useState<number | null>(null);
 
   const { postPromotion } = useAdminAcademicsApi();
+  const { t } = useTranslation();
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (error) {
+      toast.error(t("Error"));
+    }
+  }, [error, t]);
 
   const handleAddPromotion = () => {
     if (!specId) return;
@@ -25,21 +34,21 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
         props.refreshFaculties();
       })
       .catch(() => {
-        //TODO handle error
+        setError("Error");
       });
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid>
+      <div className={"admin-academic-component"}>
         <Card>
-          <div className={"academic-title"}>New Promotion</div>
+          <div className={"academic-title"}>{t("NewPromotion")}</div>
           <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Specialization</InputLabel>
+            <InputLabel id="demo-simple-select-label">{t("Specialization")}</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              label="Specialization"
+              label={t("Specialisation")}
               onChange={(event) => {
                 if (!event.target.value) return;
                 setSpecId(Number(event.target.value));
@@ -54,19 +63,27 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
               )}
             </Select>
           </FormControl>
-          <div className={"academic-label"}>Length</div>
-          <Slider
-            value={promotionLenght}
-            min={1}
-            max={6}
-            valueLabelDisplay="auto"
-            onChange={(_event, value) => {
-              setPromotionLenght(value);
-            }}
-          />
-          <Button onClick={handleAddPromotion}>Add Promotion</Button>
+          <div className="academic-row">
+            <div className="academic-column">
+              <div className={"academic-label"}>{t("Length")}</div>
+              <div className="academic-slider">
+                <Slider
+                  value={promotionLenght}
+                  min={1}
+                  max={6}
+                  valueLabelDisplay="auto"
+                  onChange={(_event, value) => {
+                    setPromotionLenght(value);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="academic-column">
+              <Button onClick={handleAddPromotion}>{t("AddPromotion")}</Button>
+            </div>
+          </div>
         </Card>
-      </Grid>
+      </div>
     </ThemeProvider>
   );
 };

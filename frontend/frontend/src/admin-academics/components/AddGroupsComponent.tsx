@@ -1,5 +1,4 @@
 import {
-  Grid,
   Slider,
   Card,
   Button,
@@ -11,9 +10,11 @@ import {
   MenuItem,
 } from "@mui/material";
 import { theme } from "../theme.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Faculty } from "../props.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 type AddGroupProps = {
   faculties: Faculty[];
@@ -21,11 +22,17 @@ type AddGroupProps = {
 };
 
 const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
-  const [groupCount, setGroupCount] = useState(1);
-  const [groupNames, setGroupNames] = useState<string[]>(["1"]);
+  const [groupCount, setGroupCount] = useState(4);
+  const [groupNames, setGroupNames] = useState<string[]>(["1", "2", "3", "4"]);
   const [promId, setPromId] = useState<number | null>(null);
-
   const { postGroup, postSubGroup } = useAdminAcademicsApi();
+  const { t } = useTranslation();
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (error) {
+      toast.error(t("Error"));
+    }
+  }, [error, t]);
 
   const handleAddPromotion = () => {
     if (!promId) return;
@@ -40,22 +47,22 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
         postSubGroup({ studentGroupId: res.id, name: name + "/2" });
       })
       .catch(() => {
-        //TODO handle error
+        setError("Error");
       });
   };
   return (
     <ThemeProvider theme={theme}>
-      <Grid>
+      <div className={"admin-academic-component"}>
         <Card>
-          <div className={"academic-title"}>New Groups</div>
+          <div className={"academic-title"}>{t("NewGroups")}</div>
           <div className={"academic-row"}>
             <div className={"academic-column"}>
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Promotion</InputLabel>
+                <InputLabel id="demo-simple-select-label">{t("Promotion")}</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  label="Promotion"
+                  label={t("Promotion")}
                   onChange={(event) => {
                     if (!event.target.value) return;
                     setPromId(Number(event.target.value));
@@ -72,27 +79,31 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
                   )}
                 </Select>
               </FormControl>
-              <div className={"academic-label"}>Count</div>
-              <Slider
-                // defaultValue={groupCount}
-                min={1}
-                max={20}
-                value={groupCount}
-                onChange={(_event, value) => {
-                  setGroupCount(value);
-                  const names = [];
-                  for (let i = 0; i < value; i++) names.push(String(i + 1));
-                  setGroupNames(names);
-                }}
-                valueLabelDisplay="auto"
-              />
-              <Button onClick={handleAddPromotion}>Add Promotion</Button>
+              <div className={"academic-label"}>{t("Count")}</div>
+              <div className={"academic-slider"}>
+                <Slider
+                  // defaultValue={groupCount}
+                  min={1}
+                  max={20}
+                  value={groupCount}
+                  onChange={(_event, value) => {
+                    setGroupCount(value);
+                    const names = [];
+                    for (let i = 0; i < value; i++) names.push(String(i + 1));
+                    setGroupNames(names);
+                  }}
+                  valueLabelDisplay="auto"
+                />
+              </div>
+              <Button onClick={handleAddPromotion}>{t("AddGroups")}</Button>
             </div>
             <div className={"academic-column"}>
-              <div className={"academic-label"}>Group Names</div>
+              <div className={"academic-label"}>{t("GroupNames")}</div>
               {groupNames.map((value, index) => (
                 <TextField
-                  defaultValue={value}
+                  value={value}
+                  id={String(index)}
+                  key={String(index)}
                   onChange={(event) => {
                     const names = groupNames;
                     groupNames[index] = event.target.value;
@@ -103,7 +114,7 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
             </div>
           </div>
         </Card>
-      </Grid>
+      </div>
     </ThemeProvider>
   );
 };

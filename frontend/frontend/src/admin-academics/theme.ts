@@ -5,7 +5,7 @@ export const theme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
-          margin: 20,
+          margin: 10,
           // Outlined
           "& .MuiOutlinedInput-root": {
             color: "#DCE3EB",
@@ -42,7 +42,7 @@ export const theme = createTheme({
         root: {
           color: "#DCE3EB",
           background: "#0054A4",
-          margin: 30,
+          margin: 25,
           "&:hover": {
             background: "#326dae",
           },
