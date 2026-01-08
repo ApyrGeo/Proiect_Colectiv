@@ -89,6 +89,7 @@ i18n.use(initReactI18next).init({
         Terms: "I agree to the Terms",
         Generate: "Generate contract",
         Study_Contract: "Study Contract",
+        Optional: "Optional package",
       },
     },
     ro: {
@@ -173,6 +174,7 @@ i18n.use(initReactI18next).init({
         Terms: "Sunt de acord cu Termenii și condițiile",
         Generate: "Generează contract",
         Study_Contract: "Contract de studiu",
+        Optional: "Pachet opțional",
       },
     },
     hu: {
@@ -257,6 +259,7 @@ i18n.use(initReactI18next).init({
         Terms: "Elfogadom a Feltételeket",
         Generate: "Generált szerződés",
         Study_Contract: "Tanulmányi szerződés",
+        Optional: "Opcionális csomag",
       },
     },
     de: {
@@ -341,6 +344,7 @@ i18n.use(initReactI18next).init({
         Terms: "Ich stimme den Bedingungen zu.",
         Generate: "Generierter Vertrag",
         Study_Contract: "Studienvertrag",
+        Optional: "Optionale Paket",
       },
     },
   },

@@ -42,7 +42,7 @@ const ContractsPage: React.FC = () => {
         setFormValues(initialData);
       })
       .catch(() => {
-        toast.error(t("Error_loading_user_data"));
+        toast.error("Error_loading_user_data");
       });
   }, [userProps?.id]);
 
@@ -53,7 +53,7 @@ const ContractsPage: React.FC = () => {
       console.log("PACKAGES:", packages);
       const fields: OptionalField[] = packages.map((pkg) => ({
         name: `optional_${pkg.packageId}`,
-        label: `Optional package ${pkg.packageId}`,
+        label: `${t("Optional")} ${pkg.packageId}`,
         category: FieldCategory.SELECT,
         packageId: pkg.packageId,
         options: pkg.subjects.map((s) => ({
@@ -66,13 +66,35 @@ const ContractsPage: React.FC = () => {
     });
   }, [userEnrollments?.[0]?.promotionId]);
 
+  const validateForm = () => {
+    for (const field of ["cnp", "serie", "numar", "fullName", "email", "phone"]) {
+      if (!formValues[field] || String(formValues[field]).trim() === "") {
+        toast.error(`Field ${field} is required`);
+        return false;
+      }
+    }
+    if (!formValues["agree"]) {
+      toast.error("You must accept the terms and conditions");
+      return false;
+    }
+    for (const optField of optionalFields) {
+      if (!formValues[optField.name]) {
+        toast.error(`You must select an optional subject for package ${optField.packageId}`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(e);
+    if (!validateForm()) return;
 
-    if (!userProps?.id) return;
+    if (!userProps?.id || !userEnrollments?.[0]?.promotionId) return;
 
     getStudyContract(userProps.id, {
+      promotionId: userEnrollments?.[0]?.promotionId,
       fields: formValues,
     })
       .then((response) => {

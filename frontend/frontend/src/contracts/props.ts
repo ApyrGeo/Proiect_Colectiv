@@ -1,4 +1,5 @@
 export type StudyContractPayload = {
+  promotionId: number;
   fields: Record<string, any>;
 };
 
