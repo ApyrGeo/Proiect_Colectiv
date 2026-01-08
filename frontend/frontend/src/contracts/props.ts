@@ -15,3 +15,9 @@ export type OptionalPackageProps = {
   packageId: number;
   subjects: SubjectProps[];
 };
+
+export type PromotionProps = {
+  id: number;
+  startYear: number;
+  endYear: number;
+};

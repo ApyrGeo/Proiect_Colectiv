@@ -34,8 +34,18 @@
 .contracts-page form label select{
     margin-left: 10px;
 }
+.radio-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
 
-
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .contracts-page form button{
     margin: 10px;
 }
