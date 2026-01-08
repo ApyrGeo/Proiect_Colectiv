@@ -246,6 +246,13 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return teacherDto;
 	}
 
+    public async Task<List<SpecialisationResponseDTO>> GetAllSpecialisations()
+    {
+        _logger.InfoFormat("Retrieving all specialisations from repository");
+
+        return await _academicRepository.GetAllSpecialisationsAsync();
+    }
+
     public async Task<EnrollmentResponseDTO?> GetEnrollmentById(int enrollmentId)
     {
         _logger.InfoFormat("Trying to retrieve enrollment with ID {0}", enrollmentId);
@@ -474,7 +481,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         var validator = _validatorFactory.Get<BulkEnrollmentItem>();
         var resultItems = new List<BulkEnrollmentItemResultDTO>();
 
-        if (resultItems.Count == 0)
+        if (list.Count == 0)
         {
             return (resultItems, false);
         }

@@ -100,6 +100,71 @@
   overflow: auto;
 }
 
+.promotion-fields-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.promotion-text-field .MuiInputBase-root,
+.promotion-text-field .MuiInputBase-input,
+.promotion-text-field .MuiInputLabel-root {
+  color: #ffffff !important;
+}
+
+.promotion-text-field .MuiAutocomplete-clearIndicator,
+.promotion-text-field .MuiAutocomplete-popupIndicator {
+  color: #ffffff !important;
+}
+
+.promotion-text-field .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.promotion-text-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #ffffff !important;
+}
+
+.promotion-text-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #ffffff !important;
+}
+
+.promotion-text-field .MuiInputBase-input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.promotion-specialisation-info {
+  margin-bottom: 16px;
+  color: var(--profile-text-muted);
+}
+
+.promotion-summary {
+  margin-top: 16px;
+}
+
+.promotion-summary .MuiTypography-root,
+.promotion-summary,
+.promotion-summary .promotion-groups,
+.promotion-summary .promotion-group,
+.promotion-summary .promotion-group ul,
+.promotion-summary .promotion-group li {
+  color: var(--profile-text-light);
+}
+
+.promotion-groups {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.promotion-group ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
 .create-users-table-wrapper table {
   color: var(--profile-text-light);
 }

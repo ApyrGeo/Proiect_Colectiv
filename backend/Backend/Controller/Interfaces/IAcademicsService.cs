@@ -14,6 +14,7 @@ public interface IAcademicsService
     Task<TeacherResponseDTO> CreateTeacher(TeacherPostDTO teacherPostDTO);
     Task<FacultyResponseDTO> GetFacultyById(int facultyId);
     Task<PromotionResponseDTO> GetPromotionById(int promotionId);
+    Task<List<SpecialisationResponseDTO>> GetAllSpecialisations();
     Task<SpecialisationResponseDTO> GetSpecialisationById(int specialisationId);
     Task<StudentGroupResponseDTO> GetStudentGroupById(int studentGroupId);
     Task<StudentSubGroupResponseDTO> GetStudentSubGroupById(int studentSubGroupId);

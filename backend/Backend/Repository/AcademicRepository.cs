@@ -154,6 +154,15 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
         return _mapper.Map<PromotionResponseDTO>(promotion);
     }
 
+    public async Task<List<SpecialisationResponseDTO>> GetAllSpecialisationsAsync()
+    {
+        return await _context.Specialisations
+            .Include(s => s.Faculty)
+            .Include(s => s.Promotions)
+            .Select(s => _mapper.Map<SpecialisationResponseDTO>(s))
+            .ToListAsync();
+    }
+
     public async Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id)
     {
         var specialisation = await _context.Specialisations

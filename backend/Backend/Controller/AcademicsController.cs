@@ -134,8 +134,20 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return CreatedAtAction(nameof(GetFacultyById), new { facultyId = createdFaculty.Id }, createdFaculty);
     }
 
+    [HttpGet("specialisations")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<SpecialisationResponseDTO>>> GetSpecialisation()
+    {
+        _logger.Info("Fetching all specialisations");
+
+        var specialisations = await _service.GetAllSpecialisations();
+
+        return Ok(specialisations);
+    }
+
     [HttpGet("specialisations/{specialisationId}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<SpecialisationResponseDTO>> GetSpecialisationById([FromRoute] int specialisationId)
     {
         _logger.InfoFormat("Fetching specialisation with id {0}", specialisationId);
