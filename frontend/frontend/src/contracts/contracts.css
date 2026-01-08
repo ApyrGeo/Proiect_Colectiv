@@ -34,15 +34,17 @@
 .contracts-page form label select{
     margin-left: 10px;
 }
-
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.radio-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-input[type=number] {
-  -moz-appearance: textfield;
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .contracts-page form button{
     margin: 10px;

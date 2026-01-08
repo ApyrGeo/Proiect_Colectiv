@@ -1,4 +1,4 @@
-import { structure, FieldCategory, type OptionalField } from "./contractStructures.ts";
+import { structure, FieldCategory, type OptionalField, type StudyYearField } from "./contractStructures.ts";
 import { useEffect, useState } from "react";
 import "./contracts.css";
 import useContractApi from "./useContractApi.ts";
@@ -6,7 +6,8 @@ import { toast } from "react-hot-toast";
 import { useAuthContext } from "../auth/context/AuthContext.tsx";
 import useUserApi from "../profile/ProfileApi.ts";
 import { useTranslation } from "react-i18next";
-import { useOptionalSubjectsApi } from "./OptionalApi.ts";
+import { useOptionalSubjectsApi, usePromotionApi } from "./FieldsApi.ts";
+import type { PromotionProps } from "./props.ts";
 
 const ContractsPage: React.FC = () => {
   const { getStudyContract } = useContractApi();
@@ -19,12 +20,15 @@ const ContractsPage: React.FC = () => {
   const [, setIsError] = useState(false);
   const { t } = useTranslation();
   const [optionalFields, setOptionalFields] = useState<OptionalField[]>([]);
+  const [studyYearFields, setStudyYearFields] = useState<StudyYearField[]>([]);
   const { getOptionalPackages } = useOptionalSubjectsApi();
   const allFields = [
     ...contract.fields.filter((f) => f.category !== FieldCategory.CHECKBOX),
+    ...studyYearFields,
     ...optionalFields,
     ...contract.fields.filter((f) => f.category === FieldCategory.CHECKBOX),
   ];
+  const { getPromotion } = usePromotionApi();
 
   useEffect(() => {
     if (!userProps?.id) return;
@@ -47,9 +51,26 @@ const ContractsPage: React.FC = () => {
   }, [userProps?.id]);
 
   useEffect(() => {
-    if (!userEnrollments?.[0]?.promotionId) return;
-    console.log("Fetching optional packages for promotionId:", userEnrollments?.[0]?.promotionId);
-    getOptionalPackages(userEnrollments?.[0]?.promotionId).then((packages) => {
+    const promotionId = userEnrollments?.[0]?.promotionId;
+    if (!promotionId) return;
+
+    getPromotion(promotionId).then((p: PromotionProps) => {
+      const duration = p.endYear - p.startYear;
+      console.log("Duration inside then:", duration);
+      const yearField: StudyYearField = {
+        name: "studyYear",
+        label: "Study year",
+        category: FieldCategory.STUDY_YEAR,
+        options: Array.from({ length: duration }, (_, i) => ({
+          label: `${t("Year")} ${i + 1}`,
+          value: i + 1,
+        })),
+      };
+
+      setStudyYearFields([yearField]);
+    });
+
+    getOptionalPackages(promotionId).then((packages) => {
       console.log("PACKAGES:", packages);
       const fields: OptionalField[] = packages.map((pkg) => ({
         name: `optional_${pkg.packageId}`,
@@ -154,6 +175,31 @@ const ContractsPage: React.FC = () => {
                     })}
                 </select>
               </label>
+            );
+          }
+          if (field.category === FieldCategory.STUDY_YEAR) {
+            return (
+              <div key={field.name} className="radio-group">
+                <label className="radio-label">{t(field.label)}</label>
+
+                {field.options.map((opt) => (
+                  <label key={opt.value} className="radio-option">
+                    <input
+                      type="radio"
+                      name={field.name}
+                      value={opt.value}
+                      checked={formValues[field.name] === opt.value}
+                      onChange={() =>
+                        setFormValues((prev) => ({
+                          ...prev,
+                          [field.name]: opt.value,
+                        }))
+                      }
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
             );
           }
           if (field.category === FieldCategory.CHECKBOX) {

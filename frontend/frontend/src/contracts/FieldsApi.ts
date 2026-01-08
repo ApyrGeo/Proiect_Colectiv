@@ -15,3 +15,16 @@ export const useOptionalSubjectsApi = () => {
 
   return { getOptionalPackages };
 };
+
+export const usePromotionApi = () => {
+  const { axios } = useApiClient();
+  const getPromotion = useCallback(
+    async (promotionId: number) => {
+      const res = await axios.get(`/api/academics/promotions/${promotionId}`);
+      return res.data;
+    },
+    [axios]
+  );
+
+  return { getPromotion };
+};
