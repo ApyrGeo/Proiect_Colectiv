@@ -60,7 +60,14 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<Location, LocationResponseDTO>().ReverseMap();
         CreateMap<Location, LocationWithClassroomsResponseDTO>();
-        CreateMap<LocationPostDTO, Location>();
+        CreateMap<LocationPostDTO, Location>() 
+            .ForMember(dest => dest.GoogleMapsData, opt => opt.MapFrom(src =>
+                new GoogleMapsData
+                {
+                    Latitude = src.Latitude,
+                    Longitude = src.Longitude
+                }
+            ));
         
         CreateMap<Grade, GradeResponseDTO>()
             .ForMember(x => x.Semester, o => o.MapFrom(s => s.Subject.Semester));;

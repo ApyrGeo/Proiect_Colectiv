@@ -43,9 +43,11 @@ const mapOptions = {
 
 interface LocationPropsArray {
   locations: LocationProps[];
+  editable?: boolean;
+  onMapClick?: (lat: number, lng: number) => void;
 }
 
-const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
+const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations, editable = false, onMapClick }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
@@ -111,6 +113,14 @@ const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
         <div className="widget-map-body">
           <GoogleMap
             onLoad={onLoad}
+            onClick={(e) => {
+              if (!editable || !onMapClick) return;
+
+              onMapClick(
+                e.latLng!.lat(),
+                e.latLng!.lng()
+              );
+            }}
             mapContainerStyle={{
               height: "500px",
               borderRadius: "8px",
