@@ -1,59 +1,89 @@
 export enum FieldCategory {
   TEXT = "text",
-  DATE = "date",
   NUMBER = "number",
   SELECT = "select",
   CHECKBOX = "checkbox",
   PHONE = "tel",
   EMAIL = "email",
+  SERIE = "serie",
+  CNP = "cnp",
+  NUMAR = "numar",
 }
 
-type ContractField = { name: string; label: string } & (
-  | { category: FieldCategory.TEXT }
-  | { category: FieldCategory.DATE }
-  | { category: FieldCategory.CHECKBOX }
-  | { category: FieldCategory.NUMBER }
-  | { category: FieldCategory.PHONE }
-  | { category: FieldCategory.EMAIL }
-  | { category: FieldCategory.SELECT; options: string[] }
-);
+export type ContractFieldBase = {
+  name: string;
+  label: string;
+  autoFill?: boolean;
+};
 
 export type ContractStructure = {
   title: string;
   fields: ContractField[];
-  signature: boolean;
   apiCall?: ContractAPICall;
 };
+
+type ContractField =
+  | (ContractFieldBase & { category: FieldCategory.TEXT })
+  | (ContractFieldBase & { category: FieldCategory.CHECKBOX })
+  | (ContractFieldBase & { category: FieldCategory.NUMBER })
+  | (ContractFieldBase & { category: FieldCategory.PHONE })
+  | (ContractFieldBase & { category: FieldCategory.EMAIL })
+  | (ContractFieldBase & { category: FieldCategory.SELECT; options: string[] })
+  | (ContractFieldBase & { category: FieldCategory.CNP })
+  | (ContractFieldBase & { category: FieldCategory.SERIE })
+  | (ContractFieldBase & { category: FieldCategory.NUMAR });
 
 type StudyContractCall = (userId: number) => Promise<string>;
 type ContractAPICall = StudyContractCall;
 
-export const exampleStructures: ContractStructure[] = [
+export const structure: ContractStructure[] = [
   {
-    title: "Study Contract",
-    fields: [],
-    signature: false,
-  },
-  {
-    title: "My Contract 1",
+    title: "Study_Contract",
     fields: [
-      { name: "full-name", label: "Full name", category: FieldCategory.TEXT },
-      { name: "email", label: "Email", category: FieldCategory.EMAIL },
-      { name: "phone", label: "Phone number", category: FieldCategory.PHONE },
-      { name: "opt1", label: "Optional 1", category: FieldCategory.SELECT, options: ["Geometry", "IOC", "Robotics"] },
-      { name: "opt2", label: "Optional 2", category: FieldCategory.SELECT, options: ["VR", "POP", "Blockchain"] },
-      { name: "agree", label: "I agree to the Terms and Conditions", category: FieldCategory.CHECKBOX },
+      {
+        name: "fullName",
+        label: "Full_name",
+        category: FieldCategory.TEXT,
+        autoFill: true,
+      },
+      {
+        name: "email",
+        label: "Email",
+        category: FieldCategory.EMAIL,
+        autoFill: true,
+      },
+      {
+        name: "phone",
+        label: "Phone",
+        category: FieldCategory.PHONE,
+        autoFill: true,
+      },
+      {
+        name: "cnp",
+        label: "CNP",
+        category: FieldCategory.CNP,
+      },
+      {
+        name: "serie",
+        label: "ID_series",
+        category: FieldCategory.SERIE,
+      },
+      {
+        name: "numar",
+        label: "ID_Number",
+        category: FieldCategory.NUMAR,
+      },
+      {
+        name: "agree",
+        label: "Terms",
+        category: FieldCategory.CHECKBOX,
+      },
     ],
-    signature: false,
-  },
-  {
-    title: "My Contract 2",
-    fields: [
-      { name: "full-name", label: "Full name", category: FieldCategory.TEXT },
-      { name: "date", label: "Date of Birth", category: FieldCategory.DATE },
-      { name: "opt1", label: "Optional 1", category: FieldCategory.SELECT, options: ["Geometry", "IOC", "Robotics"] },
-      { name: "agree", label: "I agree to the Terms and Conditions", category: FieldCategory.CHECKBOX },
-    ],
-    signature: true,
   },
 ];
+
+export type OptionalField = ContractFieldBase & {
+  category: FieldCategory.SELECT;
+  options: { label: string; value: number }[];
+  packageId: number;
+};
