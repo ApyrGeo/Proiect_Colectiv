@@ -5,7 +5,7 @@ export interface ClassroomProps {
 
 export interface LocationPostProps {
   name: string;
-  address?: string;
+  address: string;
   latitude: number;
   longitude: number;
 }

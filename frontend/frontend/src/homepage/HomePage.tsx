@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import logoUrl from '/src/assets/UBB_Logo.png'
+import logoUrl from "/src/assets/UBB_Logo.png";
+import NewsComponent from "./components/NewsComponent";
 import "./homepage.css";
 
 export default function Homepage() {
@@ -11,6 +12,7 @@ export default function Homepage() {
         <h1>{t("Welcome")} Track for UBB</h1>
         <p>{t("Paragraf")}</p>
       </header>
+      <NewsComponent />
       <footer className="footer">© 2025 Track for UBB. All rights reserved.</footer>
     </div>
   );

@@ -1,0 +1,39 @@
+{
+  "newsItems": [
+    {
+      "id": 1,
+      "title": "Nou Sistem de Orar",
+      "description": "Introducerea noului sistem de gestionare a orarului cu actualizări în timp real și o mai bună utilizabilitate.",
+      "image": "https://www.utep.edu/extendeduniversity/utepconnect/blog/january-2018/schedule-1.jpg",
+      "date": "8 ianuarie 2026"
+    },
+    {
+      "id": 2,
+      "title": "Note Publicate",
+      "description": "Notele din semestrul de primăvară sunt acum disponibile în profilul tău. Verifică-ți performanța academică.",
+      "image": "https://media.istockphoto.com/id/1167956299/vector/vector-a-plus-red-grade-mark.jpg?s=612x612&w=0&k=20&c=WYvJYy8hst-4jhc3YeyGcWWO3StKxkr0fKAY1cS_ggw=",
+      "date": "6 ianuarie 2026"
+    },
+    {
+      "id": 3,
+      "title": "Evenimente pe Campus",
+      "description": "Alătură-te noua conferință anuală de tehnologie luna aceasta. Înregistrează-te acum pentru a-ți asigura locul!",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/034/218/616/small/leadership-conference-presentation-diverse-audience-background-with-empty-space-for-text-photo.jpg",
+      "date": "1 ianuarie 2026"
+    },
+    {
+      "id": 4,
+      "title": "Actualizări Bibliotecă",
+      "description": "Noi cărți și resurse digitale au fost adăugate la bibliotecă. Explorează ultimele colecții.",
+      "image": "https://t4.ftcdn.net/jpg/06/28/30/41/360_F_628304123_IDQBKBHPWPIu2lccIyaLbFAmbi0IoNMA.jpg",
+      "date": "28 decembrie 2025"
+    },
+    {
+      "id": 5,
+      "title": "Oportunități de Bursă",
+      "description": "Aplică acum pentru bursele noastre pe bază de merit. Termenul limită este 15 februarie 2026.",
+      "image": "https://cdn.adh.reperio.news/image-f/fd801809-1e71-494a-a886-51fe3e7ca6cb/index.jpeg?p=f%3Djpeg%26w%3D1200%26h%3D630%26r%3Dcover",
+      "date": "25 decembrie 2025"
+    }
+  ]
+}
