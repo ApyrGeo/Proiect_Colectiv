@@ -7,7 +7,7 @@ const useCustomRouting = () => {
       new Map<UserRole, string[]>([
         [UserRole.STUDENT, ["grades", "timetable", "contracts", "profile", "exam"]],
         [UserRole.TEACHER, ["profile", "grades", "exam"]],
-        [UserRole.ADMIN, ["profile", "import-users", "import-promotion"]],
+        [UserRole.ADMIN, ["profile", "import-users", "import-promotion", "add-teacher"]],
       ]),
     []
   );

@@ -40,6 +40,10 @@ export function getAppMenus() {
               title: "Import promotion",
               url: "/import-promotion",
             },
+            {
+              title: "Add teacher",
+              url: "/add-teacher",
+            },
           ],
         },
       ],

@@ -90,7 +90,7 @@ const ImportUsersPage = () => {
           color="primary"
           size="small"
           component="a"
-          href="/add-bulk-users-template.csv"
+          href="/import-users-template.csv"
           download
           className="create-users-template-button"
         >
