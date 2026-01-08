@@ -1,0 +1,127 @@
+.create-users-page {
+  padding: 40px;
+  color: var(--profile-text-light);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.create-users-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.create-users-subtext {
+  color: var(--profile-text-muted);
+  margin-bottom: 24px;
+}
+
+.create-users-card {
+  background: var(--profile-card-bg) !important;
+  border-radius: var(--profile-radius) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.create-users-template-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.create-users-template-text {
+  color: var(--profile-text-muted);
+}
+
+.create-users-template-button {
+  text-transform: none;
+}
+
+.create-users-upload-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.create-users-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.create-users-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.create-users-label {
+  font-size: 14px;
+  color: var(--profile-text-muted);
+}
+
+.create-users-file-name {
+  font-size: 14px;
+  color: var(--profile-text-light);
+  max-width: 320px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.create-users-upload-button {
+  white-space: nowrap;
+  text-transform: none !important;
+  border-radius: 6px !important;
+  padding: 8px 20px !important;
+  font-weight: 600 !important;
+}
+
+.create-users-browse-button {
+  text-transform: none;
+  border-radius: var(--profile-radius);
+}
+
+.create-users-results {
+  margin-top: 16px;
+}
+
+.create-users-results-title {
+  margin-bottom: 12px !important;
+  color: var(--profile-text-light);
+}
+
+.create-users-table-wrapper {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.create-users-table-wrapper table {
+  color: var(--profile-text-light);
+}
+
+.create-users-table-wrapper th,
+.create-users-table-wrapper td {
+  color: var(--profile-text-light);
+}
+
+.create-users-row-error {
+  background-color: rgba(255, 99, 132, 0.18);
+  color: var(--profile-text-light);
+}
+
+.create-users-row-success {
+  background-color: rgba(0, 200, 160, 0.16);
+  color: var(--profile-text-light);
+}
+
+@media (max-width: 768px) {
+  .create-users-upload-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

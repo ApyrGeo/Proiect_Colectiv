@@ -338,14 +338,47 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         using var csv = new CsvReader(reader, config);
         csv.Context.RegisterClassMap<InternalUserPostDTOMap>();
-        var records = csv.GetRecords<InternalUserPostDTO>().ToList();
 
-        for (int i = 0; i < records.Count; i++)
+        try
         {
-            dtoList.Add((i + 2, records[i]));
-        }
+            if (!csv.Read())
+            {
+                throw new EntityValidationException(["CSV file is empty."]);
+            }
 
-        return dtoList;
+            csv.ReadHeader();
+            var headers = csv.HeaderRecord ?? [];
+            var headerSet = new HashSet<string>(headers, StringComparer.InvariantCultureIgnoreCase);
+
+            var map = new InternalUserPostDTOMap();
+            var expectedSamples = map.MemberMaps
+                .Select(m => m.Data.Names.FirstOrDefault())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+
+            var anyMappedHeaderPresent = map.MemberMaps
+                .SelectMany(m => m.Data.Names)
+                .Any(name => headerSet.Contains(name));
+
+            if (!anyMappedHeaderPresent)
+            {
+                var sampleList = expectedSamples.Count > 0 ? string.Join(", ", expectedSamples) : "";
+                throw new EntityValidationException([$"CSV headers are invalid or missing. Expected headers: {sampleList}."]);
+            }
+
+            var records = csv.GetRecords<InternalUserPostDTO>().ToList();
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                dtoList.Add((i + 2, records[i]));
+            }
+
+            return dtoList;
+        }
+        catch (CsvHelperException ex)
+        {
+            throw new EntityValidationException([$"Failed to parse CSV file: {ex.Message}"]);
+        }
     }
 
     private static List<(int Row, InternalUserPostDTO dto)> ParseUserExcelFile(IFormFile file)
