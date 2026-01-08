@@ -25,6 +25,7 @@ const AddFacultyComponent: React.FC<AddFacultyProps> = (props) => {
     if (facultyName == "") return;
     postFaculty({ name: facultyName })
       .then(() => {
+        toast.success(t("Success"));
         props.refreshFaculties();
       })
       .catch(() => {
@@ -37,15 +38,17 @@ const AddFacultyComponent: React.FC<AddFacultyProps> = (props) => {
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>{t("NewFaculty")}</div>
-          <TextField
-            onChange={(event) => {
-              setFacultyName(event.target.value);
-            }}
-            id="outlined-basic"
-            label={t("FacultyName")}
-            variant="outlined"
-          />
-          <Button onClick={handleAddFaculty}>{t("AddFaculty")}</Button>
+          <div className="academic-row">
+            <TextField
+              onChange={(event) => {
+                setFacultyName(event.target.value);
+              }}
+              id="outlined-basic"
+              label={t("FacultyName")}
+              variant="outlined"
+            />
+            <Button onClick={handleAddFaculty}>{t("AddFaculty")}</Button>
+          </div>
         </Card>
       </div>
     </ThemeProvider>

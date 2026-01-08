@@ -42,7 +42,7 @@ export const theme = createTheme({
         root: {
           color: "#DCE3EB",
           background: "#0054A4",
-          margin: 25,
+          margin: 20,
           "&:hover": {
             background: "#326dae",
           },
@@ -54,6 +54,11 @@ export const theme = createTheme({
         root: {
           background: "#0f2439",
           padding: 20,
+          width: 500,
+          alignItems: "center",
+          justifyItems: "center",
+          alignContent: "center",
+          justifyContent: "center",
         },
       },
     },
@@ -64,15 +69,18 @@ export const theme = createTheme({
           // padding: 5,
           color: "#DCE3EB",
           borderColor: "#DCE3EB",
-          borderWidth: "2px",
+          borderWidth: "1px",
           ".MuiOutlinedInput-notchedOutline": {
             borderColor: "rgb(255,255,255)",
+            borderWidth: "1px",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
             borderColor: "rgb(255,255,255)",
+            borderWidth: "1px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: "rgb(255,255,255)",
+            borderWidth: "1px",
           },
         },
       },
@@ -82,7 +90,7 @@ export const theme = createTheme({
         root: {
           background: "#0f2439",
           borderColor: "#DCE3EB",
-          borderWidth: "2px",
+          borderWidth: "1px",
         },
       },
     },

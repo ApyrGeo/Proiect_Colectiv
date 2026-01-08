@@ -24,7 +24,7 @@ type AddGroupProps = {
 const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
   const [groupCount, setGroupCount] = useState(4);
   const [groupNames, setGroupNames] = useState<string[]>(["1", "2", "3", "4"]);
-  const [promId, setPromId] = useState<number | null>(null);
+  const [promId, setPromId] = useState<number | "">("");
   const { postGroup, postSubGroup } = useAdminAcademicsApi();
   const { t } = useTranslation();
   const [error, setError] = useState("");
@@ -37,6 +37,11 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
   const handleAddPromotion = () => {
     if (!promId) return;
 
+    postAllGroups(promId).then(() => {
+      toast.success("Success");
+    });
+  };
+  const postAllGroups = async (promId: number) => {
     for (let i = 0; i < groupCount; i++) handlePostGroup(groupNames[i], promId);
   };
 
@@ -55,30 +60,31 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>{t("NewGroups")}</div>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">{t("Promotion")}</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={promId}
+              label={t("Promotion")}
+              onChange={(event) => {
+                if (!event.target.value) return;
+                setPromId(Number(event.target.value));
+              }}
+            >
+              {props.faculties.map((f) =>
+                f.specialisations.map((s) =>
+                  s.promotions.map((g) => (
+                    <MenuItem value={g.id} key={g.id}>
+                      {s.name + ": " + g.startYear + " - " + g.endYear}
+                    </MenuItem>
+                  ))
+                )
+              )}
+            </Select>
+          </FormControl>
           <div className={"academic-row"}>
             <div className={"academic-column"}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">{t("Promotion")}</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label={t("Promotion")}
-                  onChange={(event) => {
-                    if (!event.target.value) return;
-                    setPromId(Number(event.target.value));
-                  }}
-                >
-                  {props.faculties.map((f) =>
-                    f.specialisations.map((s) =>
-                      s.promotions.map((g) => (
-                        <MenuItem value={g.id} key={g.id}>
-                          {s.name + ": " + g.startYear + " - " + g.endYear}
-                        </MenuItem>
-                      ))
-                    )
-                  )}
-                </Select>
-              </FormControl>
               <div className={"academic-label"}>{t("Count")}</div>
               <div className={"academic-slider"}>
                 <Slider

@@ -13,7 +13,7 @@ type AddPromotionProps = {
 
 const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
   const [promotionLenght, setPromotionLenght] = useState(3);
-  const [specId, setSpecId] = useState<number | null>(null);
+  const [specId, setSpecId] = useState<number | "">("");
 
   const { postPromotion } = useAdminAcademicsApi();
   const { t } = useTranslation();
@@ -31,6 +31,7 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
     const endYear = startYear + promotionLenght;
     postPromotion({ specialisationId: specId, startYear, endYear })
       .then(() => {
+        toast.success(t("Success"));
         props.refreshFaculties();
       })
       .catch(() => {
@@ -49,6 +50,7 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               label={t("Specialisation")}
+              value={specId}
               onChange={(event) => {
                 if (!event.target.value) return;
                 setSpecId(Number(event.target.value));
@@ -78,9 +80,7 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
                 />
               </div>
             </div>
-            <div className="academic-column">
-              <Button onClick={handleAddPromotion}>{t("AddPromotion")}</Button>
-            </div>
+            <Button onClick={handleAddPromotion}>{t("AddPromotion")}</Button>
           </div>
         </Card>
       </div>

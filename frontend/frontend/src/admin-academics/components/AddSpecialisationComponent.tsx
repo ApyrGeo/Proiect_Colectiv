@@ -15,7 +15,7 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
   const { t } = useTranslation();
 
   const [specName, setSpecName] = useState("");
-  const [selectedFacultyId, setSelectedFacultyId] = useState<number | null>(null);
+  const [selectedFacultyId, setSelectedFacultyId] = useState<number | "">("");
   const [error, setError] = useState("");
   useEffect(() => {
     if (error) {
@@ -24,10 +24,11 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
   }, [error, t]);
 
   const handleAddSpecialisation = () => {
-    if (specName == "" || selectedFacultyId == null) return;
+    if (specName == "" || selectedFacultyId == "") return;
 
     postSpecialisation({ name: specName, facultyId: selectedFacultyId })
       .then(() => {
+        toast.success(t("Success"));
         props.refreshFaculties();
       })
       .catch(() => {
@@ -42,7 +43,7 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
           <div className={"academic-title"}>
             {t("New")} {t("Specialisation")}
           </div>
-          <FormControl fullWidth={true}>
+          <FormControl fullWidth>
             <InputLabel>{t("Faculty")}</InputLabel>
             <Select
               label={t("Faculty")}
@@ -50,6 +51,7 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
                 if (!event.target.value) return;
                 setSelectedFacultyId(Number(event.target.value));
               }}
+              value={selectedFacultyId}
             >
               {props.faculties.map((f) => (
                 <MenuItem value={f.id} key={f.id}>
@@ -58,16 +60,18 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
               ))}
             </Select>
           </FormControl>
-          <TextField
-            onChange={(event) => {
-              setSpecName(event.target.value);
-            }}
-            key="spec-text"
-            id="spec-text"
-            label={t("SpecialisationName")}
-            variant="outlined"
-          />
-          <Button onClick={handleAddSpecialisation}>{t("AddSpecialisation")}</Button>
+          <div className="academic-row">
+            <TextField
+              onChange={(event) => {
+                setSpecName(event.target.value);
+              }}
+              key="spec-text"
+              id="spec-text"
+              label={t("SpecialisationName")}
+              variant="outlined"
+            />
+            <Button onClick={handleAddSpecialisation}>{t("AddSpecialisation")}</Button>
+          </div>
         </Card>
       </div>
     </ThemeProvider>

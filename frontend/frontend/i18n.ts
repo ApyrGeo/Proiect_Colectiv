@@ -105,6 +105,7 @@ i18n.use(initReactI18next).init({
         SpecialisationName: "Specialisation Name",
         Count: "Count",
         Length: "Length",
+        Success: "Success",
       },
     },
     ro: {
@@ -205,6 +206,7 @@ i18n.use(initReactI18next).init({
         SpecialisationName: "Numele Specializării",
         Count: "Număr",
         Length: "Lungime",
+        Success: "Succes",
       },
     },
     hu: {
@@ -305,6 +307,7 @@ i18n.use(initReactI18next).init({
         SpecialisationName: "Kar Neve",
         Count: "Mennyiség",
         Length: "Hossz",
+        Success: "Siker",
       },
     },
     de: {
@@ -405,6 +408,7 @@ i18n.use(initReactI18next).init({
         SpecialisationName: "Spezialisierungsname",
         Count: "Nummer",
         Length: "Länge",
+        Success: "Erfolg",
       },
     },
   },
