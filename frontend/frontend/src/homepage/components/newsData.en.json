@@ -1,0 +1,39 @@
+{
+  "newsItems": [
+    {
+      "id": 1,
+      "title": "New Timetable System",
+      "description": "Introducing the new timetable management system with real-time updates and better usability.",
+      "image": "https://www.utep.edu/extendeduniversity/utepconnect/blog/january-2018/schedule-1.jpg",
+      "date": "January 8, 2026"
+    },
+    {
+      "id": 2,
+      "title": "Grades Released",
+      "description": "Spring semester grades are now available in your profile. Check your academic performance.",
+      "image": "https://media.istockphoto.com/id/1167956299/vector/vector-a-plus-red-grade-mark.jpg?s=612x612&w=0&k=20&c=WYvJYy8hst-4jhc3YeyGcWWO3StKxkr0fKAY1cS_ggw=",
+      "date": "January 6, 2026"
+    },
+    {
+      "id": 3,
+      "title": "Campus Events",
+      "description": "Join us for the annual tech conference this month. Register now to secure your spot!",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/034/218/616/small/leadership-conference-presentation-diverse-audience-background-with-empty-space-for-text-photo.jpg",
+      "date": "January 1, 2026"
+    },
+    {
+      "id": 4,
+      "title": "Library Updates",
+      "description": "New books and digital resources have been added to the library. Explore the latest collections.",
+      "image": "https://t4.ftcdn.net/jpg/06/28/30/41/360_F_628304123_IDQBKBHPWPIu2lccIyaLbFAmbi0IoNMA.jpg",
+      "date": "December 28, 2025"
+    },
+    {
+      "id": 5,
+      "title": "Scholarship Opportunities",
+      "description": "Apply now for our merit-based scholarships. Deadline is February 15, 2026.",
+      "image": "https://hotnews.ro/wp-content/uploads/2024/04/image-2021-01-11-24531973-41-bursa-scolara.jpg",
+      "date": "December 25, 2025"
+    }
+  ]
+}

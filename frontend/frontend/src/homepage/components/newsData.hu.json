@@ -1,0 +1,39 @@
+{
+  "newsItems": [
+    {
+      "id": 1,
+      "title": "Új Órarend Rendszer",
+      "description": "Az új órarend-kezelési rendszer bemutatása valós idejű frissítésekkel és jobb használhatósággal.",
+      "image": "https://www.utep.edu/extendeduniversity/utepconnect/blog/january-2018/schedule-1.jpg",
+      "date": "2026. január 8."
+    },
+    {
+      "id": 2,
+      "title": "Jegyek Közzétéve",
+      "description": "A tavaszi félév jegyei mostantól elérhetők a profilodban. Nézd meg az akadémiai teljesítményed.",
+      "image": "https://media.istockphoto.com/id/1167956299/vector/vector-a-plus-red-grade-mark.jpg?s=612x612&w=0&k=20&c=WYvJYy8hst-4jhc3YeyGcWWO3StKxkr0fKAY1cS_ggw=",
+      "date": "2026. január 6."
+    },
+    {
+      "id": 3,
+      "title": "Kampuszesemények",
+      "description": "Csatlakozz az éves technológiai konferenciához ezen a hónapon. Regisztrálj most, hogy biztosítsd a helyedet!",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/034/218/616/small/leadership-conference-presentation-diverse-audience-background-with-empty-space-for-text-photo.jpg",
+      "date": "2026. január 1."
+    },
+    {
+      "id": 4,
+      "title": "Könyvtár Frissítések",
+      "description": "Új könyvek és digitális erőforrások kerültek a könyvtárba. Fedezd fel a legújabb gyűjteményeket.",
+      "image": "https://t4.ftcdn.net/jpg/06/28/30/41/360_F_628304123_IDQBKBHPWPIu2lccIyaLbFAmbi0IoNMA.jpg",
+      "date": "2025. december 28."
+    },
+    {
+      "id": 5,
+      "title": "Ösztöndíj Lehetőségek",
+      "description": "Pályázz most ösztöndíjainkra. A jelentkezési határidő 2026. február 15.",
+      "image": "https://hotnews.ro/wp-content/uploads/2024/04/image-2021-01-11-24531973-41-bursa-scolara.jpg",
+      "date": "2025. december 25."
+    }
+  ]
+}

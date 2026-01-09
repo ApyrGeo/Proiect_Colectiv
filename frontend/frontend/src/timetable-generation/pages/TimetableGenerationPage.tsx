@@ -91,7 +91,6 @@ const TimetableGenerationPage: React.FC = () => {
             value={selectedFaculty ?? undefined}
             onChange={(f) => {
               setSelectedFaculty(f);
-              console.log(f);
               setSpecialisations(f.value.specialisations);
               setSelectedSpecialisation(null);
               setYear(null);

@@ -1,0 +1,152 @@
+.admin-location-container {
+  max-width: 75%;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--background);
+  min-height: 100vh;
+}
+
+.main-container-wrapper {
+  background: var(--surface) !important;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.page-header {
+  text-align: center;
+  color: var(--accent);
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-selector {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.section-divider {
+  margin: 2rem 0;
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.location-form {
+  background: var(--background) !important;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  margin-bottom: 2rem;
+  border: 1px solid var(--background);
+}
+
+.form-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.map-container {
+  margin: 2rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--surface-light);
+  height: 500px;
+  width: 100%;
+  position: relative;
+}
+
+.map-container > div {
+  height: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  position: absolute !important;
+  left: 0;
+  top: 0;
+}
+
+.location-details {
+  background: var(--surface-light);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border-left: 4px solid var(--primary);
+}
+
+.location-details p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+.location-details p strong {
+  color: var(--accent);
+  margin-right: 0.5rem;
+}
+
+.classroom-section {
+  background: var(--background) !important;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid var(--background);
+  margin-bottom: 2rem;
+}
+
+.classroom-form {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.classroom-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.classroom-form .MuiButton-root {
+  height: 56px;
+  align-self: stretch;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Accent text and borders for inputs */
+.location-form .MuiInputBase-input,
+.classroom-section .MuiInputBase-input {
+  color: var(--accent);
+}
+
+.location-form .MuiInputLabel-root,
+.classroom-section .MuiInputLabel-root {
+  color: var(--accent);
+}
+
+.location-form .MuiOutlinedInput-notchedOutline,
+.classroom-section .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent);
+}
+
+.location-form .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.classroom-section .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent);
+}
+
+.location-form .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.classroom-section .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent);
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}

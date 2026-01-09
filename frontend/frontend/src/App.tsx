@@ -21,6 +21,7 @@ import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
 import TimetableGenerationPage from "./timetable-generation/pages/TimetableGenerationPage.tsx";
 import AdminLocationPage from "./admin/location/AdminLocationPage.tsx";
 import SubjectGenerationPage from "./admin/subject-generation/pages/SubjectGenerationPage.tsx";
+import AdminAcademicsPage from "./admin-academics/AdminAcademicsPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -45,6 +46,7 @@ const App = () => {
             <Route path={"/contracts"} Component={ContractsPage} />
             <Route path={"/profile"} Component={ProfilePage} />
             <Route path={"/exam"} Component={ExamPage} />
+            <Route path={"/admin/academics"} Component={AdminAcademicsPage} />
             <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage} />
             <Route path={"/admin/location"} Component={AdminLocationPage} />
             <Route path={"/admin/subject-generation"} Component={SubjectGenerationPage} />

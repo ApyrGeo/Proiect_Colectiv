@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="TrackForUBB.Repository.EFEntities.Classroom">
+    <Position X="5.5" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAKAAAAIAAQAAAAAAIAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\Classroom.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Location" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Hours" />
+      <Property Name="RegisteredExams" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Contract">
+    <Position X="6.75" Y="14.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAEAAAAAAAAAAIAAAAAAAAAAAAIgAAQAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\Contract.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Enrollment" />
+      <Property Name="Semester" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Subjects" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Enrollment">
+    <Position X="19.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAEEAAEA=</HashCode>
+      <FileName>EFEntities\Enrollment.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SubGroup" />
+      <Property Name="User" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Contracts" />
+      <Property Name="Grades" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.ExamEntry">
+    <Position X="11.5" Y="1.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IAACAAAAEAACBAAAAIEAAAgAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\ExamEntry.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Classroom" />
+      <Property Name="StudentGroup" />
+      <Property Name="Subject" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Faculty">
+    <Position X="22.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAgAAAEA=</HashCode>
+      <FileName>EFEntities\Faculty.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Specialisations" />
+      <Property Name="Teachers" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Grade">
+    <Position X="9.75" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAEAAAAAAAAIAAAAAAAAAAAAgAAQAgAAAAAAA=</HashCode>
+      <FileName>EFEntities\Grade.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Enrollment" />
+      <Property Name="Subject" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Hour">
+    <Position X="11.5" Y="7.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAECAAACMBAABAAAAIEACAgAAIIBAIAAAAAAAAAAGAA=</HashCode>
+      <FileName>EFEntities\Hour.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Classroom" />
+      <Property Name="Promotion" />
+      <Property Name="StudentGroup" />
+      <Property Name="StudentSubGroup" />
+      <Property Name="Subject" />
+      <Property Name="Teacher" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.GoogleMapsData">
+    <Position X="0.75" Y="8.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAEAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\Location.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Location">
+    <Position X="3.25" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAEAAAAQAAAAAAAACgAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\Location.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="GoogleMapsData" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Classrooms" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Promotion">
+    <Position X="18.75" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAgCAAAAAEEAAAAAIAACAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>EFEntities\Promotion.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Specialisation" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Semesters" />
+      <Property Name="StudentGroups" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.PromotionSemester">
+    <Position X="15.25" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAEACABAAAAAAAAAAEAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>EFEntities\PromotionSemester.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Promotion" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Subjects" />
+      <Property Name="Contracts" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Specialisation">
+    <Position X="20.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAQAAAAAIAAAAAAAAQAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>EFEntities\Specialisation.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Faculty" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Promotions" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.StudentGroup">
+    <Position X="17" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAACIBAAAAAAAAAAAAQAAAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\StudentGroup.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Promotion" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="RegisteredExams" />
+      <Property Name="StudentSubGroups" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.StudentSubGroup">
+    <Position X="14.75" Y="12.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAABAAAAAAAAAQAAAIAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\StudentSubGroup.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="StudentGroup" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Enrollments" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Subject">
+    <Position X="1.5" Y="1.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAiAgAAIAAQAAAAIAAAIAQAAACAAIAAAQAIAAEAQBA=</HashCode>
+      <FileName>EFEntities\Subject.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="HolderTeacher" />
+      <Property Name="Semester" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Contracts" />
+      <Property Name="Grades" />
+      <Property Name="Hours" />
+      <Property Name="RegisteredExams" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.Teacher">
+    <Position X="24.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAQAAAQAIAAAACAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EFEntities\Teacher.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="User" />
+      <Property Name="Faculty" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="HeldSubjects" />
+      <Property Name="Hours" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TrackForUBB.Repository.EFEntities.User">
+    <Position X="22" Y="11.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAACAECAACAAAAAAEAAAQAAAAAAAACAAAAAAAAAAAAk=</HashCode>
+      <FileName>EFEntities\User.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Enrollments" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
