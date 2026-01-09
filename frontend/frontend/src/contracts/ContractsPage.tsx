@@ -1,5 +1,5 @@
 import { structure, FieldCategory } from "./contractStructures.ts";
-import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useState }  from "react";
 import "./contracts.css";
 import useContractApi from "./useContractApi.ts";
 import { toast } from "react-hot-toast";
