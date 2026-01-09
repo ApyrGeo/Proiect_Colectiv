@@ -289,6 +289,12 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
                 item.Errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
             }
 
+            if (dto.Role != null && dto.Role != "" && Enum.Parse<UserRole>(dto.Role) == UserRole.Admin)
+            {
+                item.IsValid = false;
+                item.Errors.Add("Cannot create Admin users via bulk upload.");
+            }
+
             resultItems.Add(item);
         }
 
