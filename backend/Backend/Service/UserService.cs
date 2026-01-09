@@ -25,7 +25,7 @@ using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 namespace TrackForUBB.Service;
 
 public class UserService(IUserRepository userRepository, IAcademicRepository academicRepository, IMapper mapper, 
-    IValidatorFactory validator, IEmailProvider emailProvider, IConfiguration config, GraphServiceClient graph) : IUserService
+    IValidatorFactory validator, IEmailProvider emailProvider, IConfiguration config, GraphServiceClient? graph) : IUserService
 {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UserService));
     private readonly IUserRepository _userRepository = userRepository;
@@ -34,7 +34,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     private readonly IEmailProvider _emailProvider = emailProvider;
     private readonly IConfiguration _config = config;
     private readonly IMapper _mapper = mapper;
-    private readonly GraphServiceClient _graph = graph;
+    private readonly GraphServiceClient? _graph = graph;
 
     private async Task<(Guid ownerId, string tenantEmail)> CreateEntraUser(UserResponseDTO userDTO)
     {
@@ -120,6 +120,9 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
 
         _logger.InfoFormat("Saving user to repository: {0}", JsonSerializer.Serialize(userDTO));
         var addedUserDTO = await _userRepository.AddAsync(userDTO);
+
+        if (_graph is null)
+            return addedUserDTO;
 
         (var ownerId, var tenantEmail) = await CreateEntraUser(addedUserDTO);
         var updatedUserDTO = await _userRepository.UpdateEntraDetailsAsync(addedUserDTO.Id, ownerId, tenantEmail);

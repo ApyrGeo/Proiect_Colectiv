@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Graph;
+using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Moq;
 using TrackForUBB.Domain.DTOs;
@@ -25,8 +25,7 @@ public class UserServiceTests
     private readonly UserService _userService;
     private readonly Mock<IConfiguration> conf = new();
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
-    private readonly Mock<GraphServiceClient> _mockGraph;
-    private readonly Mock<IMapper> _mockMapper = new();
+    private static Mapper? mapper;
 
     public UserServiceTests()
     {
@@ -38,10 +37,19 @@ public class UserServiceTests
         _validatorFactory = mockValidatorFactory.Object;
 
         var mockAuthProvider = new Mock<IAuthenticationProvider>();
-        _mockGraph = new Mock<GraphServiceClient>(MockBehavior.Strict, mockAuthProvider.Object);
 
-        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, _mockMapper.Object, _validatorFactory,
-            _mockEmailProvider.Object, conf.Object, _mockGraph.Object);
+        if (mapper is null)
+        {
+            var loggerFactory = LoggerFactory.Create(cfg => cfg.AddConsole());
+            var mapperConfiguration = new MapperConfiguration(
+                cfg => cfg.AddProfile(new AutoMapperServiceProfile()),
+                loggerFactory
+            );
+            mapper = new Mapper(mapperConfiguration);
+        }
+
+        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, mapper, _validatorFactory,
+            _mockEmailProvider.Object, conf.Object, graph: null);
     }
 
     [Theory]
@@ -98,7 +106,6 @@ public class UserServiceTests
     [InlineData("Vanya", "", "+40759305094", "vandok@gmail.com", "Admin")]
     [InlineData("Vanya", "Doktorovic", "", "vandok@gmail.com", "Admin")]
     [InlineData("Vanya", "Doktorovic", "0759305094", "invalid-email", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
     [InlineData("Vanya", "Doktorovic", "+10adwd21234", "vandok@gmail.com", "Admin")]
     [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Lvbhk")]
     public async Task CreateUserInvalidData(string firstName, string lastName, string phone, string email,
@@ -114,8 +121,6 @@ public class UserServiceTests
         };
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _userService.CreateUser(userDTO));
-
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<InternalUserPostDTO>()), Times.Never);
 
         _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<InternalUserPostDTO>()), Times.Never);
     }
