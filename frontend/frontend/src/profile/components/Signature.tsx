@@ -5,7 +5,7 @@ import "../profile.css";
 import { useTranslation } from "react-i18next";
 
 const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?: number }>(
-  ({ className, strokeWidth = 2 }, ref) => {
+  ({ strokeWidth = 2 }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const strokesRef = useRef<Point[][]>([]);
     const drawing = useRef(false);
@@ -78,7 +78,7 @@ const Signature = forwardRef<SignatureHandle, { className?: string; strokeWidth?
       redraw();
     };
 
-    const handlePointerUp = (e: React.PointerEvent) => {
+    const handlePointerUp = (_: React.PointerEvent) => {
       drawing.current = false;
       redraw();
     };

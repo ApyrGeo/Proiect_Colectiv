@@ -1,6 +1,6 @@
 import EditableTimetableRow from "./EditableTimetableRow";
 import type { EditableHourRow, LocationProps } from "../props";
-import useTimetableGenerationApi from "../useTimetableGenerationApi.ts";
+import useTimetableGenerationApi from "../useTimetableGenerationApi";
 import { toast } from "react-hot-toast";
 import React, { useState } from "react";
 import type { TeacherProps } from "../../exam/props.ts";
@@ -58,32 +58,34 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshH
 
   return (
     <div className="timetable">
-      <table>
-        <thead>
-          <tr className="timetable-header">
-            <th>Day</th>
-            <th>Interval</th>
-            <th>Frequency</th>
-            <th>Category</th>
-            <th>Format</th>
-            <th>Location</th>
-            <th>Classroom</th>
-            <th>Subject</th>
-            <th>Teacher</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <EditableTimetableRow
-              key={row.id}
-              row={row}
-              onUpdate={updateRow}
-              teachers={teachers ?? []}
-              locations={locations ?? []}
-            />
-          ))}
-        </tbody>
-      </table>
+      <div className="timetable-scroll-container">
+        <table>
+          <thead>
+            <tr className="timetable-header">
+              <th>Day</th>
+              <th>Interval</th>
+              <th>Frequency</th>
+              <th>Category</th>
+              <th>Format</th>
+              <th>Location</th>
+              <th>Classroom</th>
+              <th>Subject</th>
+              <th>Teacher</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <EditableTimetableRow
+                key={row.id}
+                row={row}
+                onUpdate={(x, y) => x && updateRow(x, y)}
+                teachers={teachers ?? []}
+                locations={locations ?? []}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
