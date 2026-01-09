@@ -59,7 +59,6 @@ const SubjectGenerationPage: React.FC = () => {
   }, []);
 
   const fetchGroups = (specialisation: ComboOption<SpecialisationProps>) => {
-    console.log("Ich bin her");
     if (!specialisation) {
       setSemesters([]);
       return;
@@ -69,7 +68,6 @@ const SubjectGenerationPage: React.FC = () => {
     promotions.forEach((promotion) => {
       semesterTemp = semesterTemp.concat(promotion.semesters);
     });
-    console.log(semesterTemp);
     setSemesters(semesterTemp);
   };
 
@@ -86,16 +84,6 @@ const SubjectGenerationPage: React.FC = () => {
       toast("Optional package must be between 1 and 6 for Optional subjects.");
       return;
     }
-    console.log({
-      name,
-      code,
-      numberOfCredits: credits,
-      holderTeacherId: teacher.value.id,
-      semesterId: semester.value.id,
-      type: subjectType.value,
-      formationType: formation,
-      optionalPackage,
-    });
     api
       .addSubject({
         name,
