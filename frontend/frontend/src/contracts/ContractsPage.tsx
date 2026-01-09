@@ -1,5 +1,5 @@
-import { structure, FieldCategory, type OptionalField, type StudyYearField } from "./contractStructures.ts";
-import { useEffect, useState } from "react";
+import { structure, FieldCategory } from "./contractStructures.ts";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import "./contracts.css";
 import useContractApi from "./useContractApi.ts";
 import { toast } from "react-hot-toast";
@@ -7,33 +7,48 @@ import { useAuthContext } from "../auth/context/AuthContext.tsx";
 import useUserApi from "../profile/ProfileApi.ts";
 import { useTranslation } from "react-i18next";
 import { useOptionalSubjectsApi, usePromotionApi } from "./FieldsApi.ts";
-import type { PromotionProps } from "./props.ts";
+import { type PromotionSelect, type OptionalPackageProps } from "./props.ts";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { type OptionalsCallback, ContractOptionals } from "./ContractOptionals.tsx";
+
+function optionalFormKey(semester1or2: number, packageNumber: number) {
+  return `optional-semester-${semester1or2}-package-${packageNumber}`
+}
 
 const ContractsPage: React.FC = () => {
   const { getStudyContract } = useContractApi();
   const { userProps } = useAuthContext();
-  const { userEnrollments } = useAuthContext();
+  const userId = userProps?.id
+
   const { fetchUserProfile } = useUserApi();
-  const [, setUserData] = useState<Record<string, any>>({});
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const contract = structure[0];
   const [, setIsError] = useState(false);
   const { t } = useTranslation();
-  const [optionalFields, setOptionalFields] = useState<OptionalField[]>([]);
-  const [studyYearFields, setStudyYearFields] = useState<StudyYearField[]>([]);
   const { getOptionalPackages } = useOptionalSubjectsApi();
-  const allFields = [
-    ...contract.fields.filter((f) => f.category !== FieldCategory.CHECKBOX),
-    ...studyYearFields,
-    ...optionalFields,
-    ...contract.fields.filter((f) => f.category === FieldCategory.CHECKBOX),
-  ];
-  const { getPromotion } = usePromotionApi();
+  const { getPromotionsOfUser } = usePromotionApi();
+
+  const [promotionSelectData, setPromotionSelectData] = useState<PromotionSelect[]>([])
+
+  const [selectedPromotion, setSelectedPromotion] = useState<PromotionSelect | undefined>()
+  const [selectedYear, setSelectedYear] = useState(1)
+
+  const [allOptionalPackages, setAllOptionalPackages] = useState<OptionalPackageProps[]>([])
+  const [optionalsThisYear, setOptionalsThisYear] = useState<OptionalPackageProps[]>([])
+  
+  const [formValues, setFormValues] = useState<Record<string, any>>({})
+  const contract = structure[0]
+  const fieldsBeforeOptionals = contract.fields.filter(x => x.category != FieldCategory.CHECKBOX)
+  const fieldsAfterOptionals = contract.fields.filter(x => x.category == FieldCategory.CHECKBOX)
+  
+  const handleOptionalChange: OptionalsCallback = (data) => {
+    const optionalFormName = `optional-semester-${data.semester1or2}-package-${data.packageId}`
+    console.log('FormValues new2: ', formValues)
+    setFormValues(formValues => ({...formValues, [optionalFormName]: data.subjectId}))
+  }
 
   useEffect(() => {
-    if (!userProps?.id) return;
+    if (!userId) return;
 
-    fetchUserProfile(userProps.id)
+    fetchUserProfile(userId)
       .then((profile) => {
         const initialData = {
           fullName: `${profile.firstName} ${profile.lastName}`,
@@ -41,51 +56,50 @@ const ContractsPage: React.FC = () => {
           phone: profile.phoneNumber,
           signature: profile.signatureUrl,
         };
-
-        setUserData(initialData);
-        setFormValues(initialData);
+        setFormValues(formValues => ({...formValues, ...initialData}))
       })
       .catch(() => {
         toast.error("Error_loading_user_data");
       });
-  }, [userProps?.id]);
+  }, [userId]);
 
   useEffect(() => {
-    const promotionId = userEnrollments?.[0]?.promotionId;
-    if (!promotionId) return;
+    if (!userId)
+      return
 
-    getPromotion(promotionId).then((p: PromotionProps) => {
-      const duration = p.endYear - p.startYear;
-      console.log("Duration inside then:", duration);
-      const yearField: StudyYearField = {
-        name: "studyYear",
-        label: "Study year",
-        category: FieldCategory.STUDY_YEAR,
-        options: Array.from({ length: duration }, (_, i) => ({
-          label: `${t("Year")} ${i + 1}`,
-          value: i + 1,
-        })),
-      };
+    getPromotionsOfUser(userId).then(({ promotions }) => {
+      setPromotionSelectData(promotions)
+      if (promotions.length > 0)
+        setSelectedPromotion(promotions[0])
+    })
+  }, [userId])
 
-      setStudyYearFields([yearField]);
-    });
+  useEffect(() => {
+    if (!selectedPromotion?.id)
+    {
+      setAllOptionalPackages([])
+      return
+    }
 
-    getOptionalPackages(promotionId).then((packages) => {
-      console.log("PACKAGES:", packages);
-      const fields: OptionalField[] = packages.map((pkg) => ({
-        name: `optional_${pkg.packageId}`,
-        label: `${t("Optional")} ${pkg.packageId}`,
-        category: FieldCategory.SELECT,
-        packageId: pkg.packageId,
-        options: pkg.subjects.map((s) => ({
-          label: s.name,
-          value: s.id,
-        })),
-      }));
+    getOptionalPackages(selectedPromotion.id)
+      .then(setAllOptionalPackages)
+  }, [selectedPromotion?.id])
 
-      setOptionalFields(fields);
-    });
-  }, [userEnrollments?.[0]?.promotionId]);
+  useEffect(() => {
+    setSelectedYear(1)
+  }, [selectedPromotion])
+
+  useEffect(() => {
+    setOptionalsThisYear(allOptionalPackages.filter(x => x.yearNumber == selectedYear))
+
+    setFormValues(formValues => {
+      var result = {...formValues}
+      for (const key in result)
+      if (key.startsWith('optional-semester-'))
+        delete result[key]
+      return result
+    })
+  }, [selectedYear, allOptionalPackages])
 
   const validateForm = () => {
     for (const field of ["cnp", "serie", "numar", "fullName", "email", "phone"]) {
@@ -98,25 +112,31 @@ const ContractsPage: React.FC = () => {
       toast.error("You must accept the terms and conditions");
       return false;
     }
-    for (const optField of optionalFields) {
-      if (!formValues[optField.name]) {
-        toast.error(`You must select an optional subject for package ${optField.packageId}`);
+    for (const optField of optionalsThisYear) {
+      const key = optionalFormKey(optField.semester1or2, optField.packageId)
+      if (!formValues[key]) {
+        toast.error(`You must select an optional subject in semseter ${optField.semesterNumber} for package ${optField.packageId}`);
         return false;
       }
     }
-
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    console.log('FormValues: ', formValues)
+    console.log('FormValues: ', optionalsThisYear)
+    console.log('FormValues: ', selectedYear)
+  }, [formValues])
+
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    if (!userProps?.id || !userEnrollments?.[0]?.promotionId) return;
+    if (!userId || !selectedPromotion) return;
 
     getStudyContract(userProps.id, {
-      promotionId: userEnrollments?.[0]?.promotionId,
-      fields: formValues,
+      promotionId: selectedPromotion.id,
+      fields: {...formValues, yearNumber: selectedYear},
     })
       .then((response) => {
         const data = new Blob([response]);
@@ -136,13 +156,52 @@ const ContractsPage: React.FC = () => {
         toast.error(t("Error_generating_contract"));
         setIsError(true);
       });
-  };
+  }, [userId, selectedPromotion, formValues]);
 
   return (
     <div className={"contracts-page"}>
       <div className={"contract-title"}>{t(contract.title)}</div>
+      
+      <div className="contracts-promotion-select">
+        <FormControl>
+          <InputLabel id="contracts-select-promotion-label">{t("Promotion")}</InputLabel>
+          <Select
+            labelId="contracts-select-promotion-label"
+            id="contracts-select-promotion"
+            label={t("promotion")}
+            className="white"
+            onChange={x => setSelectedPromotion(promotionSelectData.filter(y => y.id == x.target.value)[0])}
+          >
+            {promotionSelectData?.map(x =>
+              <MenuItem value={x.id}>
+                {x.prettyName}
+              </MenuItem>
+            )}
+          </Select>
+        </FormControl>
+
+        <FormControl>
+          <InputLabel id="contracts-select-year-label">{t("Year")}</InputLabel>
+          <Select
+            labelId="contracts-select-year-label"
+            id="contracts-select-year"
+            label={t("year")}
+            name="year"
+            className="white"
+            value={selectedYear}
+            onChange={x => setSelectedYear(x.target.value)}
+          >
+            {Array.from({ length: selectedPromotion?.yearDuration ?? 1 }).map((_, i) =>
+              <MenuItem value={i + 1} key={`year-${i}`}>
+                {i + 1}
+              </MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </div>
+
       <form onSubmit={handleSubmit}>
-        {allFields.map((field) => {
+        {fieldsBeforeOptionals.map((field) => {
           if (field.category === FieldCategory.SELECT) {
             return (
               <label key={field.name}>
@@ -158,64 +217,12 @@ const ContractsPage: React.FC = () => {
                 >
                   <option value="">Select</option>
                   {"options" in field &&
-                    field.options.map((opt) => {
-                      if (typeof opt === "string") {
-                        return (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        );
-                      } else {
-                        return (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        );
-                      }
-                    })}
+                    field.options.map((opt) =>
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                  )}
                 </select>
-              </label>
-            );
-          }
-          if (field.category === FieldCategory.STUDY_YEAR) {
-            return (
-              <div key={field.name} className="radio-group">
-                <label className="radio-label">{t(field.label)}</label>
-
-                {field.options.map((opt) => (
-                  <label key={opt.value} className="radio-option">
-                    <input
-                      type="radio"
-                      name={field.name}
-                      value={opt.value}
-                      checked={formValues[field.name] === opt.value}
-                      onChange={() =>
-                        setFormValues((prev) => ({
-                          ...prev,
-                          [field.name]: opt.value,
-                        }))
-                      }
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            );
-          }
-          if (field.category === FieldCategory.CHECKBOX) {
-            return (
-              <label key={field.name}>
-                <label className={"checkbox-label"}>{t(field.label)}</label>
-                <input
-                  type="checkbox"
-                  checked={!!formValues[field.name]}
-                  onChange={(e) =>
-                    setFormValues((prev) => ({
-                      ...prev,
-                      [field.name]: e.target.checked,
-                    }))
-                  }
-                />
               </label>
             );
           }
@@ -263,6 +270,28 @@ const ContractsPage: React.FC = () => {
               />
             </label>
           );
+        })}
+
+        <ContractOptionals optionals={optionalsThisYear} updateOptional={handleOptionalChange} />
+
+        {fieldsAfterOptionals.map(field => {
+          if (field.category === FieldCategory.CHECKBOX) {
+            return (
+              <label key={field.name}>
+                <label className={"checkbox-label"}>{t(field.label)}</label>
+                <input
+                  type="checkbox"
+                  checked={!!formValues[field.name]}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      [field.name]: e.target.checked,
+                    }))
+                  }
+                />
+              </label>
+            );
+          }
         })}
 
         <button type="submit">{t("Generate")}</button>

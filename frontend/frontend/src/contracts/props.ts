@@ -13,7 +13,10 @@ export type SubjectProps = {
 
 export type OptionalPackageProps = {
   packageId: number;
+  yearNumber: number;
+  semesterNumber: number;
   subjects: SubjectProps[];
+  semester1or2: number;
 };
 
 export type PromotionProps = {
@@ -21,3 +24,9 @@ export type PromotionProps = {
   startYear: number;
   endYear: number;
 };
+
+export type PromotionSelect = {
+  id: number;
+  yearDuration: number;
+  prettyName: string;
+}

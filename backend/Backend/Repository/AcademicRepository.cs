@@ -295,4 +295,22 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Select(t => _mapper.Map<TeacherResponseDTO>(t))
             .ToListAsync();
     }
+
+    public async Task<PromotionOfUserResponse> GetPromotionsByUserId(int userId)
+    {
+        var result = await _context
+            .Enrollments
+            .Where(x => x.UserId == userId)
+            .Include(x => x.SubGroup)
+                .ThenInclude(x => x.StudentGroup)
+                    .ThenInclude(x => x.Promotion)
+                        .ThenInclude(x => x.Specialisation)
+            .Select(x => x.SubGroup.StudentGroup.Promotion)
+            .ToListAsync();
+
+        return new()
+        {
+            Promotions = _mapper.Map<List<PromotionOfUserResponse.Promotion>>(result),
+        };
+    }
 }

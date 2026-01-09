@@ -1,6 +1,6 @@
 import useApiClient from "../core/useApiClient";
 import { useCallback } from "react";
-import type { OptionalPackageProps } from "./props";
+import type { OptionalPackageProps, PromotionSelect } from "./props";
 
 export const useOptionalSubjectsApi = () => {
   const { axios } = useApiClient();
@@ -18,13 +18,13 @@ export const useOptionalSubjectsApi = () => {
 
 export const usePromotionApi = () => {
   const { axios } = useApiClient();
-  const getPromotion = useCallback(
-    async (promotionId: number) => {
-      const res = await axios.get(`/api/academics/promotions/${promotionId}`);
-      return res.data;
+  const getPromotionsOfUser = useCallback(
+    async (userId: number) => {
+      const res = await axios.get(`/api/academics/promotions/of-user/${userId}`);
+      return res.data as { promotions: PromotionSelect[] };
     },
     [axios]
   );
 
-  return { getPromotion };
+  return { getPromotionsOfUser };
 };

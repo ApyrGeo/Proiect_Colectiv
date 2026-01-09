@@ -479,10 +479,13 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             {
                 PackageId = g.Key.package,
                 SemesterNumber = g.Key.SemesterNumber,
+                Semester1or2 = 2 - g.Key.SemesterNumber % 2,
+                YearNumber = (g.Key.SemesterNumber + 1) / 2,
                 Subjects = _mapper.Map<List<SubjectResponseDTO>>(g.ToList())
             })
-            .OrderBy(x => x.SemesterNumber)
-            .ThenBy(x => x.PackageId)
+            .OrderBy(x => x.YearNumber)
+                .ThenBy(x => x.SemesterNumber)
+                    .ThenBy(x => x.PackageId)
             .ToList();
 
         return grouped;

@@ -27,6 +27,13 @@
     justify-content: flex-start;
 }
 
+.contracts-page label {
+    color: whitesmoke;
+}
+.contracts-page .white {
+    color: whitesmoke;
+}
+
 .contracts-page form label input{
     margin-left: 10px;
 }

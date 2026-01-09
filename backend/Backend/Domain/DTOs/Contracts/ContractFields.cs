@@ -19,20 +19,31 @@ public class ContractFields
     [JsonPropertyName("serie")]
     public required string IdCardSeries { get; set; }
 
-    [JsonPropertyName("optional_0")]
-    public int? Optional0Id { get; set; }
-    [JsonPropertyName("optional_1")]
-    public int? Optional1Id { get; set; }
-    [JsonPropertyName("optional_2")]
-    public int? Optional2Id { get; set; }
-    [JsonPropertyName("optional_3")]
-    public int? Optional3Id { get; set; }
-    [JsonPropertyName("optional_4")]
-    public int? Optional4Id { get; set; }
-    [JsonPropertyName("optional_5")]
-    public int? Optional5Id { get; set; }
-    [JsonPropertyName("optional_6")]
-    public int? Optional6Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-1")]
+    public int? OptionalSem1Pak1Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-2")]
+    public int? OptionalSem1Pak2Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-3")]
+    public int? OptionalSem1Pak3Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-4")]
+    public int? OptionalSem1Pak4Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-5")]
+    public int? OptionalSem1Pak5Id { get; set; }
+    [JsonPropertyName("optional-semester-1-package-6")]
+    public int? OptionalSem1Pak6Id { get; set; }
+
+    [JsonPropertyName("optional-semester-2-package-1")]
+    public int? OptionalSem2Pak1Id { get; set; }
+    [JsonPropertyName("optional-semester-2-package-2")]
+    public int? OptionalSem2Pak2Id { get; set; }
+    [JsonPropertyName("optional-semester-2-package-3")]
+    public int? OptionalSem2Pak3Id { get; set; }
+    [JsonPropertyName("optional-semester-2-package-4")]
+    public int? OptionalSem2Pak4Id { get; set; }
+    [JsonPropertyName("optional-semester-2-package-5")]
+    public int? OptionalSem2Pak5Id { get; set; }
+    [JsonPropertyName("optional-semester-2-package-6")]
+    public int? OptionalSem2Pak6Id { get; set; }
 
     [JsonPropertyName("phone")]
     public required string PhoneNumber { get; set; }

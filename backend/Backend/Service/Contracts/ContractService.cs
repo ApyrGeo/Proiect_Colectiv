@@ -84,16 +84,20 @@ public class ContractService(
             SignatureBase64 = fields.SignatureBase64,
 
             OptionalToSubjectCodesSem1 = ToOptionalDict([
-                fields.Optional0Id,
-                fields.Optional1Id,
-                //fields.Optional2Id,
-                fields.Optional3Id,
-                fields.Optional4Id,
-                fields.Optional5Id,
-                fields.Optional6Id,
+                fields.OptionalSem1Pak1Id,
+                fields.OptionalSem1Pak2Id,
+                fields.OptionalSem1Pak3Id,
+                fields.OptionalSem1Pak4Id,
+                fields.OptionalSem1Pak5Id,
+                fields.OptionalSem1Pak6Id,
             ]),
             OptionalToSubjectCodesSem2 = ToOptionalDict([
-                fields.Optional2Id,
+                fields.OptionalSem2Pak1Id,
+                fields.OptionalSem2Pak2Id,
+                fields.OptionalSem2Pak3Id,
+                fields.OptionalSem2Pak4Id,
+                fields.OptionalSem2Pak5Id,
+                fields.OptionalSem2Pak6Id,
             ]),
 
             PromotionId = request.PromotionId,

@@ -8,7 +8,6 @@ export enum FieldCategory {
   SERIE = "serie",
   CNP = "cnp",
   NUMAR = "numar",
-  STUDY_YEAR = "studyYear",
 }
 
 export type ContractFieldBase = {
@@ -33,10 +32,7 @@ type ContractField =
   | (ContractFieldBase & { category: FieldCategory.CNP })
   | (ContractFieldBase & { category: FieldCategory.SERIE })
   | (ContractFieldBase & { category: FieldCategory.NUMAR })
-  | (ContractFieldBase & {
-      category: FieldCategory.STUDY_YEAR;
-      options: { label: string; value: number }[];
-    });
+  ;
 
 type StudyContractCall = (userId: number) => Promise<string>;
 type ContractAPICall = StudyContractCall;
@@ -91,9 +87,4 @@ export type OptionalField = ContractFieldBase & {
   category: FieldCategory.SELECT;
   options: { label: string; value: number }[];
   packageId: number;
-};
-
-export type StudyYearField = ContractFieldBase & {
-  category: FieldCategory.STUDY_YEAR;
-  options: { label: string; value: number }[];
 };

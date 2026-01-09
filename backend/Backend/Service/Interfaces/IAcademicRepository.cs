@@ -28,4 +28,5 @@ public interface IAcademicRepository
     Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
     Task<List<FacultyResponseDTO>> GetAllFacultiesAsync();
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<PromotionOfUserResponse> GetPromotionsByUserId(int userId);
 }
