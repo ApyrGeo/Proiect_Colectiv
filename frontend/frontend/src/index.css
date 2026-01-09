@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css");
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -12,9 +14,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-    --sidebar-width: 240px;
-    --sidebar-width-min: 60px;
-    --current-sidebar-width: var(--sidebar-width);
+  --sidebar-width: 240px;
+  --sidebar-width-min: 60px;
+  --current-sidebar-width: var(--sidebar-width);
 
   --primary: #0054a4;
   --background: #0a1a2f;
