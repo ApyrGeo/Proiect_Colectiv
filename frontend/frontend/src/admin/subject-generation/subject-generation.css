@@ -114,7 +114,6 @@
   transform: none;
 }
 
-/* Tablet screens: single column layout */
 @media (max-width: 768px) {
   .subject-form-card {
     grid-template-columns: 1fr;
@@ -131,7 +130,6 @@
   }
 }
 
-/* Mobile screens: tighter spacing */
 @media (max-width: 480px) {
   .subject-generation-container {
     padding: 12px;
@@ -160,7 +158,6 @@
   }
 }
 
-/* Extra small screens */
 @media (max-width: 360px) {
   .subject-form-card {
     padding: 16px;

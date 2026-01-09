@@ -32,7 +32,7 @@ const useSubjectGenerationApi = () => {
 
   const addSubject = useCallback(
     async (subject: AddSubjectDto): Promise<void> => {
-      await axios.post(`/api/Academics/subjects`, subject);
+      await axios.post(`/api/Timetable/subjects/`, subject);
     },
     [axios]
   );
