@@ -21,7 +21,7 @@ public class ExamService(IExamRepository examRepository, ITimetableRepository ti
     public async Task DeleteExamEntry(int id)
     {
         var _ = await _examRepository.GetExamEntryByIdAsync(id)
-            ?? throw new UnprocessableContentException("Exam entry not found");
+            ?? throw new NotFoundException("Exam entry not found");
 
         _logger.Info($"Deleting exam entry with ID: {id}");
         await _examRepository.DeleteExamEntryAsync(id);
@@ -72,7 +72,7 @@ public class ExamService(IExamRepository examRepository, ITimetableRepository ti
     {
         _logger.Info($"Fetching exams for subject ID: {subjectId}");
         var _ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
-            ?? throw new UnprocessableContentException("Subject not found");
+            ?? throw new NotFoundException("Subject not found");
 
         return await _examRepository.GetExamsBySubjectId(subjectId);
     }
@@ -82,7 +82,7 @@ public class ExamService(IExamRepository examRepository, ITimetableRepository ti
         _logger.Info($"Fetching exams for student ID: {studentId}");
 
         var _ = await _userRepository.GetByIdAsync(studentId)
-            ?? throw new UnprocessableContentException("Student not found");
+            ?? throw new NotFoundException("Student not found");
 
         return await _examRepository.GetStudentExamsByStudentId(studentId);
     }

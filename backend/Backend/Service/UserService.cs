@@ -65,7 +65,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     public async Task<UserResponseDTO> GetUserById(int id)
     {
         _logger.InfoFormat("Getting user by ID: {0}", id);
-        var userDTO = await _userRepository.GetByIdAsync(id) ?? throw new UnprocessableContentException($"User with ID {id} not found.");
+        var userDTO = await _userRepository.GetByIdAsync(id) ?? throw new NotFoundException($"User with ID {id} not found.");
 
         _logger.InfoFormat("Mapping User to Response DTO");
 
@@ -81,7 +81,7 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     public async Task<UserProfileResponseDTO> GetUserProfileAsync(int userId)
     {
         _logger.InfoFormat("Getting user by ID: {0}", userId);
-        var userDTO = await _userRepository.GetProfileByIdAsync(userId) ?? throw new UnprocessableContentException($"User with ID {userId} not found.");
+        var userDTO = await _userRepository.GetProfileByIdAsync(userId) ?? throw new NotFoundException($"User with ID {userId} not found.");
         return userDTO;
     }
 
@@ -111,14 +111,14 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
     {
         _logger.InfoFormat("Getting user by owner ID: {0}", ownerId);
 
-        var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new UnprocessableContentException($"User with owner ID {ownerId} not found.");
+        var userDTO = await _userRepository.GetByOwnerIdAsync(ownerId) ?? throw new NotFoundException($"User with owner ID {ownerId} not found.");
 
         var response = new LoggedUserResponseDTO() { User = userDTO, Enrollments = [] };
         var enrollments = await _academicRepository.GetEnrollmentsByUserId(userDTO.Id);
 
         foreach (var enrollment in enrollments)
         {
-            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new UnprocessableContentException($"Enrollment with id {enrollment.Id} doesn't have consistent data");
+            var loggedUserEnrollment = await _academicRepository.GetFacultyByEnrollment(enrollment.Id) ?? throw new NotFoundException($"Enrollment with id {enrollment.Id} doesn't have consistent data");
 
             response.Enrollments.Add(loggedUserEnrollment);
         }

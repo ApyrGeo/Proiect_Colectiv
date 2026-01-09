@@ -34,7 +34,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         }
 
         var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
-                ?? throw new UnprocessableContentException("Teacher not found.");
+                ?? throw new NotFoundException("Teacher not found.");
         
         bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacher.Id, gradePostDto.SubjectId);
         if (!teaches)
@@ -49,10 +49,10 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     public async Task<GradeResponseDTO> UpdateGradeAsync(int teacherId, int gradeId, GradePostDTO dto)
     {
         var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
-                      ?? throw new UnprocessableContentException("Teacher not found.");
+                      ?? throw new NotFoundException("Teacher not found.");
 
         var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)
-                    ?? throw new UnprocessableContentException($"Grade with ID {gradeId} not found.");
+                    ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
 
         bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacher.Id, dto.SubjectId);
         if (!teaches)
@@ -66,10 +66,10 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     public async Task<GradeResponseDTO> PatchGradeAsync(int teacherId, int gradeId, int newValue)
     {
         var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
-                      ?? throw new UnprocessableContentException("Teacher not found.");
+                      ?? throw new NotFoundException("Teacher not found.");
 
         var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)
-                    ?? throw new UnprocessableContentException($"Grade with ID {gradeId} not found.");
+                    ?? throw new NotFoundException($"Grade with ID {gradeId} not found.");
 
         var updated = await _gradeRepository.PatchGradeValueAsync(gradeId, newValue);
 
@@ -82,10 +82,10 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
             userId, yearOfStudy, semester);
         
         var _ = await _userRepository.GetByIdAsync(userId)
-                ?? throw new UnprocessableContentException($"Student with ID {userId} not found.");
+                ?? throw new NotFoundException($"Student with ID {userId} not found.");
         
         var gradesDto = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfStudy, semester, specialisation)
-                        ?? throw new UnprocessableContentException($"Filtered grades for user with ID {userId} not found.");
+                        ?? throw new NotFoundException($"Filtered grades for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping filtered grade entity to DTO for user with ID {0}", userId);
 
@@ -99,7 +99,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         var grade = await _gradeRepository.GetGradeByIdAsync(gradeId);
 
         if (grade == null)
-            throw new UnprocessableContentException($"Grade with ID {gradeId} not found.");
+            throw new NotFoundException($"Grade with ID {gradeId} not found.");
 
         return grade;
     }
@@ -107,7 +107,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     public async Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int yearOfstudy, int semester, string specialisation)
     {
         var userGrades = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfstudy, semester, specialisation)
-                     ?? throw new UnprocessableContentException($"Grades for user with ID {userId} not found.");
+                     ?? throw new NotFoundException($"Grades for user with ID {userId} not found.");
         if (userGrades.Count == 0)
             return null;
 
@@ -187,10 +187,10 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     public async Task<SubjectGroupGradesDTO> GetSubjectGroupsAsync(int subjectId, int groupId)
     {
         var _ = await _academicRepository.GetGroupByIdAsync(groupId)
-                ?? throw new UnprocessableContentException($"Group with ID {groupId} not found.");
+                ?? throw new NotFoundException($"Group with ID {groupId} not found.");
 
         var __ = await _timetableRepository.GetSubjectByIdAsync(subjectId)
-                ?? throw new UnprocessableContentException($"Subject with ID {subjectId} not found.");
+                ?? throw new NotFoundException($"Subject with ID {subjectId} not found.");
 
         return await _gradeRepository.GetSubjectGroupGradesAsync(subjectId, groupId);
     }
