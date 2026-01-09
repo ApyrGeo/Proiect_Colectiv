@@ -30,6 +30,7 @@
 .combo-container {
   position: relative;
   display: inline-block;
+}
 
 .combo-input-wrapper {
   display: inline-flex;

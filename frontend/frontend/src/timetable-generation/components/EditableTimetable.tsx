@@ -78,7 +78,7 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshH
               <EditableTimetableRow
                 key={row.id}
                 row={row}
-                onUpdate={updateRow}
+                onUpdate={(x, y) => x && updateRow(x, y)}
                 teachers={teachers ?? []}
                 locations={locations ?? []}
               />

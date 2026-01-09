@@ -33,7 +33,7 @@ export function ComboBox<T>({ options, value, onChange, placeholder, disabled }:
       value={value ?? null}
       onChange={(v) => {
         setLastValid(v); // ✅ commit valid choice
-        onChange(v);
+        v && onChange(v);
         setQuery("");
       }}
       disabled={disabled}
