@@ -142,7 +142,7 @@ const TimetableGenerationPage: React.FC = () => {
             rows={rows}
             setRows={setRows}
             refreshHours={handleRefreshHours}
-            facultyId={selectedFaculty?.value ?? 0}
+            facultyId={selectedFaculty?.value.id ?? 0}
           />
         )}
       </div>
