@@ -29,6 +29,11 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
+          title: "Academics",
+          icon: "🏛️",
+          url: "/admin/academics",
+        },
+        {
           title: "Timetable",
           icon: "📆",
           url: "/admin/timetable-generation",
