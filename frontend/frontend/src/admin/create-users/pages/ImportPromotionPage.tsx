@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../import-users.css";
 import {
   Box,
@@ -26,6 +27,7 @@ import type { AxiosError } from "axios";
 
 const ImportPromotionPage = () => {
   const { uploadPromotionFile, getAllSpecialisations } = useImportPromotionApi();
+  const { t } = useTranslation();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +44,7 @@ const ImportPromotionPage = () => {
         setSpecialisations(specs);
       } catch (error) {
         console.error("Failed to load specialisations", error);
-        toast.error("Could not load specialisations.");
+        toast.error(t("createUsers.importPromotion.couldNotLoadSpecialisations"));
       }
     })();
   }, [getAllSpecialisations]);
@@ -55,17 +57,17 @@ const ImportPromotionPage = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error("Please select a file first.");
+      toast.error(t("createUsers.importPromotion.selectFileFirst"));
       return;
     }
 
     if (startYear === "" || endYear === "") {
-      toast.error("Please enter both start and end year.");
+      toast.error(t("createUsers.importPromotion.enterYears"));
       return;
     }
 
     if (!specialisation) {
-      toast.error("Please select a specialisation first.");
+      toast.error(t("createUsers.importPromotion.selectSpecialisationFirst"));
       return;
     }
 
@@ -81,9 +83,9 @@ const ImportPromotionPage = () => {
       });
 
       if (promotionResult.isValid) {
-        toast.success("Promotion and enrollments were created successfully.");
+        toast.success(t("createUsers.importPromotion.promotionCreated"));
       } else {
-        toast.error("Some enrollments could not be created. See details below.");
+        toast.error(t("createUsers.importPromotion.someEnrollmentsFailed"));
       }
 
       setResult(promotionResult);
@@ -94,16 +96,16 @@ const ImportPromotionPage = () => {
         const data = axiosError.response.data as BulkPromotionResult & { StatusCode?: number; Description?: string };
 
         if (Array.isArray((data as BulkPromotionResult).enrollments)) {
-          toast.error("Some enrollments could not be created. See details below.");
+          toast.error(t("createUsers.importPromotion.someEnrollmentsFailed"));
           setResult(data as BulkPromotionResult);
         } else if (typeof (data as { Description?: string }).Description === "string") {
           toast.error((data as { Description: string }).Description);
         } else {
-          toast.error("The uploaded file is not valid.");
+          toast.error(t("createUsers.importPromotion.invalidUploadedFile"));
         }
       } else {
         console.error("Failed to upload promotion file", error);
-        toast.error("Failed to process the file. Please try again.");
+        toast.error(t("createUsers.importPromotion.failedProcessFile"));
       }
     } finally {
       setIsLoading(false);
@@ -119,12 +121,12 @@ const ImportPromotionPage = () => {
 
   return (
     <div className="create-users-page">
-      <h1 className="create-users-title">Import promotion</h1>
-      <p className="create-users-subtext">Configure the promotion and upload a CSV with student enrollments.</p>
+      <h1 className="create-users-title">{t("createUsers.importPromotion.title")}</h1>
+      <p className="create-users-subtext">{t("createUsers.importPromotion.subtext")}</p>
 
       <Box className="create-users-template-row">
         <Typography variant="body2" className="create-users-template-text">
-          You can download a CSV template and fill it in before uploading.
+          {t("createUsers.importPromotion.templateText")}
         </Typography>
         <Button
           variant="outlined"
@@ -135,7 +137,7 @@ const ImportPromotionPage = () => {
           download
           className="create-users-template-button"
         >
-          Download template
+          {t("createUsers.importPromotion.downloadTemplate")}
         </Button>
       </Box>
 
@@ -143,7 +145,7 @@ const ImportPromotionPage = () => {
         <CardContent>
           <Box className="promotion-fields-row">
             <TextField
-              label="Start year"
+              label={t("createUsers.importPromotion.startYear")}
               type="number"
               size="small"
               value={startYear}
@@ -151,7 +153,7 @@ const ImportPromotionPage = () => {
               onChange={(e) => setStartYear(e.target.value === "" ? "" : Number(e.target.value))}
             />
             <TextField
-              label="End year"
+              label={t("createUsers.importPromotion.endYear")}
               type="number"
               size="small"
               value={endYear}
@@ -166,7 +168,9 @@ const ImportPromotionPage = () => {
               className="promotion-text-field"
               sx={{ width: 233 }}
               onChange={(_e, value) => setSpecialisation(value)}
-              renderInput={(params) => <TextField {...params} label="Specialisation" />}
+              renderInput={(params) => (
+                <TextField {...params} label={t("createUsers.importPromotion.specialisation")} />
+              )}
               slotProps={{
                 paper: {
                   sx: { minWidth: 320 },
@@ -175,7 +179,7 @@ const ImportPromotionPage = () => {
                   sx: { maxHeight: 320, overflowY: "auto" },
                 },
               }}
-              noOptionsText="No specialisations found"
+              noOptionsText={t("createUsers.importPromotion.noSpecialisations")}
             />
           </Box>
 
@@ -188,7 +192,7 @@ const ImportPromotionPage = () => {
                   disabled={isLoading}
                   className="create-users-browse-button"
                 >
-                  Browse
+                  {t("createUsers.importPromotion.browse")}
                   <input
                     id="promotion-file"
                     type="file"
@@ -197,7 +201,9 @@ const ImportPromotionPage = () => {
                     onChange={handleFileChange}
                   />
                 </Button>
-                <span className="create-users-file-name">{selectedFile ? selectedFile.name : "No file selected"}</span>
+                <span className="create-users-file-name">
+                  {selectedFile ? selectedFile.name : t("createUsers.importPromotion.noFileSelected")}
+                </span>
               </div>
             </div>
 
@@ -208,7 +214,7 @@ const ImportPromotionPage = () => {
               disabled={isLoading || !selectedFile}
               className="create-users-upload-button"
             >
-              {isLoading ? "Uploading..." : "Upload"}
+              {isLoading ? t("createUsers.importPromotion.uploading") : t("createUsers.importPromotion.upload")}
             </Button>
           </Box>
 
@@ -217,16 +223,17 @@ const ImportPromotionPage = () => {
           {result && result.enrollments && result.enrollments.length > 0 && (
             <Box className="create-users-results">
               <Typography variant="h6" className="create-users-results-title">
-                Enrollment validation {errorRows.length > 0 ? `(errors: ${errorRows.length})` : "(all valid)"}
+                {t("createUsers.importPromotion.enrollmentValidation")}{" "}
+                {errorRows.length > 0 ? `(errors: ${errorRows.length})` : "(all valid)"}
               </Typography>
               <div className="create-users-table-wrapper">
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Row</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Errors</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.row")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.email")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.status")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.errors")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -239,7 +246,11 @@ const ImportPromotionPage = () => {
                         <TableCell>
                           {enrollment.email === "" || enrollment.email === null ? "-" : enrollment.email}
                         </TableCell>
-                        <TableCell>{hasErrors(enrollment) ? "Invalid" : "Created"}</TableCell>
+                        <TableCell>
+                          {hasErrors(enrollment)
+                            ? t("createUsers.importUsers.statuses.invalid")
+                            : t("createUsers.importUsers.statuses.created")}
+                        </TableCell>
                         <TableCell>
                           {enrollment.errors && enrollment.errors.length > 0
                             ? enrollment.errors.map((err, idx) => <div key={idx}>{err}</div>)

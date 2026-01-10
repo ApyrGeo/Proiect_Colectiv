@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../import-users.css";
 import { Autocomplete, Box, Button, Card, CardContent, TextField, Typography } from "@mui/material";
 import { toast } from "react-hot-toast";
@@ -8,6 +9,7 @@ import type { AxiosError } from "axios";
 
 const AddTeacherPage = () => {
   const { getAllFaculties, getUsersByEmail, createTeacher } = useAddTeacherApi();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [faculties, setFaculties] = useState<FacultyResult[]>([]);
@@ -22,7 +24,7 @@ const AddTeacherPage = () => {
         setFaculties(allFaculties);
       } catch (error) {
         console.error("Failed to load faculties", error);
-        toast.error("Could not load faculties.");
+        toast.error(t("createUsers.addTeacher.messages.couldNotLoadFaculties"));
       }
     })();
   }, [getAllFaculties]);
@@ -31,12 +33,12 @@ const AddTeacherPage = () => {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
-      toast.error("Please enter a user email.");
+      toast.error(t("createUsers.addTeacher.messages.pleaseEnterEmail"));
       return;
     }
 
     if (!faculty) {
-      toast.error("Please select a faculty.");
+      toast.error(t("createUsers.addTeacher.messages.pleaseSelectFaculty"));
       return;
     }
 
@@ -46,7 +48,7 @@ const AddTeacherPage = () => {
     try {
       const users = await getUsersByEmail(trimmedEmail);
       if (users.length === 0) {
-        toast.error("No user found with this email.");
+        toast.error(t("createUsers.addTeacher.messages.noUserFound"));
         return;
       }
 
@@ -55,7 +57,7 @@ const AddTeacherPage = () => {
       const teacher = await createTeacher({ userId: matchedUser.id, facultyId: faculty.id });
 
       setCreatedTeacher(teacher);
-      toast.success("Teacher added successfully.");
+      toast.success(t("createUsers.addTeacher.messages.teacherAdded"));
     } catch (error) {
       const axiosError = error as AxiosError<unknown>;
 
@@ -64,11 +66,11 @@ const AddTeacherPage = () => {
         if (typeof data.Description === "string") {
           toast.error(data.Description);
         } else {
-          toast.error("The data is not valid.");
+          toast.error(t("createUsers.addTeacher.messages.dataNotValid"));
         }
       } else {
         console.error("Failed to create teacher", error);
-        toast.error("Failed to create teacher. Please try again.");
+        toast.error(t("createUsers.addTeacher.messages.createTeacherFailed"));
       }
     } finally {
       setIsLoading(false);
@@ -77,14 +79,14 @@ const AddTeacherPage = () => {
 
   return (
     <div className="create-users-page">
-      <h1 className="create-users-title">Add teacher</h1>
-      <p className="create-users-subtext">Assign an existing user to a faculty as a teacher.</p>
+      <h1 className="create-users-title">{t("createUsers.addTeacher.title")}</h1>
+      <p className="create-users-subtext">{t("createUsers.addTeacher.subtext")}</p>
 
       <Card className="create-users-card">
         <CardContent>
           <Box className="promotion-fields-row">
             <TextField
-              label="User email"
+              label={t("createUsers.addTeacher.userEmail")}
               type="email"
               size="small"
               value={email}
@@ -99,7 +101,7 @@ const AddTeacherPage = () => {
               className="promotion-text-field"
               sx={{ minWidth: 260 }}
               onChange={(_e, value) => setFaculty(value)}
-              renderInput={(params) => <TextField {...params} label="Faculty" />}
+              renderInput={(params) => <TextField {...params} label={t("createUsers.addTeacher.faculty")} />}
               slotProps={{
                 paper: {
                   sx: { minWidth: 320 },
@@ -108,7 +110,7 @@ const AddTeacherPage = () => {
                   sx: { maxHeight: 320, overflowY: "auto" },
                 },
               }}
-              noOptionsText="No faculties found"
+              noOptionsText={t("createUsers.addTeacher.noFaculties")}
             />
           </Box>
 
@@ -122,7 +124,7 @@ const AddTeacherPage = () => {
               disabled={isLoading}
               className="create-users-upload-button"
             >
-              {isLoading ? "Saving..." : "Add teacher"}
+              {isLoading ? t("createUsers.addTeacher.saving") : t("createUsers.addTeacher.addButton")}
             </Button>
           </Box>
 
@@ -131,14 +133,21 @@ const AddTeacherPage = () => {
           {createdTeacher && (
             <Box mt={3} className="promotion-summary">
               <Typography variant="h6" className="create-users-results-title">
-                Created teacher
+                {t("createUsers.addTeacher.createdTitle")}
               </Typography>
               <Typography variant="body2">
-                User: {createdTeacher.user.firstName} {createdTeacher.user.lastName} ({createdTeacher.user.email})
+                {t("createUsers.addTeacher.userLabel")} {createdTeacher.user.firstName} {createdTeacher.user.lastName} (
+                {createdTeacher.user.email})
               </Typography>
-              {faculty && <Typography variant="body2">Faculty: {faculty.name}</Typography>}
+              {faculty && (
+                <Typography variant="body2">
+                  {t("createUsers.addTeacher.facultyLabel")} {faculty.name}
+                </Typography>
+              )}
               {createdTeacher.subGroup && (
-                <Typography variant="body2">Subgroup: {createdTeacher.subGroup.name}</Typography>
+                <Typography variant="body2">
+                  {t("createUsers.addTeacher.subgroupLabel")} {createdTeacher.subGroup.name}
+                </Typography>
               )}
             </Box>
           )}

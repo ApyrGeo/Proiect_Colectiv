@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../import-users.css";
 import {
   Box,
@@ -19,6 +20,7 @@ import type { AxiosError } from "axios";
 
 const ImportUsersPage = () => {
   const { uploadUsersFile } = useImportUsersApi();
+  const { t } = useTranslation();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +34,7 @@ const ImportUsersPage = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error("Please select a file first.");
+      toast.error(t("createUsers.importUsers.selectFileFirst"));
       return;
     }
 
@@ -43,9 +45,9 @@ const ImportUsersPage = () => {
       const result = await uploadUsersFile(selectedFile);
 
       if (result.isValid) {
-        toast.success("All users were created successfully.");
+        toast.success(t("createUsers.importUsers.allCreated"));
       } else {
-        toast.error("Some users could not be created. See details below.");
+        toast.error(t("createUsers.importUsers.someFailed"));
       }
 
       setResults(result.users);
@@ -56,16 +58,16 @@ const ImportUsersPage = () => {
         const data = axiosError.response.data as BulkUserResult & { StatusCode?: number; Description?: string };
 
         if (Array.isArray((data as BulkUserResult).users)) {
-          toast.error("Some users could not be created. See details below.");
+          toast.error(t("createUsers.importUsers.someFailed"));
           setResults((data as BulkUserResult).users);
         } else if (typeof (data as { Description?: string }).Description === "string") {
           toast.error((data as { Description: string }).Description);
         } else {
-          toast.error("The uploaded file is not valid.");
+          toast.error(t("createUsers.importUsers.invalidUploadedFile"));
         }
       } else {
         console.error("Failed to upload users file", error);
-        toast.error("Failed to process the file. Please try again.");
+        toast.error(t("createUsers.importUsers.failedProcessFile"));
       }
     } finally {
       setIsLoading(false);
@@ -78,12 +80,12 @@ const ImportUsersPage = () => {
 
   return (
     <div className="create-users-page">
-      <h1 className="create-users-title">Create Users</h1>
-      <p className="create-users-subtext">Upload an Excel or CSV file with user information.</p>
+      <h1 className="create-users-title">{t("createUsers.importUsers.title")}</h1>
+      <p className="create-users-subtext">{t("createUsers.importUsers.subtext")}</p>
 
       <Box className="create-users-template-row">
         <Typography variant="body2" className="create-users-template-text">
-          You can download a CSV template and fill it in before uploading.
+          {t("createUsers.importUsers.templateText")}
         </Typography>
         <Button
           variant="outlined"
@@ -94,7 +96,7 @@ const ImportUsersPage = () => {
           download
           className="create-users-template-button"
         >
-          Download template
+          {t("createUsers.importUsers.downloadTemplate")}
         </Button>
       </Box>
 
@@ -109,7 +111,7 @@ const ImportUsersPage = () => {
                   disabled={isLoading}
                   className="create-users-browse-button"
                 >
-                  Browse
+                  {t("createUsers.importUsers.browse")}
                   <input
                     id="users-file"
                     type="file"
@@ -118,7 +120,9 @@ const ImportUsersPage = () => {
                     onChange={handleFileChange}
                   />
                 </Button>
-                <span className="create-users-file-name">{selectedFile ? selectedFile.name : "No file selected"}</span>
+                <span className="create-users-file-name">
+                  {selectedFile ? selectedFile.name : t("createUsers.importUsers.noFileSelected")}
+                </span>
               </div>
             </div>
 
@@ -129,7 +133,7 @@ const ImportUsersPage = () => {
               disabled={isLoading || !selectedFile}
               className="create-users-upload-button"
             >
-              {isLoading ? "Uploading..." : "Upload"}
+              {isLoading ? t("createUsers.importUsers.uploading") : t("createUsers.importUsers.upload")}
             </Button>
           </Box>
 
@@ -138,16 +142,17 @@ const ImportUsersPage = () => {
           {results && results.length > 0 && (
             <Box className="create-users-results">
               <Typography variant="h6" className="create-users-results-title">
-                Validation results {errorRows.length > 0 ? `(errors: ${errorRows.length})` : "(all valid)"}
+                {t("createUsers.importUsers.validationResults")}{" "}
+                {errorRows.length > 0 ? `(errors: ${errorRows.length})` : "(all valid)"}
               </Typography>
               <div className="create-users-table-wrapper">
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Row</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Errors</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.row")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.email")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.status")}</TableCell>
+                      <TableCell>{t("createUsers.importUsers.table.errors")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -158,7 +163,11 @@ const ImportUsersPage = () => {
                       >
                         <TableCell>{user.row}</TableCell>
                         <TableCell>{user.email === "" || user.email === null ? "-" : user.email}</TableCell>
-                        <TableCell>{hasErrors(user) ? "Invalid" : "Created"}</TableCell>
+                        <TableCell>
+                          {hasErrors(user)
+                            ? t("createUsers.importUsers.statuses.invalid")
+                            : t("createUsers.importUsers.statuses.created")}
+                        </TableCell>
                         <TableCell>
                           {user.errors && user.errors.length > 0
                             ? user.errors.map((err, idx) => <div key={idx}>{err}</div>)

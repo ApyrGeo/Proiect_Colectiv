@@ -39,6 +39,16 @@ export function getAppMenus() {
           url: "/admin/timetable-generation",
         },
         {
+          title: "Location",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
+          title: "Subject",
+          icon: "📚",
+          url: "/admin/subject-generation",
+        },
+        {
           title: "Add users",
           icon: "➕",
           submenu: [
@@ -55,16 +65,6 @@ export function getAppMenus() {
               url: "/admin/add-teacher",
             },
           ],
-        },
-        {
-          title: "Location",
-          icon: "📍",
-          url: "/admin/location",
-        },
-        {
-          title: "Subject",
-          icon: "📚",
-          url: "/admin/subject-generation",
         },
       ],
     },
