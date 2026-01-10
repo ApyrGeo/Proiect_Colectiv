@@ -1,6 +1,6 @@
 /* File: `frontend/frontend/src/admin/subject-generation/subject-generation.css` */
 
-.container{
+.container {
   display: flex;
 }
 
@@ -11,7 +11,7 @@
   font-weight: 700;
 }
 
-.subject-page{
+.subject-page {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -52,7 +52,34 @@
   opacity: 0.9;
 }
 
-.combo-input{
+/* Subject page comboboxes expand on hover */
+.subject-form-group .combo-container:hover {
+  width: max-content;
+}
+
+.subject-form-group .combo-container:hover .combo-input {
+  width: max-content;
+  max-width: none;
+}
+
+.subject-form-group .combo-container:hover .combo-options {
+  max-width: max-content;
+}
+
+.subject-filter .combo-container:hover {
+  width: max-content;
+}
+
+.subject-filter .combo-container:hover .combo-input {
+  width: max-content;
+  max-width: none;
+}
+
+.subject-filter .combo-container:hover .combo-options {
+  max-width: max-content;
+}
+
+.combo-input {
   padding: 10px 14px;
 }
 
@@ -66,7 +93,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.95rem;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .subject-form-input:focus,
@@ -95,7 +124,9 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
   margin-top: 8px;
 }
 

@@ -218,53 +218,14 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
     {
         _logger.InfoFormat("Fetching groups by subject ID: {0}", subjectId);
 
-        var subjectEnrollmentCounts = await _context.Subjects
-            .Where(s => s.Id == subjectId)
-            .SelectMany(s => s.Contracts)
-            .Select(c => c.Enrollment)
-            .Where(e => e != null)
-            .GroupBy(e => e.SubGroup.StudentGroupId)
-            .ToDictionaryAsync(g => g.Key, g => g.Count());
+        var subject = await _context.Subjects
+            .Include(s => s.Semester)
+                .ThenInclude(sem => sem.Promotion)
+                    .ThenInclude(p => p.StudentGroups)
+                        .ThenInclude(g => g.StudentSubGroups)
+            .FirstOrDefaultAsync(s => s.Id == subjectId);
 
-        if (subjectEnrollmentCounts.Count == 0)
-            return [];
-
-        var studentGroupIds = subjectEnrollmentCounts.Keys.ToList();
-
-        var totalEnrollmentCounts = await _context.Groups
-            .Where(g => studentGroupIds.Contains(g.Id))
-            .Include(g => g.StudentSubGroups)
-                .ThenInclude(sg => sg.Enrollments)
-            .ToDictionaryAsync(
-                g => g.Id,
-                g => g.StudentSubGroups.Sum(sg => sg.Enrollments.Count)
-            );
-
-        const double thresholdFraction = 0;
-
-        var filteredGroupIds = subjectEnrollmentCounts
-            .Where(kvp =>
-            {
-                var groupId = kvp.Key;
-                var subjectCount = kvp.Value;
-                var total = totalEnrollmentCounts.GetValueOrDefault(groupId, 0);
-                return total > 0 && (double)subjectCount / total > thresholdFraction;
-            })
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        if (!filteredGroupIds.Any())
-            return [];
-
-        var filteredGroups = await _context.Groups
-            .Where(g => filteredGroupIds.Contains(g.Id))
-            .Include(g => g.StudentSubGroups)
-            .Include(g => g.Promotion)
-                .ThenInclude(p => p.Specialisation)
-                    .ThenInclude(s => s.Faculty)
-            .ToListAsync();
-
-        return _mapper.Map<List<StudentGroupResponseDTO>>(filteredGroups);
+        return _mapper.Map<List<StudentGroupResponseDTO>>(subject!.Semester.Promotion.StudentGroups);
     }
 
     public async Task<HourResponseDTO?> GetHourByIdAsync(int id)

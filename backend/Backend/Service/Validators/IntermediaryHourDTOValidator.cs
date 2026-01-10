@@ -37,24 +37,32 @@ public class IntermediaryHourDTOValidator : AbstractValidator<IntermediaryHourDT
     {
         if (dto.HourInterval == "00:00-00:00")
             return false;
-        
+
         return existingHours.Any(h =>
         {
             if (h.Id == dto.Id)
                 return false;
 
-            if (!Enum.TryParse<HourDay>(h.Day, ignoreCase: true, out var existingDay) || existingDay != dto.Day)
+            if (h.HourInterval == "00:00-00:00")
                 return false;
 
-            if (h.HourInterval != dto.HourInterval)
+            if (!Enum.TryParse<HourDay>(h.Day, ignoreCase: true, out var existingDay))
+                return false;
+
+            if (existingDay != dto.Day)
+                return false;
+
+            if (!string.Equals(h.HourInterval, dto.HourInterval, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             if (!Enum.TryParse<HourFrequency>(h.Frequency, ignoreCase: true, out var existingFrequency))
                 return false;
 
-            return dto.Frequency == HourFrequency.Weekly
+            bool hasFrequencyConflict = dto.Frequency == HourFrequency.Weekly
                 || existingFrequency == HourFrequency.Weekly
                 || dto.Frequency == existingFrequency;
+
+            return hasFrequencyConflict;
         });
     }
 }

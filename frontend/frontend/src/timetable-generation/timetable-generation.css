@@ -1,10 +1,7 @@
-
-
 .timetable {
   width: 100%;
   max-width: 100%;
   height: 500px;
-
 
   overflow-x: auto;
   overflow-y: auto;
@@ -31,12 +28,11 @@
   background: var(--timetable-header-color);
 }
 
-
-
 .combo-container {
   position: relative;
   display: inline-block;
   max-width: 100%;
+  transition: width 0.3s ease-out;
 }
 
 .combo-input-wrapper {
@@ -45,15 +41,56 @@
   gap: 4px;
 }
 
+.combo-input {
+  width: 100%;
+  min-width: 6ch;
+  max-width: 14ch;
+  transition:
+    max-width 0.3s ease-out,
+    width 0.3s ease-out,
+    transform 0.2s ease;
 
-  .combo-input {
-    width: 100%;
-    min-width: 6ch;
-    max-width: 14ch;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+}
 
-    padding: 4px 6px;
-    font-size: 0.85rem;
-  }
+/* Table comboboxes expand on hover */
+.timetable-row td:hover .combo-container {
+  width: max-content !important;
+  transition: width 0.3s ease-in;
+}
+
+.timetable-row td:hover .combo-input {
+  width: auto !important;
+  max-width: 50ch !important;
+  transition:
+    max-width 0.3s ease-in,
+    width 0.3s ease-in;
+}
+
+.timetable-row td:hover .combo-options {
+  max-width: 50ch !important;
+  transition: max-width 0.3s ease-in;
+}
+
+/* Filter comboboxes at the top expand on hover */
+.timetable-filter .combo-container:hover {
+  width: max-content !important;
+  transition: width 0.3s ease-in;
+}
+
+.timetable-filter .combo-container:hover .combo-input {
+  width: auto !important;
+  max-width: 50ch !important;
+  transition:
+    max-width 0.3s ease-in,
+    width 0.3s ease-in;
+}
+
+.timetable-filter .combo-container:hover .combo-options {
+  max-width: 50ch !important;
+  transition: max-width 0.3s ease-in;
+}
 
 .combo-button {
   background: transparent;
@@ -71,6 +108,7 @@
   min-width: 100%;
   max-width: 20ch;
   max-height: 120px;
+  transition: max-width 0.6s ease-in;
 
   overflow-y: auto;
   background: var(--surface);
@@ -78,11 +116,16 @@
   z-index: 20;
 }
 
+.timetable-filter .combo-options {
+  max-width: max-content;
+}
 
 .combo-option {
   padding: 6px 10px;
   cursor: pointer;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .combo-option.active {
@@ -94,8 +137,6 @@
   padding: 6px 10px;
   color: rgba(255, 255, 255, 0.5);
 }
-
-
 
 .combo-options::-webkit-scrollbar {
   width: 6px;
