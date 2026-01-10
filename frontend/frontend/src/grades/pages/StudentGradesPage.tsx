@@ -40,7 +40,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
     };
 
     fetchSpecializations();
-  }, [id, selectedSpecialization]);
+  }, [getUserSpecializations, id, selectedSpecialization]);
 
   // Fetch grades + scholarship status
   useEffect(() => {
@@ -77,7 +77,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
         setLoading(false);
       }
     })();
-  }, [id, selectedSpecialization, selectedStudyYear, selectedSemester]);
+  }, [id, selectedSpecialization, selectedStudyYear, selectedSemester, getScholarshipStatusForUser, getGradesForUser]);
 
   // Toast errors
   useEffect(() => {

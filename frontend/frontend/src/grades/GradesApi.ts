@@ -89,9 +89,7 @@ const useGradesApi = () => {
 
   const getStudentByGroup = useCallback(
     async (subjectId: number, groupId: number): Promise<SubjectGradesResponse> => {
-      const response = await axios.get<SubjectGradesResponse>(
-        `${gradesUrl}/subject-groups`,
-        {
+      const response = await axios.get<SubjectGradesResponse>(`${gradesUrl}/subject-groups`, {
         params: { subjectId, groupId },
       });
       return response.data;
