@@ -48,6 +48,24 @@ export function getAppMenus() {
           icon: "📚",
           url: "/admin/subject-generation",
         },
+        {
+          title: "Add users",
+          icon: "➕",
+          submenu: [
+            {
+              title: "Import users",
+              url: "/admin/import-users",
+            },
+            {
+              title: "Import promotion",
+              url: "/admin/import-promotion",
+            },
+            {
+              title: "Add teacher",
+              url: "/admin/add-teacher",
+            },
+          ],
+        },
       ],
     },
   ];

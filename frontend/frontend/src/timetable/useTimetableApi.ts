@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
 import type { ClassroomProps, HourPropsDto, SubjectProps, TeacherProps } from "./props";
 
-type HourFilter = {
+export type HourFilter = {
   userId?: number;
   classroomId?: number;
   subjectId?: number;
@@ -137,6 +137,17 @@ const useTimetableApi = () => {
     [axios]
   );
 
+  const downloadIcs = useCallback(
+    async (filter: HourFilter) => {
+      const response = await axios.get(`${timetableUrl}/hours/download`, {
+        params: filter,
+        responseType: "blob",
+      });
+      return response.data;
+    },
+    [axios]
+  );
+
   return {
     getHours,
     getUserHours,
@@ -150,6 +161,7 @@ const useTimetableApi = () => {
     getTeacher,
     getSubject,
     getClassroom,
+    downloadIcs,
   };
 };
 

@@ -1,13 +1,13 @@
-﻿using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.DTOs;
 using FluentValidation;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.Interfaces;
 
 namespace TrackForUBB.Service.Validators;
 
-public class GroupYearPostDTOValidator : AbstractValidator<PromotionPostDTO>
+public class PromotionPostDTOValidator : AbstractValidator<PromotionPostDTO>
 {
-    public GroupYearPostDTOValidator(IAcademicRepository academicRepository)
+    public PromotionPostDTOValidator(IAcademicRepository academicRepository)
     {
         RuleFor(g => g.StartYear)
             .NotNull()

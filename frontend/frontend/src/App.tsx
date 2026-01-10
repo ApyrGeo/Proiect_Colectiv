@@ -22,6 +22,9 @@ import TimetableGenerationPage from "./timetable-generation/pages/TimetableGener
 import AdminLocationPage from "./admin/location/AdminLocationPage.tsx";
 import SubjectGenerationPage from "./admin/subject-generation/pages/SubjectGenerationPage.tsx";
 import AdminAcademicsPage from "./admin-academics/AdminAcademicsPage.tsx";
+import ImportUsersPage from "./admin/create-users/pages/ImportUsersPage.tsx";
+import ImportPromotionPage from "./admin/create-users/pages/ImportPromotionPage.tsx";
+import AddTeacherPage from "./admin/create-users/pages/AddTeacherPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
@@ -50,6 +53,9 @@ const App = () => {
             <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage} />
             <Route path={"/admin/location"} Component={AdminLocationPage} />
             <Route path={"/admin/subject-generation"} Component={SubjectGenerationPage} />
+            <Route path={"/admin/import-users"} Component={ImportUsersPage} />
+            <Route path={"/admin/import-promotion"} Component={ImportPromotionPage} />
+            <Route path={"/admin/add-teacher"} Component={AddTeacherPage} />
           </Route>
         </Routes>
 

@@ -10,7 +10,6 @@ using TrackForUBB.Domain.Utils;
 namespace TrackForUBB.Controller;
 
 [ApiController]
-[Authorize]
 [Route("api/[controller]")]
 public class TimetableController(ITimetableService service) : ControllerBase
 {
@@ -20,11 +19,6 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("subjects/{subjectId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    [Authorize(Roles = UserRolePermission.Student)]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
-    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
     public async Task<ActionResult<SubjectResponseDTO>> GetSubjectById([FromRoute] int subjectId)
     {
         _logger.InfoFormat("Fetching subject with id {0}", subjectId);
@@ -55,10 +49,6 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
     [Authorize(Roles = UserRolePermission.Admin)]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
-    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
     public async Task<ActionResult<SubjectResponseDTO>> CreateSubject([FromBody] SubjectPostDTO subjectPostDto)
     {
         _logger.InfoFormat("Creating new subject with name {0}", subjectPostDto.Name);
@@ -115,6 +105,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("locations")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<LocationResponseDTO>> CreateLocation([FromBody] LocationPostDTO dto)
     {
         _logger.InfoFormat("Creating new location with name {0}", dto.Name);
@@ -139,6 +130,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("classrooms")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<ClassroomResponseDTO>> CreateClassroom([FromBody] ClassroomPostDTO dto)
     {
         _logger.InfoFormat("Creating new classroom with name {0}", dto.Name);
@@ -188,6 +180,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpPost("hours")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<HourResponseDTO>> CreateHour([FromBody] HourPostDTO dto)
     {
         _logger.InfoFormat("Creating new hour {0}", JsonSerializer.Serialize(dto));
@@ -200,7 +193,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [HttpGet("hours/download")]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
-    public async Task<ActionResult<List<HourResponseDTO>>> DownloadIcs([FromQuery] HourFilter filter)
+    public async Task<ActionResult<FileContentResult>> DownloadIcs([FromQuery] HourFilter filter)
     {
         _logger.InfoFormat("Downloading ICS with filter {0}", JsonSerializer.Serialize(filter));
 

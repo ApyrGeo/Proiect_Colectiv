@@ -1,0 +1,3 @@
+FirstName,LastName,Email,PhoneNumber,Role
+Student,Example,student.example@gmoil.com,+40123123123,Student
+Teacher,Example,teacher.example@gmoil.com,+40123123123,Teacher

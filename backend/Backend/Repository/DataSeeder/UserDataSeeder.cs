@@ -63,6 +63,7 @@ public class UserDataSeeder
 			LastName = "User",
 			Email = "admin@example.com",
 			PhoneNumber = "+40 700 000 000",
+            TenantEmail = "not required",
 			Role = UserRole.Admin,
 			Enrollments = new List<Enrollment>()
 		};

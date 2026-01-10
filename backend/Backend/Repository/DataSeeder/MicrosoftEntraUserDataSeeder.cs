@@ -96,7 +96,6 @@ public class MicrosoftEntraUserDataSeeder(AcademicAppContext context, GraphServi
                 };
 
                 await _graph.Users[$"{student.Owner}"].AppRoleAssignments.PostAsync(appRoleAssigmentRequestBody);
-
             }
         }
 

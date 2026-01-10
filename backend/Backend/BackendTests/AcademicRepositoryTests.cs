@@ -142,6 +142,7 @@ public class AcademicRepositoryTests : IDisposable
             LastName = lastName,
             Email = $"{firstName}@mail.com",
             PhoneNumber = "+40988301069",
+            TenantEmail = "firstname.lastname@trackforubb.onmicrosoft.com",
             Role = UserRole.Admin
         };
         var faculty = new Faculty { Name = "FMI" };
@@ -184,6 +185,7 @@ public class AcademicRepositoryTests : IDisposable
             LastName = lastName,
             Email = $"{firstName}@mail.com",
             PhoneNumber = "+40988301069",
+            TenantEmail = "crazy? i was crazy once. but i am not crazy",
             Role = UserRole.Admin
         };
         var teacher = new Teacher { User = user, Faculty = faculty };

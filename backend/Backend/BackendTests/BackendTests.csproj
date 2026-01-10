@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="15.1.0" />
       <PackageReference Include="FluentAssertions" Version="8.8.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.10" />
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />

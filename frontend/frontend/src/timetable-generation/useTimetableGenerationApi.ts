@@ -1,10 +1,5 @@
 import type { TeacherProps } from "../exam/props";
-import type {
-  LocationProps,
-  FacultyProps,
-  TimeTableGenerationProps,
-  PutTimeTableGenerationDto,
-} from "./props";
+import type { LocationProps, FacultyProps, TimeTableGenerationProps, PutTimeTableGenerationDto } from "./props";
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient.ts";
 

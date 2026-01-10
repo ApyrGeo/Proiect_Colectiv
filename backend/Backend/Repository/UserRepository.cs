@@ -2,6 +2,7 @@ using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Service.Interfaces;
@@ -23,7 +24,7 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         return _mapper.Map<UserResponseDTO>(user);
     }
 
-    public async Task<UserResponseDTO> AddAsync(UserPostDTO user)
+    public async Task<UserResponseDTO> AddAsync(InternalUserPostDTO user)
     {
         _logger.InfoFormat("Adding new user with email: {0}", user.Email);
 
@@ -74,11 +75,18 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<UserResponseDTO>> GetAll()
+    public async Task<List<UserResponseDTO>> GetAll(string? email)
     {
         _logger.InfoFormat("Fetching all users");
 
-        var users = await _context.Users.ToListAsync();
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            query = query.Where(u => u.Email == email);
+        }
+
+        var users = await query.ToListAsync();
 
         return _mapper.Map<List<UserResponseDTO>>(users);
     }
@@ -114,5 +122,23 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Owner == ownerId);
 
         return _mapper.Map<UserResponseDTO>(user);
+    }
+
+    public async Task<UserResponseDTO> UpdateEntraDetailsAsync(int id, Guid ownerId, string tenantEmail)
+    {
+        _logger.InfoFormat("Updating user with id: {0}", id);
+        var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (entity == null)
+        {
+            throw new NotFoundException($"User with ID {id} not found.");
+        }
+
+        entity.Owner = ownerId;
+        entity.TenantEmail = tenantEmail;
+
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<UserResponseDTO>(entity);
     }
 }

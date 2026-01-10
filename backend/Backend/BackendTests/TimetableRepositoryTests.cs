@@ -204,6 +204,7 @@ public class TimetableRepositoryTests : IDisposable
                 LastName = "Doe",
                 Email = "john@uni.com",
                 PhoneNumber = "+40770111222",
+                TenantEmail = "john.doe@trackforubb.onmicrosoft.com",
                 Role = UserRole.Teacher
             },
             Faculty = faculty
@@ -252,6 +253,7 @@ public class TimetableRepositoryTests : IDisposable
             LastName = "san",
             Email = "radiosan@ubbcluj.ro",
             PhoneNumber = "-0981209843",
+            TenantEmail = "radio.san@trackforubb.onmicrosoft.com",
             Role = UserRole.Teacher,
         };
         return new()
