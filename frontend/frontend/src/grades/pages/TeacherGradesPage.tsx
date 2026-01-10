@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../grades.css";
+import "../gradesTeacher.css";
 import TableGlimmer from "../../components/loading/TableGlimmer";
 import type { TeacherProps } from "../../exam/props";
 import useGradesApi from "../GradesApi";
