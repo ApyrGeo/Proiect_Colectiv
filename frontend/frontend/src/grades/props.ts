@@ -104,3 +104,14 @@ export interface SubjectGradesResponse {
   studentGroup: StudentGroupProps;
   grades: GradeEntry[];
 }
+
+export interface SubjectProps {
+  name: string;
+  numberOfCredits: number;
+}
+
+export interface GradeItemProps {
+  id: string;
+  subject: SubjectProps;
+  value: number;
+}
