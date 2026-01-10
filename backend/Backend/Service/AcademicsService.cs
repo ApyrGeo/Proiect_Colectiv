@@ -1,18 +1,28 @@
+using AutoMapper;
+using AutoMapper.Configuration.Conventions;
+using ClosedXML.Excel;
+using CsvHelper;
+using CsvHelper.Configuration;
 using log4net;
-using TrackForUBB.Domain.DTOs;
-using TrackForUBB.Domain.Exceptions.Custom;
-using TrackForUBB.Service.Interfaces;
-using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using Microsoft.AspNetCore.Http;
+using System.Globalization;
 using System.Text.Json;
-using TrackForUBB.Service.Utils;
+using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.EmailService.Interfaces;
 using TrackForUBB.Service.EmailService.Models;
-using TrackForUBB.Controller.Interfaces;
-using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.FileHeaderMapper;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Utils;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
 namespace TrackForUBB.Service;
 
-public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, IValidatorFactory validatorFactory, IEmailProvider emailProvider) : IAcademicsService
+public class AcademicsService(IAcademicRepository academicRepository, IUserRepository userRepository, 
+    IValidatorFactory validatorFactory, IEmailProvider emailProvider, IMapper mapper) : IAcademicsService
 {
     private readonly IAcademicRepository _academicRepository = academicRepository;
     private readonly IUserRepository _userRepository = userRepository;
@@ -20,6 +30,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     private readonly ILog _logger = LogManager.GetLogger(typeof(AcademicsService));
     private readonly IValidatorFactory _validatorFactory = validatorFactory;
     private readonly IEmailProvider _emailProvider = emailProvider;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<FacultyResponseDTO> CreateFaculty(FacultyPostDTO facultyPostDto)
     {
@@ -233,8 +244,14 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Mapping teacher entity to DTO with ID {0}", id);
 
         return teacherDto;
-
 	}
+
+    public async Task<List<SpecialisationResponseDTO>> GetAllSpecialisations()
+    {
+        _logger.InfoFormat("Retrieving all specialisations from repository");
+
+        return await _academicRepository.GetAllSpecialisationsAsync();
+    }
 
     public async Task<EnrollmentResponseDTO?> GetEnrollmentById(int enrollmentId)
     {
@@ -276,5 +293,377 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
     {
         _logger.InfoFormat("Retrieving all teachers for faculty with ID {0}", facultyId);
         return _academicRepository.GetAllTeachersByFacultyId(facultyId);
+    }
+
+    public Task<PromotionOfUserResponse> GetPromotionsOfUser(int userId)
+    {
+        _logger.InfoFormat("Get promotions of user {0}", userId);
+        return _academicRepository.GetPromotionsByUserId(userId);
+    }
+
+    public async Task<BulkPromotionResultDTO> CreatePromotionBulk(PromotionPostDTO promotionDto, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            throw new EntityValidationException(["File is empty or not provided."]);
+        }
+
+        if (file.Length > 100_000_000)
+        {
+            throw new EntityValidationException(["File size exceeds the maximum limit of 100 MB."]);
+        }
+
+        var allowedExtensions = new[] { ".csv", ".xlsx", ".xls" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            throw new EntityValidationException(["Unsupported file type. Allowed: .csv, .xlsx"]);
+        }
+
+        var parseList = new List<(int Row, BulkEnrollmentItem Dto)>();
+
+        if (fileExtension == ".csv")
+        {
+            parseList = ParseUserCsvFile(file);
+        }
+        else
+        {
+            parseList = ParseUserExcelFile(file);
+        }
+        
+        var promotionValidator = _validatorFactory.Get<PromotionPostDTO>();
+        var promotionValidationResult = await promotionValidator.ValidateAsync(promotionDto);
+
+        if (!promotionValidationResult.IsValid)
+        {
+            throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(promotionValidationResult.Errors));
+        }
+
+        (var resultItems, var isValid) = await ValidateEnrollmentsFile(parseList, promotionDto);
+
+        if (!isValid)
+        {
+            return new BulkPromotionResultDTO { Enrollments = resultItems };
+        }
+
+        var finalItems = new List<BulkEnrollmentItemResultDTO>();
+        var enrollemntIdsByEmail = new Dictionary<string, int>();
+
+        var generatedPromotionDto = await GenerateBulkPromotionGroups(parseList, promotionDto);
+        var createdPromotion = await AddBulkPromotionAsync(generatedPromotionDto, enrollemntIdsByEmail);
+
+        foreach (var (row, dto) in parseList)
+        {
+            finalItems.Add(new BulkEnrollmentItemResultDTO
+            {
+                Row = row,
+                Email = dto.UserEmail,
+                IsValid = true,
+                CreatedEnrollmentId = enrollemntIdsByEmail[dto.UserEmail],
+            });
+        }
+
+        return new BulkPromotionResultDTO { Promotion = createdPromotion, Enrollments = finalItems };
+    }
+
+    private async Task<PromotionResponseDTO> AddBulkPromotionAsync(BulkPromotionPostDTO bulkDto, Dictionary<string, int> enrollmentIdsByEmail)
+    {
+        var promotionPost = new PromotionPostDTO
+        {
+            StartYear = bulkDto.StartYear,
+            EndYear = bulkDto.EndYear,
+            SpecialisationId = bulkDto.SpecialisationId
+        };
+
+        var createdPromotion = await CreatePromotion(promotionPost);
+
+        foreach (var group in bulkDto.Groups)
+        {
+            var groupPost = new StudentGroupPostDTO
+            {
+                Name = group.Name,
+                GroupYearId = createdPromotion.Id
+            };
+            var createdGroup = await CreateStudentGroup(groupPost);
+
+            foreach (var sub in group.SubGroups)
+            {
+                var subPost = new StudentSubGroupPostDTO
+                {
+                    Name = sub.Name,
+                    StudentGroupId = createdGroup.Id
+                };
+                var createdSub = await CreateStudentSubGroup(subPost);
+
+                foreach (var enrollment in sub.Enrollments)
+                {
+                    var user = await _userRepository.GetByEmailAsync(enrollment.UserEmail) 
+                        ?? throw new NotFoundException($"User with email {enrollment.UserEmail} not found.");
+
+                    var enrollmentPost = new EnrollmentPostDTO
+                    {
+                        SubGroupId = createdSub.Id,
+                        UserId = user.Id
+                    };
+
+                    var createdEnrollment = await CreateUserEnrollment(enrollmentPost);
+
+                    enrollmentIdsByEmail[enrollment.UserEmail] = createdEnrollment.Id;
+                }
+            }
+        }
+
+        createdPromotion = await GetPromotionById(createdPromotion.Id);
+
+        return createdPromotion;
+    }
+
+    private async Task<BulkPromotionPostDTO> GenerateBulkPromotionGroups(List<(int Row, BulkEnrollmentItem Dto)> enrollmentList, PromotionPostDTO promotionDto)
+    {
+        var enrollemtsCount = enrollmentList.Count;
+        enrollmentList.Sort((a, b) => string.Compare(a.Dto.UserEmail, b.Dto.UserEmail, StringComparison.OrdinalIgnoreCase));
+        var existingSpecialisation = await _academicRepository.GetSpecialisationByIdAsync(promotionDto.SpecialisationId) 
+            ?? throw new NotFoundException($"Specialisation with ID {promotionDto.SpecialisationId} not found.");
+
+        var groupNamePrefix = string.Concat(existingSpecialisation.Name
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => char.ToUpperInvariant(s[0])));
+
+        var numberOfGroups = (int)Math.Ceiling(enrollemtsCount / (decimal)Constants.MaxStudentsInGroup);
+
+        int GetNumberOfEnrollemntsInGroup(int groupIndex)
+        {
+            if (groupIndex < numberOfGroups - 1)
+            {
+                return Constants.MaxStudentsInGroup;
+            }
+            return enrollemtsCount - (Constants.MaxStudentsInGroup * (numberOfGroups - 1));
+        }
+
+        var groups = Enumerable.Range(1, numberOfGroups)
+            .Select((g, i) => new BulkGroupItem
+            {
+                Name = $"{groupNamePrefix}{i + 1}",
+                SubGroups = Enumerable.Range(1, GetNumberOfEnrollemntsInGroup(i) > Constants.MaxStudentsInSubGroup ? 2 : 1)
+                    .Select(sg => new BulkSubGroupItem
+                    {
+                        Name = $"{groupNamePrefix}{i + 1}/{sg}",
+                        Enrollments = []
+                    })
+                    .ToList()
+            })
+            .ToList();
+
+        // if you want to refactor this, be my guest
+        int groupIndex = 0;
+        foreach (var group in groups)
+        {
+            int subGroupIndex = 0;
+            foreach (var subGroup in group.SubGroups)
+            {
+                for (int i = (groupIndex * 2 + subGroupIndex) * Constants.MaxStudentsInSubGroup; 
+                    i < (groupIndex * 2 + subGroupIndex + 1) * Constants.MaxStudentsInSubGroup && i < enrollmentList.Count; i++)
+                {
+                    subGroup.Enrollments.Add(enrollmentList[i].Dto);
+                }
+                subGroupIndex++;
+            }
+            groupIndex++;
+        }
+
+        return new BulkPromotionPostDTO
+        {
+            StartYear = promotionDto.StartYear,
+            EndYear = promotionDto.EndYear,
+            SpecialisationId = promotionDto.SpecialisationId,
+            Groups = groups
+        };
+    }
+
+    private async Task<(List<BulkEnrollmentItemResultDTO> resultItems, bool isValid)>
+        ValidateEnrollmentsFile(List<(int Row, BulkEnrollmentItem Dto)> list, PromotionPostDTO promotionDto)
+    {
+        var validator = _validatorFactory.Get<BulkEnrollmentItem>();
+        var resultItems = new List<BulkEnrollmentItemResultDTO>();
+
+        if (list.Count == 0)
+        {
+            return (resultItems, false);
+        }
+
+        foreach (var (row, dto) in list)
+        {
+            // check if user with email exists
+            var item = new BulkEnrollmentItemResultDTO { Row = row, Email = dto.UserEmail };
+            var validation = await validator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                item.IsValid = false;
+                item.Errors = validation.Errors.Select(e => e.ErrorMessage).ToList();
+            }
+
+            // check if user already has an enrollemt at the faculty
+            var existingFaculty = await _academicRepository.GetSpecialisationFaculty(promotionDto.SpecialisationId);
+
+            if (existingFaculty == null)
+            {
+                item.IsValid = false;
+                item.Errors.Add($"Specialisation with ID {promotionDto.SpecialisationId} does not have an associated faculty.");
+                resultItems.Add(item);
+                continue;
+            }
+
+            var existingEnrollemtList = await _academicRepository.GetUserEnrollemtsFromFaculty(dto.UserEmail, existingFaculty.Id);
+
+            if (existingEnrollemtList.Count != 0)
+            {
+                item.IsValid = false;
+                item.Errors.Add($"User with email {dto.UserEmail} is already enrolled in faculty {existingFaculty.Name}.");
+            }
+
+            resultItems.Add(item);
+        }
+
+        // check for duplicate emails inside file
+        var emailGroups = list
+            .Select(p => new { p.Row, Email = p.Dto.UserEmail?.Trim().ToLowerInvariant() })
+            .Where(x => !string.IsNullOrEmpty(x.Email))
+            .GroupBy(x => x.Email)
+            .Where(g => g.Count() > 1);
+
+        foreach (var group in emailGroups)
+        {
+            foreach (var entry in group)
+            {
+                var item = resultItems.First(i => i.Row == entry.Row);
+                item.IsValid = false;
+                item.Errors.Add("Duplicate email inside file.");
+            }
+        }
+
+        // final validation result
+        if (resultItems.Any(i => i.Errors.Count > 0))
+        {
+            foreach (var it in resultItems)
+            {
+                it.IsValid = it.Errors.Count == 0;
+            }
+
+            return (resultItems, false);
+        }
+
+        return (resultItems, true);
+    }
+
+    private static List<(int Row, BulkEnrollmentItem Dto)> ParseUserCsvFile(IFormFile file)
+    {
+        var dtoList = new List<(int Row, BulkEnrollmentItem Dto)>();
+
+        using var reader = new StreamReader(file.OpenReadStream());
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true,
+            MissingFieldFound = null,
+            BadDataFound = null,
+            HeaderValidated = null
+        };
+
+        using var csv = new CsvReader(reader, config);
+        csv.Context.RegisterClassMap<BulkEnrollmentItemMap>();
+
+        try
+        {
+            if (!csv.Read())
+            {
+                throw new EntityValidationException(["CSV file is empty."]);
+            }
+
+            csv.ReadHeader();
+            var headers = csv.HeaderRecord ?? [];
+            var headerSet = new HashSet<string>(headers, StringComparer.InvariantCultureIgnoreCase);
+
+            var map = new BulkEnrollmentItemMap();
+            var expectedSamples = map.MemberMaps
+                .Select(m => m.Data.Names.FirstOrDefault())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+
+            var anyMappedHeaderPresent = map.MemberMaps
+                .SelectMany(m => m.Data.Names)
+                .Any(name => headerSet.Contains(name));
+
+
+            if (!anyMappedHeaderPresent)
+            {
+                var sampleList = expectedSamples.Count > 0 ? string.Join(", ", expectedSamples) : "";
+                throw new EntityValidationException([$"CSV headers are invalid or missing. Expected headers: {sampleList}."]);
+            }
+
+            var records = csv.GetRecords<BulkEnrollmentItem>().ToList();
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                dtoList.Add((i + 2, records[i]));
+            }
+
+            return dtoList;
+        }
+        catch (CsvHelperException ex)
+        {
+            throw new EntityValidationException([$"Failed to parse CSV file: {ex.Message}"]);
+        }
+    }
+
+    private static List<(int Row, BulkEnrollmentItem dto)> ParseUserExcelFile(IFormFile file)
+    {
+        var dtoList = new List<(int Row, BulkEnrollmentItem Dto)>();
+
+        using var workbook = new XLWorkbook(file.OpenReadStream());
+        var workSheet = workbook.Worksheets.First();
+        var headerCells = workSheet.Row(1).CellsUsed().ToList();
+        var headerMap = headerCells.Select((c, idx) => new { Name = c.GetString().Trim(), Index = idx + 1 })
+                                   .ToDictionary(x => x.Name, x => x.Index, StringComparer.InvariantCultureIgnoreCase);
+
+        var map = new BulkEnrollmentItemMap();
+        var propertyIndex = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+
+        foreach (var memberMap in map.MemberMaps)
+        {
+            var propName = memberMap.Data.Member?.Name;
+            if (string.IsNullOrWhiteSpace(propName))
+            {
+                continue;
+            }
+
+            foreach (var candidate in memberMap.Data.Names)
+            {
+                if (headerMap.TryGetValue(candidate, out var index))
+                {
+                    propertyIndex[propName] = index;
+                    break;
+                }
+            }
+        }
+
+        int lastRow = workSheet.LastRowUsed()!.RowNumber();
+
+        for (int r = 2; r <= lastRow; r++)
+        {
+            string? GetCellByProp(string prop)
+            {
+                if (!propertyIndex.TryGetValue(prop, out var idx))
+                {
+                    return null;
+                }
+
+                return workSheet.Row(r).Cell(idx).GetString()?.Trim();
+            }
+
+            var dto = new BulkEnrollmentItem { UserEmail = GetCellByProp(nameof(BulkEnrollmentItem.UserEmail))! };
+
+            dtoList.Add((r, dto));
+        }
+
+        return dtoList;
     }
 }

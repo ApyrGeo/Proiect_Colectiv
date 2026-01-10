@@ -487,6 +487,10 @@ namespace TrackForUBB.Repository.Migrations
                     b.Property<byte[]>("Signature")
                         .HasColumnType("bytea");
 
+                    b.Property<string>("TenantEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")

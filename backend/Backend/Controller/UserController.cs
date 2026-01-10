@@ -1,14 +1,17 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Text.Json;
 using TrackForUBB.Controller.Interfaces;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UserController(IUserService service) : ControllerBase
 {
@@ -27,10 +30,10 @@ public class UserController(IUserService service) : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<List<UserResponseDTO>>> GetAllUsers()
+    public async Task<ActionResult<List<UserResponseDTO>>> GetAllUsers([FromQuery] string? email)
     {
         _logger.InfoFormat("Received request for all users");
-        List<UserResponseDTO> users = await _service.GetAllUser();
+        List<UserResponseDTO> users = await _service.GetAllUser(email);
 
         return Ok(users);
     }
@@ -49,11 +52,27 @@ public class UserController(IUserService service) : ControllerBase
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult> CreateUser([FromBody] UserPostDTO user)
     {
         _logger.InfoFormat("Received request to create user: {0}", user);
         UserResponseDTO createdUser = await _service.CreateUser(user);
         return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+    }
+
+    [HttpPost("bulk")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
+    public async Task<ActionResult<BulkUserResultDTO>> CreateUsersFromFile(IFormFile file)
+    {
+        _logger.InfoFormat("Received request to create users from file: {0}", file.FileName);
+        var result = await _service.CreateUsersFromFile(file);
+        if (!result.IsValid)
+        {
+            return UnprocessableEntity(result);
+        }
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpGet("{userId}/enrolled-specialisations")]
@@ -87,7 +106,6 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpGet("logged-user")]
-    [Authorize]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult<LoggedUserResponseDTO>> GetLoggedUser()

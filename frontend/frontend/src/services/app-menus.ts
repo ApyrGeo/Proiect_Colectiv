@@ -29,9 +29,42 @@ export function getAppMenus() {
           url: "/exam",
         },
         {
-          title: "Timetable Generation",
+          title: "Academics",
+          icon: "🏛️",
+          url: "/admin/academics",
+        },
+        {
+          title: "Timetable",
           icon: "📆",
-          url: "/timetable-generation",
+          url: "/admin/timetable-generation",
+        },
+        {
+          title: "Location",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
+          title: "Subject",
+          icon: "📚",
+          url: "/admin/subject-generation",
+        },
+        {
+          title: "Add users",
+          icon: "➕",
+          submenu: [
+            {
+              title: "Import users",
+              url: "/admin/import-users",
+            },
+            {
+              title: "Import promotion",
+              url: "/admin/import-promotion",
+            },
+            {
+              title: "Add teacher",
+              url: "/admin/add-teacher",
+            },
+          ],
         },
       ],
     },

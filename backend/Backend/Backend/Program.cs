@@ -132,7 +132,7 @@ builder.Logging.AddLog4Net("log4net.config");
 
 //validators
 builder.Services.AddScoped<IValidatorFactory, ValidatorFactory>();
-builder.Services.AddValidatorsFromAssemblyContaining<UserPostDTOValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<InternalUserPostDTOValidator>();
 
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();

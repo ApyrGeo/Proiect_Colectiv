@@ -31,7 +31,8 @@ type ContractField =
   | (ContractFieldBase & { category: FieldCategory.SELECT; options: string[] })
   | (ContractFieldBase & { category: FieldCategory.CNP })
   | (ContractFieldBase & { category: FieldCategory.SERIE })
-  | (ContractFieldBase & { category: FieldCategory.NUMAR });
+  | (ContractFieldBase & { category: FieldCategory.NUMAR })
+  ;
 
 type StudyContractCall = (userId: number) => Promise<string>;
 type ContractAPICall = StudyContractCall;

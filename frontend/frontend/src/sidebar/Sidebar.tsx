@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const getInitialExpanded = () => {
     const activeParent = getAppMenus()
       .flatMap((section) => section.submenu ?? [])
-      .find((item) => item.submenu?.some((sub) => location.pathname.startsWith(sub.url ?? "")));
+      .find((menu) => location.pathname.startsWith(menu.url!));
 
     return activeParent?.title;
   };
@@ -134,6 +134,10 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
 
   console.log(selectedLanguage);
 
+  const isMenuEmpty = (item: MenuItem) => {
+    return item.submenu?.some((sub) => sub.url && userProps && !isRouteAvailable(sub.url, userProps));
+  };
+
   return (
     <>
       <div className={`app-sidebar ${isMinified ? "minified" : ""}`}>
@@ -159,6 +163,8 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                 ?.filter((m) => !m.url || (userProps && isRouteAvailable(m.url, userProps)))
                 ?.map((item) => {
                   const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
+
+                  if (!userProps || isMenuEmpty(item)) return null;
 
                   return (
                     <div
@@ -201,20 +207,22 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
 
                       {item.submenu && expanded === item.title && (
                         <div className="menu-submenu" aria-hidden={isMinified}>
-                          {item.submenu.map((sub) => (
-                            <NavLink
-                              key={sub.id ?? sub.title}
-                              to={sub.url ?? "#"}
-                              className={({ isActive }) =>
-                                `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
-                              }
-                              onClick={() => {
-                                setHoveredMenu(null);
-                              }}
-                            >
-                              {sub.title}
-                            </NavLink>
-                          ))}
+                          {item.submenu
+                            .filter((sub) => !sub.url || (userProps && isRouteAvailable(sub.url, userProps)))
+                            .map((sub) => (
+                              <NavLink
+                                key={sub.id ?? sub.title}
+                                to={sub.url ?? "#"}
+                                className={({ isActive }) =>
+                                  `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
+                                }
+                                onClick={() => {
+                                  setHoveredMenu(null);
+                                }}
+                              >
+                                {sub.title}
+                              </NavLink>
+                            ))}
                         </div>
                       )}
                     </div>

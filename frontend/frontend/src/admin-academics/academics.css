@@ -1,0 +1,60 @@
+.admin-academic-page{
+  display: flex;
+  flex-direction: row;
+  align-self: flex-start;
+  justify-content: center;
+}
+
+.admin-academic-column{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
+
+.admin-academic-component {
+  display: inline-flex;
+  flex-direction: column;
+  align-self: flex-end;
+  justify-content: flex-start;
+  margin: 10px;
+}
+
+.academic-label {
+  color: var(--accent);
+  text-align: center;
+  font-size: medium;
+  border-radius: 2px;
+  display: inline-flex;
+  margin-top: 15px;
+}
+
+.academic-title {
+  color: var(--accent);
+  font-size: x-large;
+  padding-bottom: 5px;
+  border-bottom: var(--primary) 2px solid;
+  margin-bottom: 20px;
+}
+
+.academic-column {
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
+.academic-row {
+  display: inline-flex;
+  flex-direction: row;
+  position: relative;
+  width: 100%;
+  margin: 10px 0;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.academic-slider{
+  position: relative;
+  width: 150px
+}

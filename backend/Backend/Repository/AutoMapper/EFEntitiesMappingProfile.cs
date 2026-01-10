@@ -16,7 +16,9 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(dest => dest.Owner,
                 opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)));
 
-        CreateMap<UserPostDTO, User>()
+        CreateMap<InternalUserPostDTO, User>()
+            .ForMember(dest => dest.Owner,
+                opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Owner) ? (Guid?)null : Guid.Parse(src.Owner)))
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<User, SimplifiedUserResponseDTO>();
@@ -136,5 +138,13 @@ public class EFEntitiesMappingProfile : Profile
             .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.SubGroup.StudentGroup.Promotion.Specialisation.FacultyId));
 
         CreateMap<ExamEntryRequestDTO, ExamEntry>();
+
+        CreateMap<Promotion, PromotionOfUserResponse.Promotion>()
+            .ForMember(x => x.YearStart, o => o.MapFrom(x => x.StartYear))
+            .ForMember(x => x.YearEnd, o => o.MapFrom(x => x.EndYear))
+            .ForMember(x => x.PrettyName, o => o.MapFrom(x => $"{x.Specialisation.Name} {x.StartYear}-{x.EndYear}"))
+            .ForMember(x => x.YearDuration, o => o.MapFrom(x => x.EndYear - x.StartYear));
+
+        CreateMap<BulkPromotionPostDTO, Promotion>();
     }
 }

@@ -13,6 +13,7 @@ public interface IAcademicRepository
     Task<FacultyResponseDTO?> GetFacultyByNameAsync(string name);
     Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion);
     Task<PromotionResponseDTO?> GetPromotionByIdAsync(int id);
+    Task<List<SpecialisationResponseDTO>> GetAllSpecialisationsAsync();
     Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation);
     Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id);
     Task<StudentGroupResponseDTO> AddGroupAsync(StudentGroupPostDTO studentGroup);
@@ -28,4 +29,8 @@ public interface IAcademicRepository
     Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
     Task<List<FacultyResponseDTO>> GetAllFacultiesAsync();
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<PromotionOfUserResponse> GetPromotionsByUserId(int userId);
+    Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId);
+    Task<FacultyResponseDTO?> GetSpecialisationFaculty(int specialisationId);
+    Task<TeacherResponseDTO?> GetTeacherByUserIdAsync(int userId);
 }

@@ -1,7 +1,10 @@
-using TrackForUBB.Domain.DTOs;
 using log4net;
-using TrackForUBB.Controller.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TrackForUBB.Controller.Interfaces;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Utils;
 
 namespace TrackForUBB.Controller;
 
@@ -15,6 +18,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("enrollments")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize]
     public async Task<ActionResult<List<EnrollmentResponseDTO>>> GetUserEnrollments([FromQuery] int userId)
     {
         _logger.InfoFormat("Fetching enrollment for user with ID {0}", userId);
@@ -27,6 +31,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("enrollments/{enrollmentId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize]
     public async Task<ActionResult<EnrollmentResponseDTO>> GetEnrollmentById([FromRoute] int enrollmentId)
     {
         _logger.InfoFormat("Fetching enrollment with ID {0}", enrollmentId);
@@ -39,6 +44,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("enrollments")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<EnrollmentResponseDTO>> CreateUserEnrollment([FromBody] EnrollmentPostDTO enrollmentPostDto)
     {
         _logger.InfoFormat("Creating enrollment for user with ID {0}", enrollmentPostDto.UserId);
@@ -51,6 +57,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("teachers/{teacherId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize]
     public async Task<ActionResult<TeacherResponseDTO>> GetTeacherById([FromRoute] int teacherId)
     {
         _logger.InfoFormat("Fetching teacher with ID {0}", teacherId);
@@ -64,6 +71,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     [ProducesResponseType(422)]
+    [Authorize]
     public async Task<ActionResult<TeacherResponseDTO>> GetTeacherByUserId([FromRoute] int userId)
     {
         _logger.InfoFormat("Fetching teacher for user with ID {0}", userId);
@@ -83,6 +91,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("teachers")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<EnrollmentResponseDTO>> CreateTeacher([FromBody] TeacherPostDTO dto)
     {
         _logger.InfoFormat("Creating teacher for user with ID {0}", dto.UserId);
@@ -115,6 +124,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("faculties")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<FacultyResponseDTO>> CreateFaculty([FromBody] FacultyPostDTO facultyPostDto)
     {
         _logger.InfoFormat("Creating new faculty with name {0}", facultyPostDto.Name);
@@ -124,8 +134,20 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return CreatedAtAction(nameof(GetFacultyById), new { facultyId = createdFaculty.Id }, createdFaculty);
     }
 
+    [HttpGet("specialisations")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<SpecialisationResponseDTO>>> GetSpecialisation()
+    {
+        _logger.Info("Fetching all specialisations");
+
+        var specialisations = await _service.GetAllSpecialisations();
+
+        return Ok(specialisations);
+    }
+
     [HttpGet("specialisations/{specialisationId}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<SpecialisationResponseDTO>> GetSpecialisationById([FromRoute] int specialisationId)
     {
         _logger.InfoFormat("Fetching specialisation with id {0}", specialisationId);
@@ -138,6 +160,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("specialisations")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<SpecialisationResponseDTO>> CreateSpecialisation([FromBody] SpecialisationPostDTO specialisationPostDto)
     {
         _logger.InfoFormat("Creating new specialisation with name {0}", specialisationPostDto.Name);
@@ -160,7 +183,8 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
     [HttpPost("promotions")]
     [ProducesResponseType(201)]
-    [ProducesResponseType(422)] 
+    [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<PromotionResponseDTO>> CreatePromotion([FromBody] PromotionPostDTO promotionPostDto)
     {
         _logger.InfoFormat("Creating new group year for specialisation ID {0} and years {1} {2}", promotionPostDto.SpecialisationId, promotionPostDto.StartYear, promotionPostDto.EndYear);
@@ -168,6 +192,17 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         PromotionResponseDTO createdPromotion = await _service.CreatePromotion(promotionPostDto);
 
         return CreatedAtAction(nameof(GetPromotionById), new { promotionId = createdPromotion.Id }, createdPromotion);
+    }
+
+    [HttpGet("promotions/of-user/{userId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [Authorize]
+    public async Task<ActionResult<PromotionOfUserResponse>> PromotionsOfUser(int userId)
+    {
+        _logger.InfoFormat("Getting promotions of user {0}", userId);
+        var result = await _service.GetPromotionsOfUser(userId);
+        return Ok(result);
     }
 
     [HttpGet("student-groups/{studentGroupId}")]
@@ -184,6 +219,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("student-groups")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<StudentGroupResponseDTO>> CreateStudentGroup([FromBody] StudentGroupPostDTO studentGroupPostDto)
     {
         _logger.InfoFormat("Creating new student group with name {0} for group year ID {1}", studentGroupPostDto.Name, studentGroupPostDto.GroupYearId);
@@ -207,6 +243,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpPost("student-subgroups")]
     [ProducesResponseType(201)]
     [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
     public async Task<ActionResult<StudentSubGroupResponseDTO>> CreateStudentSubGroup([FromBody] StudentSubGroupPostDTO studentSubGroupPostDto)
     {
         _logger.InfoFormat("Creating new student sub-group with name {0} for student group ID {1}", studentSubGroupPostDto.Name, studentSubGroupPostDto.StudentGroupId);
@@ -215,7 +252,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
 
         return CreatedAtAction(nameof(GetStudentSubGroupById), new { studentSubGroupId = createdStudentSubGroup.Id }, createdStudentSubGroup);
     }
-    
+
     [HttpGet("student-groups/{studentGroupId}/students")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
@@ -226,5 +263,23 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         var students = await _service.GetStudentsByStudentGroup(studentGroupId);
 
         return Ok(students);
+    }
+
+    [HttpPost("promotions/bulk")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(422)]
+    [Authorize(Roles = UserRolePermission.Admin)]
+    public async Task<ActionResult<BulkPromotionResultDTO>> CreatePromotionBulk([FromForm] PromotionPostDTO promotionPostDTO, IFormFile enrollmentFile)
+    {
+        _logger.InfoFormat("Create bulk promotion for specialisation ID {0} and years {1} - {2}", promotionPostDTO.SpecialisationId, promotionPostDTO.StartYear, promotionPostDTO.EndYear);
+
+        var result = await _service.CreatePromotionBulk(promotionPostDTO, enrollmentFile);
+
+        if (!result.IsValid)
+        {
+            return UnprocessableEntity(result);
+        }
+
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 }

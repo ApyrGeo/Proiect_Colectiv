@@ -26,6 +26,19 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(user => user.Email)
             .IsUnique();
 
+        //TODO: Enable TenantEmail uniqueness after deleting test data from db
+
+        //builder.Property(user => user.TenantEmail)
+        //    .IsRequired()
+        //    .HasMaxLength(Constants.DefaultStringMaxLenght);
+
+        //builder.HasIndex(user => user.TenantEmail)
+        //    .IsUnique();
+
+        builder.Property(user => user.TenantEmail)
+            .IsRequired(false)
+            .HasMaxLength(Constants.ExtendedStringMaxLenght);
+
         builder.Property(user => user.Owner)
             .IsRequired(false);
 

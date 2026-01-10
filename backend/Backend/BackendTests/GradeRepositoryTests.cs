@@ -51,6 +51,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Role = UserRole.Admin
         };
         var enrollment = new Enrollment
@@ -62,6 +63,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "Șan",
             Email = "radiosan@yahoo.com",
             PhoneNumber = "+09812987409",
+            TenantEmail = "radio.san@trackforubb.onmicrosoft.com",
             Role = UserRole.Teacher,
         };
         var teacher = new Teacher
@@ -134,6 +136,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Role = UserRole.Admin
         };
         var enrollment = new Enrollment
@@ -144,6 +147,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "san",
             Email = "radiosan@ubbcluj.ro",
             PhoneNumber = "-0912098409",
+            TenantEmail = "radio.san@trackforubb.onmicrosoft.com",
             Role = UserRole.Teacher,
         };
         var teacher = new Teacher
@@ -223,6 +227,7 @@ public class GradeRepositoryTests : IDisposable
                     LastName = "san",
                     Email = "radiosan@yahoo.com",
                     Role = UserRole.Teacher,
+                    TenantEmail = "radio.san@trackforubb.onmicrosoft.com",
                     PhoneNumber = "+0981208743",
                 }
             },
@@ -236,6 +241,7 @@ public class GradeRepositoryTests : IDisposable
             LastName = "rotaru",
             Email = "andrei@mail.com",
             PhoneNumber = "+40988301069",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Role = UserRole.Admin
         };
         var enrollment = new Enrollment
