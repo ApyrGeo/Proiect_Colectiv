@@ -82,7 +82,7 @@ public class GradeServiceTests
         _mockRepository.Setup(r => r.TeacherTeachesSubjectAsync(teacherId, subjectId))
             .ReturnsAsync(true);
 
-        _mockAcademicRepository.Setup(r => r.GetTeacherByUserId(teacherUserId))
+        _mockAcademicRepository.Setup(r => r.GetTeacherById(teacherUserId))
             .ReturnsAsync(teacher);
 
         var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
