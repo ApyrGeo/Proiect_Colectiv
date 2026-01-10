@@ -3,10 +3,17 @@ import "../gradesTeacher.css";
 import TableGlimmer from "../../components/loading/TableGlimmer";
 import type { TeacherProps } from "../props";
 import useGradesApi from "../GradesApi";
-import type { SubjectGradesResponse, GradeEntry } from "../props.ts";
+import type { SubjectGradesResponse, GradeEntry } from "../props";
 
-type Subject = { id: number; name: string };
-type Group = { id: number; name: string };
+type Subject = {
+  id: number;
+  name: string;
+};
+
+type Group = {
+  id: number;
+  name: string;
+};
 
 type GradeUpdate = {
   gradeId: number; // id-ul notei din backend (0 dacă nota nu există)
@@ -39,7 +46,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     createGradeById,
   } = useGradesApi();
 
-  // Load subjects for teacher
+  /* ===================== LOAD SUBJECTS ===================== */
   useEffect(() => {
     const loadSubjects = async () => {
       setLoadingSubjects(true);
@@ -52,10 +59,11 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
         setLoadingSubjects(false);
       }
     };
+
     loadSubjects();
   }, [id, getSubjectsByTeacher]);
 
-  // Load groups for selected subject
+  /* ===================== LOAD GROUPS ===================== */
   const loadGroups = async (subjectId: number) => {
     setLoadingGroups(true);
     try {
@@ -68,21 +76,19 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     }
   };
 
-  // Load grades for selected subject & group
+  /* ===================== LOAD GRADES ===================== */
   const loadGrades = async (subjectId: number, groupId: number) => {
     setLoadingGrades(true);
     try {
       const data = await getStudentByGroup(subjectId, groupId);
-
-      // Obținem subgrupurile materiei
       const subGroups = await getSubGroupsBySubject(subjectId);
       const subGroupId = subGroups[0]?.id;
 
-      // Adăugăm enrollmentId și pregătim gradeId pentru fiecare student
       const gradesWithEnrollment: GradeEntry[] = await Promise.all(
         data.grades.map(async (g) => {
           const enrollment = await getEnrollmentByStudentAndSubGroup(g.user.id, subGroupId);
-          const gradeId = g.grade?.id ?? 0; // 0 dacă nota nu există
+
+          const gradeId = g.grade?.id ?? 0;
           const value = g.grade?.value ?? null;
 
           return {
@@ -106,7 +112,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     }
   };
 
-  // Update grade local + adaug in pendingUpdates
+  /* ===================== GRADE CHANGE ===================== */
   const onGradeChange = (studentId: number, value: string) => {
     if (!gradesData) return;
 
@@ -114,51 +120,53 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
 
     setGradesData((prev) => {
       if (!prev) return prev;
+
       const newGrades = prev.grades.map((g) => {
         if (g.user.id === studentId) {
-          // Actualizez pending updates
           setPendingUpdates((prevUpdates) => {
             const exists = prevUpdates.find(
               (p) => p.gradeId === g.grade.id && p.enrollmentId === g.grade.enrollment.id
             );
+
             if (exists) {
               return prevUpdates.map((p) =>
                 p.gradeId === g.grade.id && p.enrollmentId === g.grade.enrollment.id ? { ...p, value: newValue } : p
               );
-            } else {
-              return [
-                ...prevUpdates,
-                {
-                  gradeId: g.grade.id,
-                  value: newValue,
-                  enrollmentId: g.grade.enrollment.id,
-                  subjectId: selectedSubjectId as number,
-                },
-              ];
             }
+
+            return [
+              ...prevUpdates,
+              {
+                gradeId: g.grade.id,
+                value: newValue,
+                enrollmentId: g.grade.enrollment.id,
+                subjectId: selectedSubjectId as number,
+              },
+            ];
           });
 
-          return { ...g, grade: { ...g.grade, value: newValue } };
+          return {
+            ...g,
+            grade: { ...g.grade, value: newValue },
+          };
         }
+
         return g;
       });
+
       return { ...prev, grades: newGrades };
     });
   };
 
-  // Save grades: POST if gradeId === 0, PUT otherwise
+  /* ===================== SAVE ALL ===================== */
   const saveAllGrades = async () => {
     for (const update of pendingUpdates) {
       if (!update.enrollmentId) continue;
 
       try {
         if (!update.gradeId || update.gradeId === 0) {
-          // Folosim createGradeById pentru nota noua
-          console.log(update);
           await createGradeById(update.value, update.subjectId, update.enrollmentId, id);
         } else {
-          // Folosim updateGradeById pentru nota existenta
-          console.log(update);
           await updateGradeById(update.gradeId, update.value, update.subjectId, update.enrollmentId, id);
         }
       } catch (err) {
@@ -167,14 +175,16 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     }
 
     setPendingUpdates([]);
+
     if (selectedSubjectId && selectedGroupId) {
       loadGrades(selectedSubjectId as number, selectedGroupId as number);
     }
   };
 
-  // Handlers for select changes
+  /* ===================== SELECT HANDLERS ===================== */
   const onSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
+
     if (!val) {
       setSelectedSubjectId("");
       setSelectedGroupId("");
@@ -183,6 +193,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
       setPendingUpdates([]);
       return;
     }
+
     const subjectId = Number(val);
     setSelectedSubjectId(subjectId);
     setSelectedGroupId("");
@@ -194,11 +205,13 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
   const onGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     if (!val || !selectedSubjectId) return;
+
     const groupId = Number(val);
     setSelectedGroupId(groupId);
     loadGrades(selectedSubjectId as number, groupId);
   };
 
+  /* ===================== RENDER ===================== */
   return (
     <div className="grades-page-teacher-container">
       <h1 className="grades-page-title">
@@ -210,8 +223,10 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
         <div className="grades-filter-item">
           <label>Materie:</label>
           <select value={selectedSubjectId} onChange={onSubjectChange}>
-            <option value="">Selectează materia</option>
+            {!selectedSubjectId && <option value="">Selectează materia</option>}
+
             {loadingSubjects && <option disabled>Se încarcă...</option>}
+
             {!loadingSubjects &&
               subjects.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -225,7 +240,8 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
           <div className="grades-filter-item">
             <label>Grupa:</label>
             <select value={selectedGroupId} onChange={onGroupChange} disabled={loadingGroups}>
-              <option value="">{loadingGroups ? "Se încarcă..." : "Selectează grupa"}</option>
+              {!selectedGroupId && <option value="">{loadingGroups ? "Se încarcă..." : "Selectează grupa"}</option>}
+
               {!loadingGroups &&
                 groups.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -248,42 +264,63 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
         )}
 
         {!loadingGrades && gradesData && gradesData.grades.length > 0 && (
-          <>
-            <table className="grades-table-inner">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Notă</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gradesData.grades.map((g) => (
-                  <tr key={g.user.id}>
-                    <td>
-                      {g.user.firstName} {g.user.lastName}
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        min={1}
-                        max={10}
-                        value={g.grade.value ?? ""}
-                        onChange={(e) => onGradeChange(g.user.id, e.target.value)}
-                        className="grades-input"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <table className="grades-table-inner">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Notă</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gradesData.grades.map((g) => (
+                <tr key={g.user.id}>
+                  <td>
+                    {g.user.firstName} {g.user.lastName}
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={g.grade.value ?? ""}
+                      className="grades-input"
+                      onKeyDown={(e) => {
+                        const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"];
 
-            {pendingUpdates.length > 0 && (
-              <button onClick={saveAllGrades} className="grades-update-button">
-                Salvează modificările ({pendingUpdates.length})
-              </button>
-            )}
-          </>
+                        if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData.getData("text");
+                        if (!/^\d+$/.test(pasted)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(e) => {
+                        const val = e.target.value;
+
+                        if (val === "") {
+                          onGradeChange(g.user.id, "");
+                          return;
+                        }
+
+                        const numeric = Number(val);
+                        if (!Number.isNaN(numeric) && numeric >= 1 && numeric <= 10) {
+                          onGradeChange(g.user.id, val);
+                        }
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
+
+        <button className="grades-update-button" onClick={saveAllGrades} disabled={pendingUpdates.length === 0}>
+          Salvează modificările
+        </button>
 
         {!loadingGrades && selectedGroupId && gradesData?.grades.length === 0 && (
           <div className="grades-empty-message">Nu există studenți în această grupă.</div>

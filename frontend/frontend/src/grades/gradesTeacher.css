@@ -2,6 +2,7 @@
    PAGINA GRADES - CONTAINER GENERAL
 =========================== */
 .grades-page-teacher-container {
+  position: relative;
   font-family: "Inter", "Segoe UI", sans-serif;
   color: var(--text-light);
   max-width: 1200px;
@@ -137,26 +138,6 @@
   transition: transform 0.5s;
 }
 
-.grades-pass {
-  border-left-color: var(--success);
-}
-.grades-pass .grades-grade-badge {
-  background: linear-gradient(135deg, #2ecc71, #4ddc88);
-}
-
-.grades-fail {
-  border-left-color: #cc2e5a;
-}
-.grades-fail .grades-grade-badge {
-  background: linear-gradient(135deg, #cc2e5a, #e36c84);
-}
-
-.grades-not-counted {
-  border-left-color: #d4af37;
-}
-.grades-not-counted .grades-grade-badge {
-  background: linear-gradient(135deg, #d4af37, #f3d98c);
-}
 
 /* ===========================
    EMPTY MESSAGE
@@ -214,27 +195,30 @@
   transition: background-color 0.2s ease;
 }
 
-/* COLOR PASS / FAIL / NOT COUNTED */
-.grades-pass td:nth-child(2) {
-  background: linear-gradient(135deg, #2ecc71, #4ddc88);
-  color: #02150a;
-  font-weight: 700;
-  border-radius: 6px;
-  text-align: center;
+.grades-update-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+
+  background-color: #1b263b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-.grades-fail td:nth-child(2) {
-  background: linear-gradient(135deg, #cc2e5a, #e36c84);
-  color: #fff;
-  font-weight: 700;
-  border-radius: 6px;
-  text-align: center;
+.grades-update-button:hover:not(:disabled) {
+  background-color: #243350;
 }
 
-.grades-not-counted td:nth-child(2) {
-  background: linear-gradient(135deg, #d4af37, #f3d98c);
-  color: #02150a;
-  font-weight: 700;
-  border-radius: 6px;
-  text-align: center;
+.grades-update-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
