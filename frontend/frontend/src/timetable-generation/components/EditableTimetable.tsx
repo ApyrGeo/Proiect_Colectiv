@@ -12,7 +12,7 @@ interface Props {
   refreshHours: () => Promise<void>;
 }
 
-const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshHours }) => {
+const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows }) => {
   const api = useTimetableGenerationApi();
   const [teachers, setTeachers] = useState<TeacherProps[]>([]);
   const [locations, setLocations] = useState<LocationProps[]>([]);
@@ -23,10 +23,21 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshH
     api.getLocations().then((data) => setLocations(data));
   }, []);
 
+  // Ensure hour interval is in API format (08:00-10:00)
+  const ensureAPIFormat = (interval: string): string => {
+    if (!interval) return "";
+    if (interval.includes(":")) return interval; // Already correct
+
+    // Convert "8-10" to "08:00-10:00"
+    const [start, end] = interval.split("-");
+    return `${start.padStart(2, "0")}:00-${end.padStart(2, "0")}:00`;
+  };
+
   const updateRow = (id: number, patch: Partial<EditableHourRow>) => {
     const rowIndex = rows.findIndex((r) => r.id === id);
     if (rowIndex === -1) return;
 
+    const originalRow = rows[rowIndex]; // Save original state
     const updatedRow = { ...rows[rowIndex], ...patch };
     const newRows = [...rows];
     newRows[rowIndex] = updatedRow;
@@ -38,7 +49,7 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshH
       .updateHour(Number(id), {
         id: Number(id),
         day: updatedRow.day,
-        hourInterval: updatedRow.hourInterval,
+        hourInterval: ensureAPIFormat(updatedRow.hourInterval),
         category: updatedRow.category ?? "",
         classroomId: updatedRow.classroom?.id ?? null,
         subjectId: updatedRow.subject?.id,
@@ -48,11 +59,18 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshH
         frequency: updatedRow.frequency,
         groupYearId: updatedRow.promotion?.id ?? null,
       })
-      .then(() => {})
+      .then(() => {
+        toast.success("Row updated successfully");
+      })
       .catch((error) => {
         console.log(error);
-        toast.error(error.response.data.Description.split(":")[1]);
-        refreshHours();
+        const errorMessage = error.response?.data?.Description || "An error occurred";
+        toast.error(errorMessage.split(":")[1]?.trim() || errorMessage);
+
+        // Revert the row to original state instead of refreshing entire table
+        const revertedRows = [...rows];
+        revertedRows[rowIndex] = originalRow;
+        setRows(revertedRows);
       });
   };
 

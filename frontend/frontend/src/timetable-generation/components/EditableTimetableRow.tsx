@@ -14,13 +14,26 @@ const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const intervals = ["08:00-10:00", "10:00-12:00", "12:00-14:00", "14:00-16:00", "16:00-18:00"];
 const frequencies = ["Weekly", "FirstWeek", "SecondWeek"];
 
+// Convert any format to display format (08:00-10:00)
+const normalizeHourInterval = (interval: string): string => {
+  if (!interval) return "";
+  if (interval.includes(":")) return interval; // Already in correct format
+
+  // Convert "8-10" to "08:00-10:00"
+  const [start, end] = interval.split("-");
+  return `${start.padStart(2, "0")}:00-${end.padStart(2, "0")}:00`;
+};
+
 const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate, teachers, locations }) => {
   const [selectedLocation, setSelectedLocation] = useState<LocationProps | null>(null);
+
   useEffect(() => {
     if (row.location) {
-      setSelectedLocation(row.location);
+      // Find the full location object from locations array that matches row.location
+      const fullLocation = locations.find((l) => l.id === row.location?.id);
+      setSelectedLocation(fullLocation ?? row.location);
     }
-  }, [row.location]);
+  }, [row.location, locations]);
 
   const classrooms: ClassroomProps[] = selectedLocation?.classrooms ?? [];
 
@@ -37,7 +50,11 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate, teachers, locati
       <td>
         <ComboBox
           options={intervals.map((i) => ({ value: i, label: i }))}
-          value={row.hourInterval ? { value: row.hourInterval, label: row.hourInterval } : undefined}
+          value={
+            row.hourInterval
+              ? { value: normalizeHourInterval(row.hourInterval), label: normalizeHourInterval(row.hourInterval) }
+              : undefined
+          }
           onChange={(v) => onUpdate(row.id, { hourInterval: v.value })}
         />
       </td>
@@ -78,7 +95,7 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate, teachers, locati
           }))}
           value={row.classroom ? { value: row.classroom, label: row.classroom.name } : undefined}
           onChange={(v) => onUpdate(row.id, { classroom: v.value })}
-          disabled={classrooms.length === 0}
+          disabled={!selectedLocation || classrooms.length === 0}
         />
       </td>
 

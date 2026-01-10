@@ -185,7 +185,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             .Select(x => new UserGradeDTO
             {
                 User = _mapper.Map<SimplifiedUserResponseDTO>(x.User),
-                Grade = x.Grade?.Value
+                Grade = _mapper.Map<GradeResponseDTO>(x.Grade)
             })
             .OrderBy(ug => ug.User.LastName)
             .ThenBy(ug => ug.User.FirstName)
