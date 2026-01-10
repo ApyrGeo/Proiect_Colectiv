@@ -11,6 +11,26 @@ const useGradesApi = () => {
   const timetableUrl = "/api/Timetable";
   const academicsUrl = "/api/Academics";
 
+  const getSubGroupsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get(`${timetableUrl}/subjects/${subjectId}/groups`);
+      // Extragem toate subgrupurile
+      const subGroups = response.data.flatMap((group: any) => group.studentSubGroups ?? []);
+      return subGroups; // { id, name }[]
+    },
+    [axios]
+  );
+
+  // 📌 Enrollment pentru un student într-o subgrupă
+  const getEnrollmentByStudentAndSubGroup = useCallback(
+    async (userId: number, subGroupId: number) => {
+      const response = await axios.get(`${academicsUrl}/enrollments`, { params: { userId } });
+      const enrollment = response.data.find((e: any) => e.subGroupId === subGroupId);
+      return enrollment ?? null;
+    },
+    [axios]
+  );
+
   // 📌 Specializările la care este înscris studentul
   const getUserSpecializations = useCallback(
     async (userId: number): Promise<string[]> => {
@@ -121,6 +141,39 @@ const useGradesApi = () => {
     [axios]
   );
 
+  const updateGradeById = useCallback(
+    async (
+      gradeId: number,
+      value: number | null,
+      subjectId: number,
+      enrollmentId: number,
+      teacherId: number
+    ) => {
+      await axios.put(
+        `${gradesUrl}/${gradeId}`, // punem gradeId direct in URL
+        { value, subjectId, enrollmentId }, // body
+        { params: { teacherId } } // query param teacherId
+      );
+    },
+    [axios]
+  );
+
+  const createGradeById = useCallback(
+    async (
+      value: number | null,
+      subjectId: number,
+      enrollmentId: number,
+      teacherId: number // adăugăm teacherId
+    ) => {
+      await axios.post(
+        `${gradesUrl}`, // ruta rămâne aceeași
+        { value, subjectId, enrollmentId }, // body-ul
+        { params: { teacherId } } // query parameter
+      );
+    },
+    [axios]
+  );
+
   return {
     getUserSpecializations,
     getScholarshipStatusForUser,
@@ -132,6 +185,10 @@ const useGradesApi = () => {
     getUserById,
     getStudentByGroup,
     getSpecialisationsByStudent,
+    getSubGroupsBySubject,
+    getEnrollmentByStudentAndSubGroup,
+    updateGradeById,
+    createGradeById,
   };
 };
 

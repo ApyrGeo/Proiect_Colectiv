@@ -33,7 +33,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
             throw new EntityValidationException(ValidationHelper.ConvertErrorsToListOfStrings(validationResult.Errors));
         }
 
-        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
+        var teacher = await _academicRepository.GetTeacherById(teacherId)
                 ?? throw new NotFoundException("Teacher not found.");
         
         bool teaches = await _gradeRepository.TeacherTeachesSubjectAsync(teacher.Id, gradePostDto.SubjectId);
@@ -48,7 +48,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     
     public async Task<GradeResponseDTO> UpdateGradeAsync(int teacherId, int gradeId, GradePostDTO dto)
     {
-        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
+        var teacher = await _academicRepository.GetTeacherById(teacherId)
                       ?? throw new NotFoundException("Teacher not found.");
 
         var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)
@@ -65,7 +65,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
     
     public async Task<GradeResponseDTO> PatchGradeAsync(int teacherId, int gradeId, int newValue)
     {
-        var teacher = await _academicRepository.GetTeacherByUserId(teacherId)
+        var teacher = await _academicRepository.GetTeacherById(teacherId)
                       ?? throw new NotFoundException("Teacher not found.");
 
         var grade = await _gradeRepository.GetGradeByIdAsync(gradeId)

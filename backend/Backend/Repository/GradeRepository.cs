@@ -89,10 +89,8 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
     public async Task<List<SubjectResponseDTO>> GetSubjectsForSemesterAsync(int semesterId)
     {
-        var subjects = await _context.Hours
-            .Where(h => h.Subject != null ? h.Subject.SemesterId == semesterId : false)
-            .Select(h => h.Subject)
-            .Distinct()
+        var subjects = await _context.Subjects
+            .Where(s => s.SemesterId == semesterId)
             .ToListAsync();
 
         return _mapper.Map<List<SubjectResponseDTO>>(subjects);
@@ -113,10 +111,10 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
 
     public async Task<bool> TeacherTeachesSubjectAsync(int teacherId, int subjectId)
     {
-        return await _context.Hours
-            .AnyAsync(h =>
-                h.TeacherId == teacherId &&
-                h.SubjectId == subjectId);
+        return await _context.Teachers
+            .AnyAsync(t =>
+                t.Id == teacherId &&
+                t.HeldSubjects.Any(s => s.Id == subjectId));
     }
 
     public async Task<GradeResponseDTO> GetGradeByEnrollmentAndSubjectAsync(int arg1EnrollmentId, int arg1SubjectId)
