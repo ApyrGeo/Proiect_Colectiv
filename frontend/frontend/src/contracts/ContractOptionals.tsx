@@ -39,7 +39,6 @@ export function ContractOptionals(state: OptionalsState) {
 
                             <Select
                                 label={labelOfPkg(optional.packageId)}
-                                value={''}
                                 onChange={x => handleChange(optional.semester1or2, optional.packageId, x.target.value)}
                             >
                                 {optional.subjects.map(x =>
