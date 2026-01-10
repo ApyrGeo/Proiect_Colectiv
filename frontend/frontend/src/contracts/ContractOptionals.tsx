@@ -37,7 +37,7 @@ export function ContractOptionals(state: OptionalsState) {
                                 {labelOfPkg(optional.packageId)}
                             </InputLabel>
 
-                            <Select
+                            <Select<number>
                                 label={labelOfPkg(optional.packageId)}
                                 onChange={x => handleChange(optional.semester1or2, optional.packageId, x.target.value)}
                             >
