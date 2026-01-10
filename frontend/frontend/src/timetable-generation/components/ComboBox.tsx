@@ -25,8 +25,7 @@ export function ComboBox<T>({ options, value, onChange, placeholder, disabled }:
     }
   }, [value]);
 
-  const filteredOptions =
-    query === "" ? options.slice(0, 3) : options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()));
+  const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <Combobox

@@ -197,6 +197,7 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
     [HttpGet("promotions/of-user/{userId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
+    [Authorize]
     public async Task<ActionResult<PromotionOfUserResponse>> PromotionsOfUser(int userId)
     {
         _logger.InfoFormat("Getting promotions of user {0}", userId);

@@ -375,7 +375,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
             SpecialisationId = bulkDto.SpecialisationId
         };
 
-        var createdPromotion = await _academicRepository.AddPromotionAsync(promotionPost);
+        var createdPromotion = await CreatePromotion(promotionPost);
 
         foreach (var group in bulkDto.Groups)
         {
@@ -384,7 +384,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
                 Name = group.Name,
                 GroupYearId = createdPromotion.Id
             };
-            var createdGroup = await _academicRepository.AddGroupAsync(groupPost);
+            var createdGroup = await CreateStudentGroup(groupPost);
 
             foreach (var sub in group.SubGroups)
             {
@@ -393,7 +393,7 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
                     Name = sub.Name,
                     StudentGroupId = createdGroup.Id
                 };
-                var createdSub = await _academicRepository.AddSubGroupAsync(subPost);
+                var createdSub = await CreateStudentSubGroup(subPost);
 
                 foreach (var enrollment in sub.Enrollments)
                 {
@@ -406,15 +406,14 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
                         UserId = user.Id
                     };
 
-                    var createdEnrollment = await _academicRepository.AddEnrollmentAsync(enrollmentPost);
+                    var createdEnrollment = await CreateUserEnrollment(enrollmentPost);
 
                     enrollmentIdsByEmail[enrollment.UserEmail] = createdEnrollment.Id;
                 }
             }
         }
 
-        createdPromotion = await _academicRepository.GetPromotionByIdAsync(createdPromotion.Id)
-            ?? throw new NotFoundException($"Promotion with ID {createdPromotion.Id} not found after creation.");
+        createdPromotion = await GetPromotionById(createdPromotion.Id);
 
         return createdPromotion;
     }

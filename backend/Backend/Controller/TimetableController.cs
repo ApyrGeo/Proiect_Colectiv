@@ -32,10 +32,6 @@ public class TimetableController(ITimetableService service) : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     [Authorize(Roles = UserRolePermission.Student)]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
-    )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
     public async Task<ActionResult<List<OptionalPackageResponseDTO>>> GetOptionalSubjects([FromRoute] int promotionId, int year = 1)
     {
         _logger.InfoFormat("Fetching subjects with id {0}", promotionId);
