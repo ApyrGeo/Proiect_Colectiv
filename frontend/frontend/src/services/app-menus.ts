@@ -34,14 +34,9 @@ export function getAppMenus() {
           url: "/admin/academics",
         },
         {
-          title: "Timetable Generation",
+          title: "Timetable",
           icon: "📆",
           url: "/admin/timetable-generation",
-        },
-        {
-          title: "Location Management",
-          icon: "📍",
-          url: "/admin/location",
         },
         {
           title: "Add users",
@@ -60,6 +55,16 @@ export function getAppMenus() {
               url: "/admin/add-teacher",
             },
           ],
+        },
+        {
+          title: "Location",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
+          title: "Subject",
+          icon: "📚",
+          url: "/admin/subject-generation",
         },
       ],
     },

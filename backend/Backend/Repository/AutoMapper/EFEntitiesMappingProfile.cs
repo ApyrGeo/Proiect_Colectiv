@@ -139,6 +139,12 @@ public class EFEntitiesMappingProfile : Profile
 
         CreateMap<ExamEntryRequestDTO, ExamEntry>();
 
+        CreateMap<Promotion, PromotionOfUserResponse.Promotion>()
+            .ForMember(x => x.YearStart, o => o.MapFrom(x => x.StartYear))
+            .ForMember(x => x.YearEnd, o => o.MapFrom(x => x.EndYear))
+            .ForMember(x => x.PrettyName, o => o.MapFrom(x => $"{x.Specialisation.Name} {x.StartYear}-{x.EndYear}"))
+            .ForMember(x => x.YearDuration, o => o.MapFrom(x => x.EndYear - x.StartYear));
+
         CreateMap<BulkPromotionPostDTO, Promotion>();
     }
 }

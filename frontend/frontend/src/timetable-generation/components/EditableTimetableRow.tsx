@@ -55,20 +55,18 @@ const EditableTimetableRow: React.FC<Props> = ({ row, onUpdate, teachers, locati
       <td>{row.format}</td>
 
       <td>
-        <td>
-          <ComboBox
-            placeholder="Location"
-            options={locations.map((l) => ({
-              value: l,
-              label: l.name,
-            }))}
-            value={selectedLocation ? { value: selectedLocation, label: selectedLocation.name } : undefined}
-            onChange={(v) => {
-              setSelectedLocation(v.value);
-              onUpdate(row.id, { classroom: undefined });
-            }}
-          />
-        </td>
+        <ComboBox
+          placeholder="Location"
+          options={locations.map((l) => ({
+            value: l,
+            label: l.name,
+          }))}
+          value={selectedLocation ? { value: selectedLocation, label: selectedLocation.name } : undefined}
+          onChange={(v) => {
+            setSelectedLocation(v.value);
+            onUpdate(row.id, { classroom: undefined });
+          }}
+        />
       </td>
 
       <td>

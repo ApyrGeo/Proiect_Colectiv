@@ -1,7 +1,7 @@
+using System.Text.Json;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using TrackForUBB.Domain.Enums;
-using TrackForUBB.Domain.Utils;
 using TrackForUBB.Repository.Context;
 using TrackForUBB.Repository.EFEntities;
 using TrackForUBB.Service.Contracts.Models;
@@ -11,8 +11,9 @@ namespace TrackForUBB.Repository;
 
 public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfWork
 {
-    public async Task<ContractData> GetData(int userId, int promotionId, int yearNumber)
+    public async Task<ContractData> GetData(ContractRequestModel request)
     {
+        var promotionId = request.PromotionId;
         var promotion = await dbContext.Promotions
             .Include(x => x.Semesters)
             .Where(x => x.Id == promotionId)
@@ -26,6 +27,7 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
         var lastSemester = promotion.Semesters.Select(x => x.SemesterNumber).Max();
         var lastYear = lastSemester / 2;
 
+        var yearNumber = request.Year;
         if (yearNumber < 1)
             throw new Exception($"The year number {yearNumber} is lower than 1");
         if (yearNumber > lastYear)
@@ -43,19 +45,19 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
                 .ThenInclude(x => x.User)
             .Include(x => x.Semester)
             .Where(x =>
-                   x.Enrollment.UserId == userId
+                   x.Enrollment.UserId == request.UserId
                    && (x.Semester.SemesterNumber + 1) / 2 == yearNumber
                    && x.Enrollment.SubGroup.StudentGroup.PromotionId == promotion.Id
             )
             .ToListAsync();
-        if (contracts.Count == 0)
-            throw new Exception($"There are no contracts for user {userId} and promotion {promotion.Id} and year {yearNumber}");
-        logger.Info($"Pulled {contracts.Count} contracts for user {userId} promotion {promotion.Id} and year {yearNumber}");
-        if (contracts.Count is not (1 or 2))
-            throw new Exception($"There are too many contract for user {userId} and promotion {promotion.Id} and year {yearNumber}");
-        var contract = contracts[0];
+        if (contracts.Count is not (0 or 1 or 2))
+            throw new Exception($"There are too many contract for user {request.UserId} and promotion {promotion.Id} and year {yearNumber}");
 
-        var x = contract.Enrollment;
+        var contractFirstSemester = await GetContract(request, promotion, contracts, request.Year * 2 - 1, request.OptionalToSubjectCodesSem1);
+        var contractSecondSemester = await GetContract(request, promotion, contracts, request.Year * 2, request.OptionalToSubjectCodesSem2);
+        await dbContext.SaveChangesAsync();
+
+        var x = contractFirstSemester.Enrollment;
 
         var specialisation = x.SubGroup.StudentGroup.Promotion.Specialisation;
         var faculty = specialisation.Faculty;
@@ -85,16 +87,75 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
             StudentEmail = student.Email,
         };
 
-        contracts
-            .Select(x => x.Subjects.Select(MapSubject).ToList())
-            .PopOrDefault(v => result.SubjectsSemester1 = v, [])
-            .PopOrDefault(v => result.SubjectsSemester2 = v, [])
-            ;
+        result.SubjectsSemester1 = contractFirstSemester.Subjects.Select(MapSubject).ToList();
+        result.SubjectsSemester2 = contractSecondSemester.Subjects.Select(MapSubject).ToList();
 
         return result;
     }
 
-    private readonly ILog logger = LogManager.GetLogger(typeof(ContractUnitOfWork));
+    private async ValueTask<Contract> GetContract(ContractRequestModel request, Promotion promotion, List<Contract> contracts, int semesterNumber, IDictionary<int, int> optionalToSubjectCodes)
+    {
+        var semester = promotion.Semesters.Single(x => x.SemesterNumber == semesterNumber);
+
+        var contract = contracts.FirstOrDefault(x => x.SemesterId == semester.Id);
+
+        var subjectsInSemester = await dbContext.Subjects
+            .Where(x => x.Semester.PromotionId == promotion.Id
+                    && x.SemesterId == semester.Id)
+            .ToListAsync();
+
+        var inexitentOptionals = optionalToSubjectCodes
+            .Values
+            .Where(x => !subjectsInSemester.Select(x => x.Id).Contains(x))
+            .ToList();
+        if (inexitentOptionals.Count != 0)
+            throw new Exception($"The optional subjects {JsonSerializer.Serialize(inexitentOptionals)} do not exist in semester {semester.Id}");
+
+        logger.InfoFormat(">>>>>>>>>>>>>>>>> semesterNumber {0}", semesterNumber);
+        logger.Info(">>>>>>>>>>>>>>>>> subjectsInSemster");
+        logger.Info(JsonSerializer.Serialize(subjectsInSemester.Select(x => new { x.Name, x.Id })));
+        logger.Info(">>>>>>>>>>>>>>>>> optionals");
+        logger.Info(JsonSerializer.Serialize(optionalToSubjectCodes));
+
+        if (contract is null)
+        {
+            var enrollments = await dbContext.Enrollments
+                .Include(x => x.SubGroup)
+                    .ThenInclude(x => x.StudentGroup)
+                        .ThenInclude(x => x.Promotion)
+                            .ThenInclude(x => x.Specialisation)
+                                .ThenInclude(x => x.Faculty)
+                .Include(x => x.User)
+                .Where(x => x.UserId == request.UserId && x.SubGroup.StudentGroup.PromotionId == promotion.Id)
+                .ToListAsync();
+
+            if (enrollments.Count is 0)
+                throw new Exception($"User with id {request.UserId} is not enrolled in promotion {promotion.Id}");
+            if (enrollments.Count is > 1)
+                throw new Exception($"User with id {request.UserId} is enrolled multiple times in promotion {promotion.Id}");
+            var enrollment = enrollments.Single();
+
+            var newContract = new Contract()
+            {
+                Semester = semester,
+                SemesterId = semester.Id,
+                Subjects = [],
+                EnrollmentId = enrollment.Id,
+                Enrollment = enrollment,
+            };
+
+            dbContext.Add(newContract);
+            contract = newContract;
+        }
+        
+        var subjects = subjectsInSemester
+            .Where(x => x.Type == SubjectType.Required
+                   || optionalToSubjectCodes.Values.Contains(x.Id))
+            .ToList();
+
+        contract.Subjects = subjects;
+        return contract;
+    }
 
     private static ContractSubjectData MapSubject(Subject x) => new()
     {
@@ -112,17 +173,6 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
-}
 
-file static class MyEnumExtensions
-{
-    public static IEnumerable<T> PopOrDefault<T>(this IEnumerable<T> enumerable, Action<T> popper, T defaultValue)
-    {
-        if (enumerable.Any())
-        {
-            popper(enumerable.First());
-            return enumerable.Skip(1);
-        }
-        return enumerable;
-    }
+    private readonly ILog logger = LogManager.GetLogger(typeof(ContractUnitOfWork));
 }

@@ -295,6 +295,12 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         return _academicRepository.GetAllTeachersByFacultyId(facultyId);
     }
 
+    public Task<PromotionOfUserResponse> GetPromotionsOfUser(int userId)
+    {
+        _logger.InfoFormat("Get promotions of user {0}", userId);
+        return _academicRepository.GetPromotionsByUserId(userId);
+    }
+
     public async Task<BulkPromotionResultDTO> CreatePromotionBulk(PromotionPostDTO promotionDto, IFormFile file)
     {
         if (file == null || file.Length == 0)

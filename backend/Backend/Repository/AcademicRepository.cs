@@ -288,9 +288,13 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
     {
         return _context.Faculties
             .Include(f => f.Specialisations)
-                .ThenInclude(s => s.Promotions)
+                .ThenInclude(x => x.Promotions)
                     .ThenInclude(p => p.StudentGroups)
                         .ThenInclude(g => g.StudentSubGroups)
+            .Include(f => f.Specialisations)
+                .ThenInclude(s => s.Promotions)
+                    .ThenInclude(s => s.Semesters)
+
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .ToListAsync();
     }
@@ -303,6 +307,24 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
             .Include(t => t.Faculty)
             .Select(t => _mapper.Map<TeacherResponseDTO>(t))
             .ToListAsync();
+    }
+
+    public async Task<PromotionOfUserResponse> GetPromotionsByUserId(int userId)
+    {
+        var result = await _context
+            .Enrollments
+            .Where(x => x.UserId == userId)
+            .Include(x => x.SubGroup)
+                .ThenInclude(x => x.StudentGroup)
+                    .ThenInclude(x => x.Promotion)
+                        .ThenInclude(x => x.Specialisation)
+            .Select(x => x.SubGroup.StudentGroup.Promotion)
+            .ToListAsync();
+
+        return new()
+        {
+            Promotions = _mapper.Map<List<PromotionOfUserResponse.Promotion>>(result),
+        };
     }
 
     public async Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId)

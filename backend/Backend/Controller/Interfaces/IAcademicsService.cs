@@ -25,5 +25,6 @@ public interface IAcademicsService
     Task<List<EnrollmentResponseDTO>> GetStudentsByStudentGroup(int studentGroupId);
     Task<List<FacultyResponseDTO>> GetAllFaculties();
     Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<PromotionOfUserResponse> GetPromotionsOfUser(int userId);
     Task<BulkPromotionResultDTO> CreatePromotionBulk(PromotionPostDTO promotionDto, IFormFile file);
 }

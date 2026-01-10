@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "../timetable-generation.css";
 
-import useTimetableGenerationApi from "../useTimetableGenerationApi";
+import useTimetableGenerationApi from "../useTimetableGenerationApi.ts";
 import EditableTimetable from "../components/EditableTimetable";
 import Circular from "../../components/loading/Circular";
 
 import { ComboBox, type ComboOption } from "../components/ComboBox";
 import type { EditableHourRow, Semester, SpecialisationProps, FacultyProps } from "../props";
+import { useTranslation } from "react-i18next";
 
 const TimetableGenerationPage: React.FC = () => {
   const api = useTimetableGenerationApi();
@@ -14,6 +15,9 @@ const TimetableGenerationPage: React.FC = () => {
   const [faculties, setFaculties] = useState<FacultyProps[]>([]);
   const [specialisations, setSpecialisations] = useState<SpecialisationProps[]>([]);
   const [years, setYears] = useState<ComboOption<number>[]>([]);
+
+  const { t } = useTranslation();
+
   useEffect(() => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
@@ -34,7 +38,7 @@ const TimetableGenerationPage: React.FC = () => {
     setYears(tempYears);
   }, []);
 
-  const [selectedFaculty, setSelectedFaculty] = useState<ComboOption<number> | null>(null);
+  const [selectedFaculty, setSelectedFaculty] = useState<ComboOption<FacultyProps> | null>(null);
   const [selectedSpecialisation, setSelectedSpecialisation] = useState<ComboOption<number> | null>(null);
   const [year, setYear] = useState<ComboOption<number> | null>(null);
   const [semester, setSemester] = useState<ComboOption<Semester> | null>(null);
@@ -57,15 +61,6 @@ const TimetableGenerationPage: React.FC = () => {
 
   useEffect(() => {
     api.getFaculties().then(setFaculties);
-    api.getFaculties().then((facs) => {
-      const specs: SpecialisationProps[] = [];
-      facs.forEach((f) => {
-        f.specialisations.forEach((s) => {
-          specs.push(s);
-        });
-      });
-      setSpecialisations(specs);
-    });
   }, []);
 
   useEffect(() => {
@@ -91,18 +86,19 @@ const TimetableGenerationPage: React.FC = () => {
 
         <div className="timetable-filter">
           <ComboBox
-            placeholder="Faculty"
-            options={faculties.map((f) => ({ value: f.id, label: f.name }))}
+            placeholder={t("Faculty")}
+            options={faculties.map((f) => ({ value: f, label: f.name }))}
             value={selectedFaculty ?? undefined}
             onChange={(f) => {
               setSelectedFaculty(f);
+              setSpecialisations(f.value.specialisations);
               setSelectedSpecialisation(null);
               setYear(null);
               setSemester(null);
             }}
           />
           <ComboBox
-            placeholder="Specialisation"
+            placeholder={t("Specialization")}
             options={specialisations.map((s) => ({ value: s.id, label: s.name }))}
             value={selectedSpecialisation ?? undefined}
             onChange={(v) => {
@@ -114,7 +110,7 @@ const TimetableGenerationPage: React.FC = () => {
           />
 
           <ComboBox
-            placeholder="Promotion"
+            placeholder={t("Promotion")}
             options={years}
             value={year ?? undefined}
             onChange={setYear}
@@ -122,7 +118,7 @@ const TimetableGenerationPage: React.FC = () => {
           />
 
           <ComboBox
-            placeholder="Semester"
+            placeholder={t("Semester")}
             options={[
               { value: 1, label: "Semester 1" },
               { value: 2, label: "Semester 2" },
@@ -146,7 +142,7 @@ const TimetableGenerationPage: React.FC = () => {
             rows={rows}
             setRows={setRows}
             refreshHours={handleRefreshHours}
-            facultyId={selectedFaculty?.value ?? 0}
+            facultyId={selectedFaculty?.value.id ?? 0}
           />
         )}
       </div>
