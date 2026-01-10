@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const getInitialExpanded = () => {
     const activeParent = getAppMenus()
       .flatMap((section) => section.submenu ?? [])
-      .find(menu => location.pathname.startsWith(menu.url))
+      .find((menu) => location.pathname.startsWith(menu.url!));
 
     return activeParent?.title;
   };
