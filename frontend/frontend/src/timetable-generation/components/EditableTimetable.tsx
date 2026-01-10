@@ -12,7 +12,7 @@ interface Props {
   refreshHours: () => Promise<void>;
 }
 
-const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows, refreshHours }) => {
+const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows }) => {
   const api = useTimetableGenerationApi();
   const [teachers, setTeachers] = useState<TeacherProps[]>([]);
   const [locations, setLocations] = useState<LocationProps[]>([]);
