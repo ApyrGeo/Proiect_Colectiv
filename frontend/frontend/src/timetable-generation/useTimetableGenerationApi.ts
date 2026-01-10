@@ -88,7 +88,6 @@ const useTimetableGenerationApi = () => {
 
   const updateHour = useCallback(
     async (hourId: number, payload: PutTimeTableGenerationDto) => {
-      console.log(payload);
       const response = await axios.put(`/api/Timetable/hours/${hourId}`, payload);
 
       return response.data;

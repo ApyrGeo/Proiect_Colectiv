@@ -7,4 +7,6 @@ public class PromotionResponseDTO
     public required int EndYear { get; set; }
 
 	public List<StudentGroupResponseDTO> StudentGroups { get; set; } = [];
+    
+    public List<PromotionSemesterResponseDTO> Semesters { get; set; } = [];
 }

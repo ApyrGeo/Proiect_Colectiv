@@ -37,7 +37,7 @@ export interface TimeTableGenerationProps {
 export interface SpecialisationProps {
   id: number;
   name: string;
-  groupYears: GroupYearProps[];
+  promotions: GroupYearProps[];
 }
 
 export interface GroupYearProps {
