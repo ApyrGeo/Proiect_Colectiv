@@ -44,6 +44,7 @@ public class ExamController(IExamService examService) : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
+    [Authorize(Roles = $"{UserRolePermission.Teacher},{UserRolePermission.Admin}")]
     public async Task<IActionResult> DeleteExamEntry([FromRoute] int id)
     {
         _logger.Info($"Received request to delete exam entry with ID: {id}");
