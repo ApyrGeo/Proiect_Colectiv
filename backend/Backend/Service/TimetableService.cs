@@ -413,13 +413,13 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         return await _timetableRepository.UpdateHourAsync(hourId, intermediaryDto);
     }
 
-    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionId(int promotionId)
+    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionId(int promotionId, int year)
     {
         _logger.InfoFormat("Trying to retrieve optional subjects for promotion with id {0}", JsonSerializer.Serialize(promotionId));
 
         var _ = await _academicRepository.GetPromotionByIdAsync(promotionId)
             ?? throw new NotFoundException($"Promotion with ID {promotionId} not found.");
 
-        return await _timetableRepository.GetOptionalSubjectsByPromotionIdAsync(promotionId);
+        return await _timetableRepository.GetOptionalSubjectsByPromotionIdAsync(promotionId, year);
     }
 }

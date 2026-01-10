@@ -277,4 +277,10 @@ public class AcademicsService(IAcademicRepository academicRepository, IUserRepos
         _logger.InfoFormat("Retrieving all teachers for faculty with ID {0}", facultyId);
         return _academicRepository.GetAllTeachersByFacultyId(facultyId);
     }
+
+    public Task<PromotionOfUserResponse> GetPromotionsOfUser(int userId)
+    {
+        _logger.InfoFormat("Get promotions of user {0}", userId);
+        return _academicRepository.GetPromotionsByUserId(userId);
+    }
 }

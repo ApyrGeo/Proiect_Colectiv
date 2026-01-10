@@ -458,13 +458,14 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         return _mapper.Map<HourResponseDTO>(updatedHour);
     }
 
-    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionIdAsync(int promotionId)
+    public async Task<List<OptionalPackageResponseDTO>> GetOptionalSubjectsByPromotionIdAsync(int promotionId, int year)
     {
         _logger.InfoFormat("Fetching optional subjects for promotion ID: {0}", promotionId);
 
         var subjects = await _context.Subjects
             .Where(s =>
                 s.Semester.PromotionId == promotionId && 
+                (s.Semester.SemesterNumber == 2 * year - 1 || s.Semester.SemesterNumber == 2 * year) &&
                 s.OptionalPackage != null &&
                 s.Type == SubjectType.Optional
                 )
@@ -473,12 +474,18 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
             .ToListAsync();
         
         var grouped = subjects
-            .GroupBy(s => s.OptionalPackage!.Value)
+            .GroupBy(s => (s.Semester.SemesterNumber, package: s.OptionalPackage!.Value))
             .Select(g => new OptionalPackageResponseDTO
             {
-                PackageId = g.Key,
+                PackageId = g.Key.package,
+                SemesterNumber = g.Key.SemesterNumber,
+                Semester1or2 = 2 - g.Key.SemesterNumber % 2,
+                YearNumber = (g.Key.SemesterNumber + 1) / 2,
                 Subjects = _mapper.Map<List<SubjectResponseDTO>>(g.ToList())
             })
+            .OrderBy(x => x.YearNumber)
+                .ThenBy(x => x.SemesterNumber)
+                    .ThenBy(x => x.PackageId)
             .ToList();
 
         return grouped;

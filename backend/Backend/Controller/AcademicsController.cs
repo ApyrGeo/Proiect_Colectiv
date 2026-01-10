@@ -170,6 +170,16 @@ public class AcademicsController(IAcademicsService service) : ControllerBase
         return CreatedAtAction(nameof(GetPromotionById), new { promotionId = createdPromotion.Id }, createdPromotion);
     }
 
+    [HttpGet("promotions/of-user/{userId}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<PromotionOfUserResponse>> PromotionsOfUser(int userId)
+    {
+        _logger.InfoFormat("Getting promotions of user {0}", userId);
+        var result = await _service.GetPromotionsOfUser(userId);
+        return Ok(result);
+    }
+
     [HttpGet("student-groups/{studentGroupId}")]
     [ProducesResponseType(200)]
     public async Task<ActionResult<StudentGroupResponseDTO>> GetStudentGroupById([FromRoute] int studentGroupId)

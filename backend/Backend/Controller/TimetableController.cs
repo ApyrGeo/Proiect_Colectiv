@@ -33,7 +33,7 @@ public class TimetableController(ITimetableService service) : ControllerBase
 
         return Ok(subject);
     }
-    
+
     [HttpGet("promotions/{promotionId}/subjects/optional")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
@@ -42,11 +42,11 @@ public class TimetableController(ITimetableService service) : ControllerBase
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
     )] // doesn't work, only if you hardcode the data, see https://learn.microsoft.com/en-us/entra/identity-platform/tutorial-web-api-dotnet-core-build-app?tabs=workforce-tenant
-    public async Task<ActionResult<List<OptionalPackageResponseDTO>>> GetOptionalSubjects([FromRoute] int promotionId)
+    public async Task<ActionResult<List<OptionalPackageResponseDTO>>> GetOptionalSubjects([FromRoute] int promotionId, int year = 1)
     {
         _logger.InfoFormat("Fetching subjects with id {0}", promotionId);
 
-        var subjects = await _service.GetOptionalSubjectsByPromotionId(promotionId);
+        var subjects = await _service.GetOptionalSubjectsByPromotionId(promotionId, year);
 
         return Ok(subjects);
     }
