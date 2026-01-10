@@ -20,5 +20,7 @@ public class ContractViewModel
     public required List<ContractSubjectViewModel> SubjectsSemester2;
     public required int TotalCreditsSemester2 { get; set; }
 
+    public required string? Signature { get; set; }
+
     public string Now { get; set; } = string.Empty;
 }

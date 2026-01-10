@@ -4,5 +4,5 @@ namespace TrackForUBB.Service.PdfGeneration;
 
 public interface IXmlTemplateFiller
 {
-    void Fill(XDocument document, object model);
+    XmlFillResult Fill(XDocument document, object model);
 }

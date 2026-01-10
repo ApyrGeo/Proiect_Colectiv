@@ -85,7 +85,10 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
             CNP = "TODO",
             StudentPhone = student.PhoneNumber,
             StudentEmail = student.Email,
+            Signature = null,
         };
+        if (student.Signature != null)
+            result.Signature = Convert.ToBase64String(student.Signature);
 
         result.SubjectsSemester1 = contractFirstSemester.Subjects.Select(MapSubject).ToList();
         result.SubjectsSemester2 = contractSecondSemester.Subjects.Select(MapSubject).ToList();
@@ -111,10 +114,7 @@ public class ContractUnitOfWork(AcademicAppContext dbContext) : IContractUnitOfW
         if (inexitentOptionals.Count != 0)
             throw new Exception($"The optional subjects {JsonSerializer.Serialize(inexitentOptionals)} do not exist in semester {semester.Id}");
 
-        logger.InfoFormat(">>>>>>>>>>>>>>>>> semesterNumber {0}", semesterNumber);
-        logger.Info(">>>>>>>>>>>>>>>>> subjectsInSemster");
         logger.Info(JsonSerializer.Serialize(subjectsInSemester.Select(x => new { x.Name, x.Id })));
-        logger.Info(">>>>>>>>>>>>>>>>> optionals");
         logger.Info(JsonSerializer.Serialize(optionalToSubjectCodes));
 
         if (contract is null)
