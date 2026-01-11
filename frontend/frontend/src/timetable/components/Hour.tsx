@@ -57,17 +57,19 @@ const Hour: React.FC<HourPropsExtended> = ({
       <td>{t(frequency)}</td>
       {onLocationClick ? (
         <td>
-          <button className={"timetable-button"} onClick={onLocationClick}>
-            {location.name}
-          </button>
+          {location && (
+            <button className={"timetable-button"} onClick={onLocationClick}>
+              {location.name}
+            </button>
+          )}
         </td>
       ) : (
-        <td>{location.name}</td>
+        <td>{location ? location.name : "\t"}</td>
       )}
       {!timetableProps.classroomId && (
         <td>
           <button className={"timetable-button"} onClick={() => openRoomTable(classroom.id)}>
-            {classroom.name}
+            {classroom ? classroom.name : "\t"}
           </button>
         </td>
       )}
@@ -76,14 +78,14 @@ const Hour: React.FC<HourPropsExtended> = ({
       {!timetableProps.subjectId && (
         <td>
           <button className={"timetable-button"} onClick={() => openSubjectTable(subject.id)}>
-            {subject.name}
+            {subject ? subject.name : "\t"}
           </button>
         </td>
       )}
       {!timetableProps.teacherId && (
         <td>
           <button className={"timetable-button"} onClick={() => openTeacherTable(teacher.id)}>
-            {teacher.user.lastName + " " + teacher.user.firstName}
+            {teacher ? teacher.user.lastName + " " + teacher.user.firstName : "\t"}
           </button>
         </td>
       )}
