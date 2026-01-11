@@ -49,6 +49,11 @@ export function getAppMenus() {
           url: "/admin/subject-generation",
         },
         {
+          title: "Exam",
+          icon: "📋",
+          url: "/admin/exam-generation",
+        },
+        {
           title: "Add users",
           icon: "➕",
           submenu: [

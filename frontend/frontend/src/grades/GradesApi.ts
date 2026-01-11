@@ -142,13 +142,7 @@ const useGradesApi = () => {
   );
 
   const updateGradeById = useCallback(
-    async (
-      gradeId: number,
-      value: number | null,
-      subjectId: number,
-      enrollmentId: number,
-      teacherId: number
-    ) => {
+    async (gradeId: number, value: number | null, subjectId: number, enrollmentId: number, teacherId: number) => {
       await axios.put(
         `${gradesUrl}/${gradeId}`, // punem gradeId direct in URL
         { value, subjectId, enrollmentId }, // body
