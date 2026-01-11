@@ -50,6 +50,7 @@ public class ContractService(
         AssignFilled(v => viewModel.IdCardNumber = v, fields.IdCardNumber);
         AssignFilled(v => viewModel.IdCardSeries = v, fields.IdCardSeries);
         AssignFilled(v => viewModel.StudentPhone = v, fields.PhoneNumber);
+        AssignFilled(v => viewModel.Signature = v, fields.SignatureBase64);
 
         return viewModel;
     }

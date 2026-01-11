@@ -262,6 +262,161 @@ public class XmlTemplateFillerTests
         Assert.Equal(expected, document);
     }
 
+    [Fact]
+    public void SubstituteText_NoMatch()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in here"
+                )
+            )
+        );
+        filler.Fill(root, "text");
+        var expected = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in here"
+                )
+            )
+        );
+        Assert.Equal(expected, root);
+        var p = root.Root!.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_MatchBeggining()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "{{this}}Match in here"
+                )
+            )
+        );
+        filler.Fill(root, "text");
+        Assert.Equal("textMatch in here", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_OneMatchMiddle()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in {{this}} here"
+                )
+            )
+        );
+        filler.Fill(root, "text");
+        Assert.Equal("Match in text here", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_OneMatchEnd()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in here {{this}}"
+                )
+            )
+        );
+        filler.Fill(root, "text");
+        Assert.Equal("Match in here text", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_AdjancentMiddle()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in {{a}}{{b}} here"
+                )
+            )
+        );
+        filler.Fill(root, new { a = "a", b = "b" });
+        Assert.Equal("Match in ab here", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_AdjancentBeginning()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "{{a}}{{b}} Match in here"
+                )
+            )
+        );
+        filler.Fill(root, new { a = "a", b = "b" });
+        Assert.Equal("ab Match in here", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_AdjancentEnd()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Match in here {{a}}{{b}}"
+                )
+            )
+        );
+        filler.Fill(root, new { a = "a", b = "b" });
+        Assert.Equal("Match in here ab", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_AllProperties()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "{{a}}{{b}}{{a}}"
+                )
+            )
+        );
+        filler.Fill(root, new { a = "a", b = "b" });
+        Assert.Equal("aba", root.Root!.Value);
+        var p = root.Root.Elements().Single();
+        Assert.DoesNotContain(p.Nodes(), x => x is XText text && text.Value == string.Empty);
+    }
+
+    [Fact]
+    public void SubstituteText_BadPlaceholderType()
+    {
+        var root = new XDocument(
+            new XElement("root",
+                new XElement(PName,
+                    "Text {{mustar:this}} after"
+                )
+            )
+        );
+        filler.Fill(root, "pattern");
+        var p = root.Root!.Elements().Single();
+        var text = p.Value;
+        Assert.Contains("Text", text);
+        Assert.Contains("after", text);
+        Assert.Contains("mustar", text);
+        Assert.DoesNotContain("pattern", text);
+        Assert.DoesNotContain("{{mustar:this}}", text);
+    }
+
     private static XName PName => textNS.GetName("p");
     private static XName SpanName => textNS.GetName("span");
 

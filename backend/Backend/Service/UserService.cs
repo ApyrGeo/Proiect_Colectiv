@@ -77,6 +77,8 @@ public class UserService(IUserRepository userRepository, IAcademicRepository aca
             },
         };
 
+        if (_graph is null)
+            return default;
         var result = await _graph.Users.PostAsync(entraUserRequestBody);
 
         if (result == null || result.Id == null)
