@@ -1,0 +1,137 @@
+.exam-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #152238;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.exam-title {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.exam-error {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.exam-field {
+  margin-bottom: 1.5rem;
+}
+
+.exam-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.exam-select, .exam-multiselect {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #0a1a2f;
+  font-size: 1rem;
+  background-color: #0a1a2f;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.exam-select:focus, .exam-multiselect:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.exam-multiselect {
+  height: 120px;
+}
+
+.exam-summary {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.group-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #0a1a2f;
+  background-color: #0a1a2f;
+  cursor: pointer;
+  min-width: 131px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.group-item:hover {
+  background-color: #143259;
+}
+
+.group-item.selected {
+  border-color: #143259;
+  background-color: #143259;
+  color: #fff;
+}
+
+.group-name {
+  flex-grow: 1;
+}
+
+.group-checkbox {
+  width: 23px;
+  height: 20px;
+  border: 1px solid #0a1a2f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0a1a2f;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.group-checkbox .checkmark {
+  color: #3498db;
+  font-weight: bold;
+}
+
+/* AdminExamPage.css */
+
+/* Stil general pentru butonul de generare */
+.generate-button {
+  display: block; /* face butonul să fie pe rând propriu */
+  margin: 20px auto; /* centrare pe orizontală și spațiu de sus/jos */
+  padding: 12px 24px; /* dimensiune confortabilă */
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff; /* text alb */
+  background-color: #0a1a2f; /* verde plăcut */
+  border: none;
+  border-radius: 8px; /* colțuri rotunjite */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* umbră subtilă */
+}
+
+/* Hover effect */
+.generate-button:hover {
+  background-color: #143763;
+  transform: translateY(-2px);
+}
