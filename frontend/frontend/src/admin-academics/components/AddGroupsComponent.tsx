@@ -9,7 +9,7 @@ import {
   InputLabel,
   MenuItem,
 } from "@mui/material";
-import { theme } from "../theme.ts";
+import { muiThemeAcademics } from "../muiThemeAcademics.ts";
 import { useEffect, useState } from "react";
 import type { Faculty } from "../props.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
@@ -56,7 +56,7 @@ const AddSpecialisationComponent: React.FC<AddGroupProps> = (props) => {
       });
   };
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiThemeAcademics}>
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>{t("NewGroups")}</div>

@@ -1,5 +1,5 @@
 import { TextField, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
-import { theme } from "../theme.ts";
+import { muiThemeAcademics } from "../muiThemeAcademics.ts";
 import type { Faculty } from "../props.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ const AddSpecialisationComponent: React.FC<AddSpecialisationProps> = (props) => 
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiThemeAcademics}>
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>

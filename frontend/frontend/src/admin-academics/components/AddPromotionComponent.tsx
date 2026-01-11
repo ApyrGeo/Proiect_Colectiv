@@ -1,5 +1,5 @@
 import { Slider, Card, Button, ThemeProvider, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
-import { theme } from "../theme.ts";
+import { muiThemeAcademics } from "../muiThemeAcademics.ts";
 import { useEffect, useState } from "react";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
 import type { Faculty } from "../props.ts";
@@ -40,7 +40,7 @@ const AddPromotionComponent: React.FC<AddPromotionProps> = (props) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiThemeAcademics}>
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>{t("NewPromotion")}</div>
