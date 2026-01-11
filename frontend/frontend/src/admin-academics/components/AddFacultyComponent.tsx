@@ -1,5 +1,5 @@
 import { TextField, Button, Card, ThemeProvider } from "@mui/material";
-import { theme } from "../theme.ts";
+import { muiThemeAcademics } from "../muiThemeAcademics.ts";
 import useAdminAcademicsApi from "../useAdminAcademicsApi.ts";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,7 +34,7 @@ const AddFacultyComponent: React.FC<AddFacultyProps> = (props) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiThemeAcademics}>
       <div className={"admin-academic-component"}>
         <Card>
           <div className={"academic-title"}>{t("NewFaculty")}</div>
