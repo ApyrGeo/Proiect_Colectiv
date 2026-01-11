@@ -169,7 +169,9 @@ const ExamGenerationPage = () => {
             onChange={(e) => setSelectedFacultyId(e.target.value === "" ? "" : Number(e.target.value))}
             className="exam-select"
           >
-            <option value="">-- Selectează o facultate --</option>
+            <option value="" hidden={selectedFacultyId !== ""}>
+              -- Selectează o facultate --
+            </option>
             {faculties.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
@@ -192,7 +194,9 @@ const ExamGenerationPage = () => {
               onChange={(e) => setSelectedTeacherId(e.target.value === "" ? "" : Number(e.target.value))}
               className="exam-select"
             >
-              <option value="">-- Selectează un profesor --</option>
+              <option value="" hidden={selectedTeacherId !== ""}>
+                -- Selectează un profesor --
+              </option>
               {teachers.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.user.firstName} {t.user.lastName}
@@ -218,7 +222,9 @@ const ExamGenerationPage = () => {
               onChange={(e) => setSelectedSubjectId(e.target.value === "" ? "" : Number(e.target.value))}
               className="exam-select"
             >
-              <option value="">-- Selectează o materie --</option>
+              <option value="" hidden={selectedSubjectId !== ""}>
+                -- Selectează o materie --
+              </option>
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
