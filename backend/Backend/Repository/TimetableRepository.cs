@@ -227,7 +227,6 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
 
         return _mapper.Map<List<StudentGroupResponseDTO>>(subject!.Semester.Promotion.StudentGroups);
     }
-
     public async Task<HourResponseDTO?> GetHourByIdAsync(int id)
     {
         _logger.InfoFormat("Fetching hours by ID: {0}", id);
