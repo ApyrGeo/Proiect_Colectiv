@@ -3,15 +3,13 @@ import useExamGenerationApi from "./exam-generation-api.ts";
 import type { FacultyProps, TeacherProps, SubjectProps, StudentGroupProps } from "./props";
 import "./AdminExamPage.css";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const ExamGenerationPage = () => {
-  const {
-    getFaculties,
-    getTeachers,
-    getSubjectsByTeacher,
-    getStudentGroupsBySubject,
-    generateExamEntries,
-  } = useExamGenerationApi();
+  const { getFaculties, getTeachers, getSubjectsByTeacher, getStudentGroupsBySubject, generateExamEntries } =
+    useExamGenerationApi();
+
+  const { t } = useTranslation();
 
   const [faculties, setFaculties] = useState<FacultyProps[]>([]);
   const [selectedFacultyId, setSelectedFacultyId] = useState<number | "">("");
@@ -159,9 +157,9 @@ const ExamGenerationPage = () => {
 
       {/* Facultăți */}
       <div className="exam-field">
-        <label htmlFor="faculty">Facultate</label>
+        <label htmlFor="faculty">{t("Faculty")}</label>
         {loadingFaculties ? (
-          <p>Se încarcă facultățile...</p>
+          <p>{t("Loading")}</p>
         ) : (
           <select
             id="faculty"
@@ -170,7 +168,7 @@ const ExamGenerationPage = () => {
             className="exam-select"
           >
             <option value="" hidden={selectedFacultyId !== ""}>
-              -- Selectează o facultate --
+              --{t("Select_a_faculty")} --
             </option>
             {faculties.map((f) => (
               <option key={f.id} value={f.id}>
@@ -184,9 +182,9 @@ const ExamGenerationPage = () => {
       {/* Profesori */}
       {selectedFacultyId && (
         <div className="exam-field">
-          <label htmlFor="teacher">Profesor</label>
+          <label htmlFor="teacher">{t("Professor")}</label>
           {loadingTeachers ? (
-            <p>Se încarcă profesorii...</p>
+            <p>{t("Loading")}</p>
           ) : teachers.length > 0 ? (
             <select
               id="teacher"
@@ -195,7 +193,7 @@ const ExamGenerationPage = () => {
               className="exam-select"
             >
               <option value="" hidden={selectedTeacherId !== ""}>
-                -- Selectează un profesor --
+                -- {t("Select_a_professor")} --
               </option>
               {teachers.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -204,7 +202,7 @@ const ExamGenerationPage = () => {
               ))}
             </select>
           ) : (
-            <p>Nu există profesori pentru această facultate.</p>
+            <p>{t("Empty")}</p>
           )}
         </div>
       )}
@@ -212,9 +210,9 @@ const ExamGenerationPage = () => {
       {/* Materii */}
       {selectedTeacherId && (
         <div className="exam-field">
-          <label htmlFor="subject">Materie</label>
+          <label htmlFor="subject">{t("Subject")}</label>
           {loadingSubjects ? (
-            <p>Se încarcă materiile...</p>
+            <p>{t("Loading")}</p>
           ) : subjects.length > 0 ? (
             <select
               id="subject"
@@ -223,7 +221,7 @@ const ExamGenerationPage = () => {
               className="exam-select"
             >
               <option value="" hidden={selectedSubjectId !== ""}>
-                -- Selectează o materie --
+                -- {t("Select_a_subject")} --
               </option>
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -232,7 +230,7 @@ const ExamGenerationPage = () => {
               ))}
             </select>
           ) : (
-            <p>Nu există materii pentru acest profesor.</p>
+            <p>{t("Empty")}</p>
           )}
         </div>
       )}
@@ -240,9 +238,9 @@ const ExamGenerationPage = () => {
       {/* Multi-select vizual grupe */}
       {selectedSubjectId && (
         <div className="exam-field">
-          <label>Grupe</label>
+          <label>{t("Groups")}</label>
           {loadingGroups ? (
-            <p>Se încarcă grupele...</p>
+            <p>{t("Loading")}</p>
           ) : studentGroups.length > 0 ? (
             <div className="group-grid">
               {studentGroups.map((g) => {
@@ -260,7 +258,7 @@ const ExamGenerationPage = () => {
               })}
             </div>
           ) : (
-            <p>Nu există grupe pentru această materie.</p>
+            <p>{t("Empty")}</p>
           )}
         </div>
       )}
@@ -268,7 +266,7 @@ const ExamGenerationPage = () => {
       {/* Buton generare examen */}
       {selectedSubjectId && selectedGroupIds.length > 0 && (
         <button className="generate-button" onClick={handleGenerateExam} disabled={loadingGenerate}>
-          {loadingGenerate ? "Se generează..." : "Generează Examen"}
+          {loadingGenerate ? t("Loading") : t("GenerateExam")}
         </button>
       )}
     </div>
