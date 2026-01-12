@@ -162,7 +162,7 @@ const ContractsPage: React.FC = () => {
             <Select
               labelId="contracts-select-promotion-label"
               id="contracts-select-promotion"
-              label={t("promotion")}
+              label={t("Promotion")}
               className="white"
               value={selectedPromotion?.id ?? ''}
               onChange={(x) => setSelectedPromotion(promotionSelectData.filter((y) => y.id == x.target.value)[0])}
@@ -175,11 +175,11 @@ const ContractsPage: React.FC = () => {
           </FormControl>
 
           <FormControl>
-            <InputLabel id="contracts-select-year-label">{t("Year")}</InputLabel>
+            <InputLabel id="contracts-select-year-label">{t("YearOfStudy")}</InputLabel>
             <Select
               labelId="contracts-select-year-label"
               id="contracts-select-year"
-              label={t("year")}
+              label={t("YearOfStudy")}
               name="year"
               className="white"
               value={selectedYear}
