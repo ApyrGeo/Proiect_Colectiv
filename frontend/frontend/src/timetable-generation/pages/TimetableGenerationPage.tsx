@@ -43,7 +43,7 @@ const TimetableGenerationPage: React.FC = () => {
 
     setLoading(true);
 
-    const res = await api.getGeneratedTimetable(selectedSpecialisation.value.id, semester.value.id);
+    const res = await api.getGeneratedTimetable(year.value.id, semester.value.semesterNumber);
     setRows(res.hours);
     setLoading(false);
   };
@@ -61,9 +61,9 @@ const TimetableGenerationPage: React.FC = () => {
     if (!selectedSpecialisation || !year || !semester) return;
 
     setLoading(true);
-    await api.generateTimetable(selectedSpecialisation.value.id, year.value.startYear, semester.value.id);
+    await api.generateTimetable(selectedSpecialisation.value.id, semester.value.id);
 
-    const res = await api.getGeneratedTimetable(selectedSpecialisation.value.id, semester.value.id);
+    const res = await api.getGeneratedTimetable(year.value.id, semester.value.semesterNumber);
     setRows(res.hours);
     setLoading(false);
   };

@@ -3,18 +3,6 @@ import type { LocationProps, FacultyProps, TimeTableGenerationProps, PutTimeTabl
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient.ts";
 
-type HourFilter = {
-  userId?: number;
-  classroomId?: number;
-  subjectId?: number;
-  teacherId?: number;
-  facultyId?: number;
-  specialisationId?: number;
-  groupYearId?: number;
-  currentWeekTimetable?: boolean;
-  semesterNumber?: number;
-};
-
 const useTimetableGenerationApi = () => {
   const { axios } = useApiClient();
 
@@ -37,8 +25,8 @@ const useTimetableGenerationApi = () => {
   }, [axios]);
 
   const getGeneratedTimetable = useCallback(
-    async (specializationId: number, semesterId: number): Promise<TimeTableGenerationProps> => {
-      const params = { semesterId: semesterId, specialisationId: specializationId };
+    async (groupYearId: number, semesterNumber: number): Promise<TimeTableGenerationProps> => {
+      const params = { semesterNumber: 2 - (semesterNumber % 2), groupYearId: groupYearId };
       const response = await axios.get<TimeTableGenerationProps>(`/api/Timetable/hours`, {
         params,
       });
@@ -48,11 +36,11 @@ const useTimetableGenerationApi = () => {
   );
 
   const generateTimetable = useCallback(
-    async (specialisationId: number, year: number, semester: number) => {
+    async (specialisationId: number, semesterId: number) => {
+      console.log(specialisationId, semesterId);
       const response = await axios.post("/api/Timetable/hours/generate-timetable", {
         specialisationId,
-        year,
-        semester,
+        semesterId,
       });
       return response.data;
     },
