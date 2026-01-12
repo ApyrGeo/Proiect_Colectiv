@@ -1,6 +1,7 @@
 import type { OptionalPackageProps } from "./props";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 export type OptionalsCallback = (data: { semester1or2: number; packageId: number; subjectId: number }) => void;
 
@@ -10,6 +11,7 @@ export interface OptionalsState {
 }
 
 export function ContractOptionals(state: OptionalsState) {
+  const { t } = useTranslation()
   const perSemester = new Map<number, OptionalPackageProps[]>();
   for (const optional of state.optionals) {
     const collection = perSemester.get(optional.semesterNumber);
@@ -26,7 +28,7 @@ export function ContractOptionals(state: OptionalsState) {
     <div>
       {[...perSemester.entries()].map(([semesterNumber, optionals]) => (
         <div key={`optional-${semesterNumber}`}>
-          <p>Semester {semesterNumber.valueOf()}</p>
+          <p>{t("Semester")} {semesterNumber.valueOf()}</p>
           {optionals.map((optional) => (
             <FormControl key={`optional-id-${optional.packageId}`} fullWidth>
               <InputLabel id={`contracts-optional-${semesterNumber}-${optional.packageId}`}>
@@ -49,11 +51,12 @@ export function ContractOptionals(state: OptionalsState) {
       ))}
     </div>
   );
+
+  function labelOfPkg(pkg: number) {
+    return t("PackageOfOptionals", {val: pkg})
+  }
 }
 
-function labelOfPkg(pkg: number) {
-  return `Package ${pkg} of optionals`;
-}
 
 /* map(([semesterNumber, optionals]) => {
                 <div key={`optional-${semesterNumber}`}>

@@ -132,8 +132,6 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     document.documentElement.style.setProperty("--current-sidebar-width", width);
   }, [isMinified]);
 
-  console.log(selectedLanguage);
-
   const isMenuEmpty = (item: MenuItem) => {
     return item.submenu?.some((sub) => sub.url && userProps && !isRouteAvailable(sub.url, userProps));
   };

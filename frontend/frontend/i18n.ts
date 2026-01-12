@@ -9,6 +9,10 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
+        Unknown: 'Unknown',
+        Download: 'Download',
+        Email: "email",
+        PackageOfOptionals: "Package {{val, number}} of optionals",
         AllRights: "© 2025 Track for UBB. All rights reserved.",
         NoStudentsInGroup: "There are no students in this group",
         SaveModifications: "Save Modifications",
@@ -230,6 +234,10 @@ i18n.use(initReactI18next).init({
     },
     ro: {
       translation: {
+        Unknown: 'Necunoscut',
+        Download: 'Descarcă',
+        Email: "email",
+        PackageOfOptionals: "Pachetul {{val, number}} de opționale",
         AllRights: "© 2025 Track for UBB. Toate drepturile rezervate.",
         NoStudentsInGroup: "Nu există studenți în această grupă",
         SaveModifications: "Salvare modificări",
@@ -451,6 +459,10 @@ i18n.use(initReactI18next).init({
     },
     hu: {
       translation: {
+        Unknown: 'Ismeretlen',
+        Download: 'Letöltés',
+        Email: "email",
+        PackageOfOptionals: "{{val, number}} csomag opcionális elemek",
         AllRights: "© 2025 Track for UBB. Minden jog fenntartva.",
         NoStudentsInGroup: "Nincsenek tanulók a csoportban",
         SaveModifications: "Módosítások mentése",
@@ -673,6 +685,10 @@ i18n.use(initReactI18next).init({
     },
     de: {
       translation: {
+        Unknown: 'Unbekannt',
+        Download: 'Download',
+        Email: "email",
+        PackageOfOptionals: "{{val, number}} csomag opcionális elemek",
         AllRights: "© 2025 Track for UBB. Alle Rechte vorbehalten.",
         NoStudentsInGroup: "In dieser Gruppe befinden sich keine Studenten",
         SaveModifications: "Änderungen speichern",

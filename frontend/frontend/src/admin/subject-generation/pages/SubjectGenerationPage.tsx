@@ -191,7 +191,7 @@ const SubjectGenerationPage: React.FC = () => {
                 <input
                   type="number"
                   max={6}
-                  min={1}
+                  min={0}
                   className="subject-form-number"
                   value={optionalPackage}
                   onChange={(e) => setOptionalPackage(Number(e.target.value))}
