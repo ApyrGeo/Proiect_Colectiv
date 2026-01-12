@@ -30,6 +30,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
 
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | "">("");
   const [selectedGroupId, setSelectedGroupId] = useState<number | "">("");
+  const [currentSubGroupIds, setCurrentSubGroupIds] = useState<number[]>([]);
 
   const [loadingSubjects, setLoadingSubjects] = useState(false);
   const [loadingGroups, setLoadingGroups] = useState(false);
@@ -42,7 +43,6 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
   const {
     getSubjectsByTeacher,
     getStudentGroupsBySubject,
-    getSubGroupsBySubject,
     getEnrollmentByStudentAndSubGroup,
     getStudentByGroup,
     updateGradeById,
@@ -84,12 +84,21 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     setLoadingGrades(true);
     try {
       const data = await getStudentByGroup(subjectId, groupId);
-      const subGroups = await getSubGroupsBySubject(subjectId);
-      const subGroupId = subGroups[0]?.id;
+
+      // Get all groups with their subgroups
+      const groupsData = await getStudentGroupsBySubject(subjectId);
+      const selectedGroup = groupsData.find((g) => g.id === groupId);
+      const subGroupIds = selectedGroup?.studentSubGroups?.map((sg) => sg.id) ?? [];
+      setCurrentSubGroupIds(subGroupIds);
 
       const gradesWithEnrollment: GradeEntry[] = await Promise.all(
         data.grades.map(async (g) => {
-          const enrollment = await getEnrollmentByStudentAndSubGroup(g.user.id, subGroupId);
+          // Try to find enrollment in any of the subgroups for this group
+          let enrollment = null;
+          for (const subGroupId of subGroupIds) {
+            enrollment = await getEnrollmentByStudentAndSubGroup(g.user.id, subGroupId);
+            if (enrollment) break;
+          }
 
           const gradeId = g.grade?.id ?? 0;
           const value = g.grade?.value ?? null;
@@ -100,7 +109,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
               ...g.grade,
               id: gradeId,
               value,
-              enrollment: enrollment!,
+              enrollment: enrollment ?? null,
             },
           };
         })
@@ -116,60 +125,86 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
   };
 
   /* ===================== GRADE CHANGE ===================== */
-  const onGradeChange = (studentId: number, value: string) => {
-    if (!gradesData) return;
+  const onGradeChange = async (studentId: number, value: string) => {
+    if (!gradesData || !selectedSubjectId || !selectedGroupId) return;
 
     const newValue = value === "" ? null : Number(value);
 
+    // Find the grade entry for this student
+    const gradeEntry = gradesData.grades.find((g) => g.user.id === studentId);
+    if (!gradeEntry) return;
+
+    // Update UI immediately (optimistic update)
     setGradesData((prev) => {
       if (!prev) return prev;
 
-      const newGrades = prev.grades.map((g) => {
-        if (g.user.id === studentId) {
-          setPendingUpdates((prevUpdates) => {
-            const exists = prevUpdates.find(
-              (p) => p.gradeId === g.grade.id && p.enrollmentId === g.grade.enrollment.id
-            );
+      return {
+        ...prev,
+        grades: prev.grades.map((g) =>
+          g.user.id === studentId ? { ...g, grade: { ...g.grade, value: newValue } } : g
+        ),
+      };
+    });
 
-            if (exists) {
-              return prevUpdates.map((p) =>
-                p.gradeId === g.grade.id && p.enrollmentId === g.grade.enrollment.id ? { ...p, value: newValue } : p
-              );
-            }
+    // Get enrollment ID - use existing or fetch if missing
+    let enrollmentId = gradeEntry.grade.enrollment?.id;
 
-            return [
-              ...prevUpdates,
-              {
-                gradeId: g.grade.id,
-                value: newValue,
-                enrollmentId: g.grade.enrollment.id,
-                subjectId: selectedSubjectId as number,
-              },
-            ];
-          });
-
-          return {
-            ...g,
-            grade: { ...g.grade, value: newValue },
-          };
+    if (!enrollmentId) {
+      try {
+        // Check enrollment in all subgroups for this group
+        for (const subGroupId of currentSubGroupIds) {
+          const enrollment = await getEnrollmentByStudentAndSubGroup(studentId, subGroupId);
+          if (enrollment) {
+            enrollmentId = enrollment.id;
+            break;
+          }
         }
 
-        return g;
-      });
+        if (!enrollmentId) {
+          console.warn("Could not fetch enrollment for student:", studentId);
+          return;
+        }
+      } catch (err) {
+        console.error("Error fetching enrollment:", err);
+        return;
+      }
+    }
 
-      return { ...prev, grades: newGrades };
+    // Update pending changes
+    setPendingUpdates((prevUpdates) => {
+      const exists = prevUpdates.find((p) => p.gradeId === gradeEntry.grade.id && p.enrollmentId === enrollmentId);
+
+      if (exists) {
+        return prevUpdates.map((p) =>
+          p.gradeId === gradeEntry.grade.id && p.enrollmentId === enrollmentId ? { ...p, value: newValue } : p
+        );
+      }
+
+      return [
+        ...prevUpdates,
+        {
+          gradeId: gradeEntry.grade.id,
+          value: newValue,
+          enrollmentId: enrollmentId,
+          subjectId: selectedSubjectId as number,
+        },
+      ];
     });
   };
 
   /* ===================== SAVE ALL ===================== */
   const saveAllGrades = async () => {
+    console.log("Saving grades, pending updates:", pendingUpdates);
+
     for (const update of pendingUpdates) {
       if (!update.enrollmentId) continue;
 
       try {
         if (!update.gradeId || update.gradeId === 0) {
+          console.log("Creating grade:", update);
           await createGradeById(update.value, update.subjectId, update.enrollmentId, id);
         } else {
+          console.log("Updating grade:", update);
           await updateGradeById(update.gradeId, update.value, update.subjectId, update.enrollmentId, id);
         }
       } catch (err) {
@@ -202,6 +237,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     setSelectedGroupId("");
     setGradesData(null);
     setPendingUpdates([]);
+    setCurrentSubGroupIds([]);
     loadGroups(subjectId);
   };
 
@@ -210,6 +246,7 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
     if (!val || !selectedSubjectId) return;
 
     const groupId = Number(val);
+
     setSelectedGroupId(groupId);
     loadGrades(selectedSubjectId as number, groupId);
   };
