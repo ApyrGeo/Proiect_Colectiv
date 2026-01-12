@@ -38,7 +38,9 @@ const Timetable: React.FC<TimetableProps> = (props) => {
     if (props.sendLocationsToMaps) {
       const uniqueLocations: LocationProps[] = [];
       hours.forEach((hour) => {
-        if (!uniqueLocations.find((loc) => loc.id === hour.location.id)) {
+        if (!hour.location)
+          return;
+        if (!uniqueLocations.find((loc) => loc.id === hour.location?.id)) {
           uniqueLocations.push(hour.location);
         }
       });

@@ -293,7 +293,7 @@ public class AcademicRepository(AcademicAppContext context, IMapper mapper) : IA
                         .ThenInclude(g => g.StudentSubGroups)
             .Include(f => f.Specialisations)
                 .ThenInclude(s => s.Promotions)
-                    .ThenInclude(s => s.Semesters)
+                    .ThenInclude(s => s.Semesters.OrderBy(x => x.SemesterNumber))
 
             .Select(f => _mapper.Map<FacultyResponseDTO>(f))
             .ToListAsync();

@@ -43,8 +43,6 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows }) => {
     newRows[rowIndex] = updatedRow;
     setRows(newRows);
 
-    console.log(updatedRow);
-
     api
       .updateHour(Number(id), {
         id: Number(id),
@@ -63,7 +61,7 @@ const EditableTimetable: React.FC<Props> = ({ facultyId, rows, setRows }) => {
         toast.success("Row updated successfully");
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         const errorMessage = error.response?.data?.Description || "An error occurred";
         toast.error(errorMessage.split(":")[1]?.trim() || errorMessage);
 
