@@ -26,7 +26,7 @@ const useTimetableGenerationApi = () => {
 
   const getGeneratedTimetable = useCallback(
     async (groupYearId: number, semesterNumber: number): Promise<TimeTableGenerationProps> => {
-      const params = { semesterNumber: 2 - (semesterNumber % 2), groupYearId: groupYearId };
+      const params = { semesterNumber: semesterNumber, groupYearId: groupYearId };
       const response = await axios.get<TimeTableGenerationProps>(`/api/Timetable/hours`, {
         params,
       });
@@ -37,7 +37,6 @@ const useTimetableGenerationApi = () => {
 
   const generateTimetable = useCallback(
     async (specialisationId: number, semesterId: number) => {
-      console.log(specialisationId, semesterId);
       const response = await axios.post("/api/Timetable/hours/generate-timetable", {
         specialisationId,
         semesterId,
