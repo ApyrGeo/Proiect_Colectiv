@@ -10,6 +10,7 @@ import { UserRole } from "../../core/props.ts";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import useAuth from "../../auth/hooks/useAuth.ts";
+import { Button } from "@mui/material";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -289,9 +290,7 @@ const TimetablePage: React.FC = () => {
             </label>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <button className="timetable-download-ics-button" onClick={handleDownloadIcs}>
-              {t("Download")}
-            </button>
+            <Button variant="outlined" onClick={handleDownloadIcs}>{t("Download")}</Button>
           </div>
         </div>
 
