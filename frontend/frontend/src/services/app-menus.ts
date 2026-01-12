@@ -54,19 +54,19 @@ export function getAppMenus() {
           url: "/admin/exam-generation",
         },
         {
-          title: "Add users",
+          title: "AddUsers",
           icon: "➕",
           submenu: [
             {
-              title: "Import users",
+              title: "ImportUsers",
               url: "/admin/import-users",
             },
             {
-              title: "Import promotion",
+              title: "ImportPromotion",
               url: "/admin/import-promotion",
             },
             {
-              title: "Add teacher",
+              title: "AddTeacher",
               url: "/admin/add-teacher",
             },
           ],

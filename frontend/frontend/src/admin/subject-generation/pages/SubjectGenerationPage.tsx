@@ -112,7 +112,7 @@ const SubjectGenerationPage: React.FC = () => {
   return (
     <div className="container">
       <div className="subject-page">
-        <div className="subject-title">Subject Generation</div>
+        <div className="subject-title">{t("NewSubject")}</div>
 
         <div className="subject-filter">
           <ComboBox
@@ -153,18 +153,18 @@ const SubjectGenerationPage: React.FC = () => {
           <div className="subject-generation-container">
             <div className="subject-form-card">
               <div className="subject-form-group">
-                <label className="subject-form-label">Name</label>
+                <label className="subject-form-label">{t("Name")}</label>
                 <input
                   type="text"
                   className="subject-form-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter subject name"
+                  placeholder={t("Subject")}
                 />
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Code</label>
+                <label className="subject-form-label">{t("Code")}</label>
                 <input
                   type="text"
                   className="subject-form-input"
@@ -175,7 +175,7 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Number of Credits</label>
+                <label className="subject-form-label">{t("Credits")}</label>
                 <input
                   type="number"
                   className="subject-form-number"
@@ -187,7 +187,7 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Optional Package</label>
+                <label className="subject-form-label">{t("OptionalPackage")}</label>
                 <input
                   type="number"
                   max={6}
@@ -199,9 +199,9 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Teacher</label>
+                <label className="subject-form-label">{t("Professor")}</label>
                 <ComboBox
-                  placeholder="Select teacher"
+                  placeholder={t("Select")}
                   options={teachers.map((t) => ({ value: t, label: t.user.lastName + " " + t.user.firstName }))}
                   value={teacher ?? undefined}
                   onChange={setTeacher}
@@ -209,9 +209,9 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Subject Type</label>
+                <label className="subject-form-label">{t("Type")}</label>
                 <ComboBox
-                  placeholder="Select type"
+                  placeholder={t("Select")}
                   options={subjectTypes}
                   value={subjectType ?? undefined}
                   onChange={setSubjectType}
@@ -219,9 +219,9 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Semesters</label>
+                <label className="subject-form-label">{t("Semester")}</label>
                 <ComboBox
-                  placeholder="Select semester"
+                  placeholder={t("Select")}
                   options={semesters.map((s) => ({ value: s, label: s.semesterNumber.toString() }))}
                   value={semester ?? undefined}
                   onChange={setSemester}
@@ -229,9 +229,9 @@ const SubjectGenerationPage: React.FC = () => {
               </div>
 
               <div className="subject-form-group">
-                <label className="subject-form-label">Formation Type</label>
+                <label className="subject-form-label">{t("Format")}</label>
                 <ComboBox
-                  placeholder="Formation type"
+                  placeholder={t("Select")}
                   options={formationTypes}
                   value={formation ? { value: formation, label: formation } : undefined}
                   onChange={(v) => setFormation(v.value)}
