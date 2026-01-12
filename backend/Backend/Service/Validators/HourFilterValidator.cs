@@ -78,7 +78,7 @@ public class HourFilterValidator : AbstractValidator<HourFilter>
             }).WithMessage(filter => $"Group year with ID {filter.GroupYearId} not found.");
 
         RuleFor(x => x.SemesterNumber)
-            .InclusiveBetween(1, 2)
-            .WithMessage(filter => $"Semester must be 1 or 2");
+            .InclusiveBetween(1, 10)
+            .WithMessage(filter => $"Semester must be between 1 and 10");
     }
 }
