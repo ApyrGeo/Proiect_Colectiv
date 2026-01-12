@@ -183,7 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                           }}
                         >
                           <span className="menu-icon">{item.icon}</span>
-                          {!isMinified && <span className="menu-text">{item.title}</span>}
+                          {!isMinified && <span className="menu-text">{t(item.title)}</span>}
                           {!isMinified && item.submenu && (
                             <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
                           )}
@@ -218,7 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                                   setHoveredMenu(null);
                                 }}
                               >
-                                {sub.title}
+                                {t(sub.title)}
                               </NavLink>
                             ))}
                         </div>
@@ -236,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
               onMouseEnter={handlePreviewEnter}
               onMouseLeave={handlePreviewLeave}
             >
-              <div className="hover-title">{hoveredMenu.title}</div>
+              <div className="hover-title">{t(hoveredMenu.title)}</div>
               {hoveredMenu.submenu.map((sub) => (
                 <NavLink
                   key={sub.id ?? sub.title}
@@ -248,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                     setHoveredMenu(null);
                   }}
                 >
-                  {sub.title}
+                  {t(sub.title)}
                 </NavLink>
               ))}
             </div>
