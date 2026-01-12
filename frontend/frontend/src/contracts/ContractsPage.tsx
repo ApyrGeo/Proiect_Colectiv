@@ -164,8 +164,10 @@ const ContractsPage: React.FC = () => {
               id="contracts-select-promotion"
               label={t("promotion")}
               className="white"
+              value={selectedPromotion?.id ?? ''}
               onChange={(x) => setSelectedPromotion(promotionSelectData.filter((y) => y.id == x.target.value)[0])}
             >
+              <MenuItem>{t("Promotion")}</MenuItem>
               {promotionSelectData?.map((x) => (
                 <MenuItem value={x.id}>{x.prettyName}</MenuItem>
               ))}
