@@ -55,41 +55,55 @@
 }
 
 /* Table comboboxes expand on hover */
+.timetable-row td .combo-container {
+  transition: width 0.5s ease-out 1s;
+}
+
 .timetable-row td:hover .combo-container {
   width: max-content !important;
-  transition: width 0.3s ease-in;
+}
+
+.timetable-row td .combo-input {
+  transition: max-width 0.5s ease-out 1s;
 }
 
 .timetable-row td:hover .combo-input {
   width: auto !important;
   max-width: 50ch !important;
-  transition:
-    max-width 0.3s ease-in,
-    width 0.3s ease-in;
+}
+
+.timetable-row td .combo-options {
+  transition: max-width 0.5s ease-out 1s;
 }
 
 .timetable-row td:hover .combo-options {
   max-width: 50ch !important;
-  transition: max-width 0.3s ease-in;
 }
 
 /* Filter comboboxes at the top expand on hover */
+.timetable-filter .combo-container {
+  transition: width 0.5s ease-out 1s;
+}
+
 .timetable-filter .combo-container:hover {
   width: max-content !important;
-  transition: width 0.3s ease-in;
+}
+
+.timetable-filter .combo-input {
+  transition: max-width 0.5s ease-out 1s;
 }
 
 .timetable-filter .combo-container:hover .combo-input {
   width: auto !important;
   max-width: 50ch !important;
-  transition:
-    max-width 0.3s ease-in,
-    width 0.3s ease-in;
+}
+
+.timetable-filter .combo-options {
+  transition: max-width 0.5s ease-out 1s;
 }
 
 .timetable-filter .combo-container:hover .combo-options {
   max-width: 50ch !important;
-  transition: max-width 0.3s ease-in;
 }
 
 .combo-button {
