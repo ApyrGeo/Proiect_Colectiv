@@ -85,8 +85,9 @@ const AdminLocationPage: React.FC = () => {
 
       try {
         const createdLocation = await createLocation(newLocation);
-        await fetchLocations().then(setLocations)
         locationId = createdLocation.id;
+        const updatedLocations = await fetchLocations();
+        setLocations(updatedLocations);
       } catch {
         toast.error(t("adminLocation.toast.locationCreateFail"));
         return;

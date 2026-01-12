@@ -3,8 +3,8 @@ import useExamApi from "../ExamApi.ts";
 import type { TeacherProps, LocationProps, GroupRowProps, ExamProps } from "../props.ts";
 import "../ExamPage.css";
 import toast from "react-hot-toast";
-import { t } from "i18next";
 import TableGlimmer from "../../components/loading/TableGlimmer.tsx";
+import { useTranslation } from "react-i18next";
 
 const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const { getLocations, getSubjectsByTeacher, getExamsBySubject, updateExam } = useExamApi();
@@ -17,6 +17,8 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const [updateList, setUpdateList] = useState<GroupRowProps[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -206,11 +208,11 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
       <table className="exam-table">
         <thead>
           <tr>
-            <th>Grupa</th>
-            <th>Locația</th>
-            <th>Clasa</th>
-            <th>Data examen</th>
-            <th>Durata (min)</th>
+            <th>{t("Group")}</th>
+            <th>{t("Location")}</th>
+            <th>{t("Classroom")}</th>
+            <th>{t("Date")}</th>
+            <th>{t("Duration")}</th>
           </tr>
         </thead>
         <tbody>
