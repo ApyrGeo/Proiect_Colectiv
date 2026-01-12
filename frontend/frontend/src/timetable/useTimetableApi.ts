@@ -25,6 +25,15 @@ const useTimetableApi = () => {
     return response.data;
   }, [axios]);
 
+  const getTeacherIdByUser = useCallback(
+    async (userId: number) => {
+      const response = await axios.get(`${academicsUrl}/teacher/user/` + userId);
+      console.log(response.data);
+      return response.data.id;
+    },
+    [axios]
+  );
+
   const getUserHours = useCallback(
     async (userId: number) => {
       const params: HourFilter = { userId };
@@ -162,6 +171,7 @@ const useTimetableApi = () => {
     getSubject,
     getClassroom,
     downloadIcs,
+    getTeacherIdByUser,
   };
 };
 

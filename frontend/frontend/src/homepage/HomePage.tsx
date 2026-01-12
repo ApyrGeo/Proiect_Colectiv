@@ -5,6 +5,7 @@ import "./homepage.css";
 
 export default function Homepage() {
   const { t } = useTranslation();
+
   return (
     <div className="App">
       <header className="header">
@@ -13,7 +14,7 @@ export default function Homepage() {
         <p>{t("Paragraf")}</p>
       </header>
       <NewsComponent />
-      <footer className="footer">© 2025 Track for UBB. All rights reserved.</footer>
+      <footer className="footer">{t("AllRights")}</footer>
     </div>
   );
 }

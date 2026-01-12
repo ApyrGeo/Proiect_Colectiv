@@ -6,7 +6,7 @@ import type { TeacherProps, UserProps } from "../props.ts";
 import "../ExamPage.css";
 import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 import toast from "react-hot-toast";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const ExamPage: React.FC = () => {
   const { getUserById, getTeacherbyUserId } = useExamApi();
@@ -14,6 +14,7 @@ const ExamPage: React.FC = () => {
   const [student, setStudent] = useState<UserProps | null>(null);
 
   const { userProps } = useAuthContext();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -42,7 +43,7 @@ const ExamPage: React.FC = () => {
     <div className="exam-page-container">
       {teacher && (
         <>
-          <h1>Examene Profesor</h1>
+          <h1>{t("Exams")}</h1>
           <section className="panel">
             <ExamPageByTeacher
               id={teacher.id}
@@ -56,7 +57,7 @@ const ExamPage: React.FC = () => {
 
       {student && (
         <>
-          <h1>Examene Student</h1>
+          <h1>{t("Exams")}</h1>
 
           <section className="panel">
             <ExamPageByStudent id={student.id} firstName={student.firstName} lastName={student.lastName} />

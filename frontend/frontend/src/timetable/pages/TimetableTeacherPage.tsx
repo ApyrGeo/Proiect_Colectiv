@@ -4,6 +4,8 @@ import type { TeacherProps } from "../props.ts";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useTimetableApi from "../useTimetableApi.ts";
+import useAuth from "../../auth/hooks/useAuth.ts";
+import { UserRole } from "../../core/props.ts";
 
 const TimetableTeacherPage: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherProps | null>(null);
@@ -15,6 +17,7 @@ const TimetableTeacherPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { getTeacher } = useTimetableApi();
+  const { userProps } = useAuth();
 
   const handleBack = () => {
     navigate("/timetable");
@@ -30,7 +33,7 @@ const TimetableTeacherPage: React.FC = () => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, [params.id]);
+  }, [getTeacher, params.id]);
 
   return (
     <>
@@ -40,9 +43,11 @@ const TimetableTeacherPage: React.FC = () => {
             <div className={"timetable-title"}>
               {t("Professor")}: {teacher.user.lastName + " " + teacher.user.firstName}
             </div>
-            <button className={"timetable-back-button"} onClick={handleBack}>
-              {t("Back")}
-            </button>
+            {userProps?.role != UserRole.TEACHER && (
+              <button className={"timetable-back-button"} onClick={handleBack}>
+                {t("Back")}
+              </button>
+            )}
             <Timetable teacherId={teacher.id}></Timetable>
           </div>
         )}
