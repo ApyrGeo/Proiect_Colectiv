@@ -42,7 +42,6 @@ const ContractsPage: React.FC = () => {
 
   const handleOptionalChange: OptionalsCallback = (data) => {
     const optionalFormName = `optional-semester-${data.semester1or2}-package-${data.packageId}`;
-    console.log("FormValues new2: ", formValues);
     setFormValues((formValues) => ({ ...formValues, [optionalFormName]: data.subjectId }));
   };
 
@@ -119,12 +118,6 @@ const ContractsPage: React.FC = () => {
     return true;
   };
 
-  useEffect(() => {
-    console.log("FormValues: ", formValues);
-    console.log("FormValues: ", optionalsThisYear);
-    console.log("FormValues: ", selectedYear);
-  }, [formValues]);
-
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -150,7 +143,7 @@ const ContractsPage: React.FC = () => {
           setIsError(false);
         })
         .catch((error) => {
-          console.log(error as Error);
+          console.error(error as Error);
           toast.error(t("Error_generating_contract"));
           setIsError(true);
         });

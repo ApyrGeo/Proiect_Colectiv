@@ -163,8 +163,6 @@ const ExamPageByTeacher: React.FC<TeacherProps> = ({ id, user }) => {
       return;
     }
 
-    console.log("Lista de update înainte de trimis:", updateList);
-
     try {
       for (const group of updateList) {
         if (!group.selectedClassroomId) continue;
