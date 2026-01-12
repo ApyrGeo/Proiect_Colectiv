@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ComboBox, type ComboOption } from "../../../timetable-generation/components/ComboBox.tsx";
 import { useTranslation } from "react-i18next";
-import type { FacultyProps, SemesterProps, SpecialisationProps } from "../props.ts";
+import type { FacultyProps, GroupYearProps, SemesterProps, SpecialisationProps } from "../props.ts";
 import "../subject-generation.css";
 import useSubjectGenerationApi from "../useSubjectGenerationApi.ts";
 import type { TeacherProps } from "../../../exam/props.ts";
@@ -17,9 +17,11 @@ const SubjectGenerationPage: React.FC = () => {
 
   const [faculties, setFaculties] = useState<FacultyProps[]>([]);
   const [specialisations, setSpecialisations] = useState<SpecialisationProps[]>([]);
+  const [promotions, setPromotions] = useState<GroupYearProps[]>([]);
 
   const [selectedFaculty, setSelectedFaculty] = useState<ComboOption<FacultyProps> | null>(null);
   const [selectedSpecialisation, setSelectedSpecialisation] = useState<ComboOption<SpecialisationProps> | null>(null);
+  const [selectedPromotion, setSelectedPromotion] = useState<ComboOption<GroupYearProps> | null>(null);
 
   const [name, setName] = useState("");
   const [credits, setCredits] = useState<number>(0);
@@ -58,17 +60,12 @@ const SubjectGenerationPage: React.FC = () => {
     api.getFaculties().then(setFaculties);
   }, []);
 
-  const fetchGroups = (specialisation: ComboOption<SpecialisationProps>) => {
-    if (!specialisation) {
+  const fetchSemesters = (promotion: ComboOption<GroupYearProps>) => {
+    if (!promotion) {
       setSemesters([]);
       return;
     }
-    const promotions = specialisation.value.promotions;
-    let semesterTemp: SemesterProps[] = [];
-    promotions.forEach((promotion) => {
-      semesterTemp = semesterTemp.concat(promotion.semesters);
-    });
-    setSemesters(semesterTemp);
+    setSemesters(promotion.value.semesters);
   };
 
   const handleSubmit = () => {
@@ -124,7 +121,9 @@ const SubjectGenerationPage: React.FC = () => {
             value={selectedFaculty ?? undefined}
             onChange={(f) => {
               setSelectedFaculty(f);
+              console.log(faculties);
               setSpecialisations(f.value.specialisations);
+              setSelectedSpecialisation(null);
               setSelectedSpecialisation(null);
             }}
           />
@@ -134,9 +133,20 @@ const SubjectGenerationPage: React.FC = () => {
             value={selectedSpecialisation ?? undefined}
             onChange={(v) => {
               setSelectedSpecialisation(v);
-              fetchGroups(v);
+              setPromotions(v.value.promotions);
+              setSelectedPromotion(null);
             }}
             disabled={!selectedFaculty}
+          />
+          <ComboBox
+            placeholder={t("Promotion")}
+            options={promotions.map((p) => ({ value: p, label: `${p.startYear}-${p.endYear}` }))}
+            value={selectedPromotion ?? undefined}
+            onChange={(v) => {
+              setSelectedPromotion(v);
+              fetchSemesters(v);
+            }}
+            disabled={!selectedSpecialisation}
           />
         </div>
 
