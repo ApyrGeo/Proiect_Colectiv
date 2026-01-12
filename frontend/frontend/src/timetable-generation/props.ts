@@ -1,6 +1,9 @@
 import type { TeacherProps } from "../exam/props.ts";
 
-export type Semester = 1 | 2;
+export interface SemesterProps {
+  id: number;
+  semesterNumber: number;
+}
 
 export interface PutTimeTableGenerationDto {
   id: number;
@@ -45,6 +48,7 @@ export interface GroupYearProps {
   startYear: number;
   endYear: number;
   studentGroups: GroupProps[];
+  semesters: SemesterProps[];
 }
 
 export interface FacultyProps {

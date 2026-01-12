@@ -18,7 +18,6 @@ export function ComboBox<T>({ options, value, onChange, placeholder, disabled }:
   const [query, setQuery] = useState("");
   const [lastValid, setLastValid] = useState<ComboOption<T> | null>(value ?? null);
 
-  /* Keep lastValid in sync when parent changes value */
   useEffect(() => {
     if (value) {
       setLastValid(value);
@@ -31,7 +30,7 @@ export function ComboBox<T>({ options, value, onChange, placeholder, disabled }:
     <Combobox
       value={value ?? null}
       onChange={(v) => {
-        setLastValid(v); // ✅ commit valid choice
+        setLastValid(v);
         v && onChange(v);
         setQuery("");
       }}
