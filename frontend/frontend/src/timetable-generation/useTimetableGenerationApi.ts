@@ -15,28 +15,6 @@ type HourFilter = {
   semesterNumber?: number;
 };
 
-export const updateHour = async (
-  hourId: number,
-  patch: Partial<{
-    day: string;
-    hourInterval: string;
-    frequency: string;
-    category: string;
-    classroomId: number;
-    subjectId: number;
-    teacherId: number;
-    studentGroupId: number;
-  }>
-): Promise<void> => {
-  await fetch(`/api/Timetable/hours/${hourId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(patch),
-  });
-};
-
 const useTimetableGenerationApi = () => {
   const { axios } = useApiClient();
 
@@ -59,8 +37,8 @@ const useTimetableGenerationApi = () => {
   }, [axios]);
 
   const getGeneratedTimetable = useCallback(
-    async (specialization: number, _year: number, semester: number): Promise<TimeTableGenerationProps> => {
-      const params: HourFilter = { semesterNumber: semester, specialisationId: specialization };
+    async (specializationId: number, semesterId: number): Promise<TimeTableGenerationProps> => {
+      const params = { semesterId: semesterId, specialisationId: specializationId };
       const response = await axios.get<TimeTableGenerationProps>(`/api/Timetable/hours`, {
         params,
       });
