@@ -1,12 +1,15 @@
-import React, { useEffect, useState, type SetStateAction, useRef } from "react";
+import React, { type SetStateAction, useEffect, useRef, useState } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
 import { useTranslation } from "react-i18next";
-import { useAuthContext } from "../../auth/context/AuthContext.tsx";
 import Circular from "../../components/loading/Circular.tsx";
 import type { HourFilter } from "../useTimetableApi.ts";
 import useTimetableApi from "../useTimetableApi.ts";
+import { UserRole } from "../../core/props.ts";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import useAuth from "../../auth/hooks/useAuth.ts";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -16,9 +19,11 @@ const defaultSelectedLocations: SelectedLocationsProps = {
 const TimetablePage: React.FC = () => {
   const { t } = useTranslation();
 
-  const { userProps, userEnrollments } = useAuthContext();
+  const { userProps, userEnrollments } = useAuth();
 
-  const { downloadIcs } = useTimetableApi();
+  const navigate = useNavigate();
+
+  const { downloadIcs, getTeacherIdByUser } = useTimetableApi();
 
   const [selectedFilter, setSelectedFilter] = useState<string>("personal");
   const [selectedFreq, setSelectedFreq] = useState<string>("all");
@@ -27,6 +32,16 @@ const TimetablePage: React.FC = () => {
   const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
   const [selectedEnrollment, setSelectedEnrollment] = useState(0);
   const [isLoadingTimetable, setIsLoadingTimetable] = useState<boolean>(false);
+
+  if (userProps && userProps.role == UserRole.TEACHER) {
+    getTeacherIdByUser(userProps.id)
+      .then((res) => {
+        navigate("/timetable/teacher/" + res);
+      })
+      .catch(() => {
+        toast.error("Error");
+      });
+  }
 
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);
@@ -162,7 +177,7 @@ const TimetablePage: React.FC = () => {
 
   if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
 
-  return (
+  return userProps.role == UserRole.STUDENT ? (
     <div className={"container"}>
       <div className={"timetable-page"}>
         <div className={"timetable-title"}>{t("Timetable")}</div>
@@ -360,6 +375,8 @@ const TimetablePage: React.FC = () => {
         </>
       )}
     </div>
+  ) : (
+    <div>{t("Loading")}</div>
   );
 };
 

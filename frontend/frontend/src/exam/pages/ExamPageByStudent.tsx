@@ -3,8 +3,8 @@ import useExamApi from "../ExamApi.ts";
 import type { ExamProps, LocationProps, StudentExamRowProps } from "../props.ts";
 import "../ExamPage.css";
 import { toast } from "react-hot-toast";
-import { t } from "i18next";
 import TableGlimmer from "../../components/loading/TableGlimmer.tsx";
+import { useTranslation } from "react-i18next";
 
 interface ExamPageByStudentProps {
   id: number;
@@ -14,6 +14,8 @@ interface ExamPageByStudentProps {
 
 const ExamPageByStudent: React.FC<ExamPageByStudentProps> = ({ id, firstName, lastName }) => {
   const { getExamsByStudent, getLocations } = useExamApi();
+
+  const { t } = useTranslation();
 
   const [examRows, setExamRows] = useState<StudentExamRowProps[]>([]);
   const [locations, setLocations] = useState<LocationProps[]>([]);
@@ -75,17 +77,17 @@ const ExamPageByStudent: React.FC<ExamPageByStudentProps> = ({ id, firstName, la
   return (
     <div className="exam-page-container">
       <h2>
-        Student: {firstName} {lastName}
+        {t("Student")}: {firstName} {lastName}
       </h2>
 
       <table className="exam-table">
         <thead>
           <tr>
-            <th>Materie</th>
-            <th>Data examen</th>
-            <th>Durată (min)</th>
-            <th>Locație</th>
-            <th>Clasă</th>
+            <th>{t("Subject")}</th>
+            <th>{t("Date")}</th>
+            <th>{t("Duration")}</th>
+            <th>{t("Location")}</th>
+            <th>{t("Classroom")}</th>
           </tr>
         </thead>
         <tbody>

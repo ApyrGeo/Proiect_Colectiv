@@ -9,6 +9,13 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
+        AllRights: "© 2025 Track for UBB. All rights reserved.",
+        NoStudentsInGroup: "There are no students in this group",
+        SaveModifications: "Save Modifications",
+        Date: "Date",
+        Duration: "Duration",
+        Exams: "Exams",
+        Student: "Student",
         Timetable: "Timetable",
         Grades: "Grades",
         Back: "Back",
@@ -78,6 +85,7 @@ i18n.use(initReactI18next).init({
         Error_updating_exams: "Error updating exams",
         Exams_updated_successfully: "Exams updated successfully",
         Select_a_subject: "Select a subject",
+        Select_a_group: "Select a group",
         Select_a_specialization: "Select a specialization",
         Sign_In: "Sign In",
         Sign_Out: "Sign Out",
@@ -222,6 +230,13 @@ i18n.use(initReactI18next).init({
     },
     ro: {
       translation: {
+        AllRights: "© 2025 Track for UBB. Toate drepturile rezervate.",
+        NoStudentsInGroup: "Nu există studenți în această grupă",
+        SaveModifications: "Salvare modificări",
+        Date: "Dată",
+        Duration: "Durată (min)",
+        Exams: "Examene",
+        Student: "Student",
         Timetable: "Orar",
         Grades: "Note",
         Back: "Înapoi",
@@ -291,6 +306,7 @@ i18n.use(initReactI18next).init({
         Error_updating_exams: "Eroare la actualizarea examenelor",
         Exams_updated_successfully: "Examenele au fost actualizate cu succes",
         Select_a_subject: "Selectează o materie",
+        Select_a_group: "Selectează o grupă",
         Select_a_specialization: "Selectează o specializare",
         Sign_In: "Autentificare",
         Sign_Out: "Deconectare",
@@ -435,6 +451,13 @@ i18n.use(initReactI18next).init({
     },
     hu: {
       translation: {
+        AllRights: "© 2025 Track for UBB. Minden jog fenntartva.",
+        NoStudentsInGroup: "Nincsenek tanulók a csoportban",
+        SaveModifications: "Módosítások mentése",
+        Date: "Időpont",
+        Duration: "Időtartam (perc)",
+        Exams: "Vizsgák",
+        Student: "Tanuló",
         Timetable: "Órarend",
         Grades: "Jegyek",
         Back: "Vissza",
@@ -504,6 +527,7 @@ i18n.use(initReactI18next).init({
         Error_updating_exams: "Hiba a vizsgák frissítésekor",
         Exams_updated_successfully: "A vizsgák sikeresen frissítve",
         Select_a_subject: "Válassz egy tantárgyat",
+        Select_a_group: "Válassz egy csoportot",
         Select_a_specialization: "Válassz egy kart",
         Sign_In: "Bejelentkezés",
         Sign_Out: "Kijelentkezés",
@@ -649,6 +673,13 @@ i18n.use(initReactI18next).init({
     },
     de: {
       translation: {
+        AllRights: "© 2025 Track for UBB. Alle Rechte vorbehalten.",
+        NoStudentsInGroup: "In dieser Gruppe befinden sich keine Studenten",
+        SaveModifications: "Änderungen speichern",
+        Date: "Datum",
+        Duration: "Dauer (min)",
+        Exams: "Prüfungen",
+        Student: "Student",
         Timetable: "Zeitplan",
         Grades: "Noten",
         Back: "Zurück",
@@ -718,6 +749,7 @@ i18n.use(initReactI18next).init({
         Error_updating_exams: "Fehler beim Aktualisieren der Prüfungen",
         Exams_updated_successfully: "Prüfungen erfolgreich aktualisiert",
         Select_a_subject: "Wählen Sie ein Fach aus",
+        Select_a_group: "Wählen Sie ein Gruppe aus",
         Select_a_specialization: "Wählen Sie eine Spezialisierung",
         Sign_In: "Anmelden",
         Sign_Out: "Abmelden",

@@ -4,6 +4,7 @@ import TableGlimmer from "../../components/loading/TableGlimmer";
 import type { TeacherProps } from "../props";
 import useGradesApi from "../GradesApi";
 import type { SubjectGradesResponse, GradeEntry } from "../props";
+import { useTranslation } from "react-i18next";
 
 type Subject = {
   id: number;
@@ -35,6 +36,8 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
   const [loadingGrades, setLoadingGrades] = useState(false);
 
   const [pendingUpdates, setPendingUpdates] = useState<GradeUpdate[]>([]);
+
+  const { t } = useTranslation();
 
   const {
     getSubjectsByTeacher,
@@ -215,17 +218,17 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
   return (
     <div className="grades-page-teacher-container">
       <h1 className="grades-page-title">
-        Profesor: {user.firstName} {user.lastName}
+        {t("Professor")}: {user.firstName} {user.lastName}
       </h1>
 
       {/* FILTRE */}
       <div className="grades-panel grades-filters-top">
         <div className="grades-filter-item">
-          <label>Materie:</label>
+          <label>{t("Subject")}:</label>
           <select value={selectedSubjectId} onChange={onSubjectChange}>
-            {!selectedSubjectId && <option value="">Selectează materia</option>}
+            {!selectedSubjectId && <option value="">{t("Select_a_subject")}</option>}
 
-            {loadingSubjects && <option disabled>Se încarcă...</option>}
+            {loadingSubjects && <option disabled>{t("Loading")}</option>}
 
             {!loadingSubjects &&
               subjects.map((s) => (
@@ -238,9 +241,9 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
 
         {selectedSubjectId && (
           <div className="grades-filter-item">
-            <label>Grupa:</label>
+            <label>{t("Group")}:</label>
             <select value={selectedGroupId} onChange={onGroupChange} disabled={loadingGroups}>
-              {!selectedGroupId && <option value="">{loadingGroups ? "Se încarcă..." : "Selectează grupa"}</option>}
+              {!selectedGroupId && <option value="">{loadingGroups ? t("Loading") : t("Select_a_group")}</option>}
 
               {!loadingGroups &&
                 groups.map((g) => (
@@ -319,11 +322,11 @@ const TeacherGradesPage: React.FC<TeacherProps> = ({ id, user }) => {
         )}
 
         <button className="grades-update-button" onClick={saveAllGrades} disabled={pendingUpdates.length === 0}>
-          Salvează modificările
+          {t("SaveModifications")}
         </button>
 
         {!loadingGrades && selectedGroupId && gradesData?.grades.length === 0 && (
-          <div className="grades-empty-message">Nu există studenți în această grupă.</div>
+          <div className="grades-empty-message">{t("NoStudentsInGroup")}</div>
         )}
       </div>
     </div>
