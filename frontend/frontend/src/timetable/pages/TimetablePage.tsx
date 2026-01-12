@@ -72,12 +72,12 @@ const TimetablePage: React.FC = () => {
     const nextLocation =
       hourIndex < hours.length - 1 && // not the last hour
       hours[hourIndex].day === hours[hourIndex + 1].day && // same day
-      hours[hourIndex].location.id !== hours[hourIndex + 1].location.id && // different location
+      hours[hourIndex].location?.id !== hours[hourIndex + 1].location?.id && // different location
       isCompatibleFrequency(hours[hourIndex].frequency, hours[hourIndex + 1].frequency) // possible to have both consecutive hours in the same week
         ? hours[hourIndex + 1].location
         : null;
 
-    setLocations([currentLocation]);
+    setLocations(currentLocation ? [currentLocation] : []);
     setSelectedLocations({ currentLocation, nextLocation });
   };
 
