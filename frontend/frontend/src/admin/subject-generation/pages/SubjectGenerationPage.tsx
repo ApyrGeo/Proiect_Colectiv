@@ -121,7 +121,6 @@ const SubjectGenerationPage: React.FC = () => {
             value={selectedFaculty ?? undefined}
             onChange={(f) => {
               setSelectedFaculty(f);
-              console.log(faculties);
               setSpecialisations(f.value.specialisations);
               setSelectedSpecialisation(null);
               setSelectedSpecialisation(null);
