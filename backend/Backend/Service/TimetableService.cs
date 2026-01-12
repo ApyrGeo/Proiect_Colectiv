@@ -342,14 +342,8 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         var _ = await _academicRepository.GetSpecialisationByIdAsync(dto.SpecialisationId)
             ?? throw new NotFoundException($"Specialization with ID {dto.SpecialisationId} not found.");
 
-        if(dto.Year <= 0 )
-        {
-            throw new EntityValidationException(new List<string> { "Year must be between 1 and 6." });
-        }
-        if(dto.Semester < 1 || dto.Semester > 2)
-        {
-            throw new EntityValidationException(["Semester must be either 1 or 2."]);
-        }
+        var __ = await _academicRepository.GetSemesterByIdAsync(dto.SemesterId)
+            ?? throw new NotFoundException($"Semester with ID {dto.SemesterId} not found.");
 
         await DeleteHoursBySpecialization(dto.SpecialisationId);
 
