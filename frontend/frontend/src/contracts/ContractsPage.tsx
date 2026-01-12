@@ -42,7 +42,6 @@ const ContractsPage: React.FC = () => {
 
   const handleOptionalChange: OptionalsCallback = (data) => {
     const optionalFormName = `optional-semester-${data.semester1or2}-package-${data.packageId}`;
-    console.log("FormValues new2: ", formValues);
     setFormValues((formValues) => ({ ...formValues, [optionalFormName]: data.subjectId }));
   };
 
@@ -119,12 +118,6 @@ const ContractsPage: React.FC = () => {
     return true;
   };
 
-  useEffect(() => {
-    console.log("FormValues: ", formValues);
-    console.log("FormValues: ", optionalsThisYear);
-    console.log("FormValues: ", selectedYear);
-  }, [formValues]);
-
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -150,7 +143,7 @@ const ContractsPage: React.FC = () => {
           setIsError(false);
         })
         .catch((error) => {
-          console.log(error as Error);
+          console.error(error as Error);
           toast.error(t("Error_generating_contract"));
           setIsError(true);
         });
@@ -169,10 +162,12 @@ const ContractsPage: React.FC = () => {
             <Select
               labelId="contracts-select-promotion-label"
               id="contracts-select-promotion"
-              label={t("promotion")}
+              label={t("Promotion")}
               className="white"
+              value={selectedPromotion?.id ?? ''}
               onChange={(x) => setSelectedPromotion(promotionSelectData.filter((y) => y.id == x.target.value)[0])}
             >
+              <MenuItem>{t("Promotion")}</MenuItem>
               {promotionSelectData?.map((x) => (
                 <MenuItem value={x.id}>{x.prettyName}</MenuItem>
               ))}
@@ -180,11 +175,11 @@ const ContractsPage: React.FC = () => {
           </FormControl>
 
           <FormControl>
-            <InputLabel id="contracts-select-year-label">{t("Year")}</InputLabel>
+            <InputLabel id="contracts-select-year-label">{t("YearOfStudy")}</InputLabel>
             <Select
               labelId="contracts-select-year-label"
               id="contracts-select-year"
-              label={t("year")}
+              label={t("YearOfStudy")}
               name="year"
               className="white"
               value={selectedYear}

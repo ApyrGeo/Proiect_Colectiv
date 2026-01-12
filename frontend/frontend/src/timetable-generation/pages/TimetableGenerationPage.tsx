@@ -6,7 +6,7 @@ import EditableTimetable from "../components/EditableTimetable";
 import Circular from "../../components/loading/Circular";
 
 import { ComboBox, type ComboOption } from "../components/ComboBox";
-import type { EditableHourRow, Semester, SpecialisationProps, FacultyProps } from "../props";
+import type { EditableHourRow, SpecialisationProps, FacultyProps, SemesterProps, GroupYearProps } from "../props";
 import { useTranslation } from "react-i18next";
 
 const TimetableGenerationPage: React.FC = () => {
@@ -14,34 +14,23 @@ const TimetableGenerationPage: React.FC = () => {
 
   const [faculties, setFaculties] = useState<FacultyProps[]>([]);
   const [specialisations, setSpecialisations] = useState<SpecialisationProps[]>([]);
-  const [years, setYears] = useState<ComboOption<number>[]>([]);
+  const [years, setYears] = useState<GroupYearProps[]>([]);
+  const [semesters, setSemesters] = useState<SemesterProps[]>([]);
 
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-
-    const startingYear = 2025;
-    const tempYears: ComboOption<number>[] = [];
-
-    for (let year = startingYear; year < currentYear; year++) {
-      tempYears.push({ value: year, label: `${year}-${year + 1}` });
+  const fetchSemesters = (promotion: ComboOption<GroupYearProps>) => {
+    if (!promotion) {
+      setSemesters([]);
+      return;
     }
-
-    if (currentMonth >= 8) {
-      tempYears.push({ value: currentYear + 1, label: `${currentYear + 1}-${currentYear + 2}` });
-    }
-
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setYears(tempYears);
-  }, []);
+    setSemesters(promotion.value.semesters);
+  };
 
   const [selectedFaculty, setSelectedFaculty] = useState<ComboOption<FacultyProps> | null>(null);
-  const [selectedSpecialisation, setSelectedSpecialisation] = useState<ComboOption<number> | null>(null);
-  const [year, setYear] = useState<ComboOption<number> | null>(null);
-  const [semester, setSemester] = useState<ComboOption<Semester> | null>(null);
+  const [selectedSpecialisation, setSelectedSpecialisation] = useState<ComboOption<SpecialisationProps> | null>(null);
+  const [year, setYear] = useState<ComboOption<GroupYearProps> | null>(null);
+  const [semester, setSemester] = useState<ComboOption<SemesterProps> | null>(null);
 
   const [rows, setRows] = useState<EditableHourRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +43,7 @@ const TimetableGenerationPage: React.FC = () => {
 
     setLoading(true);
 
-    const res = await api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value);
+    const res = await api.getGeneratedTimetable(year.value.id, semester.value.semesterNumber);
     setRows(res.hours);
     setLoading(false);
   };
@@ -72,9 +61,9 @@ const TimetableGenerationPage: React.FC = () => {
     if (!selectedSpecialisation || !year || !semester) return;
 
     setLoading(true);
-    await api.generateTimetable(selectedSpecialisation.value, year.value, semester.value);
+    await api.generateTimetable(selectedSpecialisation.value.id, semester.value.id);
 
-    const res = await api.getGeneratedTimetable(selectedSpecialisation.value, year.value, semester.value);
+    const res = await api.getGeneratedTimetable(year.value.id, semester.value.semesterNumber);
     setRows(res.hours);
     setLoading(false);
   };
@@ -99,10 +88,11 @@ const TimetableGenerationPage: React.FC = () => {
           />
           <ComboBox
             placeholder={t("Specialization")}
-            options={specialisations.map((s) => ({ value: s.id, label: s.name }))}
+            options={specialisations.map((s) => ({ value: s, label: s.name }))}
             value={selectedSpecialisation ?? undefined}
             onChange={(v) => {
               setSelectedSpecialisation(v);
+              setYears(v.value.promotions);
               setYear(null);
               setSemester(null);
             }}
@@ -111,20 +101,23 @@ const TimetableGenerationPage: React.FC = () => {
 
           <ComboBox
             placeholder={t("Promotion")}
-            options={years}
+            options={years.map((y) => ({ value: y, label: `${y.startYear}-${y.endYear}` }))}
             value={year ?? undefined}
-            onChange={setYear}
+            onChange={(v) => {
+              setYear(v);
+              fetchSemesters(v);
+              setSemester(null);
+            }}
             disabled={!selectedSpecialisation}
           />
 
           <ComboBox
             placeholder={t("Semester")}
-            options={[
-              { value: 1, label: "Semester 1" },
-              { value: 2, label: "Semester 2" },
-            ]}
+            options={semesters.map((s) => ({ value: s, label: s.semesterNumber.toString() }))}
             value={semester ?? undefined}
-            onChange={setSemester}
+            onChange={(v) => {
+              setSemester(v);
+            }}
             disabled={!year}
           />
         </div>

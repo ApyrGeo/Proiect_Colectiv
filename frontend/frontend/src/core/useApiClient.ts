@@ -71,6 +71,46 @@ const useApiClient = () => {
     };
   }, [accessToken, apiClient, waitForAccessToken]);
 
+  useEffect(() => {
+    const responseInterceptor = apiPdfClient.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        console.error("API call failed:", error);
+        if (error.response.status === 401) {
+          // Unauthorized
+        } else if (error.response.status === 404) {
+          // Not found
+        }
+
+        return Promise.reject(error);
+      }
+    );
+    return () => {
+      apiPdfClient.interceptors.response.eject(responseInterceptor);
+    };
+  }, [apiPdfClient]);
+
+  useEffect(() => {
+    const reqInterceptor = apiPdfClient.interceptors.request.use(async (config) => {
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
+      }
+
+      const token = await waitForAccessToken();
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    });
+
+    return () => {
+      apiPdfClient.interceptors.request.eject(reqInterceptor);
+    };
+  }, [accessToken, apiPdfClient, waitForAccessToken]);
+
   return { axios: apiClient, axiosPdf: apiPdfClient };
 };
 
