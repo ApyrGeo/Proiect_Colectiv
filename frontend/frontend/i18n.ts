@@ -9,10 +9,14 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
-        Unknown: 'Unknown',
-        Download: 'Download',
+        Unknown: "Unknown",
+        Download: "Download",
         Email: "email",
         PackageOfOptionals: "Package {{val, number}} of optionals",
+        AddUsers: "Add Users",
+        ImportUsers: "Import Users",
+        ImportPromotion: "Import Promotion",
+        AddTeacher: "Add Teacher",
         AllRights: "© 2025 Track for UBB. All rights reserved.",
         NoStudentsInGroup: "There are no students in this group",
         SaveModifications: "Save Modifications",
@@ -234,10 +238,14 @@ i18n.use(initReactI18next).init({
     },
     ro: {
       translation: {
-        Unknown: 'Necunoscut',
-        Download: 'Descarcă',
+        Unknown: "Necunoscut",
+        Download: "Descarcă",
         Email: "email",
         PackageOfOptionals: "Pachetul {{val, number}} de opționale",
+        AddUsers: "Adaugă Utilizatori",
+        ImportUsers: "Importă Utilizatori",
+        ImportPromotion: "Importă Promoție",
+        AddTeacher: "Adăugă Profesor",
         AllRights: "© 2025 Track for UBB. Toate drepturile rezervate.",
         NoStudentsInGroup: "Nu există studenți în această grupă",
         SaveModifications: "Salvare modificări",
@@ -459,10 +467,14 @@ i18n.use(initReactI18next).init({
     },
     hu: {
       translation: {
-        Unknown: 'Ismeretlen',
-        Download: 'Letöltés',
+        Unknown: "Ismeretlen",
+        Download: "Letöltés",
         Email: "email",
         PackageOfOptionals: "{{val, number}} csomag opcionális elemek",
+        AddUsers: "Felhasználók hozzáadása",
+        ImportUsers: "Felhasználók importálása",
+        ImportPromotion: "Előléptetés importálása",
+        AddTeacher: "Tanár hozzáadása",
         AllRights: "© 2025 Track for UBB. Minden jog fenntartva.",
         NoStudentsInGroup: "Nincsenek tanulók a csoportban",
         SaveModifications: "Módosítások mentése",
@@ -685,10 +697,14 @@ i18n.use(initReactI18next).init({
     },
     de: {
       translation: {
-        Unknown: 'Unbekannt',
-        Download: 'Download',
+        Unknown: "Unbekannt",
+        Download: "Download",
         Email: "email",
         PackageOfOptionals: "{{val, number}} csomag opcionális elemek",
+        AddUsers: "Benutzer hinzufügen",
+        ImportUsers: "Benutzer importieren",
+        ImportPromotion: "Werbeaktion importieren",
+        AddTeacher: "Lehrer hinzufügen",
         AllRights: "© 2025 Track for UBB. Alle Rechte vorbehalten.",
         NoStudentsInGroup: "In dieser Gruppe befinden sich keine Studenten",
         SaveModifications: "Änderungen speichern",
