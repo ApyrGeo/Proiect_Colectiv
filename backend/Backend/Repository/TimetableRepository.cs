@@ -81,111 +81,109 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
     {
         _logger.InfoFormat("Generating timetable for DTO: {0}", JsonSerializer.Serialize(dto));
 
-        var specialisation = await _context.Specialisations
-            .Include(s => s.Promotions)
-                .ThenInclude(p => p.Semesters)
-                    .ThenInclude(sem => sem.Subjects)
-            .FirstOrDefaultAsync(s => s.Id == dto.SpecialisationId);
+        var semester = await _context.PromotionSemesters
+            .Include(s => s.Subjects)
+            .Include(s => s.Promotion)
+                .ThenInclude(p => p.Specialisation)
+            .FirstOrDefaultAsync(s => s.Id == dto.SemesterId);
 
-        if (specialisation == null)
+        if (semester == null)
         {
-            _logger.WarnFormat("Specialisation with ID {0} not found", dto.SpecialisationId);
+            _logger.WarnFormat("Semester with ID {0} not found", dto.SemesterId);
             return [];
         }
 
-        var currentPromotions = specialisation.Promotions
-            .Where(p => p.StartYear <= dto.Year && p.EndYear >= dto.Year)
-            .ToList();
+        if (semester.Promotion.SpecialisationId != dto.SpecialisationId)
+        {
+            _logger.WarnFormat("Semester {0} does not belong to specialisation {1}", dto.SemesterId, dto.SpecialisationId);
+            return [];
+        }
 
+        var currentPromotion = semester.Promotion;
         var hours = new List<Hour>();
 
-        foreach (var promotion in currentPromotions)
+        _logger.InfoFormat("Processing promotion ID: {0}", currentPromotion.Id);
+
+        var groups = await _context.Groups
+            .Include(g => g.StudentSubGroups)
+            .Where(g => g.PromotionId == currentPromotion.Id)
+            .ToListAsync();
+
+        if (groups.Count == 0)
         {
-            _logger.InfoFormat("Processing promotion ID: {0}", promotion.Id);
+            _logger.WarnFormat("No groups found for promotion ID: {0}", currentPromotion.Id);
+            return [];
+        }
 
-            var groups = await _context.Groups
-                .Include(g => g.StudentSubGroups)
-                .Where(g => g.PromotionId == promotion.Id)
-                .ToListAsync();
+        var subjects = semester.Subjects;
 
-            int promotionYear = dto.Year - promotion.StartYear + 1;
-
-            var semester = promotion.Semesters
-                .FirstOrDefault(s => s.SemesterNumber == (promotionYear - 1) * 2 + dto.Semester);
-
-            if (semester == null || semester.Subjects.Count == 0)
-                continue;
-
-            var subjects = semester.Subjects;
-
-            foreach (var subject in subjects)
+        foreach (var subject in subjects)
+        {
+            int seminarsCount = subject.FormationType switch
             {
-                int seminarsCount = subject.FormationType switch
-                {
-                    SubjectFormationType.Course_Seminar
-                    | SubjectFormationType.Course_Seminar_Laboratory
-                        => groups.Count,
-                    _ => 0,
-                };
-                int labsCount = subject.FormationType switch
-                {
-                    SubjectFormationType.Course_Laboratory
-                    | SubjectFormationType.Course_Seminar_Laboratory
-                        => groups.Sum(x => x.StudentSubGroups.Count),
-                    _ => 0,
-                };
+                SubjectFormationType.Course_Seminar
+                | SubjectFormationType.Course_Seminar_Laboratory
+                    => groups.Count,
+                _ => 0,
+            };
+            int labsCount = subject.FormationType switch
+            {
+                SubjectFormationType.Course_Laboratory
+                | SubjectFormationType.Course_Seminar_Laboratory
+                    => groups.Sum(x => x.StudentSubGroups.Count),
+                _ => 0,
+            };
 
-                // Generate course hour - use IDs instead of navigation properties
-                var courseHour = new Hour
+            // Generate course hour
+            var courseHour = new Hour
+            {
+                Day = HourDay.Unknown,
+                HourInterval = "00:00-00:00",
+                Frequency = HourFrequency.Weekly,
+                Category = HourCategory.Lecture,
+                SubjectId = subject.Id,
+                Subject = subject,
+                ClassroomId = null,
+                TeacherId = null,
+                PromotionId = currentPromotion.Id,
+            };
+            hours.Add(courseHour);
+
+            // Generate seminar hours
+            for (int i = 0; i < seminarsCount; i++)
+            {
+                var seminarHour = new Hour
                 {
                     Day = HourDay.Unknown,
                     HourInterval = "00:00-00:00",
                     Frequency = HourFrequency.Weekly,
-                    Category = HourCategory.Lecture,
+                    Category = HourCategory.Seminar,
                     SubjectId = subject.Id,
                     Subject = subject,
                     ClassroomId = null,
                     TeacherId = null,
-                    PromotionId = promotion.Id,
+                    StudentGroupId = groups[i].Id
                 };
-                hours.Add(courseHour);
+                hours.Add(seminarHour);
+            }
 
-                // Generate seminar hours
-                for (int i = 0; i < seminarsCount; i++)
+            // Generate laboratory hours
+            var subgroups = groups.SelectMany(x => x.StudentSubGroups).ToList();
+            foreach (var subgroup in subgroups)
+            {
+                var labHour = new Hour
                 {
-                    var seminarHour = new Hour
-                    {
-                        Day = HourDay.Unknown,
-                        HourInterval = "00:00-00:00",
-                        Frequency = HourFrequency.Weekly,
-                        Category = HourCategory.Seminar,
-                        SubjectId = subject.Id,
-                        Subject = subject,
-                        ClassroomId = null,
-                        TeacherId = null,
-                        StudentGroupId = groups[i].Id
-                    };
-                    hours.Add(seminarHour);
-                }
-
-                // Generate laboratory hours
-                var subgroups = groups.SelectMany(x => x.StudentSubGroups);
-                foreach (var subgroup in subgroups)
-                {
-                    var labHour = new Hour
-                    {
-                        Day = HourDay.Unknown,
-                        HourInterval = "00:00-00:00",
-                        Frequency = HourFrequency.Weekly,
-                        Category = HourCategory.Laboratory,
-                        SubjectId = subject.Id,
-                        Subject = subject,
-                        ClassroomId = null,
-                        TeacherId = null,
-                        StudentSubGroupId = subgroup.Id,
-                    };
-                    hours.Add(labHour);
-                }
+                    Day = HourDay.Unknown,
+                    HourInterval = "00:00-00:00",
+                    Frequency = HourFrequency.Weekly,
+                    Category = HourCategory.Laboratory,
+                    SubjectId = subject.Id,
+                    Subject = subject,
+                    ClassroomId = null,
+                    TeacherId = null,
+                    StudentSubGroupId = subgroup.Id,
+                };
+                hours.Add(labHour);
             }
         }
 
