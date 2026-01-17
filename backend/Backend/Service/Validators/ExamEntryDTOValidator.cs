@@ -20,7 +20,11 @@ public class ExamEntryDTOValidator : AbstractValidator<ExamEntryPutDTO>
             .MustAsync(async (dto, date, cancellation) =>
             {
                 var existingExams = await examRepository.GetExamsBySubjectId(dto.SubjectId);
-                return !existingExams.Any(e => e.Date == date && e.StudentGroup.Id == dto.StudentGroupId);
+                return !existingExams.Any(e =>
+                    e.Id != dto.Id
+                    && e.Date == date
+                    && e.StudentGroup.Id == dto.StudentGroupId
+                );
             }).WithMessage("An exam for the specified Subject and Student Group already exists on the given date.");
 
         RuleFor(x => x.Duration)
