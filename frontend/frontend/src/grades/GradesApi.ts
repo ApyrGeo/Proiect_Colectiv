@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
-import type { ScholarshipStatus, SpecializationResponse } from "./props";
+import type { PromotionOfUser, ScholarshipStatus } from "./props";
 import type { SubjectGradesResponse, SubjectProps, TeacherProps, UserProps, StudentGroupProps } from "./props.ts";
 
 const useGradesApi = () => {
@@ -32,11 +32,13 @@ const useGradesApi = () => {
   );
 
   // 📌 Specializările la care este înscris studentul
-  const getUserSpecializations = useCallback(
-    async (userId: number): Promise<string[]> => {
-      const response = await axios.get<SpecializationResponse[]>(`${userUrl}/${userId}/enrolled-specialisations`);
+  const getUserPromotions = useCallback(
+    async (userId: number): Promise<PromotionOfUser[]> => {
+      const response = await axios.get<{ promotions: PromotionOfUser[] }>(
+        `${academicsUrl}/promotions/of-user/${userId}`
+      );
 
-      return response.data?.map((s) => s.name) ?? [];
+      return response.data.promotions ?? [];
     },
     [axios]
   );
@@ -45,14 +47,14 @@ const useGradesApi = () => {
   const getScholarshipStatusForUser = useCallback(
     async (
       userId: number,
-      specialization: string,
+      promotionId: number,
       studyYear: number,
       semester: number
     ): Promise<ScholarshipStatus | null> => {
       const response = await axios.get<ScholarshipStatus | null>(`${gradesUrl}/status`, {
         params: {
           userId,
-          specialisation: specialization,
+          promotionId,
           yearOfStudy: studyYear,
           semester,
         },
@@ -66,11 +68,11 @@ const useGradesApi = () => {
 
   // 📌 Notele studentului (cu filtre opționale)
   const getGradesForUser = useCallback(
-    async (userId: number, specialization?: string | null, studyYear?: number | null, semester?: number | null) => {
+    async (userId: number, promotionId: number | null, studyYear?: number | null, semester?: number | null) => {
       const response = await axios.get(`${gradesUrl}`, {
         params: {
           userId,
-          ...(specialization && { specialisation: specialization }),
+          ...(promotionId && { promotionId: promotionId }),
           ...(studyYear && { yearOfStudy: studyYear }),
           ...(semester && { semester }),
         },
@@ -169,7 +171,7 @@ const useGradesApi = () => {
   );
 
   return {
-    getUserSpecializations,
+    getUserPromotions,
     getScholarshipStatusForUser,
     getGradesForUser,
     getSubjectsByTeacher,

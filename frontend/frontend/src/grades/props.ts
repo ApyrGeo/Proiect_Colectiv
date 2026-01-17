@@ -39,6 +39,7 @@ export interface TeacherProps {
 export interface SpecializationResponse {
   name: string;
   id: number;
+  promotions: PromotionProps[];
 }
 
 export interface ScholarshipStatus {
@@ -47,6 +48,12 @@ export interface ScholarshipStatus {
   totalStudents: number;
   isEligible: boolean;
   scholarshipType?: string | null;
+}
+
+export interface PromotionOfUser {
+  prettyName: string;
+  id: number;
+  yearDuration: number;
 }
 
 // Enrollment / SubGroup

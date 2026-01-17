@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using log4net;
 using Microsoft.EntityFrameworkCore;
@@ -95,15 +96,13 @@ public class UserRepository(AcademicAppContext context, IMapper mapper) : IUserR
     {
         _logger.InfoFormat("Fetching enrolled specialisations for user ID: {0}", userId);
 
-        var specialisations = await _context.Users
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Enrollments)
-            .Select(e => e.SubGroup.StudentGroup.Promotion.Specialisation)
-            .Where(s => s != null)
-            .Distinct()
+        var result = await _context.Specialisations
+            .Where(s => s.Promotions.Any(p => p.StudentGroups.Any(g => g.StudentSubGroups.Any(sg => sg.Enrollments.Any(x => x.UserId == userId)))))
+            .Include(s => s.Promotions.Where(p => p.StudentGroups.Any(g => g.StudentSubGroups.Any(sg => sg.Enrollments.Any(x => x.UserId == userId)))))
+                .ThenInclude(x => x.Semesters)
             .ToListAsync();
 
-        return _mapper.Map<List<SpecialisationResponseDTO>>(specialisations);
+        return _mapper.Map<List<SpecialisationResponseDTO>>(result);
     }
 
     public async Task<TeacherResponseDTO> GetTeacherByIdAsync(int teacherId)

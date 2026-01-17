@@ -13,7 +13,6 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     private readonly AcademicAppContext _context = context;
     private readonly IMapper _mapper = mapper;
 
-
     public async Task<GradeResponseDTO> AddGradeAsync(GradePostDTO gradePostDTO)
     {
         var entity = _mapper.Map<Grade>(gradePostDTO);
@@ -37,7 +36,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
 
-    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, string specialisation)
+    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, int? promotionId)
     {
         var query = _context.Grades
             .Include(g => g.Subject)
@@ -67,9 +66,9 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             query = query.Where(x => x.Subject.Semester.SemesterNumber % 2 == semester % 2);
         }
 
-        if (!string.IsNullOrWhiteSpace(specialisation))
+        if (promotionId.HasValue)
         {
-            query = query.Where(g => g.Enrollment.SubGroup.StudentGroup.Promotion.Specialisation.Name == specialisation);
+            query = query.Where(g => g.Enrollment.SubGroup.StudentGroup.Promotion.Id == promotionId);
         }
 
         var grades = await query.ToListAsync();
@@ -195,5 +194,12 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             StudentGroup = _mapper.Map<StudentGroupResponseDTO>(group),
             Grades = userGrades
         };
+    }
+
+    public async Task<int> GetCountOfUsersInPromotion(int promotionId)
+    {
+        return await _context.Enrollments
+            .Where(x => x.SubGroup.StudentGroup.PromotionId == promotionId)
+            .CountAsync();
     }
 }

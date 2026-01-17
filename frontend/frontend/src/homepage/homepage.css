@@ -34,7 +34,7 @@
 /* News component - takes remaining space */
 .news-component {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   overflow-x: hidden;
   min-height: 0;
 }

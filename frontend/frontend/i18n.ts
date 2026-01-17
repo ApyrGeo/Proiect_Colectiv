@@ -9,6 +9,7 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
+        All: "All",
         PickYourOptionals: "Pick the optional packages",
         Code: "Code",
         OptionalPackage: "Optional Package",
@@ -250,6 +251,7 @@ i18n.use(initReactI18next).init({
     },
     ro: {
       translation: {
+        All: "Toate",
         PickYourOptionals: "Alegeți pachetele de opționale",
         Code: "Cod",
         OptionalPackage: "Pachet Opțional",
@@ -490,6 +492,7 @@ i18n.use(initReactI18next).init({
     },
     hu: {
       translation: {
+        All: "Minden",
         PickYourOptionals: "Válassza ki az opcionális csomagokat",
         Code: "Kód",
         OptionalPackage: "Opcionális csomag",
@@ -731,6 +734,7 @@ i18n.use(initReactI18next).init({
     },
     de: {
       translation: {
+        All: "Alle",
         PickYourOptionals: "Wählen Sie die optionalen Pakete aus",
         Code: "Code",
         OptionalPackage: "Optionales Paket",
