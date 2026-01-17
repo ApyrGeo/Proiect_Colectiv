@@ -24,8 +24,13 @@ export function ContractOptionals(state: OptionalsState) {
     state.updateOptional({ semester1or2, packageId, subjectId });
   }, []);
 
+  if (perSemester.size == 0) {
+    return (<div></div>);
+  }
+
   return (
     <div>
+      <p>{t("PickYourOptionals")}</p>
       {[...perSemester.entries()].map(([semesterNumber, optionals]) => (
         <div key={`optional-${semesterNumber}`}>
           <p>{t("Semester")} {semesterNumber.valueOf()}</p>
