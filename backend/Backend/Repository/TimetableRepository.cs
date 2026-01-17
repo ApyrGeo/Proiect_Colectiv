@@ -270,13 +270,6 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         if (filter.CurrentWeekTimetable != null && filter.CurrentWeekTimetable == true)
         {
             query = query.Where(h => h.Frequency == HourFrequency.Weekly || h.Frequency == HelperFunctions.CurrentWeekType);
-            var currentSemesterNum = DateTime.Now.Month > 7 ? 1 : 2;
-            var currentYear = DateTime.Now.Month < 4 ? DateTime.Now.Year - 1 : DateTime.Now.Year;
-            query = query.Where(h =>
-                                h.Subject.Semester.SemesterNumber ==
-                                (
-                                    currentYear - h.Subject.Semester.Promotion.StartYear
-                                ) * 2 + currentSemesterNum);
         }
 
         if (filter.FacultyId != null)
