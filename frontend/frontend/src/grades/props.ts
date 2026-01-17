@@ -50,6 +50,12 @@ export interface ScholarshipStatus {
   scholarshipType?: string | null;
 }
 
+export interface PromotionOfUser {
+  prettyName: string;
+  id: number;
+  yearDuration: number;
+}
+
 // Enrollment / SubGroup
 export interface EnrollmentProps {
   id: number;

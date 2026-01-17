@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import useApiClient from "../core/useApiClient";
-import type { ScholarshipStatus, SpecializationResponse } from "./props";
+import type { PromotionOfUser, ScholarshipStatus } from "./props";
 import type { SubjectGradesResponse, SubjectProps, TeacherProps, UserProps, StudentGroupProps } from "./props.ts";
 
 const useGradesApi = () => {
@@ -32,11 +32,13 @@ const useGradesApi = () => {
   );
 
   // 📌 Specializările la care este înscris studentul
-  const getUserSpecializations = useCallback(
-    async (userId: number): Promise<SpecializationResponse[]> => {
-      const response = await axios.get<SpecializationResponse[]>(`${userUrl}/${userId}/enrolled-specialisations`);
+  const getUserPromotions = useCallback(
+    async (userId: number): Promise<PromotionOfUser[]> => {
+      const response = await axios.get<{ promotions: PromotionOfUser[] }>(
+        `${academicsUrl}/promotions/of-user/${userId}`
+      );
 
-      return response.data ?? [];
+      return response.data.promotions ?? [];
     },
     [axios]
   );
@@ -169,7 +171,7 @@ const useGradesApi = () => {
   );
 
   return {
-    getUserSpecializations,
+    getUserPromotions,
     getScholarshipStatusForUser,
     getGradesForUser,
     getSubjectsByTeacher,
