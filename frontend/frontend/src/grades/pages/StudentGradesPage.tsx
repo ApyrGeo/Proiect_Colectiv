@@ -96,7 +96,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
             <label>{t("Promotion")}:</label>
             <select onChange={(e) => setSelectedPromotion(promotions[Number(e.target.value)])}>
               {promotions.map((p, index) => (
-                <option key={index} value={p.id}>
+                <option key={index} value={index}>
                   {p.prettyName}
                 </option>
               ))}

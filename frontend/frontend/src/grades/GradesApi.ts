@@ -47,14 +47,14 @@ const useGradesApi = () => {
   const getScholarshipStatusForUser = useCallback(
     async (
       userId: number,
-      specialization: number,
+      promotionId: number,
       studyYear: number,
       semester: number
     ): Promise<ScholarshipStatus | null> => {
       const response = await axios.get<ScholarshipStatus | null>(`${gradesUrl}/status`, {
         params: {
           userId,
-          specialisationId: specialization,
+          promotionId,
           yearOfStudy: studyYear,
           semester,
         },
@@ -68,11 +68,11 @@ const useGradesApi = () => {
 
   // 📌 Notele studentului (cu filtre opționale)
   const getGradesForUser = useCallback(
-    async (userId: number, specialization: number | null, studyYear?: number | null, semester?: number | null) => {
+    async (userId: number, promotionId: number | null, studyYear?: number | null, semester?: number | null) => {
       const response = await axios.get(`${gradesUrl}`, {
         params: {
           userId,
-          ...(specialization && { specialisationId: specialization }),
+          ...(promotionId && { promotionId: promotionId }),
           ...(studyYear && { yearOfStudy: studyYear }),
           ...(semester && { semester }),
         },
