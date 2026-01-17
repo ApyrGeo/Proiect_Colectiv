@@ -1,0 +1,13 @@
+﻿namespace TrackForUBB.Repository.EFEntities;
+
+public class Enrollment
+{
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public required User User { get; set; }
+    public int SubGroupId { get; set; }
+    public required StudentSubGroup SubGroup { get; set; }
+    public List<Grade> Grades { get; set; } = [];
+
+    public List<Contract> Contracts { get; set; } = [];
+}

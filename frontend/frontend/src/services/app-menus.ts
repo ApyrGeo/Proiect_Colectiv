@@ -4,45 +4,72 @@ export function getAppMenus() {
       title: "Navigation",
       submenu: [
         {
-          title: "Maintenance",
-          icon: "🧰",
-          submenu: [
-            { title: "Servers", url: "/servers" },
-            { title: "Logs", url: "/logs" },
-            { title: "Backups", url: "/backups" },
-            { title: "Settings", url: "/settings" },
-          ],
-        },
-        {
-          title: "WebDesign",
-          icon: "💻",
-          submenu: [
-            { title: "HTML", url: "/html" },
-            { title: "CSS", url: "/css" },
-          ],
-        },
-        {
-          title: "Orar",
+          title: "Timetable",
           icon: "📆",
           url: "/timetable",
         },
         {
-          title: "WebHosting",
-          icon: "🏠",
-          submenu: [
-            { title: "Plans", url: "/plans" },
-            { title: "Domains", url: "/domains" },
-          ],
-        },
-        {
-          title: "Design",
-          icon: "🎨",
-          url: "/designs",
+          title: "Contracts",
+          icon: "📝",
+          url: "/contracts",
         },
         {
           title: "Grades",
           icon: "🎓",
           url: "/grades",
+        },
+        {
+          title: "Profile",
+          icon: "👤",
+          url: "/profile",
+        },
+        {
+          title: "Exam",
+          icon: "📋",
+          url: "/exam",
+        },
+        {
+          title: "Academics",
+          icon: "🏛️",
+          url: "/admin/academics",
+        },
+        {
+          title: "Timetable",
+          icon: "📆",
+          url: "/admin/timetable-generation",
+        },
+        {
+          title: "Location",
+          icon: "📍",
+          url: "/admin/location",
+        },
+        {
+          title: "Subject",
+          icon: "📚",
+          url: "/admin/subject-generation",
+        },
+        {
+          title: "Exam",
+          icon: "📋",
+          url: "/admin/exam-generation",
+        },
+        {
+          title: "AddUsers",
+          icon: "➕",
+          submenu: [
+            {
+              title: "ImportUsers",
+              url: "/admin/import-users",
+            },
+            {
+              title: "ImportPromotion",
+              url: "/admin/import-promotion",
+            },
+            {
+              title: "AddTeacher",
+              url: "/admin/add-teacher",
+            },
+          ],
         },
       ],
     },

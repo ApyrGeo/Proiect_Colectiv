@@ -4,20 +4,39 @@ import { getAppMenus } from "../services/app-menus";
 import type { MenuItem } from "./MenuItem";
 import type { SidebarProps } from "./SidebarProps";
 import "./sidebar.css";
+import { useTranslation } from "react-i18next";
+import { useAuthContext } from "../auth/context/AuthContext.tsx";
+import useCustomRouting from "../routing/useCustomRouting.ts";
 
 const LS_KEY = "app_sidebar_minified";
 
 const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const location = useLocation();
 
+  const { t, i18n } = useTranslation();
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    i18n.changeLanguage(selectedLanguage).then(() => localStorage.setItem("lang", selectedLanguage));
+  }, [i18n, selectedLanguage]);
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang).then(() => setSelectedLanguage(lang));
+  };
+
   const [menus] = useState<MenuItem[]>(getAppMenus);
+
+  const { userProps } = useAuthContext();
+  const { isRouteAvailable } = useCustomRouting();
 
   const readInitialMinified = () => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw === "true") return true;
       if (raw === "false") return false;
-    } catch {}
+    } catch {
+      /* empty */
+    }
     return appSidebarMinified;
   };
 
@@ -28,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
   const getInitialExpanded = () => {
     const activeParent = getAppMenus()
       .flatMap((section) => section.submenu ?? [])
-      .find((item) => item.submenu?.some((sub) => location.pathname.startsWith(sub.url ?? "")));
+      .find((menu) => location.pathname.startsWith(menu.url!));
 
     return activeParent?.title;
   };
@@ -82,14 +101,14 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setHoveredMenu(null);
   };
 
-  const isChildActive = (item: MenuItem): boolean => {
-    if (!item.submenu) return false;
-    return item.submenu.some((sub) => isActiveUrl(sub.url));
-  };
-
   const isActiveUrl = (url?: string) => {
     if (!url) return false;
     return location.pathname === url || location.pathname.startsWith(url + "/");
+  };
+
+  const isChildActive = (item: MenuItem): boolean => {
+    if (!item.submenu) return false;
+    return item.submenu.some((sub) => isActiveUrl(sub.url));
   };
 
   useEffect(() => {
@@ -108,9 +127,23 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
     setHoveredMenu(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const width = isMinified ? "var(--sidebar-width-min)" : "var(--sidebar-width)";
+    document.documentElement.style.setProperty("--current-sidebar-width", width);
+  }, [isMinified]);
+
+  const isMenuEmpty = (item: MenuItem) => {
+    return item.submenu?.some((sub) => sub.url && userProps && !isRouteAvailable(sub.url, userProps));
+  };
+
   return (
     <>
       <div className={`app-sidebar ${isMinified ? "minified" : ""}`}>
+        <div className="menu-item menu-profile">
+          <NavLink to="/" className="menu-profile-link">
+            <div className="menu-profile-cover with-shadow"></div>
+          </NavLink>
+        </div>
         <div className="app-sidebar-minify-btn-container">
           <button
             className="app-sidebar-minify-btn"
@@ -124,69 +157,75 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
         <div className="app-sidebar-content">
           {menus.map((section, sectionIndex) => (
             <div key={sectionIndex} className="menu">
-              {section.submenu?.map((item) => {
-                const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
+              {section.submenu
+                ?.filter((m) => !m.url || (userProps && isRouteAvailable(m.url, userProps)))
+                ?.map((item) => {
+                  const active = item.submenu ? item.submenu.some((s) => isActiveUrl(s.url)) : isActiveUrl(item.url);
 
-                return (
-                  <div
-                    key={item.id ?? item.title}
-                    className={`menu-item ${item.submenu ? "has-sub" : ""} ${
-                      expanded === item.title ? "expand active" : active ? "active" : ""
-                    }`}
-                    onMouseEnter={(e) => handleMouseEnter(e, item)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    {item.submenu ? (
-                      <a
-                        href="#!"
-                        className={`menu-link ${isChildActive(item) ? "active-link" : ""}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleSubmenu(item.title);
-                        }}
-                      >
-                        <span className="menu-icon">{item.icon}</span>
-                        {!isMinified && <span className="menu-text">{item.title}</span>}
-                        {!isMinified && item.submenu && (
-                          <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
-                        )}
-                      </a>
-                    ) : (
-                      <NavLink
-                        to={item.url ?? "#"}
-                        className={({ isActive }) =>
-                          `menu-link ${isActive || isActiveUrl(item.url) ? "active-link" : ""}`
-                        }
-                        onClick={() => {
-                          setHoveredMenu(null);
-                        }}
-                      >
-                        <span className="menu-icon">{item.icon}</span>
-                        {!isMinified && <span className="menu-text">{item.title}</span>}
-                      </NavLink>
-                    )}
+                  if (!userProps || isMenuEmpty(item)) return null;
 
-                    {item.submenu && expanded === item.title && (
-                      <div className="menu-submenu" aria-hidden={isMinified}>
-                        {item.submenu.map((sub) => (
-                          <NavLink
-                            key={sub.id ?? sub.title}
-                            to={sub.url ?? "#"}
-                            className={({ isActive }) =>
-                              `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
-                            }
-                            onClick={() => {
-                              setHoveredMenu(null);
-                            }}
-                          >
-                            {sub.title}
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  return (
+                    <div
+                      key={item.id ?? item.title}
+                      className={`menu-item ${item.submenu ? "has-sub" : ""} ${
+                        expanded === item.title ? "expand active" : active ? "active" : ""
+                      }`}
+                      onMouseEnter={(e) => handleMouseEnter(e, item)}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {item.submenu ? (
+                        <a
+                          href="#!"
+                          className={`menu-link ${isChildActive(item) ? "active-link" : ""}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleSubmenu(item.title);
+                          }}
+                        >
+                          <span className="menu-icon">{item.icon}</span>
+                          {!isMinified && <span className="menu-text">{t(item.title)}</span>}
+                          {!isMinified && item.submenu && (
+                            <span className="menu-caret">{expanded === item.title ? "▾" : "▸"}</span>
+                          )}
+                        </a>
+                      ) : (
+                        <NavLink
+                          to={item.url ?? "#"}
+                          className={({ isActive }) =>
+                            `menu-link ${isActive || isActiveUrl(item.url) ? "active-link" : ""}`
+                          }
+                          onClick={() => {
+                            setHoveredMenu(null);
+                          }}
+                        >
+                          <span className="menu-icon">{item.icon}</span>
+                          {!isMinified && <span className="menu-text">{t(item.title)}</span>}
+                        </NavLink>
+                      )}
+
+                      {item.submenu && expanded === item.title && (
+                        <div className="menu-submenu" aria-hidden={isMinified}>
+                          {item.submenu
+                            .filter((sub) => !sub.url || (userProps && isRouteAvailable(sub.url, userProps)))
+                            .map((sub) => (
+                              <NavLink
+                                key={sub.id ?? sub.title}
+                                to={sub.url ?? "#"}
+                                className={({ isActive }) =>
+                                  `submenu-link ${isActive || isActiveUrl(sub.url) ? "active-link" : ""}`
+                                }
+                                onClick={() => {
+                                  setHoveredMenu(null);
+                                }}
+                              >
+                                {t(sub.title)}
+                              </NavLink>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           ))}
 
@@ -197,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
               onMouseEnter={handlePreviewEnter}
               onMouseLeave={handlePreviewLeave}
             >
-              <div className="hover-title">{hoveredMenu.title}</div>
+              <div className="hover-title">{t(hoveredMenu.title)}</div>
               {hoveredMenu.submenu.map((sub) => (
                 <NavLink
                   key={sub.id ?? sub.title}
@@ -209,12 +248,56 @@ const Sidebar: React.FC<SidebarProps> = ({ appSidebarMinified = false }) => {
                     setHoveredMenu(null);
                   }}
                 >
-                  {sub.title}
+                  {t(sub.title)}
                 </NavLink>
               ))}
             </div>
           )}
         </div>
+        {!isMinified && selectedLanguage && (
+          <div className={"language-radio"}>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="en"
+                checked={selectedLanguage == "en"}
+                onChange={() => changeLanguage("en")}
+              />
+              EN
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="ro"
+                checked={selectedLanguage == "ro"}
+                onChange={() => changeLanguage("ro")}
+              />
+              RO
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="hu"
+                checked={selectedLanguage == "hu"}
+                onChange={() => changeLanguage("hu")}
+              />
+              HU
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="language"
+                value="de"
+                checked={selectedLanguage == "de"}
+                onChange={() => changeLanguage("de")}
+              />
+              DE
+            </label>
+          </div>
+        )}
       </div>
       <div className={`app-sidebar-backdrop ${isMinified ? "" : "show"}`} />
     </>

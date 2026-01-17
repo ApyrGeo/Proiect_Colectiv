@@ -1,38 +1,35 @@
-﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using Backend.Utils;
-using FluentValidation;
-using FluentValidation.Results;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Service;
+using TrackForUBB.Service.Validators;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Domain.Utils;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class TimetableServiceTests
 {
     private readonly Mock<ITimetableRepository> _mockRepository = new();
-    private readonly Mock<IMapper> _mockMapper = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
+    private readonly Mock<IUserRepository> _mockUserRepository = new();
 
     private readonly TimetableService _service;
 
     public TimetableServiceTests()
     {
-        var subjectValidator = new SubjectPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
+        var subjectValidator = new SubjectPostDTOValidator(_mockAcademicRepository.Object, _mockUserRepository.Object);
         var classroomValidator = new ClassroomPostDTOValidator(_mockRepository.Object);
         var hourValidator = new HourPostDTOValidator(_mockRepository.Object, _mockAcademicRepository.Object);
         var locationValidator = new LocationPostDTOValidator();
-        var hourfilterValidator = new HourFilterValidator(_mockAcademicRepository.Object,_mockRepository.Object);
+        var hourfilterValidator = new HourFilterValidator(_mockAcademicRepository.Object, _mockRepository.Object);
         var mockValidatorFactory = new Mock<IValidatorFactory>();
-        
+
         mockValidatorFactory.Setup(v => v.Get<SubjectPostDTO>()).Returns(subjectValidator);
         mockValidatorFactory.Setup(v => v.Get<LocationPostDTO>()).Returns(locationValidator);
         mockValidatorFactory.Setup(v => v.Get<ClassroomPostDTO>()).Returns(classroomValidator);
@@ -43,7 +40,6 @@ public class TimetableServiceTests
         _service = new TimetableService(
             _mockRepository.Object,
             _mockAcademicRepository.Object,
-            _mockMapper.Object,
             _validatorFactory
         );
     }
@@ -51,31 +47,99 @@ public class TimetableServiceTests
     [Theory]
     [InlineData("Analiza", 6, 1)]
     [InlineData("FP", 5, 2)]
-    public async Task CreateSubjectValidData(string name, int credits, int groupYearId)
+    public async Task CreateSubjectValidData(string name,
+                                             int credits,
+                                             int semesterId,
+                                             int groupYearId = 9,
+                                             string type = "Required",
+                                             string code = "Code"
+    )
     {
-        var postDto = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
-
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
+        var promotionResponseDTO = new PromotionResponseDTO
+        {
+            Id = groupYearId,
+            StartYear = 2023,
+            EndYear = 2027,
+        };
 
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(promotionResponseDTO);
 
-        var subjectEntity = new Subject
-            { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
+        var semesterResponseDTO = new PromotionSemesterResponseDTO
+        {
+            Id = semesterId,
+            SemesterNumber = 1,
+            PromotionYear = new PromotionYearResponseDTO
+            {
+                Id = semesterId,
+                Promotion = promotionResponseDTO,
+                YearNumber = 1,
+            }
+        };
 
-        var responseDto = new SubjectResponseDTO { Id = 1, Name = name, NumberOfCredits = credits };
+        _mockAcademicRepository
+            .Setup(r => r.GetSemesterByIdAsync(semesterId))
+            .ReturnsAsync(semesterResponseDTO);
+
+        var teacherUser = new UserResponseDTO
+        {
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            Role = UserRole.Teacher,
+            PhoneNumber = "+40777301089",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
+            Owner = ""
+        };
+
+        _mockUserRepository
+            .Setup(r => r.GetByIdAsync(teacherUser.Id))
+            .ReturnsAsync(teacherUser);
+
+        _mockAcademicRepository
+            .Setup(r => r.GetTeacherById(teacherUser.Id))
+            .ReturnsAsync(new TeacherResponseDTO
+            {
+                Id = teacherUser.Id,
+                User = teacherUser,
+                UserId = teacherUser.Id,
+                FacultyId = 8,
+            });
+
+        var postDto = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = credits,
+            SemesterId = semesterId,
+            HolderTeacherId = teacherUser.Id,
+            Code = code,
+            Type = type,
+            FormationType = "Course_Seminar",
+        };
+
+        _mockRepository.Setup(r => r.AddSubjectAsync(postDto))
+            .ReturnsAsync(new SubjectResponseDTO
+            {
+                Id = 1,
+                Name = name,
+                NumberOfCredits = credits,
+                Code = code,
+                Type = type,
+            });
+
+        var responseDto = new SubjectResponseDTO
+        {
+            Id = 1,
+            Name = name,
+            NumberOfCredits = credits,
+            Code = code,
+            Type = type,
+        };
 
 
-        _mockMapper.Setup(m => m.Map<Subject>(postDto)).Returns(subjectEntity);
-        _mockMapper.Setup(m => m.Map<SubjectResponseDTO>(subjectEntity)).Returns(responseDto);
-
-        _mockRepository.Setup(r => r.AddSubjectAsync(subjectEntity)).ReturnsAsync(subjectEntity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+        _mockRepository.Setup(r => r.AddSubjectAsync(postDto)).ReturnsAsync(responseDto);
 
         var result = await _service.CreateSubject(postDto);
 
@@ -83,38 +147,49 @@ public class TimetableServiceTests
         Assert.Equal(name, result.Name);
         Assert.Equal(credits, result.NumberOfCredits);
 
-        _mockRepository.Verify(r => r.AddSubjectAsync(subjectEntity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddSubjectAsync(postDto), Times.Once);
     }
 
     [Theory]
     [InlineData("Analiza", 10, 1)]
     [InlineData("", 5, 2)]
     [InlineData("FP", 0, 3)]
-    public async Task CreateSubjectInvalidData(string name, int credits, int groupYearId)
+    public async Task CreateSubjectInvalidData(string name, int credits, int semesterId)
     {
-        var postDto = new SubjectPostDTO { Name = name, NumberOfCredits = credits, GroupYearId = groupYearId };
+        var postDto = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = credits,
+            SemesterId = semesterId,
+            Code = "MLR101",
+            Type = "Required",
+            FormationType = "Course_Seminar"
+        };
 
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
-
+        var promotionResponseDTO = new PromotionResponseDTO
+        {
+            Id = 9,
+            StartYear = 2023,
+            EndYear = 2027,
+        };
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
+            .Setup(r => r.GetPromotionByIdAsync(9))
+            .ReturnsAsync(promotionResponseDTO);
 
-        var subjectEntity = new Subject
-            { Id = 1, Name = name, NumberOfCredits = credits, GroupYearId = groupYearId, GroupYear = groupYear };
-
-        var responseDto = new SubjectResponseDTO { Id = 1, Name = name, NumberOfCredits = credits };
+        var subjectEntity = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = credits,
+            SemesterId = semesterId,
+            Code = "MLR101",
+            FormationType = "Course_Seminar",
+            Type = "Required",
+        };
 
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateSubject(postDto));
 
         _mockRepository.Verify(r => r.AddSubjectAsync(subjectEntity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Theory]
@@ -122,18 +197,17 @@ public class TimetableServiceTests
     [InlineData(2, "FP", 5)]
     public async Task GetSubjectByIdValidId(int id, string name, int credits)
     {
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var subjectEntity = new Subject
-            { Id = id, Name = name, NumberOfCredits = credits, GroupYear = groupYear, GroupYearId = groupYear.Id };
-        var responseDto = new SubjectResponseDTO { Id = id, Name = name, NumberOfCredits = credits };
+        var responseDto = new SubjectResponseDTO
+        {
+            Id = id,
+            Name = name,
+            NumberOfCredits = credits,
+            Type = "Required",
+            Code = name,
+        };
 
         _mockRepository.Setup(r => r.GetSubjectByIdAsync(id))
-            .ReturnsAsync(subjectEntity);
-
-        _mockMapper.Setup(m => m.Map<SubjectResponseDTO>(subjectEntity))
-            .Returns(responseDto);
+            .ReturnsAsync(responseDto);
 
         var result = await _service.GetSubjectById(id);
 
@@ -143,7 +217,6 @@ public class TimetableServiceTests
         Assert.Equal(credits, result.NumberOfCredits);
 
         _mockRepository.Verify(r => r.GetSubjectByIdAsync(id), Times.Once);
-        _mockMapper.Verify(m => m.Map<SubjectResponseDTO>(subjectEntity), Times.Once);
     }
 
     [Theory]
@@ -152,12 +225,11 @@ public class TimetableServiceTests
     public async Task GetSubjectByIdInvalidId(int invalidId)
     {
         _mockRepository.Setup(r => r.GetSubjectByIdAsync(invalidId))
-            .ReturnsAsync((Subject?)null);
+            .ReturnsAsync((SubjectResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetSubjectById(invalidId));
 
         _mockRepository.Verify(r => r.GetSubjectByIdAsync(invalidId), Times.Once);
-        _mockMapper.Verify(m => m.Map<SubjectResponseDTO>(It.IsAny<Subject>()), Times.Never);
     }
 
     [Theory]
@@ -166,22 +238,18 @@ public class TimetableServiceTests
     public async Task CreateLocationValidData(string name, string address)
     {
         var dto = new LocationPostDTO { Name = name, Address = address };
-        var entity = new Location { Id = 1, Name = name, Address = address };
-        var googleData = new GoogleMapsData();
+        var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var response = new LocationResponseDTO { Id = 1, Name = name, Address = address, GoogleMapsData = googleData };
 
-        _mockMapper.Setup(m => m.Map<Location>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddLocationAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<LocationResponseDTO>(entity)).Returns(response);
+        _mockRepository.Setup(r => r.AddLocationAsync(dto)).ReturnsAsync(response);
+
 
         var result = await _service.CreateLocation(dto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
         Assert.Equal(address, result.Address);
-        _mockRepository.Verify(r => r.AddLocationAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddLocationAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -193,8 +261,7 @@ public class TimetableServiceTests
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateLocation(dto));
 
-        _mockRepository.Verify(r => r.AddLocationAsync(It.IsAny<Location>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddLocationAsync(It.IsAny<LocationPostDTO>()), Times.Never);
     }
 
     [Theory]
@@ -202,23 +269,43 @@ public class TimetableServiceTests
     [InlineData("A2", 2)]
     public async Task CreateClassroomValidData(string name, int locationId)
     {
-        var location = new Location { Id = locationId, Name = "Centru", Address = "Str. Universitatii" };
-        var dto = new ClassroomPostDTO { Name = name, LocationId = locationId };
-        var entity = new Classroom { Id = 1, Name = name, LocationId = locationId, Location = location };
-        var response = new ClassroomResponseDTO { Id = 1, Name = name };
+        var locationResponse = new LocationResponseDTO
+        {
+            Id = locationId,
+            Name = "Centru",
+            Address = "Str. Universitatii",
+            GoogleMapsData = new GoogleMapsDataResponseDTO
+            {
+                Id = "1",
+                Latitude = 2,
+                Longitude = 3
+            }
+        };
 
-        _mockRepository.Setup(r => r.GetLocationByIdAsync(locationId)).ReturnsAsync(location);
-        _mockMapper.Setup(m => m.Map<Classroom>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddClassroomAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<ClassroomResponseDTO>(entity)).Returns(response);
+        var postDto = new ClassroomPostDTO
+        {
+            Name = name,
+            LocationId = locationId
+        };
 
-        var result = await _service.CreateClassroom(dto);
+        var responseDto = new ClassroomResponseDTO
+        {
+            Id = 1,
+            Name = name,
+            LocationId = locationId
+        };
+
+        _mockRepository.Setup(r => r.GetLocationByIdAsync(locationId))
+            .ReturnsAsync(locationResponse);
+        _mockRepository.Setup(r => r.AddClassroomAsync(postDto))
+            .ReturnsAsync(responseDto);
+
+        var result = await _service.CreateClassroom(postDto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
-        _mockRepository.Verify(r => r.AddClassroomAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+
+        _mockRepository.Verify(r => r.AddClassroomAsync(postDto), Times.Once);
     }
 
     [Theory]
@@ -229,12 +316,11 @@ public class TimetableServiceTests
     {
         var dto = new ClassroomPostDTO { Name = name, LocationId = locationId };
 
-        _mockRepository.Setup(r => r.GetLocationByIdAsync(locationId)).ReturnsAsync((Location)null);
+        _mockRepository.Setup(r => r.GetLocationByIdAsync(locationId)).ReturnsAsync((LocationResponseDTO?)null);
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateClassroom(dto));
 
-        _mockRepository.Verify(r => r.AddClassroomAsync(It.IsAny<Classroom>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddClassroomAsync(It.IsAny<ClassroomPostDTO>()), Times.Never);
     }
 
     [Theory]
@@ -244,17 +330,16 @@ public class TimetableServiceTests
         string day, string hourInterval, string frequency, string category, string format)
     {
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
+        var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2027 };
         _mockAcademicRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYear.Id))
-            .ReturnsAsync(groupYear);
-        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6, GroupYearId = 1, GroupYear = groupYear };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+            .Setup(r => r.GetPromotionByIdAsync(promotion.Id))
+            .ReturnsAsync(promotion);
+        var subject = new SubjectResponseDTO { Id = 1, Name = "FP", NumberOfCredits = 6, Code = "FP01", Type = "Optional", };
+        var studentGroup = new StudentGroupResponseDTO { Id = 1, Name = "234" };
         _mockAcademicRepository
             .Setup(r => r.GetGroupByIdAsync(studentGroup.Id))
             .ReturnsAsync(studentGroup);
-        var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
+        var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "234/1" };
         _mockAcademicRepository
             .Setup(r => r.GetSubGroupByIdAsync(subGroup.Id))
             .ReturnsAsync(subGroup);
@@ -279,49 +364,51 @@ public class TimetableServiceTests
 
 
         var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
-        var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
+        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101", LocationId = location.Id };
         _mockRepository
             .Setup(r => r.GetClassroomByIdAsync(classroom.Id))
             .ReturnsAsync(classroom);
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            TenantEmail = "i am inside your walls",
+            Role = UserRole.Teacher
         };
-        var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
+        var userResponse = new UserResponseDTO
+        {
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            TenantEmail = "open your window",
+            Role = UserRole.Teacher,
+            Owner = ""
+        };
+        var teacher = new TeacherResponseDTO { Id = 1, UserId = user.Id, FacultyId = faculty.Id, User = userResponse };
         _mockAcademicRepository
             .Setup(r => r.GetTeacherById(teacher.Id))
             .ReturnsAsync(teacher);
 
-        var entity = new Hour
+
+        var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
+        var locationResponse = new LocationResponseDTO
+        { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
+        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name, LocationId = locationResponse.Id };
+        var subjectResponse = new SubjectResponseDTO
         {
             Id = 1,
-            Day = Enum.Parse<HourDay>(dto.Day),
-            HourInterval = dto.HourInterval,
-            Frequency = Enum.Parse<HourFrequency>(dto.Frequency),
-            Category = Enum.Parse<HourCategory>(dto.Category),
-            Subject = subject,
-            Classroom = classroom,
-            Teacher = teacher,
-            SubjectId = 1,
-            ClassroomId = 1,
-            TeacherId = 1
-        };
-
-        var googleData = new GoogleMapsData();
-        var locationResponse = new LocationResponseDTO
-            { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
-        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
-        var subjectResponse = new SubjectResponseDTO
-            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
-        var userResponse = new UserResponseDTO
-        {
-            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
-            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
-            Password = teacher.User.Password
+            Name = subject.Name,
+            NumberOfCredits = subject.NumberOfCredits,
+            Type = subject.Type,
+            Code = subject.Type,
         };
         var teacherResponse = new TeacherResponseDTO
-            { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
+        { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
         var response = new HourResponseDTO
         {
             Id = 1,
@@ -334,19 +421,20 @@ public class TimetableServiceTests
             Classroom = classroomResponse,
             Subject = subjectResponse,
             Teacher = teacherResponse,
+            Promotion = promotion,
+            StudentGroup = studentGroup,
+            StudentSubGroup = subGroup
         };
 
-        _mockMapper.Setup(m => m.Map<Hour>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddHourAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<HourResponseDTO>(entity)).Returns(response);
+
+        _mockRepository.Setup(r => r.AddHourAsync(dto)).ReturnsAsync(response);
+
 
         var result = await _service.CreateHour(dto);
 
         Assert.NotNull(result);
         Assert.Equal(dto.HourInterval, result.HourInterval);
-        _mockRepository.Verify(r => r.AddHourAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddHourAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -371,8 +459,7 @@ public class TimetableServiceTests
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateHour(dto));
 
-        _mockRepository.Verify(r => r.AddHourAsync(It.IsAny<Hour>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddHourAsync(It.IsAny<HourPostDTO>()), Times.Never);
     }
 
     [Theory]
@@ -381,10 +468,10 @@ public class TimetableServiceTests
     {
         var location = new Location { Id = 1, Name = locName, Address = address };
         var classroom = new Classroom { Id = id, Name = name, Location = location };
-        var response = new ClassroomResponseDTO { Id = id, Name = name };
+        var response = new ClassroomResponseDTO { Id = id, Name = name, LocationId = location.Id };
 
-        _mockRepository.Setup(r => r.GetClassroomByIdAsync(id)).ReturnsAsync(classroom);
-        _mockMapper.Setup(m => m.Map<ClassroomResponseDTO>(classroom)).Returns(response);
+        _mockRepository.Setup(r => r.GetClassroomByIdAsync(id)).ReturnsAsync(response);
+
 
         var result = await _service.GetClassroomById(id);
 
@@ -398,7 +485,7 @@ public class TimetableServiceTests
     [InlineData(0)]
     public async Task GetClassroomByIdInvalidId(int id)
     {
-        _mockRepository.Setup(r => r.GetClassroomByIdAsync(id)).ReturnsAsync((Classroom?)null);
+        _mockRepository.Setup(r => r.GetClassroomByIdAsync(id)).ReturnsAsync((ClassroomResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetClassroomById(id));
 
@@ -409,12 +496,11 @@ public class TimetableServiceTests
     [InlineData(1, "Marasti", "Groapa")]
     public async Task GetLocationByIdValidId(int id, string name, string address)
     {
-        var entity = new Location { Id = id, Name = name, Address = address };
-        var googleData = new GoogleMapsData();
+        var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var response = new LocationResponseDTO { Id = id, Name = name, Address = address, GoogleMapsData = googleData };
 
-        _mockRepository.Setup(r => r.GetLocationByIdAsync(id)).ReturnsAsync(entity);
-        _mockMapper.Setup(m => m.Map<LocationResponseDTO>(entity)).Returns(response);
+        _mockRepository.Setup(r => r.GetLocationByIdAsync(id)).ReturnsAsync(response);
+
 
         var result = await _service.GetLocationById(id);
 
@@ -428,7 +514,7 @@ public class TimetableServiceTests
     [InlineData(-1)]
     public async Task GetLocationByIdInvalidId(int id)
     {
-        _mockRepository.Setup(r => r.GetLocationByIdAsync(id)).ReturnsAsync((Location?)null);
+        _mockRepository.Setup(r => r.GetLocationByIdAsync(id)).ReturnsAsync((LocationResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetLocationById(id));
 
@@ -441,44 +527,50 @@ public class TimetableServiceTests
     {
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6, GroupYearId = 1, GroupYear = groupYear };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2027, Specialisation = specialisation };
+        var semester = new PromotionSemester { Id = 1, Promotion = promotion, PromotionId = promotion.Id, SemesterNumber = 3 };
+        var user = new User
+        {
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            TenantEmail = "at the crossroads",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Student")
+        };
+        var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
+        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6, SubjectCode = "MLR1010", HolderTeacher = teacher, HolderTeacherId = teacher.Id, Semester = semester, SemesterId = semester.Id };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
         var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
         var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
-        var user = new User
-        {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
-        };
-        var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
-        var entity = new Hour
-        {
-            Id = hourId,
-            Day = HourDay.Monday,
-            HourInterval = "08:00-10:00",
-            Frequency = HourFrequency.Weekly,
-            Category = HourCategory.Lecture,
-            Subject = subject,
-            Classroom = classroom,
-            Teacher = teacher
-        };
 
-        var googleData = new GoogleMapsData();
+        var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
         var locationResponse = new LocationResponseDTO
-            { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
-        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
+        { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
+        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name, LocationId = locationResponse.Id };
         var subjectResponse = new SubjectResponseDTO
-            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
+        {
+            Id = 1,
+            Name = subject.Name,
+            NumberOfCredits = subject.NumberOfCredits,
+            Code = subject.SubjectCode,
+            Type = subject.Type.ToString(),
+        };
         var userResponse = new UserResponseDTO
         {
-            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
-            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
-            Password = teacher.User.Password
+            Id = teacher.User.Id,
+            FirstName = teacher.User.FirstName,
+            LastName = teacher.User.LastName,
+            Email = teacher.User.Email,
+            PhoneNumber = teacher.User.PhoneNumber,
+            Role = teacher.User.Role,
+            TenantEmail = "he is watching, always",
+            Owner = ""
         };
         var teacherResponse = new TeacherResponseDTO
-            { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
+        { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
 
         var response = new HourResponseDTO
         {
@@ -491,11 +583,14 @@ public class TimetableServiceTests
             Location = locationResponse,
             Classroom = classroomResponse,
             Subject = subjectResponse,
-            Teacher = teacherResponse
+            Teacher = teacherResponse,
+            Promotion = null,
+            StudentGroup = null,
+            StudentSubGroup = null
         };
 
-        _mockRepository.Setup(r => r.GetHourByIdAsync(hourId)).ReturnsAsync(entity);
-        _mockMapper.Setup(m => m.Map<HourResponseDTO>(entity)).Returns(response);
+        _mockRepository.Setup(r => r.GetHourByIdAsync(hourId)).ReturnsAsync(response);
+
 
         var result = await _service.GetHourById(hourId);
 
@@ -511,7 +606,7 @@ public class TimetableServiceTests
     [InlineData(0)]
     public async Task GetHourByIdInvalidId(int hourId)
     {
-        _mockRepository.Setup(r => r.GetHourByIdAsync(hourId)).ReturnsAsync((Hour?)null);
+        _mockRepository.Setup(r => r.GetHourByIdAsync(hourId)).ReturnsAsync((HourResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetHourById(hourId));
 
@@ -533,22 +628,49 @@ public class TimetableServiceTests
             SpecialisationId = specialisationId,
             GroupYearId = groupYearId
         };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var subject = new Subject { Id = 1, Name = "FP", NumberOfCredits = 6, GroupYearId = 1, GroupYear = groupYear };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
-        var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
-        var location = new Location { Id = 1, Name = "Marasti", Address = "Groapa" };
-        var classroom = new Classroom { Id = 1, Name = "A101", Location = location };
-        var user = new User
+        var faculty = new FacultyResponseDTO { Id = 1, Name = "Facultate de Mate-Info" };
+        var specialisation = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
+        var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2027 };
+        var subject = new SubjectResponseDTO
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = 1,
+            Name = "FP",
+            NumberOfCredits = 6,
+            Type = "Required",
+            Code = "FP01",
         };
-        var teacher = new Teacher { Id = 1, User = user, Faculty = faculty };
+        var studentGroup = new StudentGroupResponseDTO { Id = 1, Name = "234" };
+        var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "234/1" };
+        var googleData = new GoogleMapsDataResponseDTO { Id = "1", Latitude = 2, Longitude = 3 };
+        var locationResponse = new LocationResponseDTO
+        { Id = 1, Name = "Marasti", Address = "Groapa", GoogleMapsData = googleData };
+        var classroom = new ClassroomResponseDTO { Id = 1, Name = "A101", LocationId = locationResponse.Id };
+        var user = new UserResponseDTO
+        {
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            TenantEmail = "i see you",
+            Role = UserRole.Student,
+            Owner = ""
+        };
+        var teacher = new TeacherResponseDTO { Id = 1, User = user, FacultyId = faculty.Id, UserId = userId };
         _mockAcademicRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
-            .ReturnsAsync(new List<Enrollment> { new Enrollment { User = user, SubGroup = subGroup } });
+            .ReturnsAsync(
+                new List<EnrollmentResponseDTO>
+                {
+                    new EnrollmentResponseDTO
+                    {
+                        Id = 1,
+                        UserId = userId,
+                        SubGroupId = subGroup.Id,
+                        User = user,
+                        SubGroup = subGroup
+                    }
+                }
+            );
         _mockRepository.Setup(r => r.GetClassroomByIdAsync(classroomId))
             .ReturnsAsync(classroom);
         _mockAcademicRepository.Setup(r => r.GetTeacherById(teacherId))
@@ -559,38 +681,9 @@ public class TimetableServiceTests
             .ReturnsAsync(faculty);
         _mockAcademicRepository.Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
             .ReturnsAsync(specialisation);
-        _mockAcademicRepository.Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
+        _mockAcademicRepository.Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(promotion);
 
-        var hours = new List<Hour>
-        {
-            new Hour
-            {
-                Id = 1,
-                Day = HourDay.Monday,
-                HourInterval = "08:00-10:00",
-                Frequency = HourFrequency.Weekly,
-                Category = HourCategory.Lecture,
-                Subject = subject,
-                Classroom = classroom,
-                Teacher = teacher
-            }
-        };
-
-        var googleData = new GoogleMapsData();
-        var locationResponse = new LocationResponseDTO
-            { Id = 1, Name = location.Name, Address = location.Address, GoogleMapsData = googleData };
-        var classroomResponse = new ClassroomResponseDTO { Id = 1, Name = classroom.Name };
-        var subjectResponse = new SubjectResponseDTO
-            { Id = 1, Name = subject.Name, NumberOfCredits = subject.NumberOfCredits };
-        var userResponse = new UserResponseDTO
-        {
-            Id = teacher.User.Id, FirstName = teacher.User.FirstName, LastName = teacher.User.LastName,
-            Email = teacher.User.Email, PhoneNumber = teacher.User.PhoneNumber, Role = teacher.User.Role.ToString(),
-            Password = teacher.User.Password
-        };
-        var teacherResponse = new TeacherResponseDTO
-            { Id = teacher.Id, User = userResponse, UserId = userResponse.Id, FacultyId = faculty.Id };
 
         var response = new HourResponseDTO
         {
@@ -601,13 +694,15 @@ public class TimetableServiceTests
             Category = "Lecture",
             Format = "231/1",
             Location = locationResponse,
-            Classroom = classroomResponse,
-            Subject = subjectResponse,
-            Teacher = teacherResponse
+            Classroom = classroom,
+            Subject = subject,
+            Teacher = teacher,
+            Promotion = promotion,
+            StudentGroup = studentGroup,
+            StudentSubGroup = subGroup
         };
 
-        _mockRepository.Setup(r => r.GetHoursAsync(filter)).ReturnsAsync(hours);
-        _mockMapper.Setup(m => m.Map<List<HourResponseDTO>>(hours)).Returns(new List<HourResponseDTO> { response });
+        _mockRepository.Setup(r => r.GetHoursAsync(filter)).ReturnsAsync(new List<HourResponseDTO> { response });
 
         var result = await _service.GetHourByFilter(filter);
 
@@ -617,8 +712,8 @@ public class TimetableServiceTests
 
         _mockRepository.Verify(r => r.GetHoursAsync(filter), Times.Once);
     }
-    
-   
+
+
     [Theory]
     [InlineData(0, 0, 0, 0, 0, 0, 0)]
     [InlineData(-1, -1, -1, -1, -1, -1, -1)]
@@ -635,11 +730,10 @@ public class TimetableServiceTests
             SpecialisationId = specialisationId,
             GroupYearId = groupYearId
         };
-        
-        
+
+
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.GetHourByFilter(filter));
-        
+
         _mockRepository.Verify(r => r.GetHoursAsync(It.IsAny<HourFilter>()), Times.Never);
     }
-
 }

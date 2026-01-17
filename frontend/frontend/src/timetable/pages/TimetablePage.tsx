@@ -1,7 +1,16 @@
-import { useEffect, useState, type SetStateAction, useRef } from "react";
+import React, { type SetStateAction, useEffect, useRef, useState } from "react";
 import Timetable from "../components/Timetable.tsx";
 import GoogleMapsComponent from "../../googleMaps/GoogleMapsComponent.tsx";
 import type { HourProps, LocationProps, SelectedLocationsProps } from "../props.ts";
+import { useTranslation } from "react-i18next";
+import Circular from "../../components/loading/Circular.tsx";
+import type { HourFilter } from "../useTimetableApi.ts";
+import useTimetableApi from "../useTimetableApi.ts";
+import { UserRole } from "../../core/props.ts";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import useAuth from "../../auth/hooks/useAuth.ts";
+import { Button } from "@mui/material";
 
 const defaultSelectedLocations: SelectedLocationsProps = {
   currentLocation: null,
@@ -9,23 +18,50 @@ const defaultSelectedLocations: SelectedLocationsProps = {
 };
 
 const TimetablePage: React.FC = () => {
-  //TODO temporary user info, to be loaded from auth context
-  //groupYear, spec, faculty invalid example id's
-  const userInfo = {
-    id: 11111,
-    groupYear: 47,
-    spec: 2,
-    faculty: 3,
-  };
+  const { t } = useTranslation();
 
-  const [selectedFilter, setSelectedFilter] = useState("personal");
-  const [selectedFreq, setSelectedFreq] = useState("all");
-  const [activeHours, setActiveHours] = useState(true);
-  const [locations, setLocations] = useState([]);
-  const [selectedLocations, setSelectedLocations] = useState(defaultSelectedLocations);
+  const { userProps, userEnrollments } = useAuth();
+
+  const navigate = useNavigate();
+
+  const { downloadIcs, getTeacherIdByUser } = useTimetableApi();
+
+  const [selectedFilter, setSelectedFilter] = useState<string>("personal");
+  const [selectedFreq, setSelectedFreq] = useState<string>("all");
+  const [activeHours, setActiveHours] = useState<boolean>(true);
+  const [locations, setLocations] = useState<LocationProps[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<SelectedLocationsProps>(defaultSelectedLocations);
+  const [selectedEnrollment, setSelectedEnrollment] = useState(0);
+  const [isLoadingTimetable, setIsLoadingTimetable] = useState<boolean>(false);
+
+  if (userProps && userProps.role == UserRole.TEACHER) {
+    getTeacherIdByUser(userProps.id)
+      .then((res) => {
+        navigate("/timetable/teacher/" + res);
+      })
+      .catch(() => {
+        toast.error("Error");
+      });
+  }
 
   const sendLocationsToMaps = (locs: LocationProps[]) => {
     setLocations(locs);
+  };
+
+  const isCompatibleFrequency = (freq1: string, freq2: string) => {
+    return (
+      (freq1 === "FirstWeek" && freq2 !== "SecondWeek") ||
+      (freq1 === "SecondWeek" && freq2 !== "FirstWeek") ||
+      freq1 === "Weekly" ||
+      freq2 === "Weekly"
+    );
+  };
+
+  const handleCancelSelection = () => {
+    setSelectedLocations(defaultSelectedLocations);
+    setTimeout(() => {
+      scrollToTopPage();
+    }, 0);
   };
 
   const handleHourClick = (hourId: number, hours: HourProps[]) => {
@@ -34,11 +70,14 @@ const TimetablePage: React.FC = () => {
 
     const currentLocation = hours[hourIndex].location;
     const nextLocation =
-      hourIndex < hours.length - 1 && hours[hourIndex].day === hours[hourIndex + 1].day
+      hourIndex < hours.length - 1 && // not the last hour
+      hours[hourIndex].day === hours[hourIndex + 1].day && // same day
+      hours[hourIndex].location?.id !== hours[hourIndex + 1].location?.id && // different location
+      isCompatibleFrequency(hours[hourIndex].frequency, hours[hourIndex + 1].frequency) // possible to have both consecutive hours in the same week
         ? hours[hourIndex + 1].location
         : null;
 
-    setLocations([currentLocation]);
+    setLocations(currentLocation ? [currentLocation] : []);
     setSelectedLocations({ currentLocation, nextLocation });
   };
 
@@ -71,8 +110,14 @@ const TimetablePage: React.FC = () => {
     });
   };
 
+  const scrollToTopPage = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
-    scrollToNavigationButtonsSection();
+    if (selectedLocations.currentLocation) {
+      scrollToNavigationButtonsSection();
+    }
   }, [selectedLocations.currentLocation]);
 
   const filterFreq1: (hour: HourProps) => boolean = (hour) =>
@@ -95,14 +140,48 @@ const TimetablePage: React.FC = () => {
     setSelectedFilter(event.target.value);
   };
 
+  const handleEnrollmentSelect = (value: number) => {
+    setSelectedEnrollment(value);
+  };
+
   const handleChangeFreq = (event: { target: { value: SetStateAction<string> } }) => {
     setSelectedFreq(event.target.value);
   };
 
-  return (
+  const handleDownloadIcs = async () => {
+    try {
+      const filter: HourFilter = {};
+      if (selectedFilter === "personal") {
+        filter.userId = userProps!.id;
+        filter.currentWeekTimetable = activeHours;
+      } else if (selectedFilter === "group") {
+        filter.groupYearId = userEnrollments![selectedEnrollment].promotionId;
+      } else if (selectedFilter === "specialisation") {
+        filter.semesterNumber = userEnrollments![selectedEnrollment].specializationId;
+      } else if (selectedFilter === "faculty") {
+        filter.semesterNumber = userEnrollments![selectedEnrollment].facultyId;
+      }
+
+      const blob = await downloadIcs(filter);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `timetable_${new Date().toISOString().slice(0, 10)}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download ICS file:", error);
+    }
+  };
+
+  if (!userProps || !userEnrollments) return <div>{t("Error")}</div>;
+
+  return userProps.role == UserRole.STUDENT ? (
     <div className={"container"}>
       <div className={"timetable-page"}>
-        <div className={"timetable-title"}>Orar</div>
+        <div className={"timetable-title"}>{t("Timetable")}</div>
         <div className={"timetable-filter"}>
           <label>
             <input
@@ -112,7 +191,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "personal"}
               onChange={handleChange}
             />
-            Personalizat
+            {t("Personalized")}
           </label>
           <label>
             <input
@@ -122,7 +201,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "group"}
               onChange={handleChange}
             />
-            Grupă
+            {t("Promotion")}
           </label>
           <label>
             <input
@@ -132,7 +211,7 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "specialisation"}
               onChange={handleChange}
             />
-            Specializare
+            {t("Specialization")}
           </label>
           <label>
             <input
@@ -142,98 +221,161 @@ const TimetablePage: React.FC = () => {
               checked={selectedFilter === "faculty"}
               onChange={handleChange}
             />
-            Facultate
+            {t("Faculty")}
           </label>
         </div>
-        <div className={"timetable-filter"}>
-          <label hidden={selectedFilter != "personal"}>
-            <input
-              type="checkbox"
-              name="active"
-              value="active"
-              checked={activeHours}
-              onChange={() => setActiveHours(!activeHours)}
-            />
-            Săptămâna curentă
-          </label>
+        {selectedFilter != "personal" ? (
+          userEnrollments.length > 1 && (
+            <div className={"timetable-filter-item"}>
+              <select
+                onChange={(e) => handleEnrollmentSelect(Number(e.currentTarget.value))}
+                value={selectedEnrollment}
+              >
+                {userEnrollments.map((_e, index) => (
+                  <option key={index} value={index}>
+                    {t("Enrollment") + " " + (index + 1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )
+        ) : (
+          <div className={"timetable-filter"}>
+            <label>
+              <input
+                type="checkbox"
+                name="active"
+                value="active"
+                checked={activeHours}
+                onChange={() => setActiveHours(!activeHours)}
+              />
+              {t("CurrentWeek")}
+            </label>
+          </div>
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between", alignSelf: "flex-start", width: "100%" }}>
+          <div className={"timetable-filter"}>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="all"
+                checked={selectedFreq === "all"}
+                onChange={handleChangeFreq}
+              />
+              {t("Anytime")}
+            </label>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="1"
+                checked={selectedFreq === "1"}
+                onChange={handleChangeFreq}
+              />
+              {t("FirstWeek")}
+            </label>
+            <label>
+              <input
+                disabled={activeHours && selectedFilter == "personal"}
+                type="radio"
+                name="freq"
+                value="2"
+                checked={selectedFreq === "2"}
+                onChange={handleChangeFreq}
+              />
+              {t("SecondWeek")}
+            </label>
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Button variant="outlined" onClick={handleDownloadIcs}>{t("Download")}</Button>
+          </div>
         </div>
-        <div className={"timetable-filter"}>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="all"
-              checked={selectedFreq === "all"}
-              onChange={handleChangeFreq}
-            />
-            Oricând
-          </label>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="1"
-              checked={selectedFreq === "1"}
-              onChange={handleChangeFreq}
-            />
-            Săpt. 1
-          </label>
-          <label>
-            <input
-              disabled={activeHours && selectedFilter == "personal"}
-              type="radio"
-              name="freq"
-              value="2"
-              checked={selectedFreq === "2"}
-              onChange={handleChangeFreq}
-            />
-            Săpt. 2
-          </label>
-        </div>
+
         {selectedFilter == "personal" && !activeHours && (
           <Timetable
-            userId={userInfo.id}
+            userId={userProps.id}
             filterFn={getFreqFilter()}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
+            selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
         {selectedFilter == "personal" && activeHours && (
           <Timetable
-            userId={userInfo.id}
+            userId={userProps.id}
             currentWeekOnly={true}
             onHourClick={handleHourClick}
             sendLocationsToMaps={sendLocationsToMaps}
+            selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
           />
         )}
-        {selectedFilter == "group" && <Timetable groupYearId={userInfo.groupYear} filterFn={getFreqFilter()} />}
+        {selectedFilter == "group" && (
+          <Timetable
+            groupYearId={userEnrollments[selectedEnrollment].promotionId}
+            filterFn={getFreqFilter()}
+            selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
+          />
+        )}
         {selectedFilter == "specialisation" && (
-          <Timetable specialisationId={userInfo.spec} filterFn={getFreqFilter()} />
+          <Timetable
+            specialisationId={userEnrollments[selectedEnrollment].specializationId}
+            filterFn={getFreqFilter()}
+            selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
+          />
         )}
-        {selectedFilter == "faculty" && <Timetable facultyId={userInfo.faculty} filterFn={getFreqFilter()} />}
-      </div>
-
-      <GoogleMapsComponent locations={locations} />
-
-      <div ref={sectionNavigationButtonsRef}>
-        {selectedLocations.currentLocation && (
-          <button
-            className="timetable-back-button"
-            onClick={handleNavigateFromCurrentLocation}
-            title="Open Google Maps"
-          >
-            Vezi rute către {selectedLocations.currentLocation.name}
-          </button>
-        )}
-        {selectedLocations.currentLocation && selectedLocations.nextLocation && (
-          <button className="timetable-back-button" onClick={handleNavigateBetweenLocations} title="Open Google Maps">
-            Vezi rute de la {selectedLocations.currentLocation.name} la {selectedLocations.nextLocation.name}
-          </button>
+        {selectedFilter == "faculty" && (
+          <Timetable
+            facultyId={userEnrollments[selectedEnrollment].facultyId}
+            filterFn={getFreqFilter()}
+            selectedLocations={selectedLocations}
+            onLoadingChange={setIsLoadingTimetable}
+          />
         )}
       </div>
+
+      {isLoadingTimetable ? (
+        <Circular />
+      ) : (
+        <>
+          <GoogleMapsComponent locations={locations} />
+
+          <div className="container-back-buttons" ref={sectionNavigationButtonsRef}>
+            {selectedLocations.currentLocation && (
+              <button
+                className="timetable-back-button"
+                onClick={handleNavigateFromCurrentLocation}
+                title="Open Google Maps"
+              >
+                {t("SeeRoutesTo")} {selectedLocations.currentLocation.name}
+              </button>
+            )}
+            {selectedLocations.currentLocation && selectedLocations.nextLocation && (
+              <button
+                className="timetable-back-button"
+                onClick={handleNavigateBetweenLocations}
+                title="Open Google Maps"
+              >
+                {t("SeeRoutesBetween")} {selectedLocations.currentLocation.name} & {selectedLocations.nextLocation.name}
+              </button>
+            )}
+            {selectedLocations.currentLocation && (
+              <button className="timetable-back-button" onClick={handleCancelSelection} title="Open Google Maps">
+                {t("CancelSelection")}
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
+  ) : (
+    <div>{t("Loading")}</div>
   );
 };
 

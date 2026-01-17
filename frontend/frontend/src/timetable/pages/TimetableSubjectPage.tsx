@@ -2,7 +2,8 @@ import Timetable from "../components/Timetable.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import type { SubjectProps } from "../props.ts";
 import { useEffect, useState } from "react";
-import { getSubject } from "../TimetableApi.ts";
+import { useTranslation } from "react-i18next";
+import useTimetableApi from "../useTimetableApi.ts";
 
 const TimetableSubjectPage: React.FC = () => {
   const [subject, setSubject] = useState<SubjectProps | null>(null);
@@ -11,12 +12,16 @@ const TimetableSubjectPage: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
 
+  const { t } = useTranslation();
+
+  const { getSubject } = useTimetableApi();
+
   const handleBack = () => {
     navigate("/timetable");
   };
 
   useEffect(() => {
-    if (!params.id || !Number(params.id) || fetchError) return;
+    if (!params.id || !Number(params.id)) return;
 
     getSubject(Number(params.id))
       .then((res) => {
@@ -25,20 +30,23 @@ const TimetableSubjectPage: React.FC = () => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, [params]);
+  }, [params.id]);
 
   return (
     <div className={"timetable-page"}>
       {subject && (
-        <>
-          <div className={"timetable-title"}>Materie: {subject.name}</div>
+        <div className="container">
+          <div className={"timetable-title"}>
+            {t("Subject")}: {subject.name}
+          </div>
           <button className={"timetable-back-button"} onClick={handleBack}>
-            Înapoi
+            {t("Back")}
           </button>
           <Timetable subjectId={subject.id}></Timetable>
-        </>
+        </div>
       )}
-      {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
+      {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
+      {!subject && !fetchError && <div>{t("Loading")}</div>}
     </div>
   );
 };

@@ -1,25 +1,37 @@
-﻿using Backend.Context;
-using Backend.Domain;
-using Backend.Domain.Enums;
-using Backend.Repository;
+using AutoMapper;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
+using TrackForUBB.Domain.DTOs;
 using Xunit;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.AutoMapper;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class UserRepositoryTests : IDisposable
 {
     private readonly AcademicAppContext _context;
     private readonly UserRepository _repo;
+   
 
     public UserRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "UserRepositoryTestsDB")
             .Options;
+        
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<EFEntitiesMappingProfile>(); 
+        },new NullLoggerFactory());
+
+        IMapper mapper = config.CreateMapper();
 
         _context = new AcademicAppContext(options);
-        _repo = new UserRepository(_context);
+        _repo = new UserRepository(_context,mapper);
     }
 
     public void Dispose()
@@ -35,7 +47,11 @@ public class UserRepositoryTests : IDisposable
     {
         _context.Users.Add(new User
         {
-            Email = email, FirstName = "Andrei", LastName = "Rotaru", Password = "1234", PhoneNumber = "+4077",
+            Email = email,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            PhoneNumber = "+4077",
+            TenantEmail = "andrei.rotaru@trackforubb.onmicrosoft.com",
             Role = UserRole.Student
         });
         await _context.SaveChangesAsync();
@@ -62,7 +78,11 @@ public class UserRepositoryTests : IDisposable
     {
         var user = new User
         {
-            Email = $"user{id}@mail.com", FirstName = "Test", LastName = "User", Password = "111", PhoneNumber = "+400",
+            Email = $"user{id}@mail.com",
+            FirstName = "Test",
+            LastName = "User",
+            PhoneNumber = "+400",
+            TenantEmail = "test.user@trackforubb.onmicrosoft.com",
             Role = UserRole.Student
         };
         _context.Users.Add(user);
@@ -85,15 +105,18 @@ public class UserRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("Vanya", "Doktorovic", "0759305094", "vandok@gmail.com", "pass1234", UserRole.Admin)]
-    [InlineData("Andrei", "Horo", "0779725710", "horo@gmail.com", "password", UserRole.Student)]
+    [InlineData("Vanya", "Doktorovic", "0759305094", "vandok@gmail.com", UserRole.Admin)]
+    [InlineData("Andrei", "Horo", "0779725710", "horo@gmail.com", UserRole.Student)]
     public async Task AddAsyncValidUser(string firstName, string lastName, string phoneNumber, string email,
-        string password, UserRole role)
+        UserRole role)
     {
-        var user = new User
+        var user = new InternalUserPostDTO
         {
-            Email = email, FirstName = firstName, LastName = lastName, Password = password, PhoneNumber = phoneNumber,
-            Role = role
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phoneNumber,
+            Role = role.ToString()
         };
 
         await _repo.AddAsync(user);
@@ -110,18 +133,28 @@ public class UserRepositoryTests : IDisposable
         _context.Users.AddRange(
             new User
             {
-                Id = 1, Email = "a@a.com", FirstName = "A", LastName = "A", Password = "p",
-                PhoneNumber = "+40779725710", Role = UserRole.Student
+                Id = 1,
+                Email = "a@a.com",
+                FirstName = "A",
+                LastName = "A",
+                PhoneNumber = "+40779725710",
+                TenantEmail = "a.a@trackforubb.onmicrosoft.com",
+                Role = UserRole.Student
             },
             new User
             {
-                Id = 2, Email = "b@b.com", FirstName = "B", LastName = "B", Password = "p",
-                PhoneNumber = "+40779725710", Role = UserRole.Admin
+                Id = 2,
+                Email = "b@b.com",
+                FirstName = "B",
+                LastName = "B",
+                PhoneNumber = "+40779725710",
+                TenantEmail = "b.b@trackforubb.onmicrosoft.com",
+                Role = UserRole.Admin
             }
         );
         await _context.SaveChangesAsync();
 
-        var result = await _repo.GetAll();
+        var result = await _repo.GetAll(null);
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);

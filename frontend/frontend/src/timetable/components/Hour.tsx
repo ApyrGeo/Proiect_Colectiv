@@ -2,6 +2,7 @@ import type { HourProps } from "../props.ts";
 import "../timetable.css";
 import { useNavigate } from "react-router-dom";
 import type { TimetableProps } from "./Timetable.tsx";
+import { useTranslation } from "react-i18next";
 
 export interface HourPropsExtended extends HourProps {
   timetableProps: TimetableProps;
@@ -24,6 +25,7 @@ const Hour: React.FC<HourPropsExtended> = ({
   onLocationClick,
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const openRoomTable = (classroomId: number | undefined | null) => {
     if (!classroomId) return;
@@ -50,38 +52,40 @@ const Hour: React.FC<HourPropsExtended> = ({
       ${isNext && isMainTimetable ? "timetable-row-next" : ""}
       ${isCurrent && isMainTimetable ? "timetable-row-current" : ""}`}
     >
-      <td>{day}</td>
+      <td>{t(day)}</td>
       <td>{hourInterval}</td>
-      <td>{frequency}</td>
+      <td>{t(frequency)}</td>
       {onLocationClick ? (
         <td>
-          <button className={"timetable-button"} onClick={onLocationClick}>
-            {location.name}
-          </button>
+          {location && (
+            <button className={"timetable-button"} onClick={onLocationClick}>
+              {location.name}
+            </button>
+          )}
         </td>
       ) : (
-        <td>{location.name}</td>
+        <td>{location ? location.name : "\t"}</td>
       )}
       {!timetableProps.classroomId && (
         <td>
           <button className={"timetable-button"} onClick={() => openRoomTable(classroom.id)}>
-            {classroom.name}
+            {classroom ? classroom.name : "\t"}
           </button>
         </td>
       )}
       <td>{format}</td>
-      <td>{category}</td>
+      {category && <td>{t(category)}</td>}
       {!timetableProps.subjectId && (
         <td>
           <button className={"timetable-button"} onClick={() => openSubjectTable(subject.id)}>
-            {subject.name}
+            {subject ? subject.name : "\t"}
           </button>
         </td>
       )}
       {!timetableProps.teacherId && (
         <td>
           <button className={"timetable-button"} onClick={() => openTeacherTable(teacher.id)}>
-            {teacher.user.lastName + " " + teacher.user.firstName}
+            {teacher ? teacher.user.lastName + " " + teacher.user.firstName : "\t"}
           </button>
         </td>
       )}

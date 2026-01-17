@@ -1,78 +1,94 @@
-﻿using System.Runtime.InteropServices.ComTypes;
 using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Configuration;
-using EmailService.Interfaces;
-using EmailService.Models;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Kiota.Abstractions.Authentication;
 using Moq;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Domain.Security;
+using TrackForUBB.Service;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Service.Interfaces;
+using TrackForUBB.Service.Validators;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _mockUserRepository = new();
-    private readonly Mock<IMapper> _mockMapper = new();
-    private readonly Mock<IPasswordHasher<User>> _mockPasswordHasher = new();
+    private readonly Mock<IAdapterPasswordHasher<InternalUserPostDTO>> _mockPasswordHasher = new();
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly UserService _userService;
+    private readonly Mock<IConfiguration> conf = new();
+    private readonly Mock<IAcademicRepository> _mockAcademicRepository = new();
+    private static Mapper? mapper;
 
     public UserServiceTests()
     {
-        var realValidator = new UserPostDTOValidator(_mockUserRepository.Object);
+        var realValidator = new InternalUserPostDTOValidator(_mockUserRepository.Object);
 
         var mockValidatorFactory = new Mock<IValidatorFactory>();
-        mockValidatorFactory.Setup(v => v.Get<UserPostDTO>()).Returns(realValidator);
+        mockValidatorFactory.Setup(v => v.Get<InternalUserPostDTO>()).Returns(realValidator);
 
         _validatorFactory = mockValidatorFactory.Object;
 
-        _userService = new UserService(_mockUserRepository.Object, _mockMapper.Object, _validatorFactory,
-            _mockPasswordHasher.Object, _mockEmailProvider.Object);
+        var mockAuthProvider = new Mock<IAuthenticationProvider>();
+
+        if (mapper is null)
+        {
+            var loggerFactory = LoggerFactory.Create(cfg => cfg.AddConsole());
+            var mapperConfiguration = new MapperConfiguration(
+                cfg => cfg.AddProfile(new AutoMapperServiceProfile()),
+                loggerFactory
+            );
+            mapper = new Mapper(mapperConfiguration);
+        }
+
+        _userService = new UserService(_mockUserRepository.Object, _mockAcademicRepository.Object, mapper, _validatorFactory,
+            _mockEmailProvider.Object, conf.Object, graph: null);
     }
 
     [Theory]
-    [InlineData("Vanya", "Doktorovic", "+40712345678", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Andrei", "Horo", "40712345678", "horo@gmail.com", "password", "Teacher")]
+    [InlineData("Vanya", "Doktorovic", "+40712345678", "vandok@gmail.com", "Admin")]
+    [InlineData("Andrei", "Horo", "40712345678", "horo@gmail.com", "Teacher")]
     public async Task CreateUserValidData(string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
         var userDTO = new UserPostDTO
         {
-            FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email, Password = password,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
             Role = role
         };
 
-
-        var userEntity = new User
+        var internalUserDTO = new InternalUserPostDTO
         {
-            FirstName = firstName, LastName = lastName, Email = email, Password = password, PhoneNumber = phone,
-            Role = Enum.Parse<UserRole>(role)
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
+            Role = role
         };
+
         var userResponseDTO = new UserResponseDTO
         {
-            Id = 1, FirstName = firstName, LastName = lastName, Email = email, PhoneNumber = phone, Password = password,
-            Role = role
+            Id = 1,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            PhoneNumber = phone,
+            Role = Enum.Parse<UserRole>(role),
+            TenantEmail = "",
+            Owner = ""
         };
 
-        _mockMapper.Setup(m => m.Map<User>(userDTO)).Returns(userEntity);
-        _mockMapper.Setup(m => m.Map<UserResponseDTO>(userEntity)).Returns(userResponseDTO);
-
-        _mockPasswordHasher.Setup(h => h.HashPassword(userEntity, password)).Returns("hashedPassword");
-
-        _mockUserRepository.Setup(r => r.AddAsync(userEntity)).ReturnsAsync(userEntity);
-        _mockUserRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+        _mockUserRepository.Setup(r => r.AddAsync(internalUserDTO)).ReturnsAsync(userResponseDTO);
 
 
         var result = await _userService.CreateUser(userDTO);
@@ -82,53 +98,52 @@ public class UserServiceTests
         Assert.Equal(lastName, result.LastName);
         Assert.Equal(email, result.Email);
 
-        _mockUserRepository.Verify(r => r.AddAsync(userEntity), Times.Once);
-        _mockUserRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockUserRepository.Verify(r => r.AddAsync(internalUserDTO), Times.Once);
     }
 
     [Theory]
-    [InlineData("", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "0759305094", "invalid-email", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+10adwd21234", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Lvbhk")]
+    [InlineData("", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "0759305094", "invalid-email", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "+10adwd21234", "vandok@gmail.com", "Admin")]
+    [InlineData("Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Lvbhk")]
     public async Task CreateUserInvalidData(string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
         var userDTO = new UserPostDTO
         {
-            FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email, Password = password,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
             Role = role
         };
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _userService.CreateUser(userDTO));
 
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Never);
-
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<InternalUserPostDTO>()), Times.Never);
     }
 
     [Theory]
-    [InlineData(1, "Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "pass1234", "Admin")]
-    [InlineData(2, "Andrei", "Horo", "+40779725710", "horo@gmail.com", "password", "Teacher")]
+    [InlineData(1, "Vanya", "Doktorovic", "+40759305094", "vandok@gmail.com", "Admin")]
+    [InlineData(2, "Andrei", "Horo", "+40779725710", "horo@gmail.com", "Teacher")]
     public async Task GetUserByIdExistingUser(int id, string firstName, string lastName, string phone, string email,
-        string password, string role)
+        string role)
     {
-        var user = new User
-        {
-            Id = id, FirstName = firstName, LastName = lastName, Email = email, Password = password,
-            PhoneNumber = phone, Role = Enum.Parse<UserRole>(role)
-        };
         var userDto = new UserResponseDTO
         {
-            Id = id, FirstName = firstName, LastName = lastName, PhoneNumber = phone, Email = email,
-            Password = password, Role = role
+            Id = id,
+            FirstName = firstName,
+            LastName = lastName,
+            PhoneNumber = phone,
+            Email = email,
+            Role = Enum.Parse<UserRole>(role),
+            TenantEmail = "",
+            Owner = ""
         };
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(user);
-        _mockMapper.Setup(m => m.Map<UserResponseDTO>(user)).Returns(userDto);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(userDto);
 
         var result = await _userService.GetUserById(id);
 
@@ -145,11 +160,10 @@ public class UserServiceTests
     public async Task GetUserByIdNonExistingUser(int invalidId)
     {
         _mockUserRepository.Setup(r => r.GetByIdAsync(invalidId))
-            .ReturnsAsync((User?)null);
+            .ReturnsAsync((UserResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserById(invalidId));
 
         _mockUserRepository.Verify(r => r.GetByIdAsync(invalidId), Times.Once);
-        _mockMapper.Verify(m => m.Map<UserResponseDTO>(It.IsAny<User>()), Times.Never);
     }
 }

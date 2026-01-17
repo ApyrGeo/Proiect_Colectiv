@@ -1,0 +1,36 @@
+name: build and test
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+
+    name: Build and Test Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "backend/Backend"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal

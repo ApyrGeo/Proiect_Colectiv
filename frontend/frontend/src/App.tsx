@@ -1,33 +1,68 @@
 import "./App.css";
 import Sidebar from "./sidebar/Sidebar.tsx";
 import { useState } from "react";
-import GoogleMapsComponent from "./googleMaps/GoogleMapsComponent.tsx";
 import { Route, Routes } from "react-router-dom";
-import Grades from "./grades/pages/GradesPage.tsx";
+import GradesPage from "./grades/pages/GradesPage.tsx";
 import TimetablePage from "./timetable/pages/TimetablePage.tsx";
 import TimetableTeacherPage from "./timetable/pages/TimetableTeacherPage.tsx";
 import TimetableSubjectPage from "./timetable/pages/TimetableSubjectPage.tsx";
 import TimetableClassroomPage from "./timetable/pages/TimetableClassroomPage.tsx";
+import ProfilePage from "./profile/pages/ProfilePage.tsx";
+import { Toaster } from "react-hot-toast";
+
+import "../i18n.ts";
+import Homepage from "./homepage/HomePage.tsx";
+import FAQPopup from "./faq/components/FAQPopup.tsx";
+import { faqsTimetable } from "./faq/FAQData.ts";
+import ContractsPage from "./contracts/ContractsPage.tsx";
+import ExamPage from "./exam/pages/ExamPage.tsx";
+import PrivateRouter from "./routing/PrivateRouter.tsx";
+import SignInStatusComponent from "./auth/components/SignInStatusComponent.tsx";
+import TimetableGenerationPage from "./timetable-generation/pages/TimetableGenerationPage.tsx";
+import AdminLocationPage from "./admin/location/AdminLocationPage.tsx";
+import SubjectGenerationPage from "./admin/subject-generation/pages/SubjectGenerationPage.tsx";
+import AdminAcademicsPage from "./admin-academics/AdminAcademicsPage.tsx";
+import ImportUsersPage from "./admin/create-users/pages/ImportUsersPage.tsx";
+import ImportPromotionPage from "./admin/create-users/pages/ImportPromotionPage.tsx";
+import AddTeacherPage from "./admin/create-users/pages/AddTeacherPage.tsx";
+import ExamGenerationPage from "./admin/exam-dates-generation/AdminExamPage.tsx";
 
 const App = () => {
   const [sidebarMinified, setSidebarMinified] = useState(false);
-  const [, setMobileSidebarOpen] = useState(false);
-
   return (
     <>
-      <Sidebar
-        appSidebarMinified={sidebarMinified}
-        onToggleMinified={() => setSidebarMinified((prev) => !prev)}
-        onToggleMobile={() => setMobileSidebarOpen((prev) => !prev)}
-      />
-      <Routes>
-        <Route path={"/grades"} Component={Grades} />
-        <Route path={"/timetable"} Component={TimetablePage} />
-        <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage}></Route>
-        <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage}></Route>
-        <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage}></Route>
-      </Routes>
+      {/* Toaster permanent la nivel global */}
+      <Toaster />
+      <Sidebar appSidebarMinified={sidebarMinified} onToggleMinified={() => setSidebarMinified((prev) => !prev)} />
 
+      <div className={`app-content`}>
+        <SignInStatusComponent />
+
+        <Routes>
+          <Route index Component={Homepage} />
+          <Route path={"/home"} Component={Homepage} />
+          <Route Component={PrivateRouter}>
+            <Route path={"/grades"} Component={GradesPage} />
+            <Route path={"/timetable"} Component={TimetablePage} />
+            <Route path={"/timetable/teacher/:id"} Component={TimetableTeacherPage} />
+            <Route path={"/timetable/subject/:id"} Component={TimetableSubjectPage} />
+            <Route path={"/timetable/classroom/:id"} Component={TimetableClassroomPage} />
+            <Route path={"/contracts"} Component={ContractsPage} />
+            <Route path={"/profile"} Component={ProfilePage} />
+            <Route path={"/exam"} Component={ExamPage} />
+            <Route path={"/admin/academics"} Component={AdminAcademicsPage} />
+            <Route path={"/admin/timetable-generation"} Component={TimetableGenerationPage} />
+            <Route path={"/admin/location"} Component={AdminLocationPage} />
+            <Route path={"/admin/subject-generation"} Component={SubjectGenerationPage} />
+            <Route path={"/admin/import-users"} Component={ImportUsersPage} />
+            <Route path={"/admin/import-promotion"} Component={ImportPromotionPage} />
+            <Route path={"/admin/add-teacher"} Component={AddTeacherPage} />
+            <Route path={"/admin/exam-generation"} Component={ExamGenerationPage} />
+          </Route>
+        </Routes>
+
+        <FAQPopup faqs={faqsTimetable} />
+      </div>
     </>
   );
 };

@@ -1,19 +1,22 @@
 import React from "react";
 import "../grades.css";
 import type { GradeItemProps } from "../props";
+import { useTranslation } from "react-i18next";
 
-const GradeItemComponent: React.FC<GradeItemProps> = ({ id, subject, score, for_score }) => {
+const GradeItemComponent: React.FC<GradeItemProps> = ({ id, subject, value }) => {
+  const { t } = useTranslation();
   let rowClass = "";
-  if (!for_score) rowClass = "not-counted";
-  else rowClass = score >= 5 ? "pass" : "fail";
+  rowClass = value >= 5 ? "pass" : "fail";
 
   return (
     <div key={id} className={`grade-card ${rowClass}`}>
       <div className="subject-name">{subject.name}</div>
       <div className="credit-badge">
-        <i>🎓</i> Credite: {subject.credits}
+        <i>🎓</i> {t("Credits")}: {subject.numberOfCredits}
       </div>
-      <div className={`grade-badge ${rowClass}`}>Nota: {score}</div>
+      <div className={`grade-badge ${rowClass}`}>
+        {t("Grade")}: {value}
+      </div>
     </div>
   );
 };

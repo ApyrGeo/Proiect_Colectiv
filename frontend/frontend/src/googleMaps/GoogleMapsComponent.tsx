@@ -2,7 +2,7 @@ import "./googleMaps.css";
 
 import { Marker, useJsApiLoader, OverlayView } from "@react-google-maps/api";
 import { GoogleMap } from "@react-google-maps/api";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import type { LocationProps } from "../timetable/props.ts";
 
 const mapOptions = {
@@ -43,11 +43,13 @@ const mapOptions = {
 
 interface LocationPropsArray {
   locations: LocationProps[];
+  editable?: boolean;
+  onMapClick?: (lat: number, lng: number) => void;
 }
 
-const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
+const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations, editable = false, onMapClick }) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "x",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -111,6 +113,14 @@ const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
         <div className="widget-map-body">
           <GoogleMap
             onLoad={onLoad}
+            onClick={(e) => {
+              if (!editable || !onMapClick) return;
+
+              onMapClick(
+                e.latLng!.lat(),
+                e.latLng!.lng()
+              );
+            }}
             mapContainerStyle={{
               height: "500px",
               borderRadius: "8px",
@@ -130,24 +140,7 @@ const GoogleMapsComponent: React.FC<LocationPropsArray> = ({ locations }) => {
                   }}
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                 >
-                  <div
-                    onClick={() => openInGoogleMaps(loc)}
-                    style={{
-                      color: "black",
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      fontSize: "13px",
-                      fontWeight: "600",
-                      whiteSpace: "nowrap",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                      transform: "translate(-50%, -100%)",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      transition: "transform 0.15s ease, box-shadow 0.15s ease",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 10px rgba(0,0,0,0.4)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)")}
-                  >
+                  <div onClick={() => openInGoogleMaps(loc)} className="map-location-label">
                     {loc.name}
                   </div>
                 </OverlayView>

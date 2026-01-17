@@ -1,117 +1,191 @@
-import type { GradesDataProps } from "./props.ts";
+import { useCallback } from "react";
+import useApiClient from "../core/useApiClient";
+import type { PromotionOfUser, ScholarshipStatus } from "./props";
+import type { SubjectGradesResponse, SubjectProps, TeacherProps, UserProps, StudentGroupProps } from "./props.ts";
 
-export const mockGrades: GradesDataProps = {
-  average_score: 4.2,
-  result: [
-    {
-      id: "1",
-      subject: { name: "Analiza", credits: 5 },
-      score: 10,
-      for_score: true,
-      academicYear: "2025/2026",
-      specialization: "Informatica",
-      studyYear: 1,
-      semester: 1,
+const useGradesApi = () => {
+  const { axios } = useApiClient();
+
+  const gradesUrl = "/api/Grades";
+  const userUrl = "/api/User";
+  const timetableUrl = "/api/Timetable";
+  const academicsUrl = "/api/Academics";
+
+  const getSubGroupsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get(`${timetableUrl}/subjects/${subjectId}/groups`);
+      // Extragem toate subgrupurile
+      const subGroups = response.data.flatMap((group: any) => group.studentSubGroups ?? []);
+      return subGroups; // { id, name }[]
     },
-    {
-      id: "2",
-      subject: { name: "Algebra", credits: 4 },
-      score: 2,
-      for_score: true,
-      academicYear: "2025/2026",
-      specialization: "Matematica",
-      studyYear: 1,
-      semester: 1,
+    [axios]
+  );
+
+  // 📌 Enrollment pentru un student într-o subgrupă
+  const getEnrollmentByStudentAndSubGroup = useCallback(
+    async (userId: number, subGroupId: number) => {
+      const response = await axios.get(`${academicsUrl}/enrollments`, { params: { userId } });
+      const enrollment = response.data.find((e: any) => e.subGroupId === subGroupId);
+      return enrollment ?? null;
     },
-    {
-      id: "3",
-      subject: { name: "ASC", credits: 4 },
-      score: 6,
-      for_score: true,
-      academicYear: "2025/2026",
-      specialization: "Informatica",
-      studyYear: 2,
-      semester: 2,
+    [axios]
+  );
+
+  // 📌 Specializările la care este înscris studentul
+  const getUserPromotions = useCallback(
+    async (userId: number): Promise<PromotionOfUser[]> => {
+      const response = await axios.get<{ promotions: PromotionOfUser[] }>(
+        `${academicsUrl}/promotions/of-user/${userId}`
+      );
+
+      return response.data.promotions ?? [];
     },
-    {
-      id: "4",
-      subject: { name: "Fizica", credits: 3 },
-      score: 4,
-      for_score: true,
-      academicYear: "2024/2025",
-      specialization: "Fizica",
-      studyYear: 1,
-      semester: 1,
+    [axios]
+  );
+
+  // 📌 Status bursă student (poate fi null)
+  const getScholarshipStatusForUser = useCallback(
+    async (
+      userId: number,
+      promotionId: number,
+      studyYear: number,
+      semester: number
+    ): Promise<ScholarshipStatus | null> => {
+      const response = await axios.get<ScholarshipStatus | null>(`${gradesUrl}/status`, {
+        params: {
+          userId,
+          promotionId,
+          yearOfStudy: studyYear,
+          semester,
+        },
+        validateStatus: (status) => status === 200 || status === 204,
+      });
+
+      return response.status === 204 ? null : response.data;
     },
-    {
-      id: "5",
-      subject: { name: "Chimie", credits: 3 },
-      score: 5,
-      for_score: true,
-      academicYear: "2024/2025",
-      specialization: "Informatica",
-      studyYear: 2,
-      semester: 2,
+    [axios]
+  );
+
+  // 📌 Notele studentului (cu filtre opționale)
+  const getGradesForUser = useCallback(
+    async (userId: number, promotionId: number | null, studyYear?: number | null, semester?: number | null) => {
+      const response = await axios.get(`${gradesUrl}`, {
+        params: {
+          userId,
+          ...(promotionId && { promotionId: promotionId }),
+          ...(studyYear && { yearOfStudy: studyYear }),
+          ...(semester && { semester }),
+        },
+        validateStatus: (status) => status === 200 || status === 204,
+      });
+
+      if (response.status === 204) return [];
+      return Array.isArray(response.data) ? response.data : [];
     },
-    {
-      id: "6",
-      subject: { name: "Sport", credits: 2 },
-      score: 10,
-      for_score: false,
-      academicYear: "2025/2026",
-      specialization: "Informatica",
-      studyYear: 1,
-      semester: 1,
+    [axios]
+  );
+
+  const getSubjectsByTeacher = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<SubjectProps[]>(`${timetableUrl}/subjects/holder-teacher/${teacherId}`);
+      return response.data ?? [];
     },
-    {
-      id: "7",
-      subject: { name: "Informatica", credits: 5 },
-      score: 8,
-      for_score: true,
-      academicYear: "2025/2026",
-      specialization: "Informatica",
-      studyYear: 2,
-      semester: 2,
+    [axios]
+  );
+
+  const getStudentGroupsBySubject = useCallback(
+    async (subjectId: number) => {
+      const response = await axios.get<StudentGroupProps[]>(`${timetableUrl}/subjects/${subjectId}/groups`);
+      return response.data ?? [];
     },
-    {
-      id: "8",
-      subject: { name: "Matematica", credits: 4 },
-      score: 3,
-      for_score: true,
-      academicYear: "2025/2026",
-      specialization: "Matematica",
-      studyYear: 1,
-      semester: 1,
+    [axios]
+  );
+
+  const getTeacherbyUserId = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teacher/user/${userId}`);
+      return response.data ?? [];
     },
-    {
-      id: "9",
-      subject: { name: "Logica", credits: 3 },
-      score: 7,
-      for_score: true,
-      academicYear: "2024/2025",
-      specialization: "Informatica",
-      studyYear: 2,
-      semester: 2,
+    [axios]
+  );
+
+  const getStudentByGroup = useCallback(
+    async (subjectId: number, groupId: number): Promise<SubjectGradesResponse> => {
+      const response = await axios.get<SubjectGradesResponse>(`${gradesUrl}/subject-groups`, {
+        params: { subjectId, groupId },
+      });
+      return response.data;
     },
-    {
-      id: "10",
-      subject: { name: "Engleza", credits: 2 },
-      score: 0,
-      for_score: true,
-      academicYear: "2023/2024",
-      specialization: "Fizica",
-      studyYear: 1,
-      semester: 2,
+    [axios]
+  );
+
+  const getTeacherById = useCallback(
+    async (teacherId: number) => {
+      const response = await axios.get<TeacherProps>(`${academicsUrl}/teachers/${teacherId}`);
+      return response.data;
     },
-    {
-      id: "11",
-      subject: { name: "Desen", credits: 2 },
-      score: 10,
-      for_score: false,
-      academicYear: "2025/2026",
-      specialization: "Matematica",
-      studyYear: 1,
-      semester: 1,
+    [axios]
+  );
+
+  const getUserById = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<UserProps>(`${userUrl}/${userId}`);
+      return response.data;
     },
-  ],
+    [axios]
+  );
+
+  const getSpecialisationsByStudent = useCallback(
+    async (userId: number) => {
+      const response = await axios.get<UserProps>(`${userUrl}/${userId}/enrolled-specialisations`);
+      return response.data;
+    },
+    [axios]
+  );
+
+  const updateGradeById = useCallback(
+    async (gradeId: number, value: number | null, subjectId: number, enrollmentId: number, teacherId: number) => {
+      await axios.put(
+        `${gradesUrl}/${gradeId}`, // punem gradeId direct in URL
+        { value, subjectId, enrollmentId }, // body
+        { params: { teacherId } } // query param teacherId
+      );
+    },
+    [axios]
+  );
+
+  const createGradeById = useCallback(
+    async (
+      value: number | null,
+      subjectId: number,
+      enrollmentId: number,
+      teacherId: number // adăugăm teacherId
+    ) => {
+      await axios.post(
+        `${gradesUrl}`, // ruta rămâne aceeași
+        { value, subjectId, enrollmentId }, // body-ul
+        { params: { teacherId } } // query parameter
+      );
+    },
+    [axios]
+  );
+
+  return {
+    getUserPromotions,
+    getScholarshipStatusForUser,
+    getGradesForUser,
+    getSubjectsByTeacher,
+    getStudentGroupsBySubject,
+    getTeacherbyUserId,
+    getTeacherById,
+    getUserById,
+    getStudentByGroup,
+    getSpecialisationsByStudent,
+    getSubGroupsBySubject,
+    getEnrollmentByStudentAndSubGroup,
+    updateGradeById,
+    createGradeById,
+  };
 };
+
+export default useGradesApi;

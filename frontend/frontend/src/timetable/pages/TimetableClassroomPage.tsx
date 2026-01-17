@@ -2,7 +2,8 @@ import Timetable from "../components/Timetable.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import type { ClassroomProps } from "../props.ts";
 import { useEffect, useState } from "react";
-import { getClassroom } from "../TimetableApi.ts";
+import { useTranslation } from "react-i18next";
+import useTimetableApi from "../useTimetableApi.ts";
 
 const TimetableClassroomPage: React.FC = () => {
   const [classroom, setClassroom] = useState<ClassroomProps | null>(null);
@@ -11,12 +12,16 @@ const TimetableClassroomPage: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
 
+  const { t } = useTranslation();
+
+  const { getClassroom } = useTimetableApi();
+
   const handleBack = () => {
     navigate("/timetable");
   };
 
   useEffect(() => {
-    if (!params.id || !Number(params.id) || fetchError) return;
+    if (!params.id || !Number(params.id)) return;
 
     getClassroom(Number(params.id))
       .then((res) => {
@@ -25,21 +30,23 @@ const TimetableClassroomPage: React.FC = () => {
       .catch((err) => {
         setFetchError(err as Error);
       });
-  }, []);
+  }, [params.id]);
 
   return (
     <div className={"timetable-page"}>
       {classroom && (
-        <>
-          <div className={"timetable-title"}>Sală: {classroom.name}</div>
+        <div className="container">
+          <div className={"timetable-title"}>
+            {t("Classroom")}: {classroom.name}
+          </div>
           <button className={"timetable-back-button"} onClick={handleBack}>
-            Înapoi
+            {t("Back")}
           </button>
           <Timetable classroomId={classroom.id}></Timetable>
-        </>
+        </div>
       )}
-      {fetchError && <div>{"Fetch error: " + fetchError.message}</div>}
-      {!classroom && !fetchError && <div>Loading</div>}
+      {fetchError && <div>{t("Error") + ": " + fetchError.message}</div>}
+      {!classroom && !fetchError && <div>{t("Loading")}</div>}
     </div>
   );
 };

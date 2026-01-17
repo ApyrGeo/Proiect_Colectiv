@@ -10,16 +10,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/msal-browser": "^4.26.2",
+    "@azure/msal-react": "^3.0.22",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@headlessui/react": "^2.2.9",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.12.2",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "i18next": "^25.6.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
+    "react-i18next": "^16.3.5",
+    "react-router-dom": "^7.9.4",
+    "react-signature-canvas": "^1.1.0-alpha.2",
+    "swiper": "^12.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/node": "^24.6.0",
-    "@types/react": "^19.2.2",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.1.9",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",

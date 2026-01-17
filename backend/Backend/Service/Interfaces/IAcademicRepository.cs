@@ -1,0 +1,36 @@
+using TrackForUBB.Domain.DTOs;
+
+namespace TrackForUBB.Service.Interfaces;
+
+public interface IAcademicRepository
+{
+    Task<EnrollmentResponseDTO> AddEnrollmentAsync(EnrollmentPostDTO enrollment);
+    Task<List<EnrollmentResponseDTO>> GetEnrollmentsByUserId(int userId);
+    Task<TeacherResponseDTO> AddTeacherAsync(TeacherPostDTO teacher);
+    Task<TeacherResponseDTO?> GetTeacherById(int id);
+    Task<FacultyResponseDTO> AddFacultyAsync(FacultyPostDTO faculty);
+    Task<FacultyResponseDTO?> GetFacultyByIdAsync(int id);
+    Task<FacultyResponseDTO?> GetFacultyByNameAsync(string name);
+    Task<PromotionResponseDTO> AddPromotionAsync(PromotionPostDTO promotion);
+    Task<PromotionResponseDTO?> GetPromotionByIdAsync(int id);
+    Task<List<SpecialisationResponseDTO>> GetAllSpecialisationsAsync();
+    Task<SpecialisationResponseDTO> AddSpecialisationAsync(SpecialisationPostDTO specialisation);
+    Task<SpecialisationResponseDTO?> GetSpecialisationByIdAsync(int id);
+    Task<StudentGroupResponseDTO> AddGroupAsync(StudentGroupPostDTO studentGroup);
+    Task<StudentGroupResponseDTO?> GetGroupByIdAsync(int id);
+    Task<StudentSubGroupResponseDTO> AddSubGroupAsync(StudentSubGroupPostDTO studentSubGroup);
+    Task<StudentSubGroupResponseDTO?> GetSubGroupByIdAsync(int id);
+    Task<EnrollmentResponseDTO?> GetEnrollmentByIdAsync(int enrollmentId);
+    Task<PromotionSemesterResponseDTO?> GetSemesterByIdAsync(int semesterId);
+    Task<TeacherResponseDTO?> GetTeacherByUserId(int userId);
+    Task<LoggedUserEnrollmentResponseDTO?> GetFacultyByEnrollment(int enrollmentId);
+    Task<List<EnrollmentResponseDTO>> GetEnrollmentByGroup(int groupId);
+    Task<List<PromotionResponseDTO>> GetCurrentYearPromotions(int year);
+    Task<List<StudentGroupResponseDTO>> GetGroupsByPromotionIdAsync(int id);
+    Task<List<FacultyResponseDTO>> GetAllFacultiesAsync();
+    Task<List<TeacherResponseDTO>> GetAllTeachersByFacultyId(int facultyId);
+    Task<PromotionOfUserResponse> GetPromotionsByUserId(int userId);
+    Task<List<EnrollmentResponseDTO>> GetUserEnrollemtsFromFaculty(string userEmail, int facultyId);
+    Task<FacultyResponseDTO?> GetSpecialisationFaculty(int specialisationId);
+    Task<TeacherResponseDTO?> GetTeacherByUserIdAsync(int userId);
+}

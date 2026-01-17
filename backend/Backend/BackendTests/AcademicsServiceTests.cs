@@ -1,34 +1,32 @@
-﻿using AutoMapper;
-using Backend.Domain;
-using Backend.Domain.DTOs;
-using Backend.Domain.Enums;
-using Backend.Exceptions.Custom;
-using Backend.Interfaces;
-using Backend.Service;
-using Backend.Service.Validators;
-using EmailService.Interfaces;
-using EmailService.Providers;
-using FluentValidation;
-using FluentValidation.Results;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Exceptions.Custom;
+using TrackForUBB.Service;
+using TrackForUBB.Service.Validators;
 using Moq;
 using Xunit;
-using IValidatorFactory = Backend.Interfaces.IValidatorFactory;
+using IValidatorFactory = TrackForUBB.Service.Interfaces.IValidatorFactory;
+using TrackForUBB.Service.EmailService.Interfaces;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Service.Interfaces;
+using AutoMapper;
 
-namespace BackendTests;
+namespace TrackForUBB.BackendTests;
 
 public class AcademicsServiceTests
 {
     private readonly Mock<IAcademicRepository> _mockRepository = new();
     private readonly Mock<IUserRepository> _mockUserRepository = new();
-    private readonly Mock<IMapper> _mockMapper = new();
+
     private readonly Mock<IEmailProvider> _mockEmailProvider = new();
+    private readonly Mock<IMapper> _mockMapper = new();
     private readonly IValidatorFactory _validatorFactory;
     private readonly AcademicsService _service;
 
     public AcademicsServiceTests()
     {
         var facultyValidator = new FacultyPostDTOValidator(_mockRepository.Object);
-        var groupYearValidator = new GroupYearPostDTOValidator(_mockRepository.Object);
+        var groupYearValidator = new PromotionPostDTOValidator(_mockRepository.Object);
         var specialisationValidator = new SpecialisationPostDTOValidator(_mockRepository.Object);
         var studentGroupValidator = new StudentGroupPostDTOValidator(_mockRepository.Object);
         var studentSubGroupValidator = new StudentSubGroupPostDTOValidator(_mockRepository.Object);
@@ -37,7 +35,7 @@ public class AcademicsServiceTests
         var mockValidatorFactory = new Mock<IValidatorFactory>();
 
         mockValidatorFactory.Setup(v => v.Get<FacultyPostDTO>()).Returns(facultyValidator);
-        mockValidatorFactory.Setup(v => v.Get<GroupYearPostDTO>()).Returns(groupYearValidator);
+        mockValidatorFactory.Setup(v => v.Get<PromotionPostDTO>()).Returns(groupYearValidator);
         mockValidatorFactory.Setup(v => v.Get<SpecialisationPostDTO>()).Returns(specialisationValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentGroupPostDTO>()).Returns(studentGroupValidator);
         mockValidatorFactory.Setup(v => v.Get<StudentSubGroupPostDTO>()).Returns(studentSubGroupValidator);
@@ -48,9 +46,9 @@ public class AcademicsServiceTests
         _service = new AcademicsService(
             _mockRepository.Object,
             _mockUserRepository.Object,
-            _mockMapper.Object,
             _validatorFactory,
-            _mockEmailProvider.Object
+            _mockEmailProvider.Object,
+            _mockMapper.Object
         );
     }
 
@@ -60,19 +58,14 @@ public class AcademicsServiceTests
     public async Task CreateFacultyValidData(string name)
     {
         var postDto = new FacultyPostDTO { Name = name };
-        var entity = new Faculty { Id = 1, Name = name };
         var responseDto = new FacultyResponseDTO { Id = 1, Name = name };
-
-        _mockMapper.Setup(m => m.Map<Faculty>(postDto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddFacultyAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<FacultyResponseDTO>(entity)).Returns(responseDto);
+        _mockRepository.Setup(r => r.AddFacultyAsync(postDto)).ReturnsAsync(responseDto);
 
         var result = await _service.CreateFaculty(postDto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
-        _mockRepository.Verify(r => r.AddFacultyAsync(entity), Times.Once);
+        _mockRepository.Verify(r => r.AddFacultyAsync(postDto), Times.Once);
     }
 
     [Theory]
@@ -80,93 +73,73 @@ public class AcademicsServiceTests
     public async Task CreateFacultyInvalidData(string name)
     {
         var postDto = new FacultyPostDTO { Name = name };
-        var entity = new Faculty { Id = 1, Name = name };
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateFaculty(postDto));
-        _mockRepository.Verify(r => r.AddFacultyAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddFacultyAsync(postDto), Times.Never);
     }
 
     [Theory]
-    [InlineData("IR1", 1)]
-    [InlineData("IE3", 1)]
-    public async Task CreateGroupYearValid(string year, int specialisationId)
+    [InlineData(2022,2026, 1)]
+    [InlineData(2023,2025, 1)]
+    public async Task CreatePromotionValid(int startYear , int endYear, int specialisationId)
     {
-        var dto = new GroupYearPostDTO { Year = year, SpecialisationId = specialisationId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
+        var dto = new PromotionPostDTO { StartYear = startYear, EndYear = endYear, SpecialisationId = specialisationId };
+        var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
-            .ReturnsAsync(specialisation);
-        var entity = new GroupYear { Id = 1, Year = year, Specialisation = specialisation };
-        var responseDto = new GroupYearResponseDTO { Id = 1, Year = year };
+            .ReturnsAsync(specialisationResponse);
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
-        _mockMapper.Setup(m => m.Map<GroupYear>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddGroupYearAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<GroupYearResponseDTO>(entity)).Returns(responseDto);
+        _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
 
-        var result = await _service.CreateGroupYear(dto);
+        var result = await _service.CreatePromotion(dto);
 
         Assert.NotNull(result);
-        Assert.Equal(year, result.Year);
-        _mockRepository.Verify(r => r.AddGroupYearAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        Assert.Equal(startYear, result.StartYear);
+        Assert.Equal(endYear, result.EndYear);
+        _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Once);
     }
 
 
     [Theory]
-    [InlineData("", 1)]
-    [InlineData("IE3", -1)]
-    public async Task CreateGroupYearInvalidData(string year, int specialisationId)
+    [InlineData(2023,2021 ,1)]
+    [InlineData(2024,2027, -1)]
+    public async Task CreatePromotionInvalidData(int startYear , int endYear, int specialisationId)
     {
-        var dto = new GroupYearPostDTO { Year = year, SpecialisationId = specialisationId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
+        var dto = new PromotionPostDTO { StartYear = startYear, EndYear = endYear, SpecialisationId = specialisationId };
+        var specialisationResponse = new SpecialisationResponseDTO { Id = 1, Name = "Computer Science" };
         _mockRepository
             .Setup(r => r.GetSpecialisationByIdAsync(specialisationId))
-            .ReturnsAsync(specialisation);
-        var entity = new GroupYear { Id = 1, Year = year, Specialisation = specialisation };
-        var responseDto = new GroupYearResponseDTO { Id = 1, Year = year };
+            .ReturnsAsync(specialisationResponse);
+        var responseDto = new PromotionResponseDTO { Id = 1, StartYear = startYear, EndYear = endYear };
 
-        _mockMapper.Setup(m => m.Map<GroupYear>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddGroupYearAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<GroupYearResponseDTO>(entity)).Returns(responseDto);
+        _mockRepository.Setup(r => r.AddPromotionAsync(dto)).ReturnsAsync(responseDto);
 
+        await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreatePromotion(dto));
 
-        await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateGroupYear(dto));
-
-        _mockRepository.Verify(r => r.AddGroupYearAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddPromotionAsync(dto), Times.Never);
     }
-
-
+    
     [Theory]
     [InlineData("Computer-Science", 1)]
     [InlineData("AI", 1)]
     public async Task CreateSpecialisationValidData(string name, int facultyId)
     {
         var dto = new SpecialisationPostDTO { Name = name, FacultyId = facultyId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
+        var faculty = new FacultyResponseDTO { Id = 1, Name = "Facultate de Mate-Info" };
         _mockRepository
             .Setup(r => r.GetFacultyByIdAsync(facultyId))
             .ReturnsAsync(faculty);
-        var entity = new Specialisation { Id = 1, Name = name, Faculty = faculty };
         var responseDto = new SpecialisationResponseDTO { Id = 1, Name = name };
-
-        _mockMapper.Setup(m => m.Map<Specialisation>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddSpecialisationAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<SpecialisationResponseDTO>(entity)).Returns(responseDto);
-
+        
+        _mockRepository.Setup(r => r.AddSpecialisationAsync(dto)).ReturnsAsync(responseDto);
+        
         var result = await _service.CreateSpecialisation(dto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
 
-        _mockRepository.Verify(r => r.AddSpecialisationAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddSpecialisationAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -175,22 +148,17 @@ public class AcademicsServiceTests
     public async Task CreateSpecialisationInvalidData(string name, int facultyId)
     {
         var dto = new SpecialisationPostDTO { Name = name, FacultyId = facultyId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
+        var faculty = new FacultyResponseDTO { Id = 1, Name = "Facultate de Mate-Info" };
         _mockRepository
             .Setup(r => r.GetFacultyByIdAsync(facultyId))
             .ReturnsAsync(faculty);
-        var entity = new Specialisation { Id = 1, Name = name, Faculty = faculty };
         var responseDto = new SpecialisationResponseDTO { Id = 1, Name = name };
 
-        _mockMapper.Setup(m => m.Map<Specialisation>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddSpecialisationAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<SpecialisationResponseDTO>(entity)).Returns(responseDto);
+        _mockRepository.Setup(r => r.AddSpecialisationAsync(dto)).ReturnsAsync(responseDto);
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateSpecialisation(dto));
 
-        _mockRepository.Verify(r => r.AddSpecialisationAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddSpecialisationAsync(dto), Times.Never);
     }
 
     [Theory]
@@ -201,24 +169,21 @@ public class AcademicsServiceTests
         var dto = new StudentGroupPostDTO { Name = name, GroupYearId = groupYearId };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
+        var groupYear = new Promotion { Id = groupYearId, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var groupYearResponse = new PromotionResponseDTO { Id = 1, StartYear = groupYear.StartYear, EndYear = groupYear.EndYear };
         _mockRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
-        var entity = new StudentGroup { Id = 1, Name = name, GroupYear = groupYear };
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(groupYearResponse);
+
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
 
-        _mockMapper.Setup(m => m.Map<StudentGroup>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddGroupAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<StudentGroupResponseDTO>(entity)).Returns(responseDto);
-
+        _mockRepository.Setup(r => r.AddGroupAsync(dto)).ReturnsAsync(responseDto);
+        
         var result = await _service.CreateStudentGroup(dto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
-        _mockRepository.Verify(r => r.AddGroupAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddGroupAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -229,22 +194,19 @@ public class AcademicsServiceTests
         var dto = new StudentGroupPostDTO { Name = name, GroupYearId = groupYearId };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = groupYearId, Year = "IR1", Specialisation = specialisation };
+        var groupYear = new Promotion { Id = groupYearId, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var groupYearResponse = new PromotionResponseDTO { Id = groupYearId, StartYear = groupYear.StartYear, EndYear = groupYear.EndYear };
         _mockRepository
-            .Setup(r => r.GetGroupYearByIdAsync(groupYearId))
-            .ReturnsAsync(groupYear);
-        var entity = new StudentGroup { Id = 1, Name = name, GroupYear = groupYear };
+            .Setup(r => r.GetPromotionByIdAsync(groupYearId))
+            .ReturnsAsync(groupYearResponse);
+
         var responseDto = new StudentGroupResponseDTO { Id = 1, Name = name };
-
-        _mockMapper.Setup(m => m.Map<StudentGroup>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddGroupAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<StudentGroupResponseDTO>(entity)).Returns(responseDto);
-
+        
+        _mockRepository.Setup(r => r.AddGroupAsync(dto)).ReturnsAsync(responseDto);
+        
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateStudentGroup(dto));
 
-        _mockRepository.Verify(r => r.AddGroupAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddGroupAsync(dto), Times.Never);
     }
 
     [Theory]
@@ -252,28 +214,21 @@ public class AcademicsServiceTests
     public async Task CreateStudentSubGroupValidData(string name, int studentGroupId)
     {
         var dto = new StudentSubGroupPostDTO { Name = name, StudentGroupId = studentGroupId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = studentGroupId, Name = name, GroupYear = groupYear };
+        var studentGroupResponse = new StudentGroupResponseDTO { Id = studentGroupId, Name = name };
         _mockRepository
             .Setup(r => r.GetGroupByIdAsync(studentGroupId))
-            .ReturnsAsync(studentGroup);
-        var entity = new StudentSubGroup { Id = 1, Name = name, StudentGroup = studentGroup };
+            .ReturnsAsync(studentGroupResponse);
+
         var responseDto = new StudentSubGroupResponseDTO { Id = 1, Name = name };
-
-        _mockMapper.Setup(m => m.Map<StudentSubGroup>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddSubGroupAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<StudentSubGroupResponseDTO>(entity)).Returns(responseDto);
-
+        
+        _mockRepository.Setup(r => r.AddSubGroupAsync(dto)).ReturnsAsync(responseDto);
+        
         var result = await _service.CreateStudentSubGroup(dto);
 
         Assert.NotNull(result);
         Assert.Equal(name, result.Name);
 
-        _mockRepository.Verify(r => r.AddSubGroupAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddSubGroupAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -282,25 +237,18 @@ public class AcademicsServiceTests
     public async Task CreateStudentSubGroupInvalidData(string name, int studentGroupId)
     {
         var dto = new StudentSubGroupPostDTO { Name = name, StudentGroupId = studentGroupId };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = studentGroupId, Name = name, GroupYear = groupYear };
+        var studentGroupResponse = new StudentGroupResponseDTO { Id = studentGroupId, Name = name };
         _mockRepository
             .Setup(r => r.GetGroupByIdAsync(studentGroupId))
-            .ReturnsAsync(studentGroup);
-        var entity = new StudentSubGroup { Id = 1, Name = name, StudentGroup = studentGroup };
+            .ReturnsAsync(studentGroupResponse);
+
         var responseDto = new StudentSubGroupResponseDTO { Id = 1, Name = name };
-
-        _mockMapper.Setup(m => m.Map<StudentSubGroup>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddSubGroupAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<StudentSubGroupResponseDTO>(entity)).Returns(responseDto);
-
+        
+        _mockRepository.Setup(r => r.AddSubGroupAsync(dto)).ReturnsAsync(responseDto);
+        
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateStudentSubGroup(dto));
 
-        _mockRepository.Verify(r => r.AddSubGroupAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddSubGroupAsync(dto), Times.Never);
     }
 
     [Theory]
@@ -308,44 +256,52 @@ public class AcademicsServiceTests
     public async Task CreateUserEnrollmentValidData(int userId, int subGroupId)
     {
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
-        var user = new User
+        var userResponse = new UserResponseDTO
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            TenantEmail = "Don't turn left at the crossroads",
+            PhoneNumber = "+40777301089",
+            Role = UserRole.Student,
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
-            .ReturnsAsync(user);
+            .ReturnsAsync(userResponse);
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
+        var subGroupResponse = new StudentSubGroupResponseDTO { Id = 1, Name = subGroup.Name };
         _mockRepository
             .Setup(r => r.GetSubGroupByIdAsync(subGroupId))
-            .ReturnsAsync(subGroup);
-        var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
+            .ReturnsAsync(subGroupResponse);
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Student"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            TenantEmail = "Do you hear me, don't turn left",
+            Role = UserRole.Student,
+            Owner = ""
         };
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
             { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
-
-        _mockMapper.Setup(m => m.Map<Enrollment>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddEnrollmentAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<EnrollmentResponseDTO>(entity)).Returns(responseDto);
-
+        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId)).ReturnsAsync(new List<EnrollmentResponseDTO>());
+        _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
+        
         var result = await _service.CreateUserEnrollment(dto);
 
         Assert.NotNull(result);
         Assert.Equal(userId, result.UserId);
 
-        _mockRepository.Verify(r => r.AddEnrollmentAsync(entity), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddEnrollmentAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -354,41 +310,37 @@ public class AcademicsServiceTests
     public async Task CreateUserEnrollmentInvalidData(int userId, int subGroupId)
     {
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
-        var user = new User
+        var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Student")
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            Role = UserRole.Student,
+            TenantEmail = "Don't turn left at the crossroads",
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
-            .ReturnsAsync(user);
+            .ReturnsAsync(userResponseDto);
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
+        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var studentGroup = new StudentGroup { Id = 1, Name = "234", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
-        _mockRepository
-            .Setup(r => r.GetSubGroupByIdAsync(subGroupId))
-            .ReturnsAsync(subGroup);
-        var entity = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
-        var userResponseDto = new UserResponseDTO
-        {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Student"
-        };
+        var subGroupResponse = new StudentSubGroupResponseDTO { Id = 1, Name = subGroup.Name };
+        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(subGroupId)).ReturnsAsync(subGroupResponse);
         var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
         var responseDto = new EnrollmentResponseDTO
             { Id = 1, UserId = userId, SubGroupId = subGroupId, User = userResponseDto, SubGroup = subGroupDto };
-
-        _mockMapper.Setup(m => m.Map<Enrollment>(dto)).Returns(entity);
-        _mockRepository.Setup(r => r.AddEnrollmentAsync(entity)).ReturnsAsync(entity);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<EnrollmentResponseDTO>(entity)).Returns(responseDto);
-
+        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
+            .ReturnsAsync(new List<EnrollmentResponseDTO>());
+        _mockRepository.Setup(r => r.AddEnrollmentAsync(dto)).ReturnsAsync(responseDto);
+        
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateUserEnrollment(dto));
 
-        _mockRepository.Verify(r => r.AddEnrollmentAsync(entity), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddEnrollmentAsync(dto), Times.Never);
     }
 
 
@@ -398,42 +350,39 @@ public class AcademicsServiceTests
     public async Task CreateTeacherValidData(int userId, int facultyId)
     {
         var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
-        var user = new User
+        var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com",
-            Password = "TestPassword", PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Teacher")
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            Role = UserRole.Teacher,
+            TenantEmail = "java is better than c#",
+            Owner = ""
         };
         _mockUserRepository
             .Setup(r => r.GetByIdAsync(userId))
-            .ReturnsAsync(user);
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
+            .ReturnsAsync(userResponseDto);
+        var faculty = new FacultyResponseDTO { Id = 1, Name = "Facultate de Mate-Info" };
         _mockRepository
             .Setup(r => r.GetFacultyByIdAsync(facultyId))
             .ReturnsAsync(faculty);
-        var teacher = new Teacher { Id = 1, UserId = userId, User = user, FacultyId = facultyId, Faculty = faculty };
-        var userResponseDto = new UserResponseDTO
-        {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com",
-            Password = "TestPassword", PhoneNumber = "+40777301089", Role = "Teacher"
-        };
+        
         var responseDto = new TeacherResponseDTO
             { Id = 1, User = userResponseDto, UserId = userId, FacultyId = facultyId };
 
         _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId)).ReturnsAsync(faculty);
-        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(userResponseDto);
 
-        _mockMapper.Setup(m => m.Map<Teacher>(dto)).Returns(teacher);
-        _mockRepository.Setup(r => r.AddTeacherAsync(teacher)).ReturnsAsync(teacher);
-        _mockRepository.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-        _mockMapper.Setup(m => m.Map<TeacherResponseDTO>(teacher)).Returns(responseDto);
-
+        _mockRepository.Setup(r => r.AddTeacherAsync(dto)).ReturnsAsync(responseDto);
+        
         var result = await _service.CreateTeacher(dto);
 
         Assert.NotNull(result);
         Assert.Equal(userId, result.UserId);
         Assert.Equal(facultyId, result.FacultyId);
-        _mockRepository.Verify(r => r.AddTeacherAsync(teacher), Times.Once);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockRepository.Verify(r => r.AddTeacherAsync(dto), Times.Once);
     }
 
     [Theory]
@@ -442,14 +391,13 @@ public class AcademicsServiceTests
     public async Task CreateTeacherInvalidData(int userId, int facultyId)
     {
         var dto = new TeacherPostDTO { UserId = userId, FacultyId = facultyId };
-        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User)null); // simulăm lipsa user-ului
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((UserResponseDTO?)null);
         _mockRepository.Setup(r => r.GetFacultyByIdAsync(facultyId))
-            .ReturnsAsync((Faculty)null); // simulăm lipsa facultății
+            .ReturnsAsync((FacultyResponseDTO?)null);
 
         await Assert.ThrowsAsync<EntityValidationException>(() => _service.CreateTeacher(dto));
 
-        _mockRepository.Verify(r => r.AddTeacherAsync(It.IsAny<Teacher>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+        _mockRepository.Verify(r => r.AddTeacherAsync(It.IsAny<TeacherPostDTO>()), Times.Never);
     }
 
     [Theory]
@@ -457,11 +405,9 @@ public class AcademicsServiceTests
     [InlineData(2, "Facultatea de Drept")]
     public async Task GetFacultyByIdValidId(int id, string name)
     {
-        var faculty = new Faculty { Id = id, Name = name };
         var dto = new FacultyResponseDTO { Id = id, Name = name };
 
-        _mockRepository.Setup(r => r.GetFacultyByIdAsync(id)).ReturnsAsync(faculty);
-        _mockMapper.Setup(m => m.Map<FacultyResponseDTO>(faculty)).Returns(dto);
+        _mockRepository.Setup(r => r.GetFacultyByIdAsync(id)).ReturnsAsync(dto);
 
         var result = await _service.GetFacultyById(id);
 
@@ -476,46 +422,41 @@ public class AcademicsServiceTests
     [InlineData(999)]
     public async Task GetFacultyByIdInvalidId(int id)
     {
-        _mockRepository.Setup(r => r.GetFacultyByIdAsync(id)).ReturnsAsync((Faculty?)null);
+        _mockRepository.Setup(r => r.GetFacultyByIdAsync(id)).ReturnsAsync((FacultyResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetFacultyById(id));
 
         _mockRepository.Verify(r => r.GetFacultyByIdAsync(id), Times.Once);
-        _mockMapper.Verify(m => m.Map<FacultyResponseDTO>(It.IsAny<Faculty>()), Times.Never);
     }
 
     [Theory]
-    [InlineData(1, "IR1")]
-    [InlineData(2, "IR2")]
-    public async Task GetGroupYearByIdValid(int id, string year)
+    [InlineData(1, 2023, 2025)]
+    [InlineData(2, 2024, 2027)]
+    public async Task GetPromotionByIdValid(int id, int startYear, int endYear)
     {
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = id, Year = year, Specialisation = specialisation };
-        var dto = new GroupYearResponseDTO { Id = id, Year = year };
+        var dto = new PromotionResponseDTO { Id = id, StartYear = startYear, EndYear = endYear };
 
-        _mockRepository.Setup(r => r.GetGroupYearByIdAsync(id)).ReturnsAsync(groupYear);
-        _mockMapper.Setup(m => m.Map<GroupYearResponseDTO>(groupYear)).Returns(dto);
+        _mockRepository.Setup(r => r.GetPromotionByIdAsync(id)).ReturnsAsync(dto);
 
-        var result = await _service.GetGroupYearById(id);
+        var result = await _service.GetPromotionById(id);
 
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
-        Assert.Equal(year, result.Year);
-        _mockRepository.Verify(r => r.GetGroupYearByIdAsync(id), Times.Once);
+        Assert.Equal(startYear, result.StartYear);
+        Assert.Equal(endYear, result.EndYear);
+		_mockRepository.Verify(r => r.GetPromotionByIdAsync(id), Times.Once);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(999)]
-    public async Task GetGroupYearByIdInvalidId(int id)
+    public async Task GetPromotionByIdInvalidId(int id)
     {
-        _mockRepository.Setup(r => r.GetGroupYearByIdAsync(id)).ReturnsAsync((GroupYear?)null);
+        _mockRepository.Setup(r => r.GetPromotionByIdAsync(id)).ReturnsAsync((PromotionResponseDTO?)null);
 
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetGroupYearById(id));
+        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetPromotionById(id));
 
-        _mockRepository.Verify(r => r.GetGroupYearByIdAsync(id), Times.Once);
-        _mockMapper.Verify(m => m.Map<GroupYearResponseDTO>(It.IsAny<GroupYear>()), Times.Never);
+        _mockRepository.Verify(r => r.GetPromotionByIdAsync(id), Times.Once);
     }
 
     [Theory]
@@ -527,8 +468,7 @@ public class AcademicsServiceTests
         var specialisation = new Specialisation { Id = specializationId, Name = "Computer Science", Faculty = faculty };
         var dto = new SpecialisationResponseDTO { Id = specializationId, Name = name };
 
-        _mockRepository.Setup(r => r.GetSpecialisationByIdAsync(specializationId)).ReturnsAsync(specialisation);
-        _mockMapper.Setup(m => m.Map<SpecialisationResponseDTO>(specialisation)).Returns(dto);
+        _mockRepository.Setup(r => r.GetSpecialisationByIdAsync(specializationId)).ReturnsAsync(dto);
 
         var result = await _service.GetSpecialisationById(specializationId);
 
@@ -544,12 +484,12 @@ public class AcademicsServiceTests
     [InlineData(999)]
     public async Task GetSpecializationInvalidId(int specializationId)
     {
-        _mockRepository.Setup(r => r.GetSpecialisationByIdAsync(specializationId)).ReturnsAsync((Specialisation?)null);
+        _mockRepository.Setup(r => r.GetSpecialisationByIdAsync(specializationId))
+            .ReturnsAsync((SpecialisationResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetSpecialisationById(specializationId));
 
         _mockRepository.Verify(r => r.GetSpecialisationByIdAsync(specializationId), Times.Once);
-        _mockMapper.Verify(m => m.Map<Specialisation>(It.IsAny<Specialisation>()), Times.Never);
     }
 
     [Theory]
@@ -557,14 +497,9 @@ public class AcademicsServiceTests
     [InlineData("IR2", 1)]
     public async Task GetStudentGroupValidId(string name, int studentGroupId)
     {
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var entity = new StudentGroup { Id = 1, Name = name, GroupYear = groupYear };
         var dto = new StudentGroupResponseDTO { Id = studentGroupId, Name = name };
 
-        _mockRepository.Setup(r => r.GetGroupByIdAsync(studentGroupId)).ReturnsAsync(entity);
-        _mockMapper.Setup(m => m.Map<StudentGroupResponseDTO>(entity)).Returns(dto);
+        _mockRepository.Setup(r => r.GetGroupByIdAsync(studentGroupId)).ReturnsAsync(dto);
 
         var result = await _service.GetStudentGroupById(studentGroupId);
 
@@ -579,27 +514,20 @@ public class AcademicsServiceTests
     [InlineData(999)]
     public async Task GetStudentGroupInvalidId(int studentGroupId)
     {
-        _mockRepository.Setup(r => r.GetGroupByIdAsync(studentGroupId)).ReturnsAsync((StudentGroup?)null);
+        _mockRepository.Setup(r => r.GetGroupByIdAsync(studentGroupId)).ReturnsAsync((StudentGroupResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetStudentGroupById(studentGroupId));
 
         _mockRepository.Verify(r => r.GetGroupByIdAsync(studentGroupId), Times.Once);
-        _mockMapper.Verify(m => m.Map<StudentGroupResponseDTO>(It.IsAny<StudentGroup>()), Times.Never);
     }
 
     [Theory]
     [InlineData("236/1", 1)]
     public async Task GetStudentSubGroupValidId(string name, int studentSubGroupId)
     {
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = name, GroupYear = groupYear };
-        var entity = new StudentSubGroup { Id = studentSubGroupId, Name = name, StudentGroup = studentGroup };
         var dto = new StudentSubGroupResponseDTO { Id = studentSubGroupId, Name = name };
 
-        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(studentSubGroupId)).ReturnsAsync(entity);
-        _mockMapper.Setup(m => m.Map<StudentSubGroupResponseDTO>(entity)).Returns(dto);
+        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(studentSubGroupId)).ReturnsAsync(dto);
 
         var result = await _service.GetStudentSubGroupById(studentSubGroupId);
 
@@ -614,12 +542,12 @@ public class AcademicsServiceTests
     [InlineData(999)]
     public async Task GetStudentSubGroupInvalidId(int studentSubGroupId)
     {
-        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(studentSubGroupId)).ReturnsAsync((StudentSubGroup?)null);
+        _mockRepository.Setup(r => r.GetSubGroupByIdAsync(studentSubGroupId))
+            .ReturnsAsync((StudentSubGroupResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetStudentSubGroupById(studentSubGroupId));
 
         _mockRepository.Verify(r => r.GetSubGroupByIdAsync(studentSubGroupId), Times.Once);
-        _mockMapper.Verify(m => m.Map<StudentSubGroupResponseDTO>(It.IsAny<StudentSubGroup>()), Times.Never);
     }
 
     [Theory]
@@ -627,47 +555,49 @@ public class AcademicsServiceTests
     public async Task GetUserEnrollmentValid(int userId, int subGroupId)
     {
         var dto = new EnrollmentPostDTO { UserId = userId, SubGroupId = subGroupId };
-        var user = new User
-        {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Admin")
-        };
-        var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
-        var specialisation = new Specialisation { Id = 1, Name = "Computer Science", Faculty = faculty };
-        var groupYear = new GroupYear { Id = 1, Year = "IR1", Specialisation = specialisation };
-        var studentGroup = new StudentGroup { Id = 1, Name = "234", GroupYear = groupYear };
-        var subGroup = new StudentSubGroup { Id = 1, Name = "234/1", StudentGroup = studentGroup };
+
         var userResponseDto = new UserResponseDTO
         {
-            Id = userId, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "111222ppa",
-            PhoneNumber = "+40777301089", Role = "Admin"
+            Id = userId,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            Role = UserRole.Admin,
+            TenantEmail = "You cannot escape his gaze",
+            Owner = ""
         };
-        var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = subGroup.Name };
-        var enrollment = new Enrollment { Id = 1, User = user, SubGroup = subGroup };
-        var enrollments = new List<Enrollment> { enrollment };
+
+        var subGroupDto = new StudentSubGroupResponseDTO { Id = subGroupId, Name = "234/1" };
+
 
         var enrollmentDto = new EnrollmentResponseDTO
-            { Id = 1, UserId = user.Id, SubGroupId = subGroup.Id, User = userResponseDto, SubGroup = subGroupDto };
+        {
+            Id = 1,
+            UserId = userId,
+            SubGroupId = subGroupId,
+            User = userResponseDto,
+            SubGroup = subGroupDto
+        };
+        var enrollments = new List<EnrollmentResponseDTO> { enrollmentDto };
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId))
+            .ReturnsAsync(userResponseDto);
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
-        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId)).ReturnsAsync(enrollments);
+        _mockRepository.Setup(r => r.GetEnrollmentsByUserId(userId))
+            .ReturnsAsync(enrollments);
 
-        _mockMapper.Setup(m => m.Map<List<EnrollmentResponseDTO>>(enrollments))
-            .Returns(new List<EnrollmentResponseDTO> { enrollmentDto });
 
         var result = await _service.GetUserEnrollments(userId);
 
         Assert.NotNull(result);
         Assert.Single(result);
+
         Assert.Equal(enrollmentDto.Id, result[0].Id);
         Assert.Equal(enrollmentDto.UserId, result[0].UserId);
         Assert.Equal(enrollmentDto.SubGroupId, result[0].SubGroupId);
 
         _mockUserRepository.Verify(r => r.GetByIdAsync(userId), Times.Once);
         _mockRepository.Verify(r => r.GetEnrollmentsByUserId(userId), Times.Once);
-
-        _mockRepository.Verify(r => r.AddEnrollmentAsync(It.IsAny<Enrollment>()), Times.Never);
-        _mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
 
@@ -676,7 +606,7 @@ public class AcademicsServiceTests
     [InlineData(999)]
     public async Task GetUserEnrollmentsInvalidId(int userId)
     {
-        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User?)null);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((UserResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetUserEnrollments(userId));
 
@@ -690,20 +620,30 @@ public class AcademicsServiceTests
     {
         var user = new User
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = Enum.Parse<UserRole>("Teacher")
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            TenantEmail = "Always watching, always maddening",
+            PhoneNumber = "+40777301089",
+            Role = Enum.Parse<UserRole>("Teacher")
         };
         var faculty = new Faculty { Id = 1, Name = "Facultate de Mate-Info" };
         var teacher = new Teacher { Id = 1, UserId = 1, User = user, FacultyId = 1, Faculty = faculty };
         var userResponseDto = new UserResponseDTO
         {
-            Id = 1, FirstName = "Andrei", LastName = "Rotaru", Email = "andrei@gmail.com", Password = "TestPassword",
-            PhoneNumber = "+40777301089", Role = "Teacher"
+            Id = 1,
+            FirstName = "Andrei",
+            LastName = "Rotaru",
+            Email = "andrei@gmail.com",
+            PhoneNumber = "+40777301089",
+            Role = UserRole.Teacher,
+            TenantEmail = "Remember, don't go hollow",
+            Owner = ""
         };
         var responseDto = new TeacherResponseDTO { Id = 1, User = userResponseDto, UserId = 1, FacultyId = 1 };
 
-        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync(teacher);
-        _mockMapper.Setup(m => m.Map<TeacherResponseDTO>(teacher)).Returns(responseDto);
+        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync(responseDto);
 
         var result = await _service.GetTeacherById(teacherId);
 
@@ -717,7 +657,7 @@ public class AcademicsServiceTests
     [InlineData(-1)]
     public async Task GetTeacherByIdInvalidId(int teacherId)
     {
-        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync((Teacher)null);
+        _mockRepository.Setup(r => r.GetTeacherById(teacherId)).ReturnsAsync((TeacherResponseDTO?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _service.GetTeacherById(teacherId));
 

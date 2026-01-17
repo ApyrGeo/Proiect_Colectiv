@@ -1,0 +1,167 @@
+.timetable {
+  width: 100%;
+  max-width: 100%;
+  height: 500px;
+
+  overflow-x: auto;
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.timetable table {
+  border-collapse: collapse;
+  max-width: 800px;
+  width: max-content;
+}
+
+.timetable th,
+.timetable td {
+  white-space: nowrap;
+  padding: 6px 8px;
+}
+
+.timetable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--timetable-header-color);
+}
+
+.combo-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.combo-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.combo-input {
+  width: 100%;
+  min-width: 6ch;
+  max-width: 14ch;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+}
+
+/* Table comboboxes expand on hover */
+.timetable-row td .combo-container {
+  width: auto;
+}
+
+.timetable-row td .combo-input {
+  width: auto;
+  transition: max-width 0.5s ease-out 1s;
+}
+
+.timetable-row td .combo-container:hover .combo-input {
+  max-width: 50ch;
+}
+
+.timetable-row td .combo-options {
+  transition: max-width 0.5s ease-out 1s;
+}
+
+.timetable-row td .combo-container:hover .combo-options {
+  max-width: 50ch;
+}
+
+/* Filter comboboxes at the top expand on hover */
+.timetable-filter .combo-container {
+  width: auto;
+  transition: width 0.5s ease-out 1s;
+}
+
+.timetable-filter .combo-container:hover {
+  width: max-content;
+  transition: width 0.5s ease-out 1s;
+}
+
+.timetable-filter .combo-input {
+  transition:
+    max-width 0.5s ease-out 1s,
+    width 0.5s ease-out 1s;
+}
+
+.timetable-filter .combo-container:hover .combo-input {
+  width: auto;
+  max-width: 50ch;
+  transition:
+    max-width 0.5s ease-out 1s,
+    width 0.5s ease-out 1s;
+}
+
+.timetable-filter .combo-options {
+  transition: max-width 0.5s ease-out 1s;
+}
+
+.timetable-filter .combo-container:hover .combo-options {
+  max-width: 50ch;
+  transition: max-width 0.5s ease-out 1s;
+}
+
+.combo-button {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.combo-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+
+  min-width: 100%;
+  max-width: 20ch;
+  max-height: 120px;
+
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--timetable-border-radius);
+  z-index: 20;
+}
+
+.combo-option {
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combo-option.active {
+  background: var(--primary);
+  color: white;
+}
+
+.combo-option-disabled {
+  padding: 6px 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.combo-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.combo-options::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+@media (max-width: 900px) {
+  .combo-input {
+    max-width: 10ch;
+    font-size: 0.8rem;
+  }
+
+  .timetable th,
+  .timetable td {
+    padding: 4px 6px;
+  }
+}

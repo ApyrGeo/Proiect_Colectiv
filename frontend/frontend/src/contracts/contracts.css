@@ -1,0 +1,55 @@
+.contract-title {
+    font-size: x-large;
+    margin: 10px;
+}
+
+/*.contracts-filter {*/
+/*    margin: 10px;*/
+/*}*/
+
+.contracts-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.contracts-page form{
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.contracts-page-label{
+    color: var(--accent);
+    margin: 5px 0;
+    display: inline-flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
+    text-align: left;
+}
+
+.contracts-page-label:has(input[type="checkbox"]){
+  margin: 20px;
+}
+
+.contracts-page-label input[type="text"]{
+  margin-left: 20px;
+  justify-self: flex-end;
+  justify-content: flex-end;
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+.contracts-promotion-select {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 300px;
+  padding: 20px;
+  margin: 20px;
+  border-bottom: var(--primary) 2px solid;
+}

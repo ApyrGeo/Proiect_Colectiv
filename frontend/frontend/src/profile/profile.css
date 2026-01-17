@@ -1,0 +1,166 @@
+:root {
+  --profile-card-bg: var(--surface);
+  --profile-input-bg: #1b2a41;
+  --profile-input-border: rgba(255,255,255,0.12);
+  --profile-text-light: var(--text-light);
+  --profile-text-muted: rgba(255,255,255,0.55);
+  --profile-radius: 10px;
+
+  --profile-hover: rgba(0, 84, 164, 0.25);
+  --profile-focus: var(--primary);
+}
+
+/* Page container */
+.profile-page {
+  padding: 40px;
+  color: var(--profile-text-light);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-title {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.profile-subtext {
+  color: var(--profile-text-muted);
+  margin-bottom: 30px;
+}
+
+/* Layout */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* User card */
+.profile-card {
+  background: var(--profile-card-bg);
+  padding: 25px;
+  border-radius: var(--profile-radius);
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+.profile-avatar img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.profile-info h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 10px 0 2px;
+}
+
+/* Form container */
+.profile-form {
+  background: var(--profile-card-bg);
+  padding: 25px;
+  border-radius: var(--profile-radius);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--profile-text-muted);
+}
+
+/* Inputs */
+input {
+  width: 80%;
+  padding: 10px 12px;
+  background: var(--profile-input-bg);
+  border: 1px solid var(--profile-input-border);
+  border-radius: var(--profile-radius);
+  color: var(--profile-text-light);
+  font-size: 15px;
+  transition: border-color 0.2s ease,
+  box-shadow 0.2s ease;
+}
+
+input:read-only {
+  opacity: 0.65;
+  cursor: default;
+}
+
+input:hover:not(:read-only) {
+  border-color: var(--profile-focus);
+}
+
+input:focus {
+  border-color: var(--profile-focus);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 84, 164, 0.3);
+}
+
+/* Save button */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-save {
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--profile-radius);
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  background: var(--primary);
+  transition: background 0.2s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.btn-save:hover {
+  background: #0070dd;
+  transform: translateY(-2px);
+}
+
+/* Signature */
+.signature-container {
+  width: 90%;
+  margin-top: 15px;
+}
+
+.signature-container canvas {
+  height: 200px;
+  width: 100%;
+  touch-action: none;
+  background: #0e1623;
+  border: 1px solid var(--profile-input-border);
+  border-radius: 6px;
+}
+
+.signature-container button {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--profile-text-light);
+  border: 1px solid var(--profile-input-border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.signature-container button:hover {
+  background: var(--profile-hover);
+}

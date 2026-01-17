@@ -1,13 +1,15 @@
-﻿using Backend.Domain.Enums;
 using Xunit;
-
-namespace BackendTests;
-
 using Microsoft.EntityFrameworkCore;
-using Backend.Context;
-using Backend.Domain;
-using Backend.Repository;
-using System.Threading.Tasks;
+using TrackForUBB.Repository.Context;
+using TrackForUBB.Repository.EFEntities;
+using TrackForUBB.Repository;
+using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
+using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Repository.AutoMapper;
+
+namespace TrackForUBB.BackendTests;
 
 public class TimetableRepositoryTests : IDisposable
 {
@@ -20,8 +22,12 @@ public class TimetableRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<AcademicAppContext>()
             .UseInMemoryDatabase(databaseName: "TimetableRepositoryTestsDB")
             .Options;
+        var config = new MapperConfiguration(cfg => { cfg.AddProfile<EFEntitiesMappingProfile>(); },
+            new NullLoggerFactory());
+
+        IMapper mapper = config.CreateMapper();
         _context = new AcademicAppContext(options);
-        _repo = new TimetableRepository(_context);
+        _repo = new TimetableRepository(_context, mapper);
     }
 
     public void Dispose()
@@ -38,7 +44,7 @@ public class TimetableRepositoryTests : IDisposable
         _context.Locations.Add(location);
         await _context.SaveChangesAsync();
 
-        var classroom = new Classroom { Name = name, Location = location, LocationId = location.Id };
+        var classroom = new ClassroomPostDTO { Name = name, LocationId = location.Id };
         await _repo.AddClassroomAsync(classroom);
         await _context.SaveChangesAsync();
 
@@ -51,7 +57,7 @@ public class TimetableRepositoryTests : IDisposable
     [InlineData("Cladire Centru", "Strada Universitatii")]
     public async Task AddLocationAsyncTest(string name, string address)
     {
-        var location = new Location { Name = name, Address = address };
+        var location = new LocationPostDTO() { Name = name, Address = address };
         await _repo.AddLocationAsync(location);
         await _context.SaveChangesAsync();
 
@@ -61,18 +67,31 @@ public class TimetableRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData(2, "SDA", 6)]
-    [InlineData(1, "Sport", 2)]
-    public async Task AddSubjectAsyncTest(int id, string name, int numberOfCredits)
+    [InlineData("SDA", 6)]
+    [InlineData("Sport", 2)]
+    public async Task AddSubjectAsyncTest(string name, int numberOfCredits)
     {
         var faculty = new Faculty { Name = "Facultate de Mate-Info" };
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
-        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var semester = new PromotionSemester
+        {
+            Promotion = promotion,
+            PromotionId = promotion.Id,
+            SemesterNumber = 1,
+        };
 
-        var subject = new Subject
-            { Name = name, NumberOfCredits = numberOfCredits, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        var subject = new SubjectPostDTO
+        {
+            Name = name,
+            NumberOfCredits = numberOfCredits,
+            SemesterId = semester.Id,
+            Code = "MLR1010",
+            Type = "Required",
+            FormationType = "Course_Seminar",
+        };
         await _repo.AddSubjectAsync(subject);
         await _context.SaveChangesAsync();
 
@@ -128,10 +147,23 @@ public class TimetableRepositoryTests : IDisposable
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
-        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
 
+
+        var promotionSemester = new PromotionSemester { SemesterNumber = 1, Promotion = promotion };
+        promotion.Semesters.Add(promotionSemester);
+
+        var teacher = SampleTeacher(faculty);
         var subject = new Subject
-            { Name = name, NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
+        {
+            Name = name,
+            NumberOfCredits = 4,
+            HolderTeacher = teacher,
+            HolderTeacherId = teacher.Id,
+            Semester = promotionSemester,
+            SemesterId = promotionSemester.Id,
+            SubjectCode = "MLR1010",
+        };
 
         subject.Name = name;
 
@@ -159,12 +191,8 @@ public class TimetableRepositoryTests : IDisposable
 
         var specialisation = new Specialisation { Name = "Computer Science", Faculty = faculty };
 
-        var groupYear = new GroupYear { Year = "IR1", Specialisation = specialisation };
-
-        var subject = new Subject
-            { Name = "FP", NumberOfCredits = 4, GroupYearId = groupYear.Id, GroupYear = groupYear };
-        var location = new Location { Name = "Fsega", Address = "Str Goldis" };
-        var classroom = new Classroom { Name = "A303", Location = location };
+        var promotion = new Promotion { StartYear = 2023, EndYear = 2025, Specialisation = specialisation };
+        var promotionSemester = new PromotionSemester { SemesterNumber = 1, Promotion = promotion };
 
         var teacher = new Teacher
         {
@@ -175,12 +203,25 @@ public class TimetableRepositoryTests : IDisposable
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john@uni.com",
-                Password = "pass",
                 PhoneNumber = "+40770111222",
+                TenantEmail = "john.doe@trackforubb.onmicrosoft.com",
                 Role = UserRole.Teacher
             },
             Faculty = faculty
         };
+
+        var subject = new Subject
+        {
+            Name = "FP",
+            NumberOfCredits = 4,
+            HolderTeacher = teacher,
+            HolderTeacherId = teacher.Id,
+            SubjectCode = "MLR101",
+            Semester = promotionSemester,
+            SemesterId = promotionSemester.Id,
+        };
+        var location = new Location { Name = "Fsega", Address = "Str Goldis" };
+        var classroom = new Classroom { Name = "A303", Location = location };
 
         var hour = new Hour
         {
@@ -191,7 +232,7 @@ public class TimetableRepositoryTests : IDisposable
             Category = HourCategory.Lecture,
             Subject = subject,
             Classroom = classroom,
-            Teacher = teacher
+            Teacher = teacher,
         };
 
         _context.Hours.Add(hour);
@@ -202,4 +243,27 @@ public class TimetableRepositoryTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal("10:00-12:00", result.HourInterval);
     }
+
+    private static Teacher SampleTeacher(Faculty faculty)
+    {
+        var user = new User()
+        {
+            Id = 19,
+            FirstName = "radio",
+            LastName = "san",
+            Email = "radiosan@ubbcluj.ro",
+            PhoneNumber = "-0981209843",
+            TenantEmail = "radio.san@trackforubb.onmicrosoft.com",
+            Role = UserRole.Teacher,
+        };
+        return new()
+        {
+            Id = 19,
+            User = user,
+            UserId = user.Id,
+            Faculty = faculty,
+            FacultyId = faculty.Id,
+        };
+    }
 }
+

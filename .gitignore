@@ -369,3 +369,7 @@ FodyWeavers.xsd
 workspace.xml
 vcs.xml
 indexLayout.xml
+
+# Environment vars
+.env
+.config
