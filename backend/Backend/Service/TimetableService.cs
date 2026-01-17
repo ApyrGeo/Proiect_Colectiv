@@ -220,12 +220,15 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
                 continue;
             }
 
-            if (!int.TryParse(intervalParts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var startHour))
+            var firstHour = intervalParts[0].Trim().Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+            var secondHour = intervalParts[1].Trim().Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+
+            if (!int.TryParse(firstHour, NumberStyles.Integer, CultureInfo.InvariantCulture, out var startHour))
             {
                 continue;
             }
 
-            if (!int.TryParse(intervalParts[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var endHour))
+            if (!int.TryParse(secondHour, NumberStyles.Integer, CultureInfo.InvariantCulture, out var endHour))
             {
                 continue;
             }
