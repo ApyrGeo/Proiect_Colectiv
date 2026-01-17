@@ -37,7 +37,7 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
         return _mapper.Map<GradeResponseDTO>(fullEntity);
     }
 
-    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, string specialisation)
+    public async Task<List<GradeResponseDTO>> GetGradesFilteredAsync(int? userId, int? yearOfStudy, int? semester, int? specialisationId)
     {
         var query = _context.Grades
             .Include(g => g.Subject)
@@ -67,9 +67,9 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             query = query.Where(x => x.Subject.Semester.SemesterNumber % 2 == semester % 2);
         }
 
-        if (!string.IsNullOrWhiteSpace(specialisation))
+        if (specialisationId.HasValue)
         {
-            query = query.Where(g => g.Enrollment.SubGroup.StudentGroup.Promotion.Specialisation.Name == specialisation);
+            query = query.Where(g => g.Enrollment.SubGroup.StudentGroup.Promotion.Specialisation.Id == specialisationId);
         }
 
         var grades = await query.ToListAsync();
