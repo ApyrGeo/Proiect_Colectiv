@@ -348,16 +348,16 @@ public class TimetableService(ITimetableRepository timetableRepository, IAcademi
         var __ = await _academicRepository.GetSemesterByIdAsync(dto.SemesterId)
             ?? throw new NotFoundException($"Semester with ID {dto.SemesterId} not found.");
 
-        await DeleteHoursBySpecialization(dto.SpecialisationId);
+        await DeleteHoursBySemesterId(dto.SemesterId);
 
         var generatedHours = await _timetableRepository.GenerateTimetableAsync(dto);
         return generatedHours;
     }
 
-    public Task DeleteHoursBySpecialization(int specializationId)
+    public Task DeleteHoursBySemesterId(int id)
     {
-        _logger.InfoFormat("Deleting hours for specialization with id {0}", specializationId);
-        return _timetableRepository.DeleteHoursBySpecializationAsync(specializationId);
+        _logger.InfoFormat("Deleting hours for semester with id {0}", id);
+        return _timetableRepository.DeleteHoursBySemesterAsync(id);
     }
 
     public async Task<HourResponseDTO> UpdateHour(int hourId, HourPutDTO dto)

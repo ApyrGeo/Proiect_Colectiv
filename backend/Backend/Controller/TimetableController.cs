@@ -208,18 +208,6 @@ public class TimetableController(ITimetableService service) : ControllerBase
         return Ok(hours);
     }
 
-    [HttpDelete("hours/specialization/{specializationId}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
-    public async Task<ActionResult> DeleteHoursBySpecialization([FromRoute] int specializationId)
-    {
-        _logger.InfoFormat("Deleting hours for specialization with ID {0}", specializationId);
-
-        await _service.DeleteHoursBySpecialization(specializationId);
-
-        return NoContent();
-    }
-
     [HttpPut("hours/{hourId}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]

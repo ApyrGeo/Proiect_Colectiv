@@ -1,5 +1,7 @@
 using FluentValidation;
 using TrackForUBB.Domain.DTOs;
+using TrackForUBB.Domain.Enums;
+using TrackForUBB.Domain.Exceptions.Custom;
 using TrackForUBB.Domain.Utils;
 using TrackForUBB.Service.Interfaces;
 
@@ -16,6 +18,12 @@ public class BulkEnrollmentItemValidator : AbstractValidator<BulkEnrollmentItem>
             .MustAsync(async (email, cancellation) =>
             {
                 var existingUser = await userRepository.GetByEmailAsync(email);
+
+                if (existingUser != null && existingUser.Role != UserRole.Student)
+                {
+                    throw new EntityValidationException("The specified email does not belong to a student user.");
+                }
+
                 return existingUser != null;
             }).WithMessage("User with the specified email does not exist.");
     }
