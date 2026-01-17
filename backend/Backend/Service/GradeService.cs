@@ -112,7 +112,8 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         if (userGrades.Count == 0)
             return null;
 
-        var userAverage = userGrades.Sum(g => g.Value * g.Subject.NumberOfCredits) / (double)userGrades.Sum(g => g.Subject.NumberOfCredits);
+        //var userAverage = userGrades.Sum(g => g.Value * g.Subject.NumberOfCredits) / (double)userGrades.Sum(g => g.Subject.NumberOfCredits);
+        var userAverage = userGrades.Average(g => g.Value);
 
         var otherGrades = await _gradeRepository.GetGradesFilteredAsync(null, yearOfstudy, semester, promotionId)
                           ?? [];
