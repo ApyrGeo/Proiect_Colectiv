@@ -119,7 +119,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
 
         var averagesOrdered = otherGrades
             .GroupBy(g => g.Enrollment.UserId)
-            .Select(g => new { UserId = g.Key, Average = g.Sum(grade => grade.Value * grade.Subject.NumberOfCredits) / g.Sum(grade => grade.Subject.NumberOfCredits) })
+            .Select(g => new { UserId = g.Key, Average = g.Sum(grade => grade.Value * grade.Subject.NumberOfCredits) / (double)g.Sum(grade => grade.Subject.NumberOfCredits) })
             .OrderByDescending(x => x.Average)
             .ToList();
 
