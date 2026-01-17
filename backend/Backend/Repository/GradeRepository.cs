@@ -13,7 +13,6 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
     private readonly AcademicAppContext _context = context;
     private readonly IMapper _mapper = mapper;
 
-
     public async Task<GradeResponseDTO> AddGradeAsync(GradePostDTO gradePostDTO)
     {
         var entity = _mapper.Map<Grade>(gradePostDTO);
@@ -195,5 +194,12 @@ public class GradeRepository(AcademicAppContext context, IMapper mapper) : IGrad
             StudentGroup = _mapper.Map<StudentGroupResponseDTO>(group),
             Grades = userGrades
         };
+    }
+
+    public async Task<int> GetCountOfUsersInPromotion(int promotionId)
+    {
+        return await _context.Enrollments
+            .Where(x => x.SubGroup.StudentGroup.PromotionId == promotionId)
+            .CountAsync();
     }
 }
