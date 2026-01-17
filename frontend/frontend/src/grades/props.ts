@@ -39,6 +39,7 @@ export interface TeacherProps {
 export interface SpecializationResponse {
   name: string;
   id: number;
+  promotions: PromotionProps[];
 }
 
 export interface ScholarshipStatus {

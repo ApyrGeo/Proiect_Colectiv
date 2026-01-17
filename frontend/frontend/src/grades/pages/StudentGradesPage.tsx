@@ -3,7 +3,7 @@ import "../grades.css";
 import useGradesApi from "../GradesApi.ts";
 import GradeItem from "../components/GradeItem.tsx";
 import ScholarshipStatusComponent from "../components/ScholarshipStatusComponent.tsx";
-import type { GradeItemProps, ScholarshipStatus } from "../props.ts";
+import type { GradeItemProps, ScholarshipStatus, SpecializationResponse } from "../props.ts";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import Circular from "../../components/loading/Circular.tsx";
@@ -16,10 +16,10 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
   const { t } = useTranslation();
   const { getUserSpecializations, getGradesForUser, getScholarshipStatusForUser } = useGradesApi();
 
-  const [selectedSpecialization, setSelectedSpecialization] = useState<string>("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState<SpecializationResponse | null>(null);
   const [selectedStudyYear, setSelectedStudyYear] = useState<number | "">("");
   const [selectedSemester, setSelectedSemester] = useState<number | "">("");
-  const [specializations, setSpecializations] = useState<string[]>([]);
+  const [specializations, setSpecializations] = useState<SpecializationResponse[]>([]);
   const [grades, setGrades] = useState<GradeItemProps[]>([]);
   const [status, setStatus] = useState<ScholarshipStatus | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -54,7 +54,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
     if (spec && year && sem) {
       (async () => {
         try {
-          const stat = await getScholarshipStatusForUser(id, spec, year, sem);
+          const stat = await getScholarshipStatusForUser(id, spec.id, year, sem);
           setStatus(stat);
         } catch {
           setStatus(null);
@@ -68,7 +68,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
     (async () => {
       setLoading(true);
       try {
-        const result = await getGradesForUser(id, spec, year, sem);
+        const result = await getGradesForUser(id, spec.id, year, sem);
         setGrades(result);
         setError(null);
       } catch (err) {
@@ -86,22 +86,16 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
     }
   }, [error, t]);
 
-  const studyYears = [1, 2, 3];
-  const semesters = [1, 2];
-
   return (
     <div className="grades-page">
       <div className="filters-container">
         <div className="filters-top">
           <div className="filter-item">
             <label>{t("Specialization")}:</label>
-            <select value={selectedSpecialization} onChange={(e) => setSelectedSpecialization(e.target.value)}>
-              <option value="" hidden>
-                -
-              </option>
-              {specializations.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+            <select onChange={(e) => setSelectedSpecialization(specializations[Number(e.target.value)])}>
+              {specializations.flatMap(s=>s.promotions).map((p, index) => (
+                <option key={index} value={p.id}>
+                  {index}
                 </option>
               ))}
             </select>
@@ -111,11 +105,7 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
             <label>{t("YearOfStudy")}:</label>
             <select value={selectedStudyYear} onChange={(e) => setSelectedStudyYear(Number(e.target.value) || "")}>
               <option value="">All</option>
-              {studyYears.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
+              {selectedSpecialization.}
             </select>
           </div>
 

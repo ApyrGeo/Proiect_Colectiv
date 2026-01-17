@@ -33,10 +33,10 @@ const useGradesApi = () => {
 
   // 📌 Specializările la care este înscris studentul
   const getUserSpecializations = useCallback(
-    async (userId: number): Promise<string[]> => {
+    async (userId: number): Promise<SpecializationResponse[]> => {
       const response = await axios.get<SpecializationResponse[]>(`${userUrl}/${userId}/enrolled-specialisations`);
 
-      return response.data?.map((s) => s.name) ?? [];
+      return response.data ?? [];
     },
     [axios]
   );
@@ -45,14 +45,14 @@ const useGradesApi = () => {
   const getScholarshipStatusForUser = useCallback(
     async (
       userId: number,
-      specialization: string,
+      specialization: number,
       studyYear: number,
       semester: number
     ): Promise<ScholarshipStatus | null> => {
       const response = await axios.get<ScholarshipStatus | null>(`${gradesUrl}/status`, {
         params: {
           userId,
-          specialisation: specialization,
+          specialisationId: specialization,
           yearOfStudy: studyYear,
           semester,
         },
@@ -66,11 +66,11 @@ const useGradesApi = () => {
 
   // 📌 Notele studentului (cu filtre opționale)
   const getGradesForUser = useCallback(
-    async (userId: number, specialization?: string | null, studyYear?: number | null, semester?: number | null) => {
+    async (userId: number, specialization: number | null, studyYear?: number | null, semester?: number | null) => {
       const response = await axios.get(`${gradesUrl}`, {
         params: {
           userId,
-          ...(specialization && { specialisation: specialization }),
+          ...(specialization && { specialisationId: specialization }),
           ...(studyYear && { yearOfStudy: studyYear }),
           ...(semester && { semester }),
         },
