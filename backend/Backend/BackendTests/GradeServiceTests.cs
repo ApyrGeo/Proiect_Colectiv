@@ -301,10 +301,10 @@ public class GradeServiceTests
     }
 
     [Theory]
-    [InlineData(1, 1, 1, "Informatica")]
-    [InlineData(1, null, 2, "Mate")]
+    [InlineData(1, 1, 1, 49)]
+    [InlineData(1, null, 2, 50)]
     public async Task GetGradesFilteredAsyncValidInput(
-        int userId, int? year, int? sem, string spec)
+        int userId, int? year, int? sem, int promotionId)
     {
         var teacher = new UserResponseDTO
         {
@@ -321,7 +321,7 @@ public class GradeServiceTests
         _mockUserRepository.Setup(r => r.GetByIdAsync(teacher.Id))
             .ReturnsAsync(teacher);
 
-        var promotion = new PromotionResponseDTO { Id = 1, StartYear = 2023, EndYear = 2025 };
+        var promotion = new PromotionResponseDTO { Id = promotionId, StartYear = 2023, EndYear = 2025 };
         var yearResponse = new PromotionYearResponseDTO { Id = 1, Promotion = promotion, YearNumber = 2 };
         var subGroup = new StudentSubGroupResponseDTO { Id = 1, Name = "235/1", };
         var semester = new PromotionSemesterResponseDTO { Id = 1, SemesterNumber = 1, PromotionYear = yearResponse };
@@ -381,10 +381,10 @@ public class GradeServiceTests
             .ReturnsAsync(new List<EnrollmentResponseDTO>());
 
         _mockRepository.Setup(r =>
-                r.GetGradesFilteredAsync(userId, year, sem, spec))
+                r.GetGradesFilteredAsync(userId, year, sem, promotionId))
             .ReturnsAsync(gradeList);
 
-        var result = await _service.GetGradesFiteredAsync(userId, year, sem, spec);
+        var result = await _service.GetGradesFiteredAsync(userId, year, sem, promotionId);
 
         Assert.NotNull(result);
         Assert.Single(result);

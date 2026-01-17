@@ -121,13 +121,13 @@ public class GradeRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData(1, 1, null, "Informatica")]
-    [InlineData(2, null, 1, "")]
-    public async Task GetGradesFilteredAsyncTest(int userId, int? yearOfStudy, int? semester, string specialisation)
+    [InlineData(1, 1, null, 49)]
+    [InlineData(2, null, 1, 50)]
+    public async Task GetGradesFilteredAsyncTest(int userId, int? yearOfStudy, int? semester, int promotionId)
     {
         var faculty = new Faculty { Id = 1, Name = "FMI" };
         var spec = new Specialisation { Id = 1, Name = "Informatica", Faculty = faculty };
-        var promotion = new Promotion { Id = 1, StartYear = 2023, EndYear = 2025, Specialisation = spec };
+        var promotion = new Promotion { Id = promotionId, StartYear = 2023, EndYear = 2025, Specialisation = spec };
         var group = new StudentGroup { Id = 1, Name = "IR1A", Promotion = promotion };
         var subGroup = new StudentSubGroup { Id = 1, Name = "235/1", StudentGroup = group };
         var user = new User
@@ -186,7 +186,7 @@ public class GradeRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
 
-        var result = await _repo.GetGradesFilteredAsync(userId, yearOfStudy, semester, specialisation);
+        var result = await _repo.GetGradesFilteredAsync(userId, yearOfStudy, semester, promotionId);
 
         Assert.NotNull(result);
         Assert.All(result, g => Assert.Equal(userId, g.Enrollment.UserId));

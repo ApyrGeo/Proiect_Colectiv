@@ -76,7 +76,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return updated;
     }
     
-    public async Task<List<GradeResponseDTO>> GetGradesFiteredAsync(int userId, int? yearOfStudy, int? semester, int? specialisationId)
+    public async Task<List<GradeResponseDTO>> GetGradesFiteredAsync(int userId, int? yearOfStudy, int? semester, int? promotionId)
     {
         _logger.InfoFormat("Trying to retrieve filtered grades for user with ID {0}, year {1}, semester {2}", 
             userId, yearOfStudy, semester);
@@ -84,7 +84,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         var _ = await _userRepository.GetByIdAsync(userId)
                 ?? throw new NotFoundException($"Student with ID {userId} not found.");
         
-        var gradesDto = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfStudy, semester, specialisationId)
+        var gradesDto = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfStudy, semester, promotionId)
                         ?? throw new NotFoundException($"Filtered grades for user with ID {userId} not found.");
 
         _logger.InfoFormat("Mapping filtered grade entity to DTO for user with ID {0}", userId);
@@ -104,9 +104,9 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         return grade;
     }
 
-    public async Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int yearOfstudy, int semester, int specialisationId)
+    public async Task<ScholarshipStatusDTO?> GetUserAverageScoreAndScholarshipStatusAsync(int userId, int yearOfstudy, int semester, int promotionId)
     {
-        var userGrades = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfstudy, semester, specialisationId)
+        var userGrades = await _gradeRepository.GetGradesFilteredAsync(userId, yearOfstudy, semester, promotionId)
                      ?? throw new NotFoundException($"Grades for user with ID {userId} not found.");
 
         if (userGrades.Count == 0)
@@ -114,7 +114,7 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
 
         var userAverage = userGrades.Average(g => g.Value);
 
-        var otherGrades = await _gradeRepository.GetGradesFilteredAsync(null, yearOfstudy, semester, specialisationId)
+        var otherGrades = await _gradeRepository.GetGradesFilteredAsync(null, yearOfstudy, semester, promotionId)
                           ?? [];
 
         var averagesOrdered = otherGrades
