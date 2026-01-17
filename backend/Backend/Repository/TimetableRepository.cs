@@ -65,14 +65,10 @@ public class TimetableRepository(AcademicAppContext context, IMapper mapper) : I
         return _mapper.Map<SubjectResponseDTO>(entity);
     }
 
-    public Task DeleteHoursBySpecializationAsync(int specializationId)
+    public Task DeleteHoursBySemesterAsync(int semesterId)
     {
-        _logger.InfoFormat("Deleting hours for specialization ID: {0}", specializationId);
-        var hoursToDelete = _context.Hours.Where(h =>
-            _context.Promotions.Any(p => p.Id == h.PromotionId && p.SpecialisationId == specializationId)
-            || _context.Groups.Any(g => g.Id == h.StudentGroupId && g.Promotion.SpecialisationId == specializationId)
-            || _context.SubGroups.Any(sg => sg.Id == h.StudentSubGroupId && sg.StudentGroup.Promotion.SpecialisationId == specializationId)
-        );
+        _logger.InfoFormat("Deleting hours for semester ID: {0}", semesterId);
+        var hoursToDelete = _context.Hours.Where(h => h.Subject.SemesterId == semesterId);
         _context.Hours.RemoveRange(hoursToDelete);
         return _context.SaveChangesAsync();
     }

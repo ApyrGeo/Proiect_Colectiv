@@ -19,7 +19,7 @@ public interface ITimetableService
     Task<List<SubjectResponseDTO>> GetSubjectsByHolderTeacherId(int teacherId);
     Task<List<StudentGroupResponseDTO>> GetGroupsBySubjectId(int subjectId);
     Task<List<HourResponseDTO>> GenerateTimetable(TimetableGenerationDTO dto);
-    Task DeleteHoursBySpecialization(int specializationId);
+    Task DeleteHoursBySemesterId(int semseterId);
     Task<HourResponseDTO> UpdateHour(int hourId, HourPutDTO dto);
     Task<List<OptionalPackageResponseDTO>>GetOptionalSubjectsByPromotionId(int promotionId, int year);
 }
