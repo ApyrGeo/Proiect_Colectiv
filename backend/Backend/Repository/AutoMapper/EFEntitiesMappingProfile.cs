@@ -32,7 +32,9 @@ public class EFEntitiesMappingProfile : Profile
         CreateMap<Specialisation, SpecialisationResponseDTO>().ReverseMap();
         CreateMap<SpecialisationPostDTO, Specialisation>();
 
-        CreateMap<Promotion, PromotionResponseDTO>().ReverseMap();
+        CreateMap<Promotion, PromotionResponseDTO>()
+            .ForMember(x => x.PrettyName, cfg => cfg.MapFrom(x => $"{x.Specialisation.Name} {x.StartYear}-{x.EndYear}"))
+            ;
         CreateMap<PromotionPostDTO, Promotion>();
 
         CreateMap<StudentGroup, StudentGroupResponseDTO>().ReverseMap();

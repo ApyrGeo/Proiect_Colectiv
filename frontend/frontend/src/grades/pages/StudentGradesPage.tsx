@@ -104,15 +104,19 @@ const StudentGradesPage: React.FC<StudentProps> = ({ id }) => {
           <div className="filter-item">
             <label>{t("YearOfStudy")}:</label>
             <select value={selectedStudyYear} onChange={(e) => setSelectedStudyYear(Number(e.target.value) || "")}>
-              <option value="">All</option>
-              {selectedSpecialization.}
+              <option value="">{t("All")}</option>
+              {studyYears.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="filter-item">
             <label>{t("Semester")}:</label>
             <select value={selectedSemester} onChange={(e) => setSelectedSemester(Number(e.target.value) || "")}>
-              <option value="">All</option>
+              <option value="">{t("All")}</option>
               {semesters.map((s) => (
                 <option key={s} value={s}>
                   {s}
