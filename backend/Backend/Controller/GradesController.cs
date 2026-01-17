@@ -18,21 +18,21 @@ public class GradesController(IGradeService service) : ControllerBase
     [HttpGet]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<GradeResponseDTO>>> GetUserGrades([FromQuery] int userId, [FromQuery] int? yearOfStudy, [FromQuery] int? semester, [FromQuery] int? specialisationId)
+    public async Task<ActionResult<List<GradeResponseDTO>>> GetUserGrades([FromQuery] int userId, [FromQuery] int? yearOfStudy, [FromQuery] int? semester, [FromQuery] int? promotionId)
     {
-        _logger.InfoFormat("Fetching grades for user {0}, year {1}, semester {2}, specialisation {3}", userId, yearOfStudy, semester, specialisationId);
+        _logger.InfoFormat("Fetching grades for user {0}, year {1}, semester {2}, promotion {3}", userId, yearOfStudy, semester, promotionId);
 
-        List<GradeResponseDTO> grades = await _service.GetGradesFiteredAsync(userId, yearOfStudy, semester, specialisationId);
+        List<GradeResponseDTO> grades = await _service.GetGradesFiteredAsync(userId, yearOfStudy, semester, promotionId);
         return Ok(grades);
     }
 
     [HttpGet("status")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<ScholarshipStatusDTO>> GetUserAverageScoreAndScholarshipStatus([FromQuery] int userId, [FromQuery] int yearOfStudy, [FromQuery] int semester, [FromQuery] int specialisationId)
+    public async Task<ActionResult<ScholarshipStatusDTO>> GetUserAverageScoreAndScholarshipStatus([FromQuery] int userId, [FromQuery] int yearOfStudy, [FromQuery] int semester, [FromQuery] int promotionId)
     {
         _logger.Info("Fetching all grades");
-        var status = await _service.GetUserAverageScoreAndScholarshipStatusAsync(userId, yearOfStudy, semester, specialisationId);
+        var status = await _service.GetUserAverageScoreAndScholarshipStatusAsync(userId, yearOfStudy, semester, promotionId);
         return Ok(status);
     }
 
