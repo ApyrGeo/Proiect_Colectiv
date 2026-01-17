@@ -123,18 +123,20 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
             .OrderByDescending(x => x.Average)
             .ToList();
 
-        int totalStudents = averagesOrdered.Count;
+        int totalStudents = await _gradeRepository.GetCountOfUsersInPromotion(promotionId);
 
         int rank1Positions = (int)Math.Floor(HardcodedData.percentageScholarshipType1 * totalStudents);
         int rank2TotalPositions = (int)Math.Floor(HardcodedData.percentageScholarshipType2 * totalStudents);
         int rank2Positions = Math.Max(0, rank2TotalPositions - rank1Positions);
 
-        const double EPS = 1e-6;
         var distinctHigherCount = averagesOrdered
             .Select(a => a.Average)
-            .Count(avg => avg - userAverage > EPS);
+            .Count(avg => avg - userAverage > 0);
 
         int userRank = distinctHigherCount + 1;
+
+        _logger.InfoFormat("Grades: {0}", JsonSerializer.Serialize(averagesOrdered));
+        _logger.InfoFormat("UserRank: {0} Rank1: {1} Rank2: {2}", userRank, rank1Positions, rank2Positions);
 
         string? scholarshipType = null;
         bool isEligible = false;

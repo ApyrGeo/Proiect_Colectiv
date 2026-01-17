@@ -14,4 +14,6 @@ public interface IGradeRepository
     Task<GradeResponseDTO> UpdateGradeAsync(int gradeId, GradePostDTO dto);
     Task<GradeResponseDTO> PatchGradeValueAsync(int gradeId, int newValue);
     Task<SubjectGroupGradesDTO> GetSubjectGroupGradesAsync(int subjectId, int groupId);
+
+    Task<int> GetCountOfUsersInPromotion(int promotionId);
 }
