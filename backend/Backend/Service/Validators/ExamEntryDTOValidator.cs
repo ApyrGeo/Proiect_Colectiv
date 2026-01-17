@@ -41,6 +41,7 @@ public class ExamEntryDTOValidator : AbstractValidator<ExamEntryPutDTO>
                 foreach (var exam in classroomExams)
                 {
                     if (exam.Date == null || exam.Duration == null) continue;
+                    if (exam.Id == dto.Id) continue;
                     var existingExamStart = exam.Date;
                     var existingExamEnd = exam.Date?.AddMinutes((double) exam.Duration);
 
