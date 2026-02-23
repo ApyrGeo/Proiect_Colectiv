@@ -113,7 +113,7 @@ We applied Scrum methodology during this project, experimenting with sprints and
 
 - **Product Owner:** Stanca Vlad Tudor – managed backlog and coordinated feature priorities
 - **Scrum Master:** Secure George-Sebastian – ensured smooth sprint workflow and removed blockers
-- **Developers:**: We applied Scrum methodology in a learning context; all team members contributed as developers.
+- **Developers:** We applied Scrum methodology in a learning context; all team members contributed as developers.
   
 # Usage
 
