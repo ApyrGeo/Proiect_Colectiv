@@ -112,14 +112,14 @@ public class GradeService(IGradeRepository gradeRepository, IUserRepository user
         if (userGrades.Count == 0)
             return null;
 
-        var userAverage = userGrades.Average(g => g.Value);
+        var userAverage = userGrades.Sum(g => g.Value * g.Subject.NumberOfCredits) / (double)userGrades.Sum(g => g.Subject.NumberOfCredits);
 
         var otherGrades = await _gradeRepository.GetGradesFilteredAsync(null, yearOfstudy, semester, promotionId)
                           ?? [];
 
         var averagesOrdered = otherGrades
             .GroupBy(g => g.Enrollment.UserId)
-            .Select(g => new { UserId = g.Key, Average = g.Average(grade => grade.Value) })
+            .Select(g => new { UserId = g.Key, Average = g.Sum(grade => grade.Value * grade.Subject.NumberOfCredits) / (double)g.Sum(grade => grade.Subject.NumberOfCredits) })
             .OrderByDescending(x => x.Average)
             .ToList();
 
